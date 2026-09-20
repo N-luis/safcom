@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,9 +11,9 @@ import {
   CircularProgress, Alert, LinearProgress, Chip, Divider,
 } from '@mui/material';
 import {
-  Shield, CheckCircle, Visibility, VisibilityOff, CloudUpload,
+  Shield, CheckCircle, Visibility, VisibilityOff,
   Close, Person, Phone, Home, Email, Lock, Badge, ArrowForward,
-  VerifiedUser, Security, ArrowBack, InsertDriveFile, LocationOn,
+  VerifiedUser, Security, ArrowBack, LocationOn,
   Warning, InfoOutlined,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,7 +25,7 @@ const BARANGAYS = ['Binan 2nd'];
 const STEPS = [
   { num: 1, label: 'Personal Info', desc: 'Name, age, and barangay' },
   { num: 2, label: 'Contact Details', desc: 'Phone, email, address' },
-  { num: 3, label: 'Security', desc: 'Password and valid ID' },
+  { num: 3, label: 'Security', desc: 'Create your password' },
 ];
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -72,92 +72,6 @@ function getStrength(pw: string) {
   return { score: s >= 5 ? 100 : 85, label: s >= 5 ? 'Very Strong' : 'Strong', color: '#14b8a6' };
 }
 
-// ─── Upload zone ──────────────────────────────────────────────────────────────
-function UploadZone({ file, onFile, onRemove, missing }: {
-  file: File | null; onFile: (f: File) => void; onRemove: () => void; missing: boolean;
-}) {
-  const [drag, setDrag] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
-
-  const validate = useCallback((f: File) => {
-    if (f.size > 5 * 1024 * 1024) { toast.error('File must be under 5 MB'); return; }
-    if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(f.type)) {
-      toast.error('Accepted: JPG, PNG, WEBP, PDF');
-      return;
-    }
-    onFile(f);
-  }, [onFile]);
-
-  return (
-    <Box>
-      <input ref={ref} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
-        onChange={e => { const f = e.target.files?.[0]; if (f) validate(f); }} />
-      <AnimatePresence mode="wait">
-        {file ? (
-          <motion.div key="preview" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <Box sx={{
-              display: 'flex', alignItems: 'center', gap: 2, p: 2.5,
-              border: '2px solid #14b8a6', borderRadius: 3, bgcolor: 'rgba(20,184,166,0.05)',
-            }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: 2, bgcolor: 'rgba(20,184,166,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {file.type.startsWith('image/')
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={URL.createObjectURL(file)} alt="id" style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8 }} />
-                  : <InsertDriveFile sx={{ color: '#14b8a6', fontSize: 24 }} />}
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontWeight: 600, color: '#111827', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</Typography>
-                <Typography sx={{ fontSize: '0.72rem', color: '#6b7280' }}>{(file.size / 1024).toFixed(0)} KB · {file.type.split('/')[1].toUpperCase()}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <CheckCircle sx={{ color: '#14b8a6', fontSize: 20 }} />
-                <IconButton size="small" onClick={onRemove} sx={{ color: '#9ca3af', '&:hover': { color: '#ef4444' } }}>
-                  <Close fontSize="small" />
-                </IconButton>
-              </Box>
-            </Box>
-          </motion.div>
-        ) : (
-          <motion.div key="drop" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <Box
-              onDragOver={e => { e.preventDefault(); setDrag(true); }}
-              onDragLeave={() => setDrag(false)}
-              onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) validate(f); }}
-              onClick={() => ref.current?.click()}
-              sx={{
-                border: `2px dashed ${missing ? '#ef4444' : drag ? '#14b8a6' : '#d1d5db'}`,
-                borderRadius: 3, p: 3.5, textAlign: 'center', cursor: 'pointer',
-                bgcolor: drag ? 'rgba(20,184,166,0.05)' : missing ? 'rgba(239,68,68,0.03)' : '#fafafa',
-                transition: 'all 0.2s',
-                '&:hover': { borderColor: '#14b8a6', bgcolor: 'rgba(20,184,166,0.04)' },
-              }}
-            >
-              <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: 'rgba(20,184,166,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1.5 }}>
-                <CloudUpload sx={{ color: '#14b8a6', fontSize: 24 }} />
-              </Box>
-              <Typography sx={{ fontWeight: 600, color: '#374151', fontSize: '0.88rem', mb: 0.5 }}>
-                Upload Valid ID <Box component="span" sx={{ color: '#ef4444' }}>*</Box>
-              </Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: '#6b7280', mb: 2 }}>
-                Passport, Driver&apos;s License, or National ID (max 5 MB)
-              </Typography>
-              <Button variant="outlined" size="small"
-                sx={{ borderColor: '#14b8a6', color: '#14b8a6', fontWeight: 600, '&:hover': { borderColor: '#0d9488', bgcolor: 'rgba(20,184,166,0.06)' } }}>
-                Browse Files
-              </Button>
-            </Box>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {missing && !file && (
-        <Typography sx={{ color: '#ef4444', fontSize: '0.75rem', mt: 0.75, ml: 0.5 }}>
-          A valid ID is required to complete registration
-        </Typography>
-      )}
-    </Box>
-  );
-}
-
 // ─── Reusable teal field sx ───────────────────────────────────────────────────
 const tf = {
   '& .MuiOutlinedInput-root': {
@@ -192,10 +106,9 @@ const LEFT_CONTENT = [
   },
   {
     title: 'Almost Done',
-    subtitle: 'Create a strong password and upload a valid government-issued ID for verification.',
+    subtitle: 'Create a strong password to finish setting up your account.',
     features: [
       { icon: Lock, text: 'Your password is hashed and never stored in plain text', color: '#14b8a6' },
-      { icon: Badge, text: 'Valid ID ensures you are a real community member', color: '#3b82f6' },
       { icon: VerifiedUser, text: 'Account goes live once reviewed by an officer', color: '#8b5cf6' },
     ],
   },
@@ -205,8 +118,6 @@ const LEFT_CONTENT = [
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(0); // 0-indexed
-  const [idFile, setIdFile] = useState<File | null>(null);
-  const [idMissing, setIdMissing] = useState(false);
   const [serverError, setServerError] = useState('');
   const [done, setDone] = useState<{ residentNumber: string; name: string } | null>(null);
   const [showPw, setShowPw] = useState(false);
@@ -253,24 +164,9 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: FormData) => {
     setServerError('');
-    if (!idFile) { setIdMissing(true); return; }
     if (emailStatus === 'taken') return;
-    setIdMissing(false);
 
     try {
-      // 1. Upload the ID file first
-      const uploadForm = new globalThis.FormData();
-      uploadForm.append('file', idFile);
-      const uploadRes = await fetch('/api/upload/id', { method: 'POST', body: uploadForm });
-      if (!uploadRes.ok) {
-        const ue = await uploadRes.json();
-        setServerError(ue.error ?? 'Failed to upload ID document. Please try again.');
-        return;
-      }
-      const uploadJson = await uploadRes.json();
-      const idUrl: string = uploadJson.data?.url ?? idFile.name;
-
-      // 2. Register with the uploaded file URL
       const res = await fetch('/api/residents/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -284,7 +180,6 @@ export default function RegisterPage() {
           address: data.address,
           email: data.email,
           password: data.password,
-          idDocument: idUrl,
         }),
       });
       const json = await res.json();
@@ -321,7 +216,7 @@ export default function RegisterPage() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
               {[
-                { icon: CheckCircle, text: 'Your ID document is under review', color: '#22c55e' },
+                { icon: CheckCircle, text: 'Your registration is under review', color: '#22c55e' },
                 { icon: Warning, text: 'Account will be activated within 24 hours', color: '#f59e0b' },
                 { icon: InfoOutlined, text: 'You will be notified once approved', color: '#3b82f6' },
               ].map(item => (
@@ -652,13 +547,6 @@ export default function RegisterPage() {
                             } }}
                             sx={tf} />
                         </Grid>
-                        <Grid size={12}>
-                          <Typography sx={{ fontWeight: 700, color: '#374151', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 1, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                            <Badge sx={{ fontSize: 15, color: '#14b8a6' }} /> Valid Government ID
-                          </Typography>
-                          <UploadZone file={idFile} onFile={f => { setIdFile(f); setIdMissing(false); }} onRemove={() => setIdFile(null)} missing={idMissing} />
-                        </Grid>
-
                         <Grid size={12}>
                           <Divider sx={{ my: 0.5 }} />
                           <Box

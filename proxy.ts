@@ -5,7 +5,7 @@ const PUBLIC_PATHS = [
   '/api/auth/login', '/api/residents/register',
   '/api/auth/check-email', '/api/upload/id',
   '/resident-login', '/api/auth/resident-login',
-  '/vawc-login', '/blotter-login',
+  '/vawc-login',
   '/uploads',
 ];
 

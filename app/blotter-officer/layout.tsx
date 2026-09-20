@@ -47,7 +47,7 @@ function SidebarContent({ onClose, userName, badgeNo }: { onClose: () => void; u
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    router.push('/blotter-login');
+    router.push('/login');
   };
 
   return (
@@ -158,14 +158,14 @@ export default function BlotterLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' }).then(r => {
-      if (!r.ok) { router.push('/blotter-login'); return; }
+      if (!r.ok) { router.push('/login'); return; }
       return r.json();
     }).then(data => {
       if (data?.data) {
         setUserName(data.data.name || '');
         setBadgeNo(data.data.id ? `Badge #${data.data.id.slice(-5).toUpperCase()}` : 'Officer');
       }
-    }).catch(() => router.push('/blotter-login'));
+    }).catch(() => router.push('/login'));
   }, [router]);
 
   return (
