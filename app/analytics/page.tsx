@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
       <Box>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>Analytics</Typography>
-          <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>In-depth data analysis and trends</Typography>
+          <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>In-depth data analysis and trends</Typography>
         </Box>
 
         {/* KPI Cards */}
@@ -30,13 +30,13 @@ export default function AnalyticsPage() {
                 <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider',
                   cursor: 'pointer', transition: 'all 0.2s', '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}>
                   <CardContent sx={{ p: 2.5 }}>
-                    <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary" gutterBottom>{kpi.label}</Typography>
+                    <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary" gutterBottom>{kpi.label}</Typography>
                     <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5 }}>{kpi.value}</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       {kpi.up ? <TrendingUp sx={{ fontSize: 14, color: '#22c55e' }} /> : <TrendingDown sx={{ fontSize: 14, color: '#ef4444' }} />}
-                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: kpi.up ? '#22c55e' : '#ef4444' }}>{kpi.change}</Typography>
+                      <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: kpi.up ? '#22c55e' : '#ef4444' }}>{kpi.change}</Typography>
                     </Box>
-                    <Typography sx={{ fontSize: '0.7rem' }} color="text.disabled">{kpi.desc}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem' }} color="text.disabled">{kpi.desc}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>

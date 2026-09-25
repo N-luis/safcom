@@ -1,5 +1,9 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import { Toaster } from "react-hot-toast";
+import AppThemeProvider from "@/components/AppThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +31,23 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ClerkProvider>
+          {/*
+          * Emotion must share one cache between server and client, otherwise the
+          * <style data-emotion> tags MUI emits during SSR don't match on hydration.
+          */}
+          <AppRouterCacheProvider options={{ key: 'mui' }}>
+          <AppThemeProvider>
+            {children}
+            <Toaster
+            position="top-right"
+            toastOptions={{ style: { fontSize: '0.94rem', borderRadius: '10px' } }}
+            />
+          </AppThemeProvider>
+          </AppRouterCacheProvider>
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

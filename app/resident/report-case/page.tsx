@@ -17,6 +17,7 @@ import {
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import StreetSelect from '@/components/forms/StreetSelect';
 
 const ACCENT = '#14b8a6';
 
@@ -33,6 +34,9 @@ const RISK_BG:    Record<string, string> = { Low: '#f0fdf4', Medium: '#fff7ed', 
 const schema = z.object({
   caseType:        z.string().min(1, 'Please select a case type'),
   description:     z.string().min(20, 'Please describe the incident (min 20 characters)'),
+  // The street is stored on the case itself so reports and the risk heatmap
+  // group by where the incident happened, not by the reporter's barangay.
+  street:          z.string().min(1, 'Please select the street'),
   location:        z.string().optional(),
   minorsInvolved:  z.boolean(),
   physicalHarm:    z.boolean(),
@@ -58,7 +62,7 @@ function YesNoToggle({
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
         <Icon sx={{ fontSize: 16, color: '#64748b' }} />
-        <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>{label}</Typography>
+        <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569' }}>{label}</Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1 }}>
         {[{ label: 'Yes', val: true, activeColor: '#ef4444' }, { label: 'No', val: false, activeColor: ACCENT }].map(opt => (
@@ -71,7 +75,7 @@ function YesNoToggle({
               bgcolor: value === opt.val ? `${opt.activeColor}15` : '#f1f5f9',
               color: value === opt.val ? opt.activeColor : '#64748b',
               border: value === opt.val ? `1.5px solid ${opt.activeColor}40` : '1.5px solid transparent',
-              cursor: 'pointer', fontSize: '0.78rem', px: 0.5, transition: 'all 0.15s',
+              cursor: 'pointer', fontSize: '0.86rem', px: 0.5, transition: 'all 0.15s',
             }}
           />
         ))}
@@ -88,7 +92,7 @@ export default function ReportCasePage() {
   const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      caseType: '', description: '', location: '',
+      caseType: '', description: '', street: '', location: '',
       minorsInvolved: false, physicalHarm: false, recurring: false,
       additionalNotes: '',
     },
@@ -108,7 +112,10 @@ export default function ReportCasePage() {
         credentials: 'include',
         body: JSON.stringify({
           caseType: data.caseType,
-          description: `${data.description}${data.location ? `\n\nLocation: ${data.location}` : ''}`,
+          // Sent as `barangay` because that is the Case column the Street
+          // field reads from across the app.
+          barangay: data.street,
+          description: `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
           minorsInvolved: data.minorsInvolved,
           physicalHarm: data.physicalHarm,
           recurring: data.recurring,
@@ -140,12 +147,12 @@ export default function ReportCasePage() {
               <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#0c1e46', mb: 0.75, textAlign: 'center' }}>
                 Report Submitted
               </Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', mb: 2.5, lineHeight: 1.6, textAlign: 'center' }}>
+              <Typography sx={{ color: '#64748b', fontSize: '0.94rem', mb: 2.5, lineHeight: 1.6, textAlign: 'center' }}>
                 Your case has been filed and an officer will review it shortly.
               </Typography>
 
               <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: risk ? 2 : 2.5, textAlign: 'center' }}>
-                <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mb: 0.5, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}>Case Number</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mb: 0.5, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}>Case Number</Typography>
                 <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: ACCENT, letterSpacing: '0.06em' }}>
                   #{submitted.caseNumber}
                 </Typography>
@@ -155,29 +162,29 @@ export default function ReportCasePage() {
                 <Box sx={{ bgcolor: RISK_BG[risk.level] ?? '#f8fafc', border: `1px solid ${RISK_COLOR[risk.level] ?? '#e2e8f0'}30`, borderRadius: 2, p: 2, mb: 2.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
                     <AutoAwesome sx={{ fontSize: 15, color: RISK_COLOR[risk.level] }} />
-                    <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI Risk Assessment</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI Risk Assessment</Typography>
                     {risk.highRiskZone && (
-                      <Chip label="High-Risk Zone" size="small" sx={{ bgcolor: '#ef444420', color: '#ef4444', fontWeight: 700, fontSize: '0.58rem', height: 16, ml: 'auto' }} />
+                      <Chip label="High-Risk Zone" size="small" sx={{ bgcolor: '#ef444420', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22, ml: 'auto' }} />
                     )}
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Chip label={`${risk.level} Risk`} size="small" sx={{ bgcolor: RISK_COLOR[risk.level], color: 'white', fontWeight: 700, fontSize: '0.72rem' }} />
-                    <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>Score {risk.score}/100 · {risk.confidence}% confidence</Typography>
+                    <Chip label={`${risk.level} Risk`} size="small" sx={{ bgcolor: RISK_COLOR[risk.level], color: 'white', fontWeight: 700, fontSize: '0.82rem' }} />
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Score {risk.score}/100 · {risk.confidence}% confidence</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>{risk.justification}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>{risk.justification}</Typography>
                   {risk.riskFactors.length > 0 && (
                     <Box sx={{ mt: 0.75 }}>
-                      <Typography sx={{ fontSize: '0.67rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>Risk Factors</Typography>
+                      <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>Risk Factors</Typography>
                       {risk.riskFactors.slice(0, 3).map((f, i) => (
                         <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 0.25 }}>
                           <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: RISK_COLOR[risk.level], flexShrink: 0, mt: '5px' }} />
-                          <Typography sx={{ fontSize: '0.73rem', color: '#64748b', lineHeight: 1.45 }}>{f}</Typography>
+                          <Typography sx={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.45 }}>{f}</Typography>
                         </Box>
                       ))}
                     </Box>
                   )}
                   <Divider sx={{ my: 1.25 }} />
-                  <Typography sx={{ fontSize: '0.75rem', color: '#475569', fontStyle: 'italic', lineHeight: 1.5 }}>{risk.recommendation}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', fontStyle: 'italic', lineHeight: 1.5 }}>{risk.recommendation}</Typography>
                 </Box>
               )}
 
@@ -207,7 +214,7 @@ export default function ReportCasePage() {
         <Divider orientation="vertical" flexItem />
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>File a Report</Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>Submit an incident or concern to your barangay</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Submit an incident or concern to your barangay</Typography>
         </Box>
       </Box>
 
@@ -252,10 +259,24 @@ export default function ReportCasePage() {
                   )}
                 />
 
-                {/* Location */}
+                {/* Where it happened — street is structured, landmark is free text */}
+                <Controller
+                  name="street"
+                  control={control}
+                  render={({ field }) => (
+                    <StreetSelect
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      required
+                      size="medium"
+                      error={!!errors.street}
+                      helperText={errors.street?.message ?? 'Where did this happen?'}
+                    />
+                  )}
+                />
                 <TextField
-                  label="Exact Location / Address"
-                  placeholder="e.g. Near Block 7, corner of Rizal and Mabini St., Binan 2nd"
+                  label="Landmark / nearby detail (optional)"
+                  placeholder="e.g. near the covered court, in front of Block 7"
                   {...register('location')}
                   fullWidth
                 />
@@ -277,10 +298,10 @@ export default function ReportCasePage() {
 
                 {/* Risk-context toggles */}
                 <Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0c1e46', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     Incident Context
                   </Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8', mb: 2 }}>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8', mb: 2 }}>
                     This helps the AI classify the risk level accurately and prioritize your case.
                   </Typography>
                   <Grid container spacing={2}>
@@ -339,7 +360,7 @@ export default function ReportCasePage() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                 <Shield sx={{ fontSize: 17, color: ACCENT }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>What happens next?</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>What happens next?</Typography>
               </Box>
               {[
                 { num: '01', text: 'Your report is logged and a case number is assigned immediately.' },
@@ -349,9 +370,9 @@ export default function ReportCasePage() {
               ].map(s => (
                 <Box key={s.num} sx={{ display: 'flex', gap: 1.25, mb: 1.5 }}>
                   <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: '1px' }}>
-                    <Typography sx={{ fontSize: '0.58rem', fontWeight: 800, color: 'white' }}>{s.num}</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: 'white' }}>{s.num}</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.55 }}>{s.text}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.55 }}>{s.text}</Typography>
                 </Box>
               ))}
             </CardContent>
@@ -361,7 +382,7 @@ export default function ReportCasePage() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <Info sx={{ fontSize: 16, color: '#ca8a04' }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#713f12' }}>Risk Classification</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#713f12' }}>Risk Classification</Typography>
               </Box>
               {[
                 { level: 'Low', color: '#22c55e', desc: 'Isolated, no harm, no history' },
@@ -370,13 +391,13 @@ export default function ReportCasePage() {
               ].map(r => (
                 <Box key={r.level} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: r.color, flexShrink: 0 }} />
-                  <Typography sx={{ fontSize: '0.75rem', color: '#92400e' }}>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#92400e' }}>
                     <Box component="span" sx={{ fontWeight: 700 }}>{r.level}</Box> — {r.desc}
                   </Typography>
                 </Box>
               ))}
               <Divider sx={{ my: 1.25, borderColor: '#fef08a' }} />
-              <Typography sx={{ fontSize: '0.72rem', color: '#92400e', lineHeight: 1.55 }}>
+              <Typography sx={{ fontSize: '0.82rem', color: '#92400e', lineHeight: 1.55 }}>
                 For emergencies, call <strong style={{ color: '#ef4444' }}>911</strong> or your local barangay hotline directly.
               </Typography>
             </CardContent>

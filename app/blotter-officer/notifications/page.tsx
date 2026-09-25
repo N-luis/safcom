@@ -80,11 +80,11 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <Chip
                 label={`${unreadCount} new`} size="small"
-                sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }}
+                sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.82rem', height: 24 }}
               />
             )}
           </Box>
-          <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary', mt: 0.2 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.2 }}>
             System alerts and case updates for your queue
           </Typography>
         </Box>
@@ -113,10 +113,10 @@ export default function NotificationsPage() {
               onChange={(_, v) => v && setFilter(v)}
               size="small"
             >
-              <ToggleButton value="all" sx={{ fontSize: '0.78rem', px: 1.5, borderRadius: '8px 0 0 8px !important', textTransform: 'none' }}>
+              <ToggleButton value="all" sx={{ fontSize: '0.86rem', px: 1.5, borderRadius: '8px 0 0 8px !important', textTransform: 'none' }}>
                 All ({notifications.length})
               </ToggleButton>
-              <ToggleButton value="unread" sx={{ fontSize: '0.78rem', px: 1.5, borderRadius: '0 8px 8px 0 !important', textTransform: 'none' }}>
+              <ToggleButton value="unread" sx={{ fontSize: '0.86rem', px: 1.5, borderRadius: '0 8px 8px 0 !important', textTransform: 'none' }}>
                 Unread ({unreadCount})
               </ToggleButton>
             </ToggleButtonGroup>
@@ -130,7 +130,7 @@ export default function NotificationsPage() {
                     bgcolor:    typeFilter === key ? `${cfg.color}20` : '#f1f5f9',
                     color:      typeFilter === key ? cfg.color : '#64748b',
                     fontWeight: typeFilter === key ? 700 : 400,
-                    fontSize: '0.72rem', cursor: 'pointer',
+                    fontSize: '0.82rem', cursor: 'pointer',
                     border: typeFilter === key ? `1px solid ${cfg.color}40` : '1px solid transparent',
                     transition: 'all 0.15s',
                   }}
@@ -159,10 +159,10 @@ export default function NotificationsPage() {
         ) : displayed.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: { xs: 5, sm: 7 }, px: 2 }}>
             <Notifications sx={{ fontSize: { xs: 36, sm: 44 }, color: '#cbd5e1', mb: 1.5 }} />
-            <Typography sx={{ fontWeight: 600, color: '#475569', fontSize: '0.95rem', mb: 0.5 }}>
+            <Typography sx={{ fontWeight: 600, color: '#475569', fontSize: '0.98rem', mb: 0.5 }}>
               {filter === 'unread' ? 'All caught up!' : 'No notifications'}
             </Typography>
-            <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', maxWidth: 280, mx: 'auto' }}>
+            <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: 280, mx: 'auto' }}>
               {filter === 'unread'
                 ? 'You have no unread notifications at this time.'
                 : 'System alerts and case updates will appear here.'}
@@ -207,7 +207,7 @@ export default function NotificationsPage() {
                         primary={
                           <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.2 }}>
                             <Typography component="span" sx={{
-                              fontSize: { xs: '0.82rem', sm: '0.85rem' },
+                              fontSize: { xs: '0.9rem', sm: '0.94rem' },
                               fontWeight: n.read ? 500 : 700,
                               color: '#0c1e46', flex: 1,
                             }}>
@@ -224,7 +224,7 @@ export default function NotificationsPage() {
                         secondary={
                           <Box component="span" sx={{ display: 'block' }}>
                             <Typography component="span" sx={{
-                              fontSize: { xs: '0.76rem', sm: '0.8rem' },
+                              fontSize: { xs: '0.86rem', sm: '0.9rem' },
                               color: '#64748b', lineHeight: 1.5, display: 'block', mb: 0.3,
                             }}>
                               {n.message}
@@ -232,9 +232,9 @@ export default function NotificationsPage() {
                             <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25, flexWrap: 'wrap' }}>
                               <Chip
                                 label={cfg.label} size="small"
-                                sx={{ bgcolor: `${cfg.color}15`, color: cfg.color, fontWeight: 600, fontSize: '0.63rem', height: 18 }}
+                                sx={{ bgcolor: `${cfg.color}15`, color: cfg.color, fontWeight: 600, fontSize: '0.72rem', height: 22 }}
                               />
-                              <Typography component="span" sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                              <Typography component="span" sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                                 {timeAgo(n.createdAt)}
                               </Typography>
                             </Box>
@@ -263,11 +263,11 @@ export default function NotificationsPage() {
 
         {displayed.length > 0 && (
           <Box sx={{ px: { xs: 1.75, sm: 2.5 }, py: 1.25, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-            <Typography sx={{ fontSize: '0.76rem', color: 'text.secondary' }}>
+            <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>
               Showing {displayed.length} of {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
             </Typography>
             {unreadCount > 0 && (
-              <Typography sx={{ fontSize: '0.76rem', color: '#ef4444', fontWeight: 600 }}>
+              <Typography sx={{ fontSize: '0.86rem', color: '#ef4444', fontWeight: 600 }}>
                 {unreadCount} unread
               </Typography>
             )}

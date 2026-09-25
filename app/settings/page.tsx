@@ -116,7 +116,7 @@ export default function SettingsPage() {
       <Box>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>Settings</Typography>
-          <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>Manage your account and system preferences</Typography>
+          <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>Manage your account and system preferences</Typography>
         </Box>
 
         <Grid container spacing={3}>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
                         bgcolor: active ? 'primary.main' : 'transparent', color: active ? 'white' : 'text.primary',
                         '&:hover': { bgcolor: active ? 'primary.main' : 'action.hover' }, transition: 'all 0.2s' }}>
                       <Icon sx={{ fontSize: 20 }} />
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: active ? 700 : 400 }}>{s.label}</Typography>
+                      <Typography sx={{ fontSize: '0.94rem', fontWeight: active ? 700 : 400 }}>{s.label}</Typography>
                     </Box>
                   );
                 })}
@@ -211,8 +211,8 @@ export default function SettingsPage() {
                         <Box key={key}>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5 }}>
                             <Box>
-                              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{info.label}</Typography>
-                              <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{info.desc}</Typography>
+                              <Typography sx={{ fontSize: '0.94rem', fontWeight: 600 }}>{info.label}</Typography>
+                              <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">{info.desc}</Typography>
                             </Box>
                             <Switch checked={val} onChange={(e) => setNotifSettings({ ...notifSettings, [key]: e.target.checked })} />
                           </Box>
@@ -273,8 +273,8 @@ export default function SettingsPage() {
                       </Alert>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box>
-                          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Authenticator App</Typography>
-                          <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">Use Google Authenticator or similar</Typography>
+                          <Typography sx={{ fontWeight: 600, fontSize: '0.94rem' }}>Authenticator App</Typography>
+                          <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">Use Google Authenticator or similar</Typography>
                         </Box>
                         <Switch onChange={() => toast.success('2FA setup coming soon')} />
                       </Box>
@@ -301,13 +301,13 @@ export default function SettingsPage() {
                                 </ListItemIcon>
                                 <ListItemText
                                   primary={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{session.device}</Typography>
-                                    {session.current && <Chip label="Current" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem', '& .MuiChip-label': { px: 0.75 } }} />}
+                                    <Typography sx={{ fontSize: '0.94rem', fontWeight: 600 }}>{session.device}</Typography>
+                                    {session.current && <Chip label="Current" size="small" color="success" sx={{ height: 22, fontSize: '0.72rem', '& .MuiChip-label': { px: 0.75 } }} />}
                                   </Box>}
-                                  secondary={<Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{session.location} · {session.time}</Typography>}
+                                  secondary={<Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">{session.location} · {session.time}</Typography>}
                                 />
                                 {!session.current && (
-                                  <Button size="small" color="error" sx={{ textTransform: 'none', fontSize: '0.75rem' }} onClick={() => toast.success('Session revoked')}>
+                                  <Button size="small" color="error" sx={{ textTransform: 'none', fontSize: '0.86rem' }} onClick={() => toast.success('Session revoked')}>
                                     Revoke
                                   </Button>
                                 )}
@@ -346,10 +346,10 @@ export default function SettingsPage() {
                         ].map(({ label, value }) => (
                           <Grid size={{ xs: 12, sm: 6 }} key={label}>
                             <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
+                              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                                 {label === 'Status' && <CheckCircle sx={{ fontSize: 14, color: '#22c55e' }} />}
-                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{value}</Typography>
+                                <Typography sx={{ fontSize: '0.94rem', fontWeight: 600 }}>{value}</Typography>
                               </Box>
                             </Box>
                           </Grid>
@@ -373,8 +373,8 @@ export default function SettingsPage() {
                       ].map(({ label, value, unit, status, max }) => (
                         <Box key={label} sx={{ mb: 2 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography sx={{ fontSize: '0.82rem' }}>{label}</Typography>
-                            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: status === 'good' ? '#22c55e' : '#ef4444' }}>{value} {unit}</Typography>
+                            <Typography sx={{ fontSize: '0.9rem' }}>{label}</Typography>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: status === 'good' ? '#22c55e' : '#ef4444' }}>{value} {unit}</Typography>
                           </Box>
                           <LinearProgress
                             variant="determinate" value={(value / max) * 100}
@@ -396,22 +396,22 @@ export default function SettingsPage() {
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                           <Box>
-                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Export All Data</Typography>
-                            <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">Download all cases, reports, and residents as CSV</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.94rem' }}>Export All Data</Typography>
+                            <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">Download all cases, reports, and residents as CSV</Typography>
                           </Box>
                           <Button variant="outlined" startIcon={<Download />} size="small" onClick={handleExportData} sx={{ borderRadius: 2, textTransform: 'none' }}>Export</Button>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                           <Box>
-                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Clear Cache</Typography>
-                            <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">Force refresh all data from the server</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.94rem' }}>Clear Cache</Typography>
+                            <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">Force refresh all data from the server</Typography>
                           </Box>
                           <Button variant="outlined" startIcon={<ClearAll />} size="small" onClick={handleClearCache} sx={{ borderRadius: 2, textTransform: 'none' }}>Clear</Button>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, border: '1px solid', borderColor: 'error.main', borderRadius: 2 }}>
                           <Box>
-                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: 'error.main' }}>Danger Zone</Typography>
-                            <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">Delete account or reset application data</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.94rem', color: 'error.main' }}>Danger Zone</Typography>
+                            <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">Delete account or reset application data</Typography>
                           </Box>
                           <Button variant="outlined" color="error" startIcon={<Delete />} size="small" onClick={() => toast.error('Contact your system administrator')} sx={{ borderRadius: 2, textTransform: 'none' }}>
                             Delete Account

@@ -102,7 +102,7 @@ export default function ReportsPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>Reports</Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>Manage and review all submitted reports</Typography>
+            <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>Manage and review all submitted reports</Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button variant="outlined" startIcon={<FileDownload />} sx={{ borderRadius: 2.5, textTransform: 'none' }} onClick={handleExport}>
@@ -121,7 +121,7 @@ export default function ReportsPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                 <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
                   <CardContent>
-                    <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">{card.label}</Typography>
+                    <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">{card.label}</Typography>
                     {isLoading ? (
                       <Skeleton width={60} height={48} />
                     ) : (
@@ -167,7 +167,7 @@ export default function ReportsPage() {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', bgcolor: 'action.hover', py: 1.2 } }}>
+                  <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.86rem', bgcolor: 'action.hover', py: 1.2 } }}>
                     <TableCell>Report</TableCell>
                     <TableCell>Category</TableCell>
                     <TableCell>Status</TableCell>
@@ -187,25 +187,25 @@ export default function ReportsPage() {
                   ) : reports.map((r) => {
                     const sc = STATUS_COLORS[(r.status as string)] ?? { color: '#6b7280', bg: '#f3f4f6' };
                     return (
-                      <TableRow key={r.id as string} sx={{ '&:hover': { bgcolor: 'action.hover' }, '& td': { py: 1.5, fontSize: '0.83rem' } }}>
+                      <TableRow key={r.id as string} sx={{ '&:hover': { bgcolor: 'action.hover' }, '& td': { py: 1.5, fontSize: '0.9rem' } }}>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <Box sx={{ width: 32, height: 32, borderRadius: 1.5, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <Assessment sx={{ fontSize: 16, color: 'primary.dark' }} />
                             </Box>
                             <Box>
-                              <Typography sx={{ fontWeight: 600, fontSize: '0.83rem' }}>{r.title as string}</Typography>
-                              <Typography sx={{ fontSize: '0.7rem' }} color="text.secondary">{r.reportNumber as string}</Typography>
+                              <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title as string}</Typography>
+                              <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{r.reportNumber as string}</Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell>{r.category as string}</TableCell>
                         <TableCell>
-                          <Chip label={r.status as string} size="small" sx={{ bgcolor: sc.bg, color: sc.color, fontWeight: 700, fontSize: '0.7rem' }} />
+                          <Chip label={r.status as string} size="small" sx={{ bgcolor: sc.bg, color: sc.color, fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>
                           <Chip label={r.priority as string} size="small"
-                            sx={{ bgcolor: `${PRIORITY_COLORS[r.priority as string] ?? '#6b7280'}18`, color: PRIORITY_COLORS[r.priority as string] ?? '#6b7280', fontWeight: 700, fontSize: '0.7rem' }} />
+                            sx={{ bgcolor: `${PRIORITY_COLORS[r.priority as string] ?? '#6b7280'}18`, color: PRIORITY_COLORS[r.priority as string] ?? '#6b7280', fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>{(r.submittedBy as { name: string } | null)?.name ?? '—'}</TableCell>
                         <TableCell>{new Date(r.createdAt as string).toLocaleDateString()}</TableCell>
@@ -233,13 +233,13 @@ export default function ReportsPage() {
 
       {/* Row action menu */}
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)} slotProps={{ paper: { elevation: 4, sx: { borderRadius: 2 } } }}>
-        <MuiMenuItem onClick={() => { setViewReport(menuReport); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MuiMenuItem onClick={() => { setViewReport(menuReport); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Visibility fontSize="small" /> View Details
         </MuiMenuItem>
-        <MuiMenuItem onClick={() => { setEditReport(menuReport); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MuiMenuItem onClick={() => { setEditReport(menuReport); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Edit fontSize="small" /> Edit Report
         </MuiMenuItem>
-        <MuiMenuItem onClick={() => menuReport && deleteReport(menuReport.id as string)} sx={{ gap: 1.5, fontSize: '0.85rem', color: 'error.main' }}>
+        <MuiMenuItem onClick={() => menuReport && deleteReport(menuReport.id as string)} sx={{ gap: 1.5, fontSize: '0.94rem', color: 'error.main' }}>
           <Delete fontSize="small" /> Delete
         </MuiMenuItem>
       </Menu>
@@ -255,14 +255,14 @@ export default function ReportsPage() {
               <Chip label={viewReport.category as string} size="small" variant="outlined" />
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-              <Box><Typography sx={{ fontSize: '0.75rem', fontWeight: 600 }} color="text.secondary">Report #</Typography><Typography sx={{ fontSize: '0.875rem' }}>{viewReport.reportNumber as string}</Typography></Box>
-              <Box><Typography sx={{ fontSize: '0.75rem', fontWeight: 600 }} color="text.secondary">Submitted By</Typography><Typography sx={{ fontSize: '0.875rem' }}>{(viewReport.submittedBy as { name: string } | null)?.name ?? '—'}</Typography></Box>
-              <Box><Typography sx={{ fontSize: '0.75rem', fontWeight: 600 }} color="text.secondary">Date Filed</Typography><Typography sx={{ fontSize: '0.875rem' }}>{new Date(viewReport.createdAt as string).toLocaleString()}</Typography></Box>
+              <Box><Typography sx={{ fontSize: '0.86rem', fontWeight: 600 }} color="text.secondary">Report #</Typography><Typography sx={{ fontSize: '0.94rem' }}>{viewReport.reportNumber as string}</Typography></Box>
+              <Box><Typography sx={{ fontSize: '0.86rem', fontWeight: 600 }} color="text.secondary">Submitted By</Typography><Typography sx={{ fontSize: '0.94rem' }}>{(viewReport.submittedBy as { name: string } | null)?.name ?? '—'}</Typography></Box>
+              <Box><Typography sx={{ fontSize: '0.86rem', fontWeight: 600 }} color="text.secondary">Date Filed</Typography><Typography sx={{ fontSize: '0.94rem' }}>{new Date(viewReport.createdAt as string).toLocaleString()}</Typography></Box>
             </Box>
             <Box>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, mb: 0.5 }} color="text.secondary">Content</Typography>
+              <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, mb: 0.5 }} color="text.secondary">Content</Typography>
               <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                <Typography sx={{ fontSize: '0.875rem', lineHeight: 1.7 }}>{viewReport.content as string}</Typography>
+                <Typography sx={{ fontSize: '0.94rem', lineHeight: 1.7 }}>{viewReport.content as string}</Typography>
               </Box>
             </Box>
           </DialogContent>

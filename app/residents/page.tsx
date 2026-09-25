@@ -155,7 +155,7 @@ export default function ResidentsPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>Residents</Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>
+            <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>
               {isLoading ? 'Loading...' : `${total} registered resident${total !== 1 ? 's' : ''} in the system`}
             </Typography>
           </Box>
@@ -244,12 +244,12 @@ export default function ResidentsPage() {
                           <CardContent sx={{ p: 2.5 }}>
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Avatar sx={{ bgcolor: color, width: 46, height: 46, fontWeight: 700, fontSize: '0.9rem' }}>
+                                <Avatar sx={{ bgcolor: color, width: 46, height: 46, fontWeight: 700, fontSize: '0.98rem' }}>
                                   {getInitials(r.firstName, r.lastName)}
                                 </Avatar>
                                 <Box>
-                                  <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', lineHeight: 1.2 }}>{r.firstName} {r.lastName}</Typography>
-                                  <Typography sx={{ fontSize: '0.72rem' }} color="text.secondary">{r.residentNumber}</Typography>
+                                  <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', lineHeight: 1.2 }}>{r.firstName} {r.lastName}</Typography>
+                                  <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">{r.residentNumber}</Typography>
                                 </Box>
                               </Box>
                               <IconButton size="small" onClick={e => openMenu(e, r)} sx={{ mt: -0.5 }}>
@@ -259,21 +259,21 @@ export default function ResidentsPage() {
 
                             <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1.5 }}>
                               <Chip label={r.riskLevel} size="small"
-                                sx={{ bgcolor: getRiskBgColor(r.riskLevel), color: getRiskColor(r.riskLevel), fontWeight: 700, fontSize: '0.68rem' }} />
+                                sx={{ bgcolor: getRiskBgColor(r.riskLevel), color: getRiskColor(r.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
                               <Chip label={r.status} size="small"
-                                sx={{ bgcolor: r.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: r.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.68rem' }} />
+                                sx={{ bgcolor: r.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: r.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.78rem' }} />
                             </Box>
 
                             <Divider sx={{ mb: 1.5 }} />
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                              <Typography sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
+                              <Typography sx={{ fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
                                 <Person sx={{ fontSize: 13 }} />{r.age} yrs · {r.gender}
                               </Typography>
-                              <Typography sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
+                              <Typography sx={{ fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
                                 <LocationOn sx={{ fontSize: 13 }} />{r.barangay}
                               </Typography>
                               {r.contactNumber && (
-                                <Typography sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
+                                <Typography sx={{ fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 0.75 }} color="text.secondary">
                                   <Phone sx={{ fontSize: 13 }} />{r.contactNumber}
                                 </Typography>
                               )}
@@ -282,7 +282,7 @@ export default function ResidentsPage() {
                             {(r._count?.cases ?? 0) > 0 && (
                               <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
                                 <Badge badgeContent={r._count?.cases} color="warning">
-                                  <Typography sx={{ fontSize: '0.72rem', fontWeight: 600 }} color="text.secondary">
+                                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 600 }} color="text.secondary">
                                     <FolderOpen sx={{ fontSize: 13, mr: 0.5, verticalAlign: 'middle' }} />
                                     Active Cases
                                   </Typography>
@@ -315,7 +315,7 @@ export default function ResidentsPage() {
               <TableContainer>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', bgcolor: 'action.hover', py: 1.2 } }}>
+                    <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.86rem', bgcolor: 'action.hover', py: 1.2 } }}>
                       <TableCell>Resident</TableCell>
                       <TableCell>Age / Gender</TableCell>
                       <TableCell>Barangay</TableCell>
@@ -345,16 +345,16 @@ export default function ResidentsPage() {
                       residents.map((r) => {
                         const color = getAvatarColor(`${r.firstName}${r.lastName}`);
                         return (
-                          <TableRow key={r.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, '& td': { py: 1.4, fontSize: '0.83rem' } }}
+                          <TableRow key={r.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, '& td': { py: 1.4, fontSize: '0.9rem' } }}
                             onClick={() => setViewResident(r)}>
                             <TableCell>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Avatar sx={{ bgcolor: color, width: 34, height: 34, fontSize: '0.72rem', fontWeight: 700, flexShrink: 0 }}>
+                                <Avatar sx={{ bgcolor: color, width: 34, height: 34, fontSize: '0.82rem', fontWeight: 700, flexShrink: 0 }}>
                                   {getInitials(r.firstName, r.lastName)}
                                 </Avatar>
                                 <Box>
-                                  <Typography sx={{ fontWeight: 600, fontSize: '0.83rem' }}>{r.firstName} {r.lastName}</Typography>
-                                  <Typography sx={{ fontSize: '0.7rem' }} color="text.secondary">{r.residentNumber}</Typography>
+                                  <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.firstName} {r.lastName}</Typography>
+                                  <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{r.residentNumber}</Typography>
                                 </Box>
                               </Box>
                             </TableCell>
@@ -362,24 +362,24 @@ export default function ResidentsPage() {
                             <TableCell>{r.barangay}</TableCell>
                             <TableCell sx={{ maxWidth: 160 }}>
                               <Box>
-                                {r.contactNumber && <Typography sx={{ fontSize: '0.78rem' }}>{r.contactNumber}</Typography>}
-                                {r.email && <Typography sx={{ fontSize: '0.72rem' }} color="text.secondary">{r.email}</Typography>}
-                                {!r.contactNumber && !r.email && <Typography color="text.disabled" sx={{ fontSize: '0.78rem' }}>—</Typography>}
+                                {r.contactNumber && <Typography sx={{ fontSize: '0.86rem' }}>{r.contactNumber}</Typography>}
+                                {r.email && <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">{r.email}</Typography>}
+                                {!r.contactNumber && !r.email && <Typography color="text.disabled" sx={{ fontSize: '0.86rem' }}>—</Typography>}
                               </Box>
                             </TableCell>
                             <TableCell>
                               <Chip label={r.riskLevel} size="small"
-                                sx={{ bgcolor: getRiskBgColor(r.riskLevel), color: getRiskColor(r.riskLevel), fontWeight: 700, fontSize: '0.7rem' }} />
+                                sx={{ bgcolor: getRiskBgColor(r.riskLevel), color: getRiskColor(r.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
                             </TableCell>
                             <TableCell>
                               <Chip label={r.status} size="small"
-                                sx={{ bgcolor: r.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: r.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.7rem' }} />
+                                sx={{ bgcolor: r.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: r.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.78rem' }} />
                             </TableCell>
                             <TableCell>
                               {(r._count?.cases ?? 0) > 0 ? (
                                 <Chip icon={<FolderOpen sx={{ fontSize: '12px !important' }} />} label={r._count?.cases} size="small"
-                                  color="warning" variant="outlined" sx={{ fontSize: '0.7rem' }} />
-                              ) : <Typography color="text.disabled" sx={{ fontSize: '0.78rem' }}>0</Typography>}
+                                  color="warning" variant="outlined" sx={{ fontSize: '0.78rem' }} />
+                              ) : <Typography color="text.disabled" sx={{ fontSize: '0.86rem' }}>0</Typography>}
                             </TableCell>
                             <TableCell>{new Date(r.registeredAt).toLocaleDateString()}</TableCell>
                             <TableCell align="right" onClick={e => e.stopPropagation()}>
@@ -406,14 +406,14 @@ export default function ResidentsPage() {
       {/* Row action menu */}
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
         slotProps={{ paper: { elevation: 4, sx: { borderRadius: 2, minWidth: 160 } } }}>
-        <MuiMenuItem onClick={() => { setViewResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MuiMenuItem onClick={() => { setViewResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Visibility fontSize="small" /> View Profile
         </MuiMenuItem>
-        <MuiMenuItem onClick={() => { setEditResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MuiMenuItem onClick={() => { setEditResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Edit fontSize="small" /> Edit
         </MuiMenuItem>
         <Divider />
-        <MuiMenuItem onClick={() => { setDeleteResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.85rem', color: 'error.main' }}>
+        <MuiMenuItem onClick={() => { setDeleteResident(menuResident); setMenuAnchor(null); }} sx={{ gap: 1.5, fontSize: '0.94rem', color: 'error.main' }}>
           <Delete fontSize="small" /> Delete
         </MuiMenuItem>
       </Menu>
@@ -525,7 +525,7 @@ function ResidentFormDialog({
 
       <DialogContent sx={{ pt: 1 }}>
         {/* Personal Information */}
-        <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2, mt: 1 }} color="primary">
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2, mt: 1 }} color="primary">
           Personal Information
         </Typography>
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -577,7 +577,7 @@ function ResidentFormDialog({
         <Divider sx={{ mb: 2.5 }} />
 
         {/* Contact Information */}
-        <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
           Contact Information
         </Typography>
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -598,7 +598,7 @@ function ResidentFormDialog({
         <Divider sx={{ mb: 2.5 }} />
 
         {/* Classification */}
-        <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
           Classification
         </Typography>
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -692,16 +692,16 @@ function ViewResidentDialog({
             <Typography variant="h5" sx={{ fontWeight: 800, color: 'white', lineHeight: 1.2 }}>
               {resident.firstName} {resident.lastName}
             </Typography>
-            <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>{resident.residentNumber}</Typography>
+            <Typography sx={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>{resident.residentNumber}</Typography>
             <Box sx={{ display: 'flex', gap: 1, mt: 1.25, flexWrap: 'wrap' }}>
               <Chip label={resident.riskLevel} size="small"
-                sx={{ bgcolor: getRiskBgColor(resident.riskLevel), color: getRiskColor(resident.riskLevel), fontWeight: 700, fontSize: '0.7rem' }} />
+                sx={{ bgcolor: getRiskBgColor(resident.riskLevel), color: getRiskColor(resident.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
               <Chip label={resident.status} size="small"
-                sx={{ bgcolor: resident.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: resident.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.7rem' }} />
+                sx={{ bgcolor: resident.status === 'Active' ? '#dcfce7' : '#f3f4f6', color: resident.status === 'Active' ? '#15803d' : '#6b7280', fontWeight: 700, fontSize: '0.78rem' }} />
               {(resident._count?.cases ?? 0) > 0 && (
                 <Chip icon={<Warning sx={{ fontSize: '12px !important', color: '#92400e !important' }} />}
                   label={`${resident._count?.cases} case${resident._count?.cases !== 1 ? 's' : ''}`} size="small"
-                  sx={{ bgcolor: '#fef3c7', color: '#92400e', fontWeight: 700, fontSize: '0.7rem' }} />
+                  sx={{ bgcolor: '#fef3c7', color: '#92400e', fontWeight: 700, fontSize: '0.78rem' }} />
               )}
             </Box>
           </Box>
@@ -724,8 +724,8 @@ function ViewResidentDialog({
                     <Icon sx={{ fontSize: 16, color }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
-                    <Typography sx={{ fontSize: '0.875rem' }}>{value}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
+                    <Typography sx={{ fontSize: '0.94rem' }}>{value}</Typography>
                   </Box>
                 </Box>
               </Grid>
@@ -734,8 +734,8 @@ function ViewResidentDialog({
 
           {resident.notes && (
             <Box sx={{ mt: 2.5, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Notes</Typography>
-              <Typography sx={{ fontSize: '0.875rem', lineHeight: 1.7 }}>{resident.notes}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Notes</Typography>
+              <Typography sx={{ fontSize: '0.94rem', lineHeight: 1.7 }}>{resident.notes}</Typography>
             </Box>
           )}
 
@@ -743,16 +743,16 @@ function ViewResidentDialog({
           <Box sx={{ mt: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
               <FolderOpen sx={{ fontSize: 16, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">
+              <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">
                 Case Records
               </Typography>
               {cases.length > 0 && (
-                <Chip label={cases.length} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', '& .MuiChip-label': { px: 0.75 } }} />
+                <Chip label={cases.length} size="small" color="warning" sx={{ height: 22, fontSize: '0.72rem', '& .MuiChip-label': { px: 0.75 } }} />
               )}
               <Box sx={{ ml: 'auto' }}>
                 <Button size="small" startIcon={<Add sx={{ fontSize: '14px !important' }} />} variant="outlined"
                   onClick={() => setAddCaseOpen(true)}
-                  sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.72rem', py: 0.4, px: 1 }}>
+                  sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.82rem', py: 0.4, px: 1 }}>
                   Add Case
                 </Button>
               </Box>
@@ -765,7 +765,7 @@ function ViewResidentDialog({
             ) : cases.length === 0 ? (
               <Box sx={{ py: 2.5, textAlign: 'center', bgcolor: 'action.hover', borderRadius: 2 }}>
                 <FolderOpen sx={{ fontSize: 28, opacity: 0.25, mb: 0.5, display: 'block', mx: 'auto' }} />
-                <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">No cases on record for this resident</Typography>
+                <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">No cases on record for this resident</Typography>
               </Box>
             ) : (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -775,20 +775,20 @@ function ViewResidentDialog({
                     <Box key={c.id} sx={{ p: 1.75, border: '1px solid', borderColor: 'divider', borderRadius: 2, display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 700 }}>{c.caseNumber}</Typography>
-                          <Typography sx={{ fontSize: '0.72rem' }} color="text.secondary">·</Typography>
-                          <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{c.caseType}</Typography>
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 700 }}>{c.caseNumber}</Typography>
+                          <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">·</Typography>
+                          <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">{c.caseType}</Typography>
                         </Box>
-                        <Typography sx={{ fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} color="text.secondary">
+                        <Typography sx={{ fontSize: '0.86rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} color="text.secondary">
                           {c.description}
                         </Typography>
-                        <Typography sx={{ fontSize: '0.7rem', mt: 0.25 }} color="text.disabled">
+                        <Typography sx={{ fontSize: '0.78rem', mt: 0.25 }} color="text.disabled">
                           Filed: {new Date(c.filedAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flexShrink: 0 }}>
-                        <Chip label={c.status} size="small" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, bgcolor: sc.bg, color: sc.text, '& .MuiChip-label': { px: 0.75 } }} />
-                        <Chip label={c.riskLevel} size="small" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), '& .MuiChip-label': { px: 0.75 } }} />
+                        <Chip label={c.status} size="small" sx={{ height: 24, fontSize: '0.72rem', fontWeight: 700, bgcolor: sc.bg, color: sc.text, '& .MuiChip-label': { px: 0.75 } }} />
+                        <Chip label={c.riskLevel} size="small" sx={{ height: 24, fontSize: '0.72rem', fontWeight: 700, bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), '& .MuiChip-label': { px: 0.75 } }} />
                       </Box>
                     </Box>
                   );
@@ -951,13 +951,13 @@ function DeleteConfirmDialog({
         Remove Resident
       </DialogTitle>
       <DialogContent>
-        <DialogContentText sx={{ fontSize: '0.875rem' }}>
+        <DialogContentText sx={{ fontSize: '0.94rem' }}>
           Are you sure you want to remove <strong>{resident?.firstName} {resident?.lastName}</strong> ({resident?.residentNumber}) from the system? This action cannot be undone.
         </DialogContentText>
         {(resident?._count?.cases ?? 0) > 0 && (
           <Box sx={{ mt: 2, p: 1.5, bgcolor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 2, display: 'flex', gap: 1, alignItems: 'flex-start' }}>
             <Warning sx={{ color: '#f97316', fontSize: 18, flexShrink: 0, mt: 0.1 }} />
-            <Typography sx={{ fontSize: '0.82rem', color: '#9a3412' }}>
+            <Typography sx={{ fontSize: '0.9rem', color: '#9a3412' }}>
               This resident has {resident?._count?.cases} associated case{resident?._count?.cases !== 1 ? 's' : ''}. The cases will remain but will be unlinked.
             </Typography>
           </Box>

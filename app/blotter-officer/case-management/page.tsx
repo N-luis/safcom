@@ -90,13 +90,13 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2.5, borderBottom: '1px solid #f1f5f9' }}>
         <IconButton size="small" onClick={onClose} sx={{ mr: 1 }}><ArrowBack fontSize="small" /></IconButton>
         <Box sx={{ flex: 1 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.95rem' }}>{c.caseNumber}</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.98rem' }}>{c.caseNumber}</Typography>
           <Typography variant="caption" color="text.secondary">{c.caseType}</Typography>
         </Box>
         <Chip
           label={c.riskLevel}
           size="small"
-          sx={{ bgcolor: `${RISK_COLOR[c.riskLevel]}20`, color: RISK_COLOR[c.riskLevel], fontWeight: 700, fontSize: '0.72rem' }}
+          sx={{ bgcolor: `${RISK_COLOR[c.riskLevel]}20`, color: RISK_COLOR[c.riskLevel], fontWeight: 700, fontSize: '0.82rem' }}
         />
         <Tooltip title="Open full detail view">
           <IconButton
@@ -109,7 +109,7 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
         </Tooltip>
       </Box>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2, borderBottom: '1px solid #f1f5f9', '& .MuiTab-root': { fontSize: '0.8rem', minHeight: 40, textTransform: 'none', fontWeight: 500 } }}>
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2, borderBottom: '1px solid #f1f5f9', '& .MuiTab-root': { fontSize: '0.9rem', minHeight: 40, textTransform: 'none', fontWeight: 500 } }}>
         <Tab label="Details" />
         <Tab label="Update" />
       </Tabs>
@@ -128,25 +128,25 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
                   <Icon sx={{ fontSize: 16, color: '#64748b' }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.1 }}>{label}</Typography>
-                  <Typography sx={{ fontSize: '0.85rem', fontWeight: 500 }}>{value}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.1 }}>{label}</Typography>
+                  <Typography sx={{ fontSize: '0.94rem', fontWeight: 500 }}>{value}</Typography>
                 </Box>
               </Box>
             ))}
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.5 }}>Status</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.5 }}>Status</Typography>
               <Chip label={c.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[c.status]}20`, color: STATUS_COLOR[c.status], fontWeight: 600 }} />
             </Box>
             <Divider sx={{ my: 2 }} />
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, mb: 1 }}>Description</Typography>
+            <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1 }}>Description</Typography>
             <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: '#f8fafc' }}>
-              <Typography sx={{ fontSize: '0.83rem', lineHeight: 1.6, color: '#475569' }}>{c.description}</Typography>
+              <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#475569' }}>{c.description}</Typography>
             </Paper>
             {c.notes && (
               <Box sx={{ mt: 2 }}>
-                <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, mb: 1 }}>Notes</Typography>
+                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1 }}>Notes</Typography>
                 <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: '#fefce8' }}>
-                  <Typography sx={{ fontSize: '0.83rem', lineHeight: 1.6, color: '#78350f' }}>{c.notes}</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#78350f' }}>{c.notes}</Typography>
                 </Paper>
               </Box>
             )}
@@ -154,8 +154,8 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
         )}
         {tab === 1 && (
           <Box>
-            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, mb: 0.5 }}>Update Case</Typography>
-            <Typography sx={{ fontSize: '0.76rem', color: 'text.secondary', mb: 2 }}>
+            <Typography sx={{ fontSize: '0.94rem', fontWeight: 600, mb: 0.5 }}>Update Case</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary', mb: 2 }}>
               Change the case status and/or add a note. Both are saved together to the case record and an activity log entry is created when the status changes.
             </Typography>
             <FormControl fullWidth size="small" sx={{ mb: 2 }}>
@@ -241,7 +241,7 @@ export default function CaseManagementPage() {
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Case Management</Typography>
-          <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary' }}>Manage, track and resolve blotter cases</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Manage, track and resolve blotter cases</Typography>
         </Box>
         <Button
           variant="contained" startIcon={<Add />}
@@ -263,7 +263,7 @@ export default function CaseManagementPage() {
               >
                 <CardContent sx={{ p: 2, textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '1.6rem', fontWeight: 800, color: s.color }}>{s.count}</Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>{s.label}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary', fontWeight: 500 }}>{s.label}</Typography>
                 </CardContent>
               </Card>
             </motion.div>
@@ -314,7 +314,7 @@ export default function CaseManagementPage() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Case ID', 'Reporter / Subject', 'Type', 'Street', 'Status', 'Risk', 'Filed', 'Actions'].map(h => <TableCell key={h}>{h}</TableCell>)}
               </TableRow>
             </TableHead>
@@ -325,33 +325,33 @@ export default function CaseManagementPage() {
                 <TableRow>
                   <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5 }}>
                     <FolderOpen sx={{ fontSize: 36, color: '#cbd5e1', mb: 1, display: 'block', mx: 'auto' }} />
-                    <Typography color="text.secondary" sx={{ fontSize: '0.85rem' }}>No cases found</Typography>
+                    <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>No cases found</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 cases.map((c) => (
                   <TableRow key={c.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f8fafc' }, '& td': { py: 1.25, borderBottom: '1px solid #f8fafc' } }} onClick={() => setDrawerCase(c)}>
-                    <TableCell><Typography sx={{ fontWeight: 600, fontSize: '0.82rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0 }}>
+                        <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0 }}>
                           {c.residentName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                         </Box>
-                        <Typography sx={{ fontSize: '0.83rem', fontWeight: 500 }}>{c.residentName}</Typography>
+                        <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{c.residentName}</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.8rem' }}>{c.caseType}</Typography></TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>{c.barangay}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.9rem' }}>{c.caseType}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>{c.barangay}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: STATUS_COLOR[c.status] ?? '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.78rem', color: STATUS_COLOR[c.status], fontWeight: 600 }}>{c.status}</Typography>
+                        <Typography sx={{ fontSize: '0.86rem', color: STATUS_COLOR[c.status], fontWeight: 600 }}>{c.status}</Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.72rem', height: 20 }} />
+                      <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <Tooltip title="Quick view / Edit">
@@ -375,14 +375,14 @@ export default function CaseManagementPage() {
 
         {/* Pagination */}
         <Box sx={{ px: 2.5, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: 1 }}>
-          <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+          <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>
             Page {page} of {totalPages} · {total} total cases
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button size="small" variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)} sx={{ borderRadius: 1.5, fontSize: '0.78rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
+            <Button size="small" variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)} sx={{ borderRadius: 1.5, fontSize: '0.86rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
               Previous
             </Button>
-            <Button size="small" variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ borderRadius: 1.5, fontSize: '0.78rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
+            <Button size="small" variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ borderRadius: 1.5, fontSize: '0.86rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
               Next
             </Button>
           </Box>

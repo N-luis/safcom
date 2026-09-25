@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
           <AdminPanelSettings sx={{ color: ACCENT, fontSize: 28 }} />
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>System Admin Dashboard</Typography>
         </Box>
-        <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Manage system users and verify resident identities</Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>Manage system users and verify resident identities</Typography>
       </Box>
 
       {/* Stat cards */}
@@ -54,12 +54,12 @@ export default function AdminDashboardPage() {
                   <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: `${card.color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1.5 }}>
                     <card.icon sx={{ fontSize: 18, color: card.color }} />
                   </Box>
-                  <Typography sx={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.5 }}>{card.label}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.5 }}>{card.label}</Typography>
                   {card.value === null
                     ? <Skeleton variant="text" width={60} height={40} />
                     : <Typography sx={{ fontSize: '1.9rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>{card.value}</Typography>
                   }
-                  <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75 }}>{card.sub}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.75 }}>{card.sub}</Typography>
                 </CardContent>
               </Card>
             </motion.div>
@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
                   <ArrowForward sx={{ color: ACCENT }} />
                 </Box>
                 <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>User Management</Typography>
-                <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 2 }}>Create, edit, deactivate, and manage all system user accounts.</Typography>
+                <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mb: 2 }}>Create, edit, deactivate, and manage all system user accounts.</Typography>
 
                 {/* Role breakdown */}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
                     const cfg = roleMap[r.role] ?? { label: r.role, color: '#64748b' };
                     return (
                       <Chip key={r.role} label={`${cfg.label}: ${r.count}`} size="small"
-                        sx={{ bgcolor: `${cfg.color}12`, color: cfg.color, fontWeight: 600, fontSize: '0.68rem', height: 22 }} />
+                        sx={{ bgcolor: `${cfg.color}12`, color: cfg.color, fontWeight: 600, fontSize: '0.78rem', height: 24 }} />
                     );
                   }) ?? <Skeleton width={200} height={22} />}
                 </Box>

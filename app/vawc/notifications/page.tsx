@@ -45,7 +45,7 @@ export default function VawcNotificationsPage() {
               <Chip label={`${(data ?? []).length}`} size="small" sx={{ bgcolor: `${ACCENT}14`, color: ACCENT, fontWeight: 700, height: 20 }} />
             )}
           </Box>
-          <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Case activity and street/barangay-wide alerts</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>Case activity and street/barangay-wide alerts</Typography>
         </Box>
         <Button variant="outlined" startIcon={<Refresh />} onClick={() => mutate()} size="small"
           sx={{ borderColor: '#e2e8f0', color: '#64748b', '&:hover': { borderColor: ACCENT, color: ACCENT } }}>
@@ -65,7 +65,7 @@ export default function VawcNotificationsPage() {
               color: filter === f.value ? f.color : '#64748b',
               fontWeight: filter === f.value ? 700 : 400,
               border: filter === f.value ? `1px solid ${f.color}30` : '1px solid transparent',
-              cursor: 'pointer', fontSize: '0.78rem',
+              cursor: 'pointer', fontSize: '0.86rem',
             }}
           />
         ))}
@@ -87,8 +87,8 @@ export default function VawcNotificationsPage() {
         ) : displayed.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 7 }}>
             <NotificationsActive sx={{ fontSize: 44, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1.5 }} />
-            <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.9rem' }}>No notifications</Typography>
-            <Typography sx={{ fontSize: '0.78rem', color: '#cbd5e1', mt: 0.5 }}>
+            <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.98rem' }}>No notifications</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: '#cbd5e1', mt: 0.5 }}>
               {filter !== 'all' ? 'Try a different filter' : 'Updates will appear here'}
             </Typography>
           </Box>
@@ -111,12 +111,12 @@ export default function VawcNotificationsPage() {
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1, mb: 0.3 }}>
-                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>{u.title}</Typography>
+                        <Typography sx={{ fontSize: '0.94rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>{u.title}</Typography>
                         <Chip label={SOURCE_LABEL[u.source] ?? u.source} size="small"
-                          sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.62rem', height: 18, flexShrink: 0 }} />
+                          sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.72rem', height: 22, flexShrink: 0 }} />
                       </Box>
-                      <Typography sx={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>{u.message}</Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.5 }}>{timeAgo(u.createdAt)}</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5 }}>{u.message}</Typography>
+                      <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.5 }}>{timeAgo(u.createdAt)}</Typography>
                     </Box>
                   </Box>
                 </motion.div>

@@ -12,11 +12,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <Box sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 2, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', border: '1px solid', borderColor: 'divider' }}>
-        <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, mb: 0.5 }}>{label}</Typography>
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, mb: 0.5 }}>{label}</Typography>
         {payload.map((entry: any, i: number) => (
           <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
-            <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">
+            <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">
               {entry.name}: <strong>{entry.value}</strong>
             </Typography>
           </Box>
@@ -36,7 +36,7 @@ export function MonthlyTrendChart() {
     <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Monthly Reports Trend</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.78rem' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.86rem' }}>
           Cases & reports over the past 6 months
         </Typography>
         {isLoading ? <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 2 }} /> : (
@@ -67,7 +67,7 @@ export function BarangayIncidentsChart() {
     <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Barangay Incidents</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.78rem' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.86rem' }}>
           Incident comparison across barangays
         </Typography>
         {isLoading ? <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 2 }} /> : (
@@ -111,7 +111,7 @@ export function CaseTypeDonutChart() {
     <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Case Distribution</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.78rem' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.86rem' }}>
           Cases by category
         </Typography>
         {isLoading ? <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 2 }} /> : (
@@ -140,8 +140,8 @@ export function CaseTypeDonutChart() {
               {chartData.map((item: any, i: number) => (
                 <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: item.color, flexShrink: 0 }} />
-                  <Typography sx={{ fontSize: '0.75rem', flex: 1 }}>{item.name}</Typography>
-                  <Typography sx={{ fontSize: '0.75rem', fontWeight: 700 }}>{item.value}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', flex: 1 }}>{item.name}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', fontWeight: 700 }}>{item.value}</Typography>
                 </Box>
               ))}
             </Box>
@@ -160,7 +160,7 @@ export function RiskAreaChart() {
     <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Risk Level Distribution</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.78rem' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.86rem' }}>
           Current cases by risk category
         </Typography>
         {isLoading ? <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 2 }} /> : (

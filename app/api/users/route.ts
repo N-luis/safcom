@@ -6,6 +6,7 @@ import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 
 const createSchema = z.object({
   name: z.string().min(2),
+  username: z.string().regex(/^[a-zA-Z0-9._-]{3,20}$/, 'Username must be 3–20 characters (letters, numbers, . _ -)').optional(),
   email: z.string().email(),
   password: z.string().min(8),
   role: z.enum(['admin', 'officer', 'vawc_officer']),
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
         } : {}),
       },
       select: {
-        id: true, name: true, email: true, role: true,
+        id: true, name: true, email: true, username: true, role: true,
         barangay: true, phone: true, active: true, createdAt: true,
         _count: { select: { assignedCases: true } },
       },
@@ -56,15 +57,23 @@ export async function POST(req: NextRequest) {
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Validation error', 400);
 
-    const { name, email, password, role, barangay, phone } = parsed.data;
+    const { name, email, username, password, role, barangay, phone } = parsed.data;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return errorResponse('Email already in use', 409);
 
+    if (username) {
+      const taken = await prisma.user.findFirst({
+        where: { username: { equals: username, mode: 'insensitive' } },
+        select: { id: true },
+      });
+      if (taken) return errorResponse('That username is already taken', 409);
+    }
+
     const hashed = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
-      data: { name, email, password: hashed, role, barangay, phone },
-      select: { id: true, name: true, email: true, role: true, barangay: true, phone: true, active: true, createdAt: true },
+      data: { name, email, username: username ?? null, password: hashed, role, barangay, phone },
+      select: { id: true, name: true, email: true, username: true, role: true, barangay: true, phone: true, active: true, createdAt: true },
     });
 
     await prisma.activity.create({

@@ -211,13 +211,13 @@ export default function VawcReportsPage() {
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Reports</Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>VAWC case statistics, trends, and exportable reports</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>VAWC case statistics, trends, and exportable reports</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
           <ToggleButtonGroup
             size="small" value={period} exclusive
             onChange={(_, v) => { if (v) setPeriod(v); }}
-            sx={{ '& .MuiToggleButton-root': { px: 2, py: 0.6, fontSize: '0.75rem', fontWeight: 600, borderColor: '#e2e8f0', color: '#64748b', '&.Mui-selected': { bgcolor: `${ACCENT}15`, color: ACCENT, borderColor: `${ACCENT}40` } } }}
+            sx={{ '& .MuiToggleButton-root': { px: 2, py: 0.6, fontSize: '0.86rem', fontWeight: 600, borderColor: '#e2e8f0', color: '#64748b', '&.Mui-selected': { bgcolor: `${ACCENT}15`, color: ACCENT, borderColor: `${ACCENT}40` } } }}
           >
             <ToggleButton value="1">1M</ToggleButton>
             <ToggleButton value="3">3M</ToggleButton>
@@ -247,12 +247,12 @@ export default function VawcReportsPage() {
                 <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: `${card.color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1.5 }}>
                   <card.icon sx={{ fontSize: 18, color: card.color }} />
                 </Box>
-                <Typography sx={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.5 }}>{card.label}</Typography>
+                <Typography sx={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.5 }}>{card.label}</Typography>
                 {card.value === null
                   ? <Skeleton variant="text" width={60} height={40} />
                   : <Typography sx={{ fontSize: '1.9rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>{card.value.toLocaleString()}</Typography>
                 }
-                {card.sub && <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75 }}>{card.sub}</Typography>}
+                {card.sub && <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.75 }}>{card.sub}</Typography>}
               </CardContent>
             </Card>
           </Grid>
@@ -267,18 +267,18 @@ export default function VawcReportsPage() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>Case Volume Trend</Typography>
-                  <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Filed vs. resolved vs. high-risk per month</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Case Volume Trend</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>Filed vs. resolved vs. high-risk per month</Typography>
                 </Box>
                 <Chip label={PERIOD_LABELS[period]} size="small"
-                  sx={{ bgcolor: `${ACCENT}10`, color: ACCENT, fontWeight: 600, fontSize: '0.7rem' }} />
+                  sx={{ bgcolor: `${ACCENT}10`, color: ACCENT, fontWeight: 600, fontSize: '0.78rem' }} />
               </Box>
               {!trends ? (
                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               ) : trends.length === 0 ? (
                 <Box sx={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                   <FolderOpen sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>No trend data available</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No trend data available</Typography>
                 </Box>
               ) : (
                 <>
@@ -288,7 +288,7 @@ export default function VawcReportsPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                        <ChartTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.78rem' }} formatter={(v: unknown, name: unknown) => [String(v), String(name)]} />
+                        <ChartTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.86rem' }} formatter={(v: unknown, name: unknown) => [String(v), String(name)]} />
                         <Bar dataKey="total" name="Total Filed" radius={[4, 4, 0, 0]} fill={ACCENT} opacity={0.85} />
                         <Bar dataKey="resolved" name="Resolved" radius={[4, 4, 0, 0]} fill="#22c55e" opacity={0.85} />
                         <Bar dataKey="highRisk" name="High Risk" radius={[4, 4, 0, 0]} fill="#ef4444" opacity={0.8} />
@@ -299,7 +299,7 @@ export default function VawcReportsPage() {
                     {[{ color: ACCENT, label: 'Total Filed' }, { color: '#22c55e', label: 'Resolved' }, { color: '#ef4444', label: 'High Risk' }].map(l => (
                       <Box key={l.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <Box sx={{ width: 10, height: 10, borderRadius: 1, bgcolor: l.color }} />
-                        <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>{l.label}</Typography>
+                        <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{l.label}</Typography>
                       </Box>
                     ))}
                   </Box>
@@ -313,12 +313,12 @@ export default function VawcReportsPage() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46', mb: 0.5 }}>Case Type Breakdown</Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mb: 1.5 }}>Distribution of current cases by type</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 0.5 }}>Case Type Breakdown</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mb: 1.5 }}>Distribution of current cases by type</Typography>
               {cases.length === 0 ? (
                 <Box sx={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                   <FolderOpen sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>No cases yet</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No cases yet</Typography>
                 </Box>
               ) : caseTypeData.length === 0 ? (
                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
@@ -333,8 +333,8 @@ export default function VawcReportsPage() {
                           <Cell key={i} fill={CASE_TYPE_COLORS[i % CASE_TYPE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <ChartTooltip formatter={(v: unknown, _: unknown, props: { payload?: { name: string } }) => [String(v) + ' cases', props.payload?.name ?? '']} contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.78rem' }} />
-                      <Legend iconSize={8} wrapperStyle={{ fontSize: '0.7rem' }} />
+                      <ChartTooltip formatter={(v: unknown, _: unknown, props: { payload?: { name: string } }) => [String(v) + ' cases', props.payload?.name ?? '']} contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.86rem' }} />
+                      <Legend iconSize={8} wrapperStyle={{ fontSize: '0.78rem' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </Box>
@@ -349,7 +349,7 @@ export default function VawcReportsPage() {
         <Card sx={{ mb: 3 }}>
           <CardContent sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>Overall Resolution Progress</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Overall Resolution Progress</Typography>
               <Chip label={`${resRate}% resolved`} size="small"
                 sx={{ bgcolor: resRate >= 70 ? '#22c55e18' : resRate >= 40 ? '#f59e0b18' : '#ef444418', color: resRate >= 70 ? '#22c55e' : resRate >= 40 ? '#f59e0b' : '#ef4444', fontWeight: 700 }} />
             </Box>
@@ -361,8 +361,8 @@ export default function VawcReportsPage() {
               ].map(item => (
                 <Grid key={item.label} size={{ xs: 12, sm: 4 }}>
                   <Box sx={{ mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{item.label}</Typography>
-                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: item.color }}>{item.value} / {item.max}</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{item.label}</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: item.color }}>{item.value} / {item.max}</Typography>
                   </Box>
                   <LinearProgress variant="determinate" value={(item.value / item.max) * 100}
                     sx={{ height: 8, borderRadius: 4, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: item.color, borderRadius: 4 } }} />
@@ -378,8 +378,8 @@ export default function VawcReportsPage() {
         <CardContent sx={{ p: 2.5, pb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
             <Box>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>Case Records</Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Case Records</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
                 Showing {cases.length} of {totalCases} VAWC cases
               </Typography>
             </Box>
@@ -388,7 +388,7 @@ export default function VawcReportsPage() {
                 <Chip key={s || 'all'} label={s || 'All'} size="small"
                   onClick={() => setStatusFilter(s)}
                   sx={{
-                    cursor: 'pointer', fontSize: '0.72rem',
+                    cursor: 'pointer', fontSize: '0.82rem',
                     bgcolor: statusFilter === s ? `${ACCENT}15` : '#f1f5f9',
                     color: statusFilter === s ? ACCENT : '#64748b',
                     fontWeight: statusFilter === s ? 700 : 400,
@@ -404,7 +404,7 @@ export default function VawcReportsPage() {
         {cases.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 7 }}>
             <FolderOpen sx={{ fontSize: 40, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-            <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+            <Typography sx={{ fontSize: '0.94rem', color: '#94a3b8' }}>
               {statusFilter ? `No ${statusFilter} VAWC cases` : 'No VAWC cases yet'}
             </Typography>
           </Box>
@@ -412,7 +412,7 @@ export default function VawcReportsPage() {
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', bgcolor: '#f8fafc', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
+                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', bgcolor: '#f8fafc', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
                   <TableCell>Case #</TableCell>
                   <TableCell>Resident</TableCell>
                   <TableCell>Case Type</TableCell>
@@ -426,32 +426,32 @@ export default function VawcReportsPage() {
                 {cases.map(c => (
                   <TableRow key={c.id} sx={{ '& td': { py: 1.1, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#fafbff' } }}>
                     <TableCell>
-                      <Typography sx={{ fontWeight: 700, fontSize: '0.78rem', color: ACCENT, fontFamily: 'monospace' }}>{c.caseNumber}</Typography>
+                      <Typography sx={{ fontWeight: 700, fontSize: '0.86rem', color: ACCENT, fontFamily: 'monospace' }}>{c.caseNumber}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 500, color: '#0c1e46' }}>{c.residentName}</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#0c1e46' }}>{c.residentName}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{c.caseType}</Typography>
+                      <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.caseType}</Typography>
                     </TableCell>
                     <TableCell>
                       <Chip label={c.riskLevel} size="small"
-                        sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}15`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.68rem', height: 20 }} />
+                        sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}15`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                     </TableCell>
                     <TableCell>
                       <Chip label={c.status} size="small"
-                        sx={{ bgcolor: `${STATUS_COLOR[c.status] ?? '#94a3b8'}15`, color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.68rem', height: 20 }} />
+                        sx={{ bgcolor: `${STATUS_COLOR[c.status] ?? '#94a3b8'}15`, color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.78rem', height: 24 }} />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <LocationOn sx={{ fontSize: 12, color: '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{c.barangay}</Typography>
+                        <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.barangay}</Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <CalendarToday sx={{ fontSize: 11, color: '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                        <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
                           {new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </Typography>
                       </Box>
@@ -465,13 +465,13 @@ export default function VawcReportsPage() {
 
         {totalCases > 20 && (
           <Box sx={{ px: 2.5, py: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+            <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>
               Showing first 20 of {totalCases} cases. Click <strong>Export CSV</strong> to get all records.
             </Typography>
             <Tooltip title="Export all matching cases to CSV">
               <Button size="small" startIcon={<FileDownload sx={{ fontSize: 14 }} />}
                 onClick={handleExport} disabled={exporting}
-                sx={{ color: ACCENT, fontWeight: 600, fontSize: '0.75rem', textTransform: 'none' }}>
+                sx={{ color: ACCENT, fontWeight: 600, fontSize: '0.86rem', textTransform: 'none' }}>
                 Export All {totalCases} Cases
               </Button>
             </Tooltip>

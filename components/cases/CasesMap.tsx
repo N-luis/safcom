@@ -212,10 +212,10 @@ export default function CasesMap({
         >
           <Popup closeButton={false} minWidth={185}>
             <Box sx={{ fontFamily: 'Inter, sans-serif', py: 0.25 }}>
-              <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', mb: 0.75, color: '#0c1e46' }}>
+              <Typography sx={{ fontWeight: 800, fontSize: '0.94rem', mb: 0.75, color: '#0c1e46' }}>
                 {c.id}
               </Typography>
-              <Box sx={{ fontSize: '0.75rem', color: '#475569', lineHeight: 2, mb: 1 }}>
+              <Box sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 2, mb: 1 }}>
                 <Box component="div"><strong>Category:</strong>{' '}
                   <span style={{ color: CATEGORY_COLORS[c.category], fontWeight: 600 }}>{c.category}</span>
                 </Box>
@@ -233,7 +233,7 @@ export default function CasesMap({
                 fullWidth
                 onClick={() => router.push(`/blotter-officer/case-management?highlight=${c.id}`)}
                 sx={{
-                  fontSize: '0.7rem', py: 0.5, textTransform: 'none',
+                  fontSize: '0.78rem', py: 0.5, textTransform: 'none',
                   bgcolor: '#3b82f6', '&:hover': { bgcolor: '#1d4ed8' },
                   borderRadius: 1.5, fontWeight: 700,
                 }}

@@ -71,7 +71,7 @@ export default function AuditLogsPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>Audit Logs</Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>
+            <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>
               Complete activity history across the system
             </Typography>
           </Box>
@@ -113,7 +113,7 @@ export default function AuditLogsPage() {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'text.secondary', bgcolor: 'action.hover', py: 1.5 } }}>
+                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.86rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'text.secondary', bgcolor: 'action.hover', py: 1.5 } }}>
                   <TableCell>Event</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell>User</TableCell>
@@ -149,27 +149,27 @@ export default function AuditLogsPage() {
                           <Chip
                             label={TYPE_LABELS[activity.type] ?? activity.type}
                             size="small"
-                            sx={{ bgcolor: `${activity.color}18`, color: activity.color, fontWeight: 700, fontSize: '0.7rem', height: 20, '& .MuiChip-label': { px: 1 } }}
+                            sx={{ bgcolor: `${activity.color}18`, color: activity.color, fontWeight: 700, fontSize: '0.78rem', height: 24, '& .MuiChip-label': { px: 1 } }}
                           />
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Typography sx={{ fontSize: '0.85rem' }}>{activity.message}</Typography>
+                        <Typography sx={{ fontSize: '0.94rem' }}>{activity.message}</Typography>
                       </TableCell>
                       <TableCell>
                         {activity.user ? (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Avatar sx={{ width: 26, height: 26, fontSize: '0.65rem', bgcolor: activity.color + '40', color: activity.color, fontWeight: 700 }}>
+                            <Avatar sx={{ width: 26, height: 26, fontSize: '0.72rem', bgcolor: activity.color + '40', color: activity.color, fontWeight: 700 }}>
                               {activity.user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </Avatar>
-                            <Typography sx={{ fontSize: '0.82rem' }}>{activity.user.name}</Typography>
+                            <Typography sx={{ fontSize: '0.9rem' }}>{activity.user.name}</Typography>
                           </Box>
                         ) : (
-                          <Typography sx={{ fontSize: '0.8rem' }} color="text.disabled">System</Typography>
+                          <Typography sx={{ fontSize: '0.9rem' }} color="text.disabled">System</Typography>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">
+                        <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">
                           {new Date(activity.createdAt).toLocaleString()}
                         </Typography>
                       </TableCell>

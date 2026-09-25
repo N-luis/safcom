@@ -55,7 +55,7 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Assessment sx={{ color: '#14b8a6' }} />
           Case #{c.caseNumber}
-          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color, fontWeight: 700, fontSize: '0.72rem', ml: 'auto' }} />
+          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color, fontWeight: 700, fontSize: '0.82rem', ml: 'auto' }} />
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -68,20 +68,20 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
             { label: 'Last Updated', value: timeAgo(c.updatedAt) },
           ].map(item => (
             <Grid key={item.label} size={{ xs: 6 }}>
-              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.25 }}>{item.label}</Typography>
-              <Typography sx={{ fontSize: '0.85rem', color: '#0c1e46', fontWeight: 500 }}>{item.value}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.25 }}>{item.label}</Typography>
+              <Typography sx={{ fontSize: '0.94rem', color: '#0c1e46', fontWeight: 500 }}>{item.value}</Typography>
             </Grid>
           ))}
         </Grid>
         <Divider sx={{ mb: 2 }} />
-        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
-        <Typography sx={{ fontSize: '0.85rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 2, borderRadius: 2 }}>
+        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
+        <Typography sx={{ fontSize: '0.94rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 2, borderRadius: 2 }}>
           {c.description}
         </Typography>
         {c.notes && (
           <Box sx={{ mt: 2 }}>
-            <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Officer Notes</Typography>
-            <Typography sx={{ fontSize: '0.85rem', color: '#374151', lineHeight: 1.7, bgcolor: '#fff7ed', p: 2, borderRadius: 2, border: '1px solid #fed7aa' }}>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Officer Notes</Typography>
+            <Typography sx={{ fontSize: '0.94rem', color: '#374151', lineHeight: 1.7, bgcolor: '#fff7ed', p: 2, borderRadius: 2, border: '1px solid #fed7aa' }}>
               {c.notes}
             </Typography>
           </Box>
@@ -114,7 +114,7 @@ export default function MyCasesPage() {
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>My Cases</Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>All reports you have submitted</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>All reports you have submitted</Typography>
         </Box>
         <Button
           variant="contained" startIcon={<Add />}
@@ -142,7 +142,7 @@ export default function MyCasesPage() {
               color: statusFilter === s.value ? s.color : '#64748b',
               fontWeight: statusFilter === s.value ? 700 : 400,
               border: statusFilter === s.value ? `1px solid ${s.color}30` : '1px solid transparent',
-              cursor: 'pointer', fontSize: '0.78rem',
+              cursor: 'pointer', fontSize: '0.86rem',
               transition: 'all 0.15s',
             }}
           />
@@ -168,7 +168,7 @@ export default function MyCasesPage() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Case ID', 'Type', 'Description', 'Barangay', 'Status', 'Filed', 'Updated'].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
@@ -189,7 +189,7 @@ export default function MyCasesPage() {
                       <TableRow>
                         <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5 }}>
                           <FolderOpen sx={{ fontSize: 40, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-                          <Typography sx={{ fontSize: '0.88rem', color: '#94a3b8', fontWeight: 500 }}>No cases found</Typography>
+                          <Typography sx={{ fontSize: '0.94rem', color: '#94a3b8', fontWeight: 500 }}>No cases found</Typography>
                           {!search && !statusFilter && (
                             <Button size="small" onClick={() => router.push('/resident/report-case')} sx={{ mt: 1, color: '#14b8a6', fontWeight: 600 }}>
                               File your first report →
@@ -207,23 +207,23 @@ export default function MyCasesPage() {
                         onClick={() => setSelected(c)}
                         sx={{ cursor: 'pointer', '& td': { py: 1.3, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#f8fafc' } }}
                       >
-                        <TableCell><Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.78rem', color: '#374151' }}>{c.caseType.split(' ').slice(0, 2).join(' ')}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#374151' }}>{c.caseType.split(' ').slice(0, 2).join(' ')}</Typography></TableCell>
                         <TableCell>
-                          <Typography sx={{ fontSize: '0.78rem', color: '#64748b', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontSize: '0.86rem', color: '#64748b', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {c.description}
                           </Typography>
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>{c.barangay}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.barangay}</Typography></TableCell>
                         <TableCell>
                           <Chip
                             label={c.status}
                             size="small"
-                            sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+                            sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }}
                           />
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>{new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Typography></TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>{new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
                       </MotionTableRow>
                     ))
                 }
@@ -234,7 +234,7 @@ export default function MyCasesPage() {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, py: 1.75, borderTop: '1px solid #f1f5f9' }}>
-            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>Page {page} of {totalPages}</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>Page {page} of {totalPages}</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)} sx={{ minWidth: 60 }}>Prev</Button>
               <Button size="small" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ minWidth: 60 }}>Next</Button>

@@ -146,7 +146,7 @@ export default function MessagesPage() {
             </Box>
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 800 }}>Messages</Typography>
-              <Typography color="text.secondary" sx={{ fontSize: '0.88rem' }}>Internal communication system</Typography>
+              <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>Internal communication system</Typography>
             </Box>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -170,7 +170,7 @@ export default function MessagesPage() {
                 fullWidth variant={folder === 'inbox' ? 'contained' : 'outlined'}
                 startIcon={<Badge badgeContent={unreadCount || undefined} color="error"><Inbox /></Badge>}
                 onClick={() => setFolder('inbox')}
-                sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.82rem' }}
+                sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.9rem' }}
               >
                 Inbox
               </Button>
@@ -178,7 +178,7 @@ export default function MessagesPage() {
                 fullWidth variant={folder === 'sent' ? 'contained' : 'outlined'}
                 startIcon={<SendIcon />}
                 onClick={() => setFolder('sent')}
-                sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.82rem' }}
+                sx={{ borderRadius: 2, textTransform: 'none', fontSize: '0.9rem' }}
               >
                 Sent
               </Button>
@@ -216,11 +216,11 @@ export default function MessagesPage() {
               ) : filtered.length === 0 ? (
                 <Box sx={{ py: 8, textAlign: 'center', px: 2 }}>
                   <Message sx={{ fontSize: 40, opacity: 0.2, mb: 1 }} />
-                  <Typography color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                  <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>
                     {search ? 'No messages match your search' : `No messages in ${folder}`}
                   </Typography>
                   {!search && folder === 'inbox' && (
-                    <Typography color="text.disabled" sx={{ fontSize: '0.78rem', mt: 0.5 }}>
+                    <Typography color="text.disabled" sx={{ fontSize: '0.86rem', mt: 0.5 }}>
                       Compose a message to get started
                     </Typography>
                   )}
@@ -246,22 +246,22 @@ export default function MessagesPage() {
                           }}
                         >
                           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                            <Avatar sx={{ width: 36, height: 36, bgcolor: avatarColor(other.name), fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                            <Avatar sx={{ width: 36, height: 36, bgcolor: avatarColor(other.name), fontSize: '0.86rem', fontWeight: 700, flexShrink: 0 }}>
                               {getInitials(other.name)}
                             </Avatar>
                             <Box sx={{ flex: 1, minWidth: 0 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography sx={{ fontSize: '0.8rem', fontWeight: isUnread ? 700 : 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'inherit' }}>
+                                <Typography sx={{ fontSize: '0.9rem', fontWeight: isUnread ? 700 : 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'inherit' }}>
                                   {other.name}
                                 </Typography>
-                                <Typography sx={{ fontSize: '0.68rem', flexShrink: 0, ml: 1, color: isSelected ? 'rgba(255,255,255,0.7)' : 'text.disabled' }}>
+                                <Typography sx={{ fontSize: '0.78rem', flexShrink: 0, ml: 1, color: isSelected ? 'rgba(255,255,255,0.7)' : 'text.disabled' }}>
                                   {timeAgo(msg.createdAt)}
                                 </Typography>
                               </Box>
-                              <Typography sx={{ fontSize: '0.78rem', fontWeight: isUnread ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isSelected ? 'rgba(255,255,255,0.9)' : 'inherit' }}>
+                              <Typography sx={{ fontSize: '0.86rem', fontWeight: isUnread ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isSelected ? 'rgba(255,255,255,0.9)' : 'inherit' }}>
                                 {msg.subject}
                               </Typography>
-                              <Typography sx={{ fontSize: '0.72rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isSelected ? 'rgba(255,255,255,0.65)' : 'text.secondary' }}>
+                              <Typography sx={{ fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isSelected ? 'rgba(255,255,255,0.65)' : 'text.secondary' }}>
                                 {msg.body.slice(0, 60)}{msg.body.length > 60 ? '...' : ''}
                               </Typography>
                             </Box>
@@ -284,7 +284,7 @@ export default function MessagesPage() {
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Message sx={{ fontSize: 64, opacity: 0.12, mb: 2 }} />
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }} color="text.secondary">Select a message</Typography>
-                <Typography color="text.disabled" sx={{ fontSize: '0.875rem' }}>Choose a message from the list to read it</Typography>
+                <Typography color="text.disabled" sx={{ fontSize: '0.94rem' }}>Choose a message from the list to read it</Typography>
                 <Button variant="outlined" startIcon={<Edit />} onClick={() => setComposeOpen(true)} sx={{ mt: 3, borderRadius: 2.5, textTransform: 'none' }}>
                   Compose New Message
                 </Button>
@@ -299,17 +299,17 @@ export default function MessagesPage() {
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap', alignItems: 'center' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                        <Avatar sx={{ width: 20, height: 20, bgcolor: avatarColor(selected.sender.name), fontSize: '0.6rem', fontWeight: 700 }}>
+                        <Avatar sx={{ width: 20, height: 20, bgcolor: avatarColor(selected.sender.name), fontSize: '0.72rem', fontWeight: 700 }}>
                           {getInitials(selected.sender.name)}
                         </Avatar>
-                        <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">
+                        <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">
                           <strong>From:</strong> {selected.sender.name}
                         </Typography>
                       </Box>
-                      <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">
+                      <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">
                         <strong>To:</strong> {selected.recipient.name}
                       </Typography>
-                      <Typography sx={{ fontSize: '0.75rem' }} color="text.disabled">
+                      <Typography sx={{ fontSize: '0.86rem' }} color="text.disabled">
                         {new Date(selected.createdAt).toLocaleString()}
                       </Typography>
                     </Box>
@@ -333,19 +333,19 @@ export default function MessagesPage() {
                   {/* Original message */}
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                      <Avatar sx={{ width: 38, height: 38, bgcolor: avatarColor(selected.sender.name), fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                      <Avatar sx={{ width: 38, height: 38, bgcolor: avatarColor(selected.sender.name), fontSize: '0.86rem', fontWeight: 700, flexShrink: 0 }}>
                         {getInitials(selected.sender.name)}
                       </Avatar>
                       <Box sx={{ flex: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
-                          <Typography sx={{ fontSize: '0.875rem', fontWeight: 700 }}>{selected.sender.name}</Typography>
+                          <Typography sx={{ fontSize: '0.94rem', fontWeight: 700 }}>{selected.sender.name}</Typography>
                           {selected.sender.role && (
-                            <Chip label={selected.sender.role} size="small" sx={{ height: 18, fontSize: '0.65rem', textTransform: 'capitalize', '& .MuiChip-label': { px: 0.75 } }} />
+                            <Chip label={selected.sender.role} size="small" sx={{ height: 22, fontSize: '0.72rem', textTransform: 'capitalize', '& .MuiChip-label': { px: 0.75 } }} />
                           )}
-                          <Typography sx={{ fontSize: '0.72rem' }} color="text.disabled">{timeAgo(selected.createdAt)}</Typography>
+                          <Typography sx={{ fontSize: '0.82rem' }} color="text.disabled">{timeAgo(selected.createdAt)}</Typography>
                         </Box>
                         <Box sx={{ p: 2.5, bgcolor: 'action.hover', borderRadius: 2.5, lineHeight: 1.75 }}>
-                          <Typography sx={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{selected.body}</Typography>
+                          <Typography sx={{ fontSize: '0.94rem', whiteSpace: 'pre-wrap' }}>{selected.body}</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -354,22 +354,22 @@ export default function MessagesPage() {
                   {/* Replies */}
                   {(selected.replies ?? []).length > 0 && (
                     <Box sx={{ borderLeft: '2px solid', borderColor: 'divider', pl: 2, ml: 2.5, mb: 2 }}>
-                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1.5 }} color="text.disabled">
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1.5 }} color="text.disabled">
                         {selected.replies!.length} {selected.replies!.length === 1 ? 'Reply' : 'Replies'}
                       </Typography>
                       {(selected.replies ?? []).map((reply) => (
                         <Box key={reply.id} sx={{ mb: 2 }}>
                           <Box sx={{ display: 'flex', gap: 1.5 }}>
-                            <Avatar sx={{ width: 30, height: 30, bgcolor: avatarColor(reply.sender.name), fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}>
+                            <Avatar sx={{ width: 30, height: 30, bgcolor: avatarColor(reply.sender.name), fontSize: '0.72rem', fontWeight: 700, flexShrink: 0 }}>
                               {getInitials(reply.sender.name)}
                             </Avatar>
                             <Box sx={{ flex: 1 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700 }}>{reply.sender.name}</Typography>
-                                <Typography sx={{ fontSize: '0.7rem' }} color="text.disabled">{timeAgo(reply.createdAt)}</Typography>
+                                <Typography sx={{ fontSize: '0.9rem', fontWeight: 700 }}>{reply.sender.name}</Typography>
+                                <Typography sx={{ fontSize: '0.78rem' }} color="text.disabled">{timeAgo(reply.createdAt)}</Typography>
                               </Box>
                               <Box sx={{ p: 1.75, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                                <Typography sx={{ fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>{reply.body}</Typography>
+                                <Typography sx={{ fontSize: '0.94rem', whiteSpace: 'pre-wrap' }}>{reply.body}</Typography>
                               </Box>
                             </Box>
                           </Box>
@@ -402,7 +402,7 @@ export default function MessagesPage() {
                       {sendingReply ? 'Sending' : 'Send'}
                     </Button>
                   </Box>
-                  <Typography sx={{ fontSize: '0.7rem', mt: 0.5 }} color="text.disabled">Ctrl+Enter to send</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', mt: 0.5 }} color="text.disabled">Ctrl+Enter to send</Typography>
                 </Box>
               </motion.div>
             )}
@@ -482,7 +482,7 @@ function ComposeDialog({ open, onClose, users, usersLoading, onSent }: {
         {usersLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
             <CircularProgress size={16} />
-            <Typography color="text.secondary" sx={{ fontSize: '0.875rem' }}>Loading contacts...</Typography>
+            <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>Loading contacts...</Typography>
           </Box>
         ) : users.length === 0 ? (
           <Alert severity="info" sx={{ borderRadius: 2 }}>
@@ -495,12 +495,12 @@ function ComposeDialog({ open, onClose, users, usersLoading, onSent }: {
               {users.map(u => (
                 <MenuItem key={u.id} value={u.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.25 }}>
-                    <Avatar sx={{ width: 30, height: 30, bgcolor: avatarColor(u.name), fontSize: '0.68rem', fontWeight: 700 }}>
+                    <Avatar sx={{ width: 30, height: 30, bgcolor: avatarColor(u.name), fontSize: '0.78rem', fontWeight: 700 }}>
                       {getInitials(u.name)}
                     </Avatar>
                     <Box>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.2 }}>{u.name}</Typography>
-                      <Typography sx={{ fontSize: '0.73rem', lineHeight: 1.2 }} color="text.secondary">
+                      <Typography sx={{ fontSize: '0.94rem', fontWeight: 600, lineHeight: 1.2 }}>{u.name}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', lineHeight: 1.2 }} color="text.secondary">
                         {u.role ? `${u.role} · ${u.email}` : u.email}
                       </Typography>
                     </Box>
@@ -532,7 +532,7 @@ function ComposeDialog({ open, onClose, users, usersLoading, onSent }: {
           slotProps={{ input: { sx: { borderRadius: 2 } } }}
         />
 
-        <Typography sx={{ fontSize: '0.72rem' }} color="text.disabled">
+        <Typography sx={{ fontSize: '0.82rem' }} color="text.disabled">
           Ctrl+Enter to send quickly
         </Typography>
       </DialogContent>

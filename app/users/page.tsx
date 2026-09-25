@@ -102,7 +102,7 @@ export default function UsersPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>User Management</Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>
+            <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>
               Manage VAWC officers and admin accounts
             </Typography>
           </Box>
@@ -122,7 +122,7 @@ export default function UsersPage() {
                     <Typography variant="h3" sx={{ fontWeight: 900, color: s.color }}>
                       {isLoading ? '—' : s.count}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">{s.label}</Typography>
+                    <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">{s.label}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -153,7 +153,7 @@ export default function UsersPage() {
             </FormControl>
             <FormControlLabel
               control={<Switch checked={showInactive} onChange={e => setShowInactive(e.target.checked)} size="small" />}
-              label={<Typography sx={{ fontSize: '0.85rem' }}>Show Inactive</Typography>}
+              label={<Typography sx={{ fontSize: '0.94rem' }}>Show Inactive</Typography>}
               sx={{ ml: 1 }}
             />
           </CardContent>
@@ -164,7 +164,7 @@ export default function UsersPage() {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'text.secondary', bgcolor: 'action.hover', py: 1.5 } }}>
+                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.86rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'text.secondary', bgcolor: 'action.hover', py: 1.5 } }}>
                   <TableCell>User</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell>Contact</TableCell>
@@ -200,32 +200,32 @@ export default function UsersPage() {
                       >
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                            <Avatar sx={{ width: 36, height: 36, background: `linear-gradient(135deg, ${rc.color}90, ${rc.color}50)`, fontSize: '0.8rem', fontWeight: 700, opacity: user.active ? 1 : 0.5 }}>
+                            <Avatar sx={{ width: 36, height: 36, background: `linear-gradient(135deg, ${rc.color}90, ${rc.color}50)`, fontSize: '0.9rem', fontWeight: 700, opacity: user.active ? 1 : 0.5 }}>
                               {getInitials(user.name)}
                             </Avatar>
                             <Box>
-                              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, opacity: user.active ? 1 : 0.5 }}>{user.name}</Typography>
-                              <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{user.email}</Typography>
+                              <Typography sx={{ fontSize: '0.94rem', fontWeight: 600, opacity: user.active ? 1 : 0.5 }}>{user.name}</Typography>
+                              <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">{user.email}</Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell>
                           <Chip label={rc.label} size="small"
-                            sx={{ bgcolor: `${rc.color}18`, color: rc.color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                            sx={{ bgcolor: `${rc.color}18`, color: rc.color, fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
                         </TableCell>
                         <TableCell>
-                          <Typography sx={{ fontSize: '0.82rem' }}>{user.phone ?? '—'}</Typography>
-                          {user.barangay && <Typography sx={{ fontSize: '0.72rem' }} color="text.secondary">{user.barangay}</Typography>}
+                          <Typography sx={{ fontSize: '0.9rem' }}>{user.phone ?? '—'}</Typography>
+                          {user.barangay && <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">{user.barangay}</Typography>}
                         </TableCell>
                         <TableCell>
-                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 600 }}>{user._count.assignedCases}</Typography>
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 600 }}>{user._count.assignedCases}</Typography>
                         </TableCell>
                         <TableCell>
                           <Chip label={user.active ? 'Active' : 'Inactive'} size="small"
-                            sx={{ bgcolor: user.active ? '#22c55e18' : '#ef444418', color: user.active ? '#22c55e' : '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                            sx={{ bgcolor: user.active ? '#22c55e18' : '#ef444418', color: user.active ? '#22c55e' : '#ef4444', fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
                         </TableCell>
                         <TableCell>
-                          <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">
+                          <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </Typography>
                         </TableCell>

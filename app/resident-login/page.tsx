@@ -11,16 +11,18 @@ import {
 } from '@mui/material';
 import { Shield, Visibility, VisibilityOff, Person, Lock, ArrowForward } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 
 const schema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Enter your email or username'),
   password: z.string().min(1, 'Password is required'),
 });
 type LoginForm = z.infer<typeof schema>;
 
 export default function ResidentLoginPage() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
   const [showPw, setShowPw] = useState(false);
   const [apiError, setApiError] = useState('');
 
@@ -100,7 +102,7 @@ export default function ResidentLoginPage() {
             <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1.4rem', mb: 0.25 }}>
               SafeComm
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.8rem', letterSpacing: 2, textTransform: 'uppercase' }}>
+            <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', letterSpacing: 2, textTransform: 'uppercase' }}>
               Resident Portal
             </Typography>
           </Box>
@@ -108,20 +110,48 @@ export default function ResidentLoginPage() {
           <Typography sx={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', mb: 0.5 }}>
             Sign in to your account
           </Typography>
-          <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.82rem', mb: 3 }}>
+          <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.9rem', mb: 3 }}>
             Access your reports and case status
           </Typography>
 
           {apiError && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2, fontSize: '0.82rem' }}>
+            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2, fontSize: '0.9rem' }}>
               {apiError}
             </Alert>
           )}
 
+          {/* Residents authenticate with Clerk. Residents sent here by an expired
+              session need this route back in; the password form below only
+              serves accounts created before the Clerk migration. */}
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            disabled={!isLoaded}
+            onClick={() => router.push(isSignedIn ? '/complete-profile' : '/sign-in')}
+            endIcon={isLoaded ? <ArrowForward /> : undefined}
+            sx={{
+              py: 1.5, fontWeight: 700, fontSize: '0.98rem',
+              background: 'linear-gradient(135deg, #14b8a6, #0891b2)',
+              boxShadow: '0 8px 24px rgba(20,184,166,0.4)',
+              '&:hover': { background: 'linear-gradient(135deg, #0d9488, #0e7490)' },
+            }}
+          >
+            {!isLoaded
+              ? <CircularProgress size={22} color="inherit" />
+              : isSignedIn ? 'Continue to My Portal' : 'Sign In as Resident'}
+          </Button>
+
+          <Divider sx={{ my: 2.5, borderColor: 'rgba(255,255,255,0.1)' }}>
+            <Typography sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.78rem', px: 1 }}>
+              REGISTERED BEFORE?
+            </Typography>
+          </Divider>
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.25 }}>
             <TextField
-              label="Email Address"
-              type="email"
+              label="Email or Username"
+              type="text"
               {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
@@ -175,7 +205,7 @@ export default function ResidentLoginPage() {
               disabled={isSubmitting}
               endIcon={!isSubmitting && <ArrowForward />}
               sx={{
-                mt: 0.5, py: 1.5, fontWeight: 700, fontSize: '0.95rem',
+                mt: 0.5, py: 1.5, fontWeight: 700, fontSize: '0.98rem',
                 background: 'linear-gradient(135deg, #14b8a6, #0891b2)',
                 boxShadow: '0 8px 24px rgba(20,184,166,0.4)',
                 '&:hover': { background: 'linear-gradient(135deg, #0d9488, #0e7490)' },
@@ -187,7 +217,7 @@ export default function ResidentLoginPage() {
           </Box>
 
           <Divider sx={{ my: 3, borderColor: 'rgba(255,255,255,0.1)' }}>
-            <Typography sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', px: 1 }}>New here?</Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.86rem', px: 1 }}>New here?</Typography>
           </Divider>
 
           <Button
@@ -207,7 +237,7 @@ export default function ResidentLoginPage() {
             <Typography
               component="span"
               onClick={() => router.push('/login')}
-              sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', '&:hover': { color: 'rgba(255,255,255,0.6)' }, transition: 'color 0.15s' }}
+              sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', '&:hover': { color: 'rgba(255,255,255,0.6)' }, transition: 'color 0.15s' }}
             >
               Officer / Admin? Sign in here →
             </Typography>

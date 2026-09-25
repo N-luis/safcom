@@ -117,7 +117,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               <Typography variant="h6" sx={{ fontWeight: 800, color: 'white', lineHeight: 1.1, fontSize: '1rem' }}>
                 SafeComm
               </Typography>
-              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>
+              <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>
                 Barangay Captain
               </Typography>
             </motion.div>
@@ -152,7 +152,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         {!sidebarCollapsed && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Typography
-              sx={{ px: 2.5, pt: 2.5, pb: 0.5, fontSize: '0.62rem', color: 'rgba(255,255,255,0.35)',
+              sx={{ px: 2.5, pt: 2.5, pb: 0.5, fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)',
                 letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600 }}
             >
               Main Navigation
@@ -189,7 +189,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                   <AnimatePresence>
                     {!sidebarCollapsed && (
                       <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.15 }} style={{ flex: 1 }}>
-                        <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontSize: '0.875rem', fontWeight: active ? 600 : 400, color: active ? '#e2e8f0' : 'rgba(255,255,255,0.6)' } } }} />
+                        <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontSize: '0.94rem', fontWeight: active ? 600 : 400, color: active ? '#e2e8f0' : 'rgba(255,255,255,0.6)' } } }} />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -210,7 +210,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         <AnimatePresence>
           {!sidebarCollapsed && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <Typography sx={{ px: 1, pb: 0.5, fontSize: '0.62rem', color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600 }}>
+              <Typography sx={{ px: 1, pb: 0.5, fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600 }}>
                 Other Modules
               </Typography>
             </motion.div>
@@ -241,7 +241,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                     <AnimatePresence>
                       {!sidebarCollapsed && (
                         <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.15 }} style={{ flex: 1 }}>
-                          <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontSize: '0.875rem', fontWeight: active ? 600 : 400, color: active ? '#e2e8f0' : 'rgba(255,255,255,0.55)' } } }} />
+                          <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontSize: '0.94rem', fontWeight: active ? 600 : 400, color: active ? '#e2e8f0' : 'rgba(255,255,255,0.55)' } } }} />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -277,7 +277,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             sx={{
               width: 38, height: 38,
               background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-              fontSize: '0.875rem', fontWeight: 700,
+              fontSize: '0.94rem', fontWeight: 700,
             }}
           >
             {userInitials}
@@ -293,10 +293,10 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               transition={{ duration: 0.15 }}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: 'white', lineHeight: 1.2 }}>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: 'white', lineHeight: 1.2 }}>
                 {currentUser?.name ?? 'Loading...'}
               </Typography>
-              <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+              <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
                 {roleLabel}
               </Typography>
             </motion.div>

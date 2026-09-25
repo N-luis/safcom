@@ -10,6 +10,7 @@ datasource db {
 model User {
   id               String     @id @default(cuid())
   email            String     @unique
+  username         String?    @unique
   name             String
   password         String
   role             String     @default("officer")
@@ -73,14 +74,32 @@ model Resident {
   address        String
   contactNumber  String?
   email          String?
+  username       String?   @unique
+  // Links this resident to their Clerk account. Clerk owns the credentials and
+  // email verification; this row holds the barangay profile data.
+  clerkId        String?   @unique
   password       String?
   idDocument     String?
   status         String    @default("Active")
   riskLevel      String    @default("Low")
   notes          String?
+  emailVerified  Boolean   @default(false)
   registeredAt   DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  cases          Case[]
+  cases                   Case[]
+  verificationTokens      EmailVerificationToken[]
+}
+
+model EmailVerificationToken {
+  id         String   @id @default(cuid())
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([residentId])
 }
 
 model Activity {

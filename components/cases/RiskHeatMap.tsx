@@ -3,126 +3,111 @@
 import { useState } from 'react';
 import { Box, Typography, Chip } from '@mui/material';
 
-type RiskLevel = 'High' | 'Medium' | 'Low';
+/**
+ * Street risk heatmap for Brgy. Biñang 2nd, Bocaue.
+ *
+ * Geometry is traced from the barangay's own wall map ("Brgy. Biñang 2nd
+ * Hazard Map"): the same roads, junctions, landmarks and subdivisions, in the
+ * same relative positions. The hazard colour-coding of that map is
+ * deliberately NOT carried over — every node ships as `None` with 0 incidents
+ * so this reads as "no data yet". Colour and counts come from real blotter
+ * entries; wire them in by overriding `level` / `incidents` per node id.
+ */
+
+type RiskLevel = 'High' | 'Medium' | 'Low' | 'None';
 
 const LEVEL_COLOR: Record<RiskLevel, string> = {
   High: '#ef4444',
   Medium: '#f97316',
   Low: '#22c55e',
+  None: '#94a3b8',
 };
 
-// ─── Street nodes, positioned in the map's own coordinate space (520 × 290) ───
-// Road centrelines: MacArthur y=71.5 · Biñan 2nd y=151 · Local Ln y=209
-//                   San Isidro x=84 · Rizal x=191 · Del Pilar x=305.5
+const LEVEL_LABEL: Record<RiskLevel, string> = {
+  High: 'High Risk', Medium: 'Medium Risk', Low: 'Low Risk', None: 'No data',
+};
+
+const HEAT_R: Record<RiskLevel, number> = { High: 46, Medium: 34, Low: 22, None: 0 };
+const NODE_R: Record<RiskLevel, number> = { High: 11, Medium: 9, Low: 7, None: 8 };
+const HEAT_OP: Record<RiskLevel, number> = { High: 0.20, Medium: 0.14, Low: 0.09, None: 0 };
+
+// --- Map coordinate space: 760 x 400 -----------------------------------------
+// Landscape so the whole barangay fits on screen without scrolling.
+// McArthur Hi-Way  y=130, west end x=20 -> Fly-Over junction x=305
+// Cross streets    Ortega Comp./Sapa x=44 . Eugenio Comp. x=132
+//                  J.P. Rizal St. diagonal (178,132)->(305,48)
+//                  Violeta Metroville Subd. x=262 . Gov. F. Halili Ext. x=305
+// North loop       (304,48) east, curving back down to the Fly-Over at (348,133)
+// Gov. F. Halili Ave. runs south-east (342,130)->(452,320) to the PNR crossing
+// PNR railway      diagonal (120,398)->(752,250); Turo and Granville below it
 
 interface Zone {
   id: string; name: string; short: string;
   x: number; y: number;
   level: RiskLevel; incidents: number; desc: string;
   illZoneId: string;
-  major: boolean; // major nodes keep a permanent label
+  major: boolean;      // major nodes keep a permanent label
+  labelDx?: number;    // nudge the label clear of neighbours / landmarks
+  labelDy?: number;
 }
 
+/** The 10 monitored intersections. All neutral until real data is entered. */
 const ZONES: Zone[] = [
-  // ── High ──────────────────────────────────────────────────────────────────
-  { id: 'hall',      name: 'Brgy. Hall Corridor',         short: 'Brgy. Hall',      x: 128,   y: 112,  level: 'High',   incidents: 5, illZoneId: 'hall',       major: true,
-    desc: 'Highest case concentration — Barangay Hall block fronting Biñan 2nd Road' },
-  { id: 'chapel',    name: 'Chapel Junction',             short: 'Chapel',          x: 230,   y: 110,  level: 'High',   incidents: 3, illZoneId: 'chapel',     major: true,
-    desc: 'Chapel / Church area — domestic and community dispute hotspot' },
-
-  // ── Medium ────────────────────────────────────────────────────────────────
-  { id: 'market',    name: 'MacArthur Commercial Strip',  short: 'Market Strip',    x: 138,   y: 71.5, level: 'Medium', incidents: 2, illZoneId: 'commercial', major: false,
-    desc: 'Market stalls along MacArthur Highway — petty crime watch area' },
-  { id: 'east-res',  name: 'East Residential Zone',       short: 'East Residential', x: 415,  y: 106,  level: 'Medium', incidents: 2, illZoneId: 'east',       major: true,
-    desc: 'East blocks beyond Del Pilar St. — rising trend in blotter reports' },
-  { id: 'mac-rizal', name: 'MacArthur × Rizal St.',       short: 'Mac × Rizal',     x: 191,   y: 71.5, level: 'Medium', incidents: 1, illZoneId: 'commercial', major: false,
-    desc: 'Mid-MacArthur junction — moderate commercial activity, heavy foot traffic' },
-  { id: 'binan-del', name: 'Biñan 2nd × Del Pilar St.',   short: 'Biñan × Del Pilar', x: 305.5, y: 151, level: 'Medium', incidents: 1, illZoneId: 'east',      major: false,
-    desc: 'Eastern Biñan 2nd junction — moderate risk, rising trend' },
-
-  // ── Low ───────────────────────────────────────────────────────────────────
-  { id: 'mac-san',   name: 'MacArthur × San Isidro St.',  short: 'Mac × San Isidro', x: 84,   y: 71.5, level: 'Low',    incidents: 0, illZoneId: 'west',       major: false,
-    desc: 'Northwest corner — quiet start of MacArthur near west residential' },
-  { id: 'mac-del',   name: 'MacArthur × Del Pilar St.',   short: 'Mac × Del Pilar', x: 305.5, y: 71.5, level: 'Low',    incidents: 0, illZoneId: 'commercial', major: false,
-    desc: 'Northeast MacArthur junction — low activity, stable area' },
-  { id: 'binan-san', name: 'Biñan 2nd × San Isidro St.',  short: 'Biñan × San Isidro', x: 84, y: 151,  level: 'Low',    incidents: 1, illZoneId: 'west',       major: false,
-    desc: 'West entry of Biñan 2nd Road — low severity, quiet residential block' },
-  { id: 'binan-riz', name: 'Biñan 2nd × Rizal St.',       short: 'Biñan × Rizal',   x: 191,   y: 151,  level: 'Low',    incidents: 0, illZoneId: 'hall',       major: false,
-    desc: 'Mid Biñan 2nd at Rizal — connects the Hall and Chapel corridors' },
-  { id: 'bball',     name: 'Basketball Court Area',       short: 'Basketball Court', x: 134,  y: 182,  level: 'Low',    incidents: 0, illZoneId: 'south',      major: true,
-    desc: 'Community court — safe space, low risk, mostly youth activity' },
-  { id: 'local-san', name: 'Local Ln × San Isidro St.',   short: 'Local × San Isidro', x: 84, y: 209,  level: 'Low',    incidents: 0, illZoneId: 'south',      major: false,
-    desc: 'Southwest Local Lane corner — very quiet residential block' },
-  { id: 'south-ctr', name: 'South Quarter Center',        short: 'South Quarter',   x: 240,   y: 248,  level: 'Low',    incidents: 1, illZoneId: 'south',      major: true,
-    desc: 'Southern gardens and residential lots — minimal incidents' },
-  { id: 'local-del', name: 'Local Ln × Del Pilar St.',    short: 'Local × Del Pilar', x: 305.5, y: 209, level: 'Low',   incidents: 0, illZoneId: 'south',      major: false,
-    desc: 'Southeast Local Lane junction — quiet area, no active cases' },
+  { id: 'ortega-mac', name: 'Ortega Comp. × McArthur Hi-Way', short: 'Ortega Comp.', x: 44, y: 130, level: 'None', incidents: 0, illZoneId: 'mcarthur', major: true, labelDx: -6, labelDy: 30,
+    desc: 'West end of McArthur Hi-Way — Ortega Compound, continues south as Sapa' },
+  { id: 'eugenio-mac', name: 'Eugenio Comp. × McArthur Hi-Way', short: 'Eugenio Comp.', x: 132, y: 130, level: 'None', incidents: 0, illZoneId: 'mcarthur', major: true, labelDx: -14, labelDy: -30,
+    desc: 'Eugenio Compound running south off McArthur, past Sto. Niño Academy' },
+  { id: 'rizal-mac', name: 'J.P. Rizal St. × McArthur Hi-Way', short: 'J.P. Rizal St.', x: 178, y: 130, level: 'None', incidents: 0, illZoneId: 'civic', major: true, labelDy: -30,
+    desc: 'J.P. Rizal St. climbs north-east to the Fly-Over, enclosing the Brgy Hall block' },
+  { id: 'violeta-mac', name: 'Violeta Metroville Subd. × McArthur Hi-Way', short: 'Violeta St.', x: 262, y: 130, level: 'None', incidents: 0, illZoneId: 'mcarthur', major: true, labelDx: 12, labelDy: -30,
+    desc: 'Entry to Violeta St. / Metroville Subd. from McArthur Hi-Way' },
+  { id: 'flyover', name: 'Fly-Over × Gov. F. Halili Ext.', short: 'Fly-Over', x: 305, y: 130, level: 'None', incidents: 0, illZoneId: 'civic', major: true, labelDx: 34, labelDy: -26,
+    desc: 'Central junction — Gov. F. Halili Ext. north, Gov. F. Halili Ave. south' },
+  { id: 'lazaro', name: 'P. Lazaro St. × north loop', short: 'P. Lazaro St.', x: 500, y: 64, level: 'None', incidents: 0, illZoneId: 'north-res', major: true, labelDy: -28,
+    desc: 'North-east branch toward the P. Lazaro house cluster and Dr. Yanga Colleges' },
+  { id: 'violeta-fork', name: 'Violeta St. fork', short: 'Violeta Fork', x: 262, y: 208, level: 'None', incidents: 0, illZoneId: 'metroville', major: true, labelDx: -4,
+    desc: 'Fork into the Metroville Subd. grid — three parallel residential rows south' },
+  { id: 'halili-mid', name: 'Gov. F. Halili Ave. midpoint', short: 'Gov. F. Halili Ave.', x: 402, y: 224, level: 'None', incidents: 0, illZoneId: 'halili', major: true,
+    desc: 'Mid-stretch of Gov. F. Halili Ave. between the Fly-Over and the railway' },
+  { id: 'halili-pnr', name: 'Gov. F. Halili Ave. × PNR crossing', short: 'PNR Crossing', x: 452, y: 316, level: 'None', incidents: 0, illZoneId: 'halili', major: true,
+    desc: 'PNR railway crossing — Gov. F. Halili Ave. continues south as Turo' },
+  { id: 'ayukit-pnr', name: 'Ayukit × PNR crossing', short: 'Ayukit', x: 596, y: 283, level: 'None', incidents: 0, illZoneId: 'granville', major: true, labelDx: 34,
+    desc: 'Ayukit meeting the railway, connecting Granville Subd. through to Turo' },
 ];
 
-// Street segments — intersections run along real road centrelines, landmarks
-// hang off them as short access spurs.
+/** Road network between monitored points. */
 const STREETS: [string, string][] = [
-  // MacArthur Highway
-  ['mac-san', 'market'], ['market', 'mac-rizal'], ['mac-rizal', 'mac-del'],
-  // Biñan 2nd Road
-  ['binan-san', 'binan-riz'], ['binan-riz', 'binan-del'],
-  // Local Lane
-  ['local-san', 'local-del'],
-  // San Isidro St.
-  ['mac-san', 'binan-san'], ['binan-san', 'local-san'],
-  // Rizal St.
-  ['mac-rizal', 'binan-riz'],
-  // Del Pilar St.
-  ['mac-del', 'binan-del'], ['binan-del', 'local-del'],
-  // Barangay Hall access
-  ['binan-san', 'hall'], ['hall', 'binan-riz'], ['market', 'hall'],
-  // Chapel access
-  ['binan-riz', 'chapel'], ['chapel', 'binan-del'],
-  // East residential access
-  ['mac-del', 'east-res'], ['binan-del', 'east-res'],
-  // South quarter access
-  ['local-san', 'bball'], ['south-ctr', 'local-del'],
+  ['ortega-mac', 'eugenio-mac'], ['eugenio-mac', 'rizal-mac'],
+  ['rizal-mac', 'violeta-mac'], ['violeta-mac', 'flyover'],
+  ['flyover', 'lazaro'],
+  ['violeta-mac', 'violeta-fork'],
+  ['flyover', 'halili-mid'], ['halili-mid', 'halili-pnr'],
+  ['halili-pnr', 'ayukit-pnr'],
 ];
 
-const HEAT_R: Record<RiskLevel, number> = { High: 44, Medium: 32, Low: 20 };
-const NODE_R: Record<RiskLevel, number> = { High: 11, Medium: 9, Low: 7 };
-const HEAT_OP: Record<RiskLevel, number> = { High: 0.20, Medium: 0.14, Low: 0.09 };
-
-// ─── Base map artwork ────────────────────────────────────────────────────────
-
-const HOUSES: [number, number, number, number][] = [
-  [8,8,14,10],[28,8,14,10],[50,8,18,12],[8,28,16,10],[32,28,14,10],[52,28,16,10],[10,46,12,10],[30,46,18,10],[54,46,14,10],
-  [96,10,22,12],[124,10,18,12],[148,10,22,12],
-  [260,10,14,10],[280,10,14,10],[200,46,14,12],[220,46,14,12],[240,46,14,12],[262,46,14,12],[282,46,14,12],
-  [318,8,14,10],[340,8,16,10],[362,8,14,10],[384,8,18,10],[408,8,14,10],
-  [318,26,16,10],[344,26,14,10],[364,26,18,10],
-  [318,44,14,12],[342,44,16,12],[364,44,14,12],[386,44,18,12],
-  [8,86,14,10],[28,86,16,10],[50,86,18,10],[8,104,16,10],[30,104,14,10],[52,104,16,10],
-  [8,122,14,15],[30,122,18,15],[54,122,14,15],
-  [318,84,16,11],[340,84,18,11],[364,84,16,11],[386,84,20,11],[412,84,16,11],
-  [318,102,18,11],[342,102,16,11],[364,102,18,11],[388,102,18,11],
-  [318,120,16,17],[340,120,18,17],[364,120,16,17],[386,120,20,17],[412,120,16,17],
-  [8,162,14,10],[28,162,16,10],[50,162,18,10],[8,180,60,16],
-  [200,162,14,10],[220,162,14,10],[240,162,14,10],[260,162,14,10],[280,162,14,10],
-  [200,180,14,14],[222,180,16,14],[242,180,14,14],[260,180,16,14],[282,180,12,14],
-  [318,162,16,11],[340,162,18,11],[364,162,16,11],[386,162,18,11],
-  [318,180,18,16],[342,180,16,16],[364,180,18,16],[388,180,16,16],
-  [58,220,22,25],[88,220,18,22],[115,220,22,25],[145,220,18,20],
-  [270,220,22,22],[300,220,18,22],[358,220,22,22],[388,220,18,22],
-];
-
-const SHOPS: [number, number, number, number][] = [
-  [94,48,20,14],[118,48,20,14],[142,48,20,14],[166,48,14,14],
-];
-
-const TREES: [number, number][] = [
-  [74,58],[72,78],[66,100],[76,125],[181,90],[177,110],[179,132],
-  [294,85],[296,110],[292,132],[180,158],[296,163],[74,162],[183,215],
-  [298,215],[78,215],[10,215],[500,40],[500,100],[500,160],[448,215],
-];
-
-const GARDENS: [number, number, number, number][] = [
-  [10,220,40,55],[200,220,60,55],[320,220,28,55],[415,220,28,55],
+// --- Base map artwork --------------------------------------------------------
+// House glyphs, matching the little home icons drawn on the wall map.
+const HOUSES: [number, number][] = [
+  // Sapa / Ortega Comp. southern end
+  [78, 206], [86, 222], [94, 238],
+  // North grid - A. Mendoza St. / J. Benedicto St.
+  [316, 52], [332, 52], [348, 52], [364, 52], [380, 52],
+  [316, 76], [332, 76], [348, 76], [364, 76], [380, 76],
+  [316, 98], [332, 98], [348, 98], [364, 98], [380, 98],
+  // P. Lazaro St. cluster
+  [496, 76], [510, 76],
+  [512, 90], [546, 90], [512, 106], [546, 106], [512, 122], [546, 122],
+  // Along Gov. F. Halili Ave., near 7-Eleven
+  [404, 182], [398, 198], [410, 212], [420, 190],
+  // Metroville Subd. rows
+  [168, 194], [196, 194], [224, 194], [284, 194], [308, 194],
+  [168, 224], [196, 224], [224, 224], [284, 224], [308, 224],
+  [168, 258], [196, 258], [224, 258], [284, 258], [308, 258],
+  // Granville Subd. block
+  [556, 170], [612, 170], [668, 170],
+  [556, 196], [612, 196], [668, 196],
+  [556, 222], [612, 222], [668, 222],
+  [520, 178], [520, 204], [520, 230],
 ];
 
 interface IllZone {
@@ -130,14 +115,32 @@ interface IllZone {
   x: number; y: number; w: number; h: number; detail: string;
 }
 
+/** District shading. Neutral until real incident data arrives. */
 const ILL_ZONES: IllZone[] = [
-  { id:'hall',       label:'Civic Center (Brgy. Hall)',   level:'High',   incidents:5, x:90,  y:80,  w:95,  h:65,  detail:'Barangay Hall corridor — highest concentration of blotter cases' },
-  { id:'chapel',     label:'Chapel / Church Area',        level:'High',   incidents:3, x:197, y:80,  w:103, h:65,  detail:'Chapel area — domestic and community dispute hotspot' },
-  { id:'commercial', label:'MacArthur Commercial Strip',  level:'Medium', incidents:2, x:90,  y:0,   w:210, h:65,  detail:'Commercial district along MacArthur Highway, petty crime watch area' },
-  { id:'east',       label:'East Residential Zone',       level:'Medium', incidents:2, x:311, y:0,   w:209, h:213, detail:'East blocks — moderate risk, rising trend in reports' },
-  { id:'south',      label:'South Quarter',               level:'Low',    incidents:1, x:0,   y:213, w:520, h:77,  detail:'Southern gardens and residential lots — minimal incidents' },
-  { id:'west',       label:'West Residential',            level:'Low',    incidents:1, x:0,   y:80,  w:78,  h:133, detail:'West blocks — quiet zone, low severity' },
+  { id: 'north-res', label: 'North Residential Cluster', level: 'None', incidents: 0, x: 300, y: 38, w: 392, h: 98,
+    detail: 'J. Benedicto St. / A. Mendoza St. grid plus the P. Lazaro St. house cluster' },
+  { id: 'mcarthur', label: 'McArthur Hi-Way Corridor', level: 'None', incidents: 0, x: 36, y: 120, w: 222, h: 22,
+    detail: 'Main through-road — Ortega Comp., Eugenio Comp. and Violeta St. crossings' },
+  { id: 'civic', label: 'Civic Center (Brgy Hall)', level: 'None', incidents: 0, x: 180, y: 50, w: 120, h: 78,
+    detail: 'Brgy Hall and Senior Citizen Office inside the J.P. Rizal St. / Fly-Over block' },
+  { id: 'metroville', label: 'Violeta St. / Metroville Subd.', level: 'None', incidents: 0, x: 142, y: 190, w: 190, h: 100,
+    detail: 'Residential grid south of McArthur — three parallel rows off the Violeta St. fork' },
+  { id: 'halili', label: 'Gov. F. Halili Ave. Corridor', level: 'None', incidents: 0, x: 336, y: 142, w: 100, h: 180,
+    detail: 'Gov. F. Halili Ave. from the Fly-Over down to the PNR crossing, then Turo' },
+  { id: 'granville', label: 'Granville Subd.', level: 'None', incidents: 0, x: 508, y: 152, w: 240, h: 238,
+    detail: 'Residential block east of Ayukit, above the PNR railway crossing' },
 ];
+
+/** Little home glyph — square body with a pitched roof, as drawn on the source map. */
+function House({ x, y }: { x: number; y: number }) {
+  const w = 9, h = 9, roof = 3.4;
+  return (
+    <path
+      d={`M ${x},${y + h} L ${x},${y + roof} L ${x + w / 2},${y} L ${x + w},${y + roof} L ${x + w},${y + h} Z`}
+      fill="#e6e0d2" stroke="#9c937f" strokeWidth={0.8} strokeLinejoin="round"
+    />
+  );
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -148,7 +151,7 @@ interface RiskHeatMapProps {
 }
 
 export default function RiskHeatMap({
-  title        = 'Biñan 2nd, Bocaue — Street Risk Heatmap',
+  title        = 'Biñang 2nd, Bocaue — Street Risk Heatmap',
   contextLabel = 'Geographic view',
   accent       = '#1d4ed8',
 }: RiskHeatMapProps = {}) {
@@ -164,6 +167,7 @@ export default function RiskHeatMap({
     High:   ZONES.filter(z => z.level === 'High').length,
     Medium: ZONES.filter(z => z.level === 'Medium').length,
     Low:    ZONES.filter(z => z.level === 'Low').length,
+    None:   ZONES.filter(z => z.level === 'None').length,
   };
 
   const selectedNode = selected ? zoneMap[selected] ?? null : null;
@@ -171,7 +175,6 @@ export default function RiskHeatMap({
     ? ILL_ZONES.find(a => a.id === selectedNode.illZoneId) ?? null
     : null;
 
-  // Info panel: hovered node → hovered area → selected node → empty
   const panel =
     hovered
       ? { color: LEVEL_COLOR[hovered.level], title: hovered.name, level: hovered.level,
@@ -189,7 +192,15 @@ export default function RiskHeatMap({
     { label: 'High',   color: '#ef4444' },
     { label: 'Medium', color: '#f97316' },
     { label: 'Low',    color: '#22c55e' },
+    { label: 'None',   color: '#94a3b8' },
   ];
+
+  const totalIncidents = ZONES.reduce((s, z) => s + z.incidents, 0);
+  const awaitingData = ZONES.every(z => z.level === 'None');
+
+  const ROAD = '#cdc5b4';
+  const LABEL = '#6b7280';
+  const FONT = 'Inter,system-ui,sans-serif';
 
   return (
     <Box>
@@ -202,11 +213,11 @@ export default function RiskHeatMap({
             return (
               <Chip
                 key={f.label}
-                label={`${f.label} (${count})`}
+                label={`${f.label === 'None' ? 'No data' : f.label} (${count})`}
                 onClick={() => setFilter(f.label)}
                 size="small"
                 sx={{
-                  fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer',
+                  fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer',
                   bgcolor: active ? `${f.color}18` : '#f8fafc',
                   color:   active ? f.color : '#64748b',
                   border:  `1.5px solid ${active ? f.color : '#e8edf2'}`,
@@ -216,72 +227,68 @@ export default function RiskHeatMap({
             );
           })}
         </Box>
-        <Typography sx={{ fontSize: '0.67rem', color: '#94a3b8', fontStyle: 'italic', ml: 'auto' }}>
+        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontStyle: 'italic', ml: 'auto' }}>
           Hover a node or block · click a node to pin its zone
         </Typography>
       </Box>
 
       {/* ── Combined map ── */}
       <Box sx={{ borderRadius: 2.5, overflow: 'hidden', border: '1px solid #e8edf2', bgcolor: '#fff' }}>
-        {/* Header bar */}
         <Box sx={{
           px: 1.75, py: 1, borderBottom: '1px solid #eef2f6',
           display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
         }}>
           <Typography sx={{
-            fontSize: '0.7rem', color: '#0c1e46', fontWeight: 800,
+            fontSize: '0.78rem', color: '#0c1e46', fontWeight: 800,
             letterSpacing: '0.07em', textTransform: 'uppercase',
           }}>
             {title}
           </Typography>
           <Chip label={contextLabel} size="small"
-            sx={{ bgcolor: `${accent}14`, color: accent, fontWeight: 700, fontSize: '0.6rem', height: 18 }} />
+            sx={{ bgcolor: `${accent}14`, color: accent, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          {awaitingData && (
+            <Chip label="Awaiting incident data" size="small"
+              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          )}
           {pinnedArea && (
             <Chip label={`● ${pinnedArea.label}`} size="small"
               sx={{
                 bgcolor: `${LEVEL_COLOR[pinnedArea.level]}18`, color: LEVEL_COLOR[pinnedArea.level],
-                fontWeight: 700, fontSize: '0.6rem', height: 18,
+                fontWeight: 700, fontSize: '0.72rem', height: 22,
                 animation: 'fadeIn 0.3s ease',
                 '@keyframes fadeIn': { from: { opacity: 0 }, to: { opacity: 1 } },
               }} />
           )}
-          <Typography sx={{ fontSize: '0.63rem', color: '#94a3b8', ml: 'auto' }}>
-            {ZONES.reduce((s, z) => s + z.incidents, 0)} incidents · {ZONES.length} monitored points
+          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', ml: 'auto' }}>
+            {totalIncidents} incidents · {ZONES.length} monitored points
           </Typography>
         </Box>
 
-        <Box sx={{ bgcolor: '#faf6ef' }}>
-          <svg viewBox="0 0 520 290" width="100%" style={{ display: 'block' }}
-            aria-label="Biñan 2nd, Bocaue street-level risk heatmap over area map">
+        <Box sx={{ bgcolor: '#fdfbf7' }}>
+          <svg viewBox="0 0 760 400" width="100%" preserveAspectRatio="xMidYMid meet"
+            style={{ display: 'block', width: '100%', height: 'auto' }}
+            aria-label="Binang 2nd, Bocaue street-level risk map, traced from the barangay hazard map">
             <defs>
               <filter id="rh-h"><feGaussianBlur stdDeviation="15" /></filter>
               <filter id="rh-m"><feGaussianBlur stdDeviation="11" /></filter>
               <filter id="rh-l"><feGaussianBlur stdDeviation="7"  /></filter>
-              <pattern id="rh-dots" width="18" height="18" patternUnits="userSpaceOnUse">
-                <circle cx="9" cy="9" r="0.7" fill="#ddd5c0" />
-              </pattern>
             </defs>
 
-            <rect width="520" height="290" fill="#faf6ef" />
-            <rect width="520" height="290" fill="url(#rh-dots)" />
+            <rect width="760" height="400" fill="#fdfbf7" />
 
-            {/* ── Block fills ── */}
-            <rect x="0"   y="0"   width="78"  height="65"  fill="#f5f0e4" />
-            <rect x="90"  y="0"   width="95"  height="65"  fill="#f2ede0" />
-            <rect x="197" y="0"   width="103" height="65"  fill="#f5f0e4" />
-            <rect x="311" y="0"   width="209" height="65"  fill="#f5f0e4" />
-            <rect x="0"   y="80"  width="78"  height="65"  fill="#f5f0e4" />
-            <rect x="90"  y="80"  width="95"  height="65"  fill="#eff6ff" />
-            <rect x="197" y="80"  width="103" height="65"  fill="#fdf2f8" />
-            <rect x="311" y="80"  width="209" height="65"  fill="#f5f0e4" />
-            <rect x="0"   y="157" width="78"  height="48"  fill="#f5f0e4" />
-            <rect x="90"  y="157" width="95"  height="48"  fill="#fffbeb" />
-            <rect x="197" y="157" width="103" height="48"  fill="#f5f0e4" />
-            <rect x="311" y="157" width="209" height="48"  fill="#f5f0e4" />
-            <rect x="0"   y="213" width="520" height="77"  fill="#f0f7ee" />
+            {/* Neutral district fills - structure only, no severity meaning */}
+            <rect x="300" y="38"  width="392" height="98"  rx={4} fill="#f5f2e9" />
+            <polygon points="182,128 300,50 300,128" fill="#eff2f6" />
+            <rect x="142" y="190" width="190" height="100" rx={4} fill="#f2f4ee" />
+            <rect x="508" y="152" width="240" height="238" rx={4} fill="#f2f4ee" />
 
-            {/* ── Risk heat, generated from the street nodes ── */}
-            {ZONES.map(z => {
+            {/* Bocaue River - north-south, above the north loop */}
+            <path d="M 404,0 C 402,14 397,26 399,38 C 400,42 400,44 399,46"
+              stroke="#bfdbfe" strokeWidth={10} fill="none" strokeLinecap="round" />
+            <text x="416" y="22" fontSize={6.6} fill="#1d4ed8" fontFamily={FONT} fontWeight="700">BOCAUE RIVER</text>
+
+            {/* Risk heat, generated from the street nodes (none while neutral) */}
+            {ZONES.filter(z => z.level !== 'None').map(z => {
               const vis = visible(z);
               const op  = vis ? (filter === 'All' ? HEAT_OP[z.level] : HEAT_OP[z.level] * 1.6) : 0.015;
               const fid = z.level === 'High' ? 'rh-h' : z.level === 'Medium' ? 'rh-m' : 'rh-l';
@@ -291,79 +298,131 @@ export default function RiskHeatMap({
               );
             })}
 
-            {/* ── Roads ── */}
-            <rect x="0" y="63" width="520" height="17" fill="#bdb5a4" />
-            <rect x="0" y="62" width="520" height="3"  fill="#cec6b5" />
-            <rect x="0" y="78" width="520" height="3"  fill="#cec6b5" />
-            <line x1="0" y1="71.5" x2="520" y2="71.5" stroke="#f0c040" strokeWidth="1.5" strokeDasharray="16,10" />
-            <rect x="0" y="145" width="520" height="12" fill="#cdc5b4" />
-            <line x1="0" y1="151" x2="520" y2="151" stroke="white" strokeWidth="1" strokeDasharray="8,6" opacity="0.55" />
-            <rect x="0" y="205" width="520" height="8" fill="#d4ccbb" />
-            <rect x="78"  y="0" width="12" height="290" fill="#cdc5b4" />
-            <rect x="185" y="0" width="12" height="290" fill="#cdc5b4" />
-            <rect x="300" y="0" width="11" height="290" fill="#cdc5b4" />
+            {/* PNR railway (drawn first, roads cross over it) */}
+            <line x1="140" y1="387" x2="752" y2="247" stroke="#8b8172" strokeWidth={1.1} />
+            <line x1="141" y1="392" x2="753" y2="252" stroke="#8b8172" strokeWidth={1.1} />
+            {Array.from({ length: 44 }).map((_, i) => {
+              const t = i / 43;
+              const x = 141 + t * 612, y = 390 - t * 140;
+              return <line key={`rail-${i}`} x1={x - 2} y1={y + 4} x2={x + 2} y2={y - 5}
+                stroke="#a89e8c" strokeWidth={1.2} />;
+            })}
 
-            {/* ── Gardens ── */}
-            {GARDENS.map(([x, y, w, h], i) => (
-              <rect key={i} x={x} y={y} width={w} height={h} rx={3} fill="#c6f0c2" stroke="#a3d9a3" strokeWidth={0.7} />
-            ))}
+            {/* --- Roads --- */}
+            {/* McArthur Hi-Way (major, dashed centre) */}
+            <rect x="38" y="122" width="322" height="16" fill="#bdb5a4" />
+            <rect x="38" y="121" width="322" height="2.5" fill="#cec6b5" />
+            <rect x="38" y="136" width="322" height="2.5" fill="#cec6b5" />
+            <line x1="42" y1="130" x2="304" y2="130" stroke="#f0c040" strokeWidth="1.4" strokeDasharray="14,9" />
 
-            {/* ── Buildings ── */}
-            {HOUSES.map(([x, y, w, h], i) => (
-              <rect key={i} x={x} y={y} width={w} height={h} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            ))}
-            {SHOPS.map(([x, y, w, h], i) => (
-              <rect key={i} x={x} y={y} width={w} height={h} rx={1} fill="#c8efc8" stroke="#96d496" strokeWidth={0.8} />
-            ))}
-            <text x="138" y="42" textAnchor="middle" fontSize={6} fill="#2d7a2d" fontFamily="Inter,system-ui,sans-serif" fontWeight="600">Market</text>
+            {/* Ortega Comp. -> Sapa */}
+            <rect x="39" y="130" width="11" height="122" fill={ROAD} />
+            {/* Eugenio Comp. */}
+            <rect x="127" y="130" width="10" height="102" fill={ROAD} />
+            {/* Violeta St. / Metroville Subd. */}
+            <rect x="257" y="130" width="10" height="172" fill={ROAD} />
+            {/* Gov. F. Halili Ext. */}
+            <rect x="299" y="46" width="11" height="90" fill={ROAD} />
+            {/* J.P. Rizal St. diagonal */}
+            <line x1="178" y1="133" x2="305" y2="49" stroke={ROAD} strokeWidth={10} strokeLinecap="round" />
 
-            {/* School */}
-            <rect x="207" y="8" width="46" height="30" rx={2} fill="#fde68a" stroke="#d97706" strokeWidth={1.2} />
-            <text x="230" y="21" textAnchor="middle" fontSize={7} fill="#92400e" fontFamily="Inter,system-ui,sans-serif" fontWeight="700">School</text>
-            <text x="230" y="31" textAnchor="middle" fontSize={5.5} fill="#b45309" fontFamily="Inter,system-ui,sans-serif">Elem.</text>
+            {/* North loop - Gov. F. Halili Ext. curving back to the Fly-Over */}
+            <path d="M 304,48 H 400 Q 428,48 428,74 V 100 Q 428,126 400,131 L 358,133"
+              stroke={ROAD} strokeWidth={10} fill="none" strokeLinecap="round" />
 
-            {/* Barangay Hall */}
-            <rect x="97" y="84" width="62" height="44" rx={2} fill="#bfdbfe" stroke="#3b82f6" strokeWidth={1.5} />
-            <line x1="128" y1="82" x2="128" y2="68" stroke="#475569" strokeWidth={1.5} />
-            <rect x="128" y="68" width="11" height="7" rx={1} fill="#3b82f6" opacity={0.85} />
-            <rect x="94" y="82" width="67" height="48" rx={3} fill="none" stroke="#93c5fd" strokeWidth={0.9} strokeDasharray="3,2" />
-            <rect x="165" y="84"  width="12" height={10} rx={1} fill="#e2e8f0" stroke="#cbd5e1" strokeWidth={0.5} />
-            <rect x="165" y="100" width="14" height={10} rx={1} fill="#e2e8f0" stroke="#cbd5e1" strokeWidth={0.5} />
-            <rect x="165" y="116" width="12" height={14} rx={1} fill="#e2e8f0" stroke="#cbd5e1" strokeWidth={0.5} />
+            {/* J. Benedicto St. / A. Mendoza St. inside the loop */}
+            <rect x="312" y="66" width="92" height="6" fill={ROAD} />
+            <rect x="312" y="88" width="92" height="6" fill={ROAD} />
 
-            {/* Chapel */}
-            <rect x="210" y="82" width="40" height="46" rx={2} fill="#fce7f3" stroke="#ec4899" strokeWidth={1.2} />
-            <line x1="230" y1="74" x2="230" y2="90" stroke="#be185d" strokeWidth={2.5} />
-            <line x1="223" y1="80" x2="237" y2="80" stroke="#be185d" strokeWidth={2.5} />
-            <rect x="258" y="84"  width="16" height={11} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            <rect x="258" y="100" width="16" height={11} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            <rect x="258" y="115" width="16" height={14} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            <rect x="278" y="84"  width="14" height={11} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            <rect x="278" y="100" width="14" height={11} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
-            <rect x="278" y="115" width="14" height={14} rx={1} fill="#ddd4b8" stroke="#c6bc9e" strokeWidth={0.5} />
+            {/* P. Lazaro St. - east off the loop, then south */}
+            <path d="M 428,64 H 520 Q 534,64 534,78 V 128"
+              stroke={ROAD} strokeWidth={9} fill="none" strokeLinecap="round" />
 
-            {/* Basketball court */}
-            <rect x="97" y="162" width="74" height="40" rx={2} fill="#fffbeb" stroke="#f59e0b" strokeWidth={1.5} />
-            <rect x="101" y="166" width="66" height="32" rx={1} fill="#fef9e7" />
-            <ellipse cx="134" cy="182" rx={12} ry={10} fill="none" stroke="#f59e0b" strokeWidth={1} />
-            <rect x="101" y="172" width={8} height={20} fill="none" stroke="#f59e0b" strokeWidth={0.8} />
-            <rect x="159" y="172" width={8} height={20} fill="none" stroke="#f59e0b" strokeWidth={0.8} />
+            {/* Gov. F. Halili Ave. - south-east to the railway, then Turo */}
+            <line x1="352" y1="132" x2="452" y2="316" stroke={ROAD} strokeWidth={10} strokeLinecap="round" />
+            <rect x="448" y="316" width="9" height="68" fill={ROAD} />
 
-            {/* Trees */}
-            {TREES.map(([cx, cy], i) => (
-              <g key={i}>
-                <circle cx={cx} cy={cy} r={5.5} fill="#6ee7b7" opacity={0.85} />
-                <circle cx={cx} cy={cy} r={3.5} fill="#34d399" opacity={0.7} />
-              </g>
-            ))}
+            {/* Metroville Subd. rows */}
+            <rect x="150" y="208" width="170" height="6" fill={ROAD} />
+            <rect x="150" y="238" width="170" height="6" fill={ROAD} />
+            <rect x="150" y="274" width="170" height="6" fill={ROAD} />
 
-            {/* ── Street name labels ── */}
-            <text x="260" y="59" textAnchor="middle" fontSize={9} fill="#374151" fontFamily="Inter,system-ui,sans-serif" fontWeight="700">MacArthur Highway</text>
-            <text x="260" y="141" textAnchor="middle" fontSize={7.5} fill="#4b5563" fontFamily="Inter,system-ui,sans-serif" fontWeight="600">Biñan 2nd Road</text>
-            <text x="260" y="202" textAnchor="middle" fontSize={6.5} fill="#6b7280" fontFamily="Inter,system-ui,sans-serif">Local Lane</text>
-            <text x="84" y="28" textAnchor="middle" fontSize={6} fill="#6b7280" fontFamily="Inter,system-ui,sans-serif" transform="rotate(-90,84,28)">San Isidro St.</text>
-            <text x="191" y="28" textAnchor="middle" fontSize={6} fill="#6b7280" fontFamily="Inter,system-ui,sans-serif" transform="rotate(-90,191,28)">Rizal St.</text>
-            <text x="305" y="28" textAnchor="middle" fontSize={6} fill="#6b7280" fontFamily="Inter,system-ui,sans-serif" transform="rotate(-90,305,28)">Del Pilar St.</text>
+            {/* Granville Subd. block + Ayukit */}
+            <rect x="540" y="158" width="160" height="92" fill="none" stroke={ROAD} strokeWidth={7} />
+            <line x1="650" y1="161" x2="650" y2="247" stroke={ROAD} strokeWidth={6} />
+            {/* Ayukit - Granville's western divider, carried south to the railway */}
+            <rect x="592" y="158" width="8" height="226" fill={ROAD} />
+
+            {/* Roads below the railway */}
+            <rect x="448" y="338" width="282" height="6" fill={ROAD} />
+            <rect x="448" y="378" width="282" height="6" fill={ROAD} />
+
+            {/* Fly-Over - McArthur carried over the Gov. F. Halili junction */}
+            <rect x="308" y="121" width="50" height="18" rx={2} fill="#d5cdbc" />
+            <line x1="308" y1="122.5" x2="358" y2="122.5" stroke="#a9a08c" strokeWidth={1.3} />
+            <line x1="308" y1="137.5" x2="358" y2="137.5" stroke="#a9a08c" strokeWidth={1.3} />
+            <line x1="320" y1="139" x2="320" y2="143" stroke="#b8af9b" strokeWidth={1.2} />
+            <line x1="346" y1="139" x2="346" y2="143" stroke="#b8af9b" strokeWidth={1.2} />
+            <text x="333" y="132.4" textAnchor="middle" fontSize={5} fill="#5b5344"
+              fontFamily={FONT} fontWeight="700" letterSpacing="0.4">FLY-OVER</text>
+
+            {/* --- Landmarks --- */}
+            {/* Brgy Hall - rotated to sit along the J.P. Rizal St. diagonal */}
+            <g transform="rotate(-34,224,110)">
+              <rect x="208" y="102" width="32" height="17" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+              <text x="224" y="113" textAnchor="middle" fontSize={5} fill="#334155" fontFamily={FONT} fontWeight="700">BRGY HALL</text>
+            </g>
+
+            {/* Senior Citizen Office - beside it, inside the same block */}
+            <g transform="rotate(-34,268,86)">
+              <rect x="250" y="76" width="36" height="20" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+              <text x="268" y="84" textAnchor="middle" fontSize={4.4} fill="#334155" fontFamily={FONT} fontWeight="700">SENIOR CITIZEN</text>
+              <text x="268" y="91" textAnchor="middle" fontSize={4.4} fill="#334155" fontFamily={FONT} fontWeight="700">OFFICE</text>
+            </g>
+
+            {/* Shell Gas Station */}
+            <rect x="60" y="144" width="52" height="20" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+            <text x="86" y="153" textAnchor="middle" fontSize={5} fill="#334155" fontFamily={FONT} fontWeight="700">SHELL</text>
+            <text x="86" y="161" textAnchor="middle" fontSize={5} fill="#334155" fontFamily={FONT} fontWeight="700">GAS STATION</text>
+
+            {/* Sto. Nino Academy School */}
+            <rect x="142" y="144" width="32" height="36" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+            <g transform="rotate(-90,158,162)">
+              <text x="158" y="160" textAnchor="middle" fontSize={4.6} fill="#334155" fontFamily={FONT} fontWeight="700">STO. NI&#209;O</text>
+              <text x="158" y="167" textAnchor="middle" fontSize={4.6} fill="#334155" fontFamily={FONT} fontWeight="700">ACADEMY</text>
+            </g>
+
+            {/* McDonald's Bocaue */}
+            <rect x="218" y="144" width="26" height="34" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+            <g transform="rotate(-90,231,161)">
+              <text x="231" y="159" textAnchor="middle" fontSize={4.6} fill="#334155" fontFamily={FONT} fontWeight="700">MCDONALD&apos;S</text>
+              <text x="231" y="166" textAnchor="middle" fontSize={4.6} fill="#334155" fontFamily={FONT} fontWeight="700">BOCAUE</text>
+            </g>
+
+            {/* 7-Eleven */}
+            <rect x="380" y="144" width="22" height="26" rx={1.5} fill="#f2f5f9" stroke="#475569" strokeWidth={1.1} />
+            <text x="391" y="158" textAnchor="middle" fontSize={4.8} fill="#334155" fontFamily={FONT} fontWeight="700"
+              transform="rotate(-90,391,158)">7-ELEVEN</text>
+
+            {/* Dr. Yanga Colleges */}
+            <text x="624" y="44" textAnchor="middle" fontSize={6.4} fill="#334155" fontFamily={FONT} fontWeight="700">DR. YANGA COLLEGES</text>
+
+            {/* --- Houses --- */}
+            {HOUSES.map(([x, y], i) => <House key={i} x={x} y={y} />)}
+
+            {/* --- Street name labels --- */}
+            <text x="60" y="110" textAnchor="middle" fontSize={7.2} fill="#374151" fontFamily={FONT} fontWeight="700">MC ARTHUR HI-WAY</text>
+            <text x="44" y="192" textAnchor="middle" fontSize={5.6} fill={LABEL} fontFamily={FONT} transform="rotate(-90,44,192)">ORTEGA COMP.</text>
+            <text x="32" y="232" textAnchor="middle" fontSize={5.6} fill={LABEL} fontFamily={FONT} transform="rotate(-90,32,232)">SAPA</text>
+            <text x="143" y="208" textAnchor="middle" fontSize={5.6} fill={LABEL} fontFamily={FONT} transform="rotate(-90,143,208)">EUGENIO COMP.</text>
+            <text x="250" y="182" textAnchor="middle" fontSize={5.2} fill={LABEL} fontFamily={FONT} transform="rotate(-90,250,182)">VIOLETA METROVILLE SUBD.</text>
+            <text x="304" y="96" textAnchor="middle" fontSize={5} fill="#5b5344" fontFamily={FONT} fontWeight="600" transform="rotate(-90,304,96)">GOV. F. HALILI EXT.</text>
+            <text x="358" y="70.6" textAnchor="middle" fontSize={4.4} fill="#4b5563" fontFamily={FONT} fontWeight="700">J. BENEDICTO ST.</text>
+            <text x="358" y="92.6" textAnchor="middle" fontSize={4.4} fill="#4b5563" fontFamily={FONT} fontWeight="700">A. MENDOZA ST.</text>
+            <text x="585" y="315" textAnchor="middle" fontSize={5.6} fill={LABEL} fontFamily={FONT} transform="rotate(-90,585,315)">AYUKIT</text>
+            <text x="440" y="366" textAnchor="middle" fontSize={5.6} fill={LABEL} fontFamily={FONT} transform="rotate(-90,440,366)">TURO</text>
+            <text x="668" y="362" textAnchor="middle" fontSize={5.8} fill={LABEL} fontFamily={FONT} fontWeight="600">GRANVILLE SUBD.</text>
+            <text x="232" y="300" textAnchor="middle" fontSize={5.8} fill={LABEL} fontFamily={FONT} fontWeight="600">METROVILLE SUBD.</text>
 
             {/* ── Area hover targets (under the network so nodes win) ── */}
             {ILL_ZONES.map(a => {
@@ -381,7 +440,6 @@ export default function RiskHeatMap({
               );
             })}
 
-            {/* ── Pinned area highlight ── */}
             {pinnedArea && (
               <rect x={pinnedArea.x} y={pinnedArea.y} width={pinnedArea.w} height={pinnedArea.h}
                 fill={`${LEVEL_COLOR[pinnedArea.level]}14`}
@@ -397,13 +455,15 @@ export default function RiskHeatMap({
               if (!zA || !zB) return null;
               if (!visible(zA) && !visible(zB)) return null;
               const lvl: RiskLevel = [zA.level, zB.level].includes('High') ? 'High'
-                : [zA.level, zB.level].includes('Medium') ? 'Medium' : 'Low';
-              const w = lvl === 'High' ? 4.5 : lvl === 'Medium' ? 3.4 : 2.4;
+                : [zA.level, zB.level].includes('Medium') ? 'Medium'
+                : [zA.level, zB.level].includes('Low') ? 'Low' : 'None';
+              const w = lvl === 'High' ? 4.5 : lvl === 'Medium' ? 3.4 : lvl === 'Low' ? 2.4 : 2.6;
               const isSel = selected === zA.id || selected === zB.id;
               return (
                 <line key={`edge-${a}-${b}`} x1={zA.x} y1={zA.y} x2={zB.x} y2={zB.y}
                   stroke={LEVEL_COLOR[lvl]} strokeWidth={isSel ? w + 1.8 : w}
-                  strokeLinecap="round" opacity={isSel ? 0.85 : 0.55}
+                  strokeLinecap="round" opacity={isSel ? 0.85 : lvl === 'None' ? 0.45 : 0.55}
+                  strokeDasharray={lvl === 'None' ? '5,4' : undefined}
                   style={{ pointerEvents: 'none' }} />
               );
             })}
@@ -418,7 +478,6 @@ export default function RiskHeatMap({
               </circle>
             ))}
 
-            {/* ── Selected node ring ── */}
             {selectedNode && (
               <circle cx={selectedNode.x} cy={selectedNode.y} r={NODE_R[selectedNode.level] + 7}
                 fill="none" stroke={LEVEL_COLOR[selectedNode.level]} strokeWidth={2.5}
@@ -441,22 +500,22 @@ export default function RiskHeatMap({
                   onClick={() => setSelected(prev => prev === z.id ? null : z.id)}>
                   <circle cx={z.x} cy={z.y} r={NODE_R[z.level] + 9} fill="transparent" />
                   <circle cx={z.x} cy={z.y} r={r}
-                    fill={vis ? LEVEL_COLOR[z.level] : '#cbd5e1'}
-                    stroke="white" strokeWidth={isSel ? 3 : 2.2}
+                    fill={vis ? (z.level === 'None' ? '#e2e8f0' : LEVEL_COLOR[z.level]) : '#cbd5e1'}
+                    stroke={z.level === 'None' ? LEVEL_COLOR.None : 'white'}
+                    strokeWidth={z.level === 'None' ? 2 : (isSel ? 3 : 2.2)}
                     opacity={vis ? 1 : 0.25} />
                   {vis && z.incidents >= 1 && NODE_R[z.level] >= 9 && (
                     <text x={z.x} y={z.y + 3.2} textAnchor="middle" fontSize={8} fill="white"
-                      fontFamily="Inter,system-ui,sans-serif" fontWeight="700"
-                      style={{ pointerEvents: 'none' }}>
+                      fontFamily={FONT} fontWeight="700" style={{ pointerEvents: 'none' }}>
                       {z.incidents}
                     </text>
                   )}
                   {showLabel && (
-                    <text x={z.x} y={z.y + NODE_R[z.level] + 11} textAnchor="middle" fontSize={7}
-                      fontFamily="Inter,system-ui,sans-serif"
+                    <text x={z.x + (z.labelDx ?? 0)} y={z.y + NODE_R[z.level] + 11 + (z.labelDy ?? 0)}
+                      textAnchor="middle" fontSize={7} fontFamily={FONT}
                       fontWeight={isHov || isSel ? 700 : 600}
                       fill={isHov || isSel ? '#0c1e46' : '#334155'}
-                      stroke="#faf6ef" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round"
+                      stroke="#fdfbf7" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round"
                       style={{ pointerEvents: 'none' }}>
                       {z.short}
                     </text>
@@ -465,7 +524,6 @@ export default function RiskHeatMap({
               );
             })}
 
-            {/* Hover ring */}
             {hovered && hovered.id !== selected && (
               <circle cx={hovered.x} cy={hovered.y} r={NODE_R[hovered.level] + 5}
                 fill="none" stroke={LEVEL_COLOR[hovered.level]} strokeWidth={2} opacity={0.5}
@@ -473,21 +531,25 @@ export default function RiskHeatMap({
             )}
 
             {/* ── North arrow ── */}
-            <g transform="translate(499,18)" style={{ pointerEvents: 'none' }}>
+            <g transform="translate(735,22)" style={{ pointerEvents: 'none' }}>
               <circle r={13} fill="white" stroke="#e2e8f0" strokeWidth={0.8} />
-              <text y={4} textAnchor="middle" fontSize={7.5} fill="#374151" fontFamily="Inter,system-ui,sans-serif" fontWeight="700">N</text>
+              <text y={4} textAnchor="middle" fontSize={7.5} fill="#374151" fontFamily={FONT} fontWeight="700">N</text>
               <polygon points="0,-10 2.5,-2 0,-6 -2.5,-2" fill="#0c1e46" />
             </g>
 
             {/* ── Legend ── */}
             <g style={{ pointerEvents: 'none' }}>
-              <rect x="6" y="265" width="150" height="20" rx={4} fill="rgba(255,255,255,0.92)" stroke="#e8edf2" strokeWidth={0.7} />
-              <circle cx="18" cy="275" r={4} fill="#ef4444" />
-              <text x="26" y="278.5" fontSize={6.5} fill="#374151" fontFamily="Inter,system-ui,sans-serif" fontWeight="600">High</text>
-              <circle cx="55" cy="275" r={4} fill="#f97316" />
-              <text x="63" y="278.5" fontSize={6.5} fill="#374151" fontFamily="Inter,system-ui,sans-serif" fontWeight="600">Medium</text>
-              <circle cx="110" cy="275" r={4} fill="#22c55e" />
-              <text x="118" y="278.5" fontSize={6.5} fill="#374151" fontFamily="Inter,system-ui,sans-serif" fontWeight="600">Low</text>
+              <rect x="16" y="296" width="104" height="60" rx={4} fill="rgba(255,255,255,0.94)" stroke="#e8edf2" strokeWidth={0.8} />
+              {([
+                ['High', '#ef4444'], ['Medium', '#f97316'], ['Low', '#22c55e'],
+              ] as [string, string][]).map(([lab, col], i) => (
+                <g key={lab}>
+                  <circle cx={28} cy={310 + i * 13} r={4} fill={col} />
+                  <text x={38} y={313 + i * 13} fontSize={6.6} fill="#374151" fontFamily={FONT} fontWeight="600">{lab}</text>
+                </g>
+              ))}
+              <circle cx={28} cy={349} r={4} fill="#e2e8f0" stroke="#94a3b8" strokeWidth={1.5} />
+              <text x={38} y={352} fontSize={6.6} fill="#374151" fontFamily={FONT} fontWeight="600">No data</text>
             </g>
           </svg>
         </Box>
@@ -505,21 +567,21 @@ export default function RiskHeatMap({
             <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: panel.color, flexShrink: 0 }} />
             <Box sx={{ flex: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.15, flexWrap: 'wrap' }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46' }}>{panel.title}</Typography>
-                <Chip label={`${panel.level} Risk`} size="small"
-                  sx={{ bgcolor: `${panel.color}18`, color: panel.color, fontWeight: 700, fontSize: '0.62rem', height: 18 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>{panel.title}</Typography>
+                <Chip label={LEVEL_LABEL[panel.level]} size="small"
+                  sx={{ bgcolor: `${panel.color}18`, color: panel.color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
                 {panel.incidents > 0 && (
                   <Chip label={`${panel.incidents} incident${panel.incidents !== 1 ? 's' : ''}`} size="small"
-                    sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.62rem', height: 18 }} />
+                    sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
                 )}
                 <Chip label={panel.tag} size="small"
-                  sx={{ bgcolor: '#f8fafc', color: '#94a3b8', fontSize: '0.6rem', height: 18, fontWeight: 600 }} />
+                  sx={{ bgcolor: '#f8fafc', color: '#94a3b8', fontSize: '0.72rem', height: 22, fontWeight: 600 }} />
               </Box>
-              <Typography sx={{ fontSize: '0.73rem', color: '#64748b' }}>{panel.desc}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{panel.desc}</Typography>
             </Box>
           </>
         ) : (
-          <Typography sx={{ fontSize: '0.73rem', color: '#94a3b8', fontStyle: 'italic' }}>
+          <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
             Hover a street node for incident detail, or a city block for area context · click a node to pin it
           </Typography>
         )}
@@ -527,13 +589,14 @@ export default function RiskHeatMap({
 
       {/* ── Summary chips ── */}
       <Box sx={{ display: 'flex', gap: 0.75, mt: 1.5, flexWrap: 'wrap' }}>
-        {(['High', 'Medium', 'Low'] as RiskLevel[]).map(lv => {
+        {(['High', 'Medium', 'Low', 'None'] as RiskLevel[]).map(lv => {
           const names = ZONES.filter(z => z.level === lv).map(z => z.short);
+          if (names.length === 0) return null;
           return (
-            <Chip key={lv} label={`${lv}: ${names.join(' · ')}`} size="small"
+            <Chip key={lv} label={`${LEVEL_LABEL[lv]}: ${names.join(' · ')}`} size="small"
               sx={{
                 bgcolor: `${LEVEL_COLOR[lv]}12`, color: LEVEL_COLOR[lv],
-                fontWeight: 600, fontSize: '0.63rem', height: 'auto', py: 0.3,
+                fontWeight: 600, fontSize: '0.72rem', height: 'auto', py: 0.3,
                 '& .MuiChip-label': { whiteSpace: 'normal', lineHeight: 1.5 },
               }}
             />

@@ -83,7 +83,7 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Assessment sx={{ color: ACCENT }} />
           Case #{c.caseNumber}
-          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem', ml: 'auto' }} />
+          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem', ml: 'auto' }} />
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -98,15 +98,15 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
             { label: 'Assigned To', value: c.assignedTo?.name ?? '—' },
           ].map(item => (
             <Grid key={item.label} size={{ xs: 6 }}>
-              <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.25 }}>{item.label}</Typography>
-              <Typography sx={{ fontSize: '0.85rem', color: '#0c1e46', fontWeight: 500 }}>{item.value}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.25 }}>{item.label}</Typography>
+              <Typography sx={{ fontSize: '0.94rem', color: '#0c1e46', fontWeight: 500 }}>{item.value}</Typography>
             </Grid>
           ))}
         </Grid>
 
         <Divider sx={{ mb: 2 }} />
-        <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
-        <Typography sx={{ fontSize: '0.83rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 1.75, borderRadius: 2, mb: 2 }}>{c.description}</Typography>
+        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 1.75, borderRadius: 2, mb: 2 }}>{c.description}</Typography>
 
         {editing ? (
           <Grid container spacing={2}>
@@ -119,9 +119,9 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
               </FormControl>
             </Grid>
             <Grid size={{ xs: 6 }}>
-              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, mb: 0.5 }}>Risk Level</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, mb: 0.5 }}>Risk Level</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 40 }}>
-                <Chip label={c.riskLevel} size="small" sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem' }} />
+                <Chip label={c.riskLevel} size="small" sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem' }} />
                 <Tooltip title="Risk level is set by SafComm AI and is automatically re-analyzed every time this case is updated — it is not editable manually.">
                   <AutoAwesome sx={{ fontSize: 15, color: '#94a3b8' }} />
                 </Tooltip>
@@ -130,7 +130,7 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
             <Grid size={12}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', p: 1.25, mb: 0.5, borderRadius: 2, border: '1px dashed #c4b5fd', bgcolor: '#faf5ff' }}>
                 <AutoAwesome sx={{ color: ACCENT, fontSize: 16, mt: 0.15 }} />
-                <Typography sx={{ fontSize: '0.74rem', color: '#6d28d9', lineHeight: 1.55 }}>
+                <Typography sx={{ fontSize: '0.82rem', color: '#6d28d9', lineHeight: 1.55 }}>
                   Saving will trigger SafComm AI to re-analyze and re-flag this case&apos;s risk level based on its updated status, case age, and incident history.
                 </Typography>
               </Box>
@@ -142,8 +142,8 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
           </Grid>
         ) : c.notes ? (
           <Box>
-            <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Officer Notes</Typography>
-            <Typography sx={{ fontSize: '0.83rem', color: '#374151', lineHeight: 1.7, bgcolor: '#fff7ed', p: 1.75, borderRadius: 2, border: '1px solid #fed7aa' }}>{c.notes}</Typography>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Officer Notes</Typography>
+            <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.7, bgcolor: '#fff7ed', p: 1.75, borderRadius: 2, border: '1px solid #fed7aa' }}>{c.notes}</Typography>
           </Box>
         ) : null}
       </DialogContent>
@@ -222,7 +222,7 @@ export default function VawcCasesPage() {
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Case Monitoring</Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>All VAWC cases — track, update, and manage interventions</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>All VAWC cases — track, update, and manage interventions</Typography>
         </Box>
         <Button variant="contained" startIcon={<Add />} onClick={() => router.push('/vawc/walk-in')}
           sx={{ bgcolor: ACCENT, fontWeight: 600, borderRadius: 2, '&:hover': { bgcolor: '#6d28d9' } }}>
@@ -236,7 +236,7 @@ export default function VawcCasesPage() {
           <Chip
             label="Urgent only (High/Critical, unresolved)"
             onDelete={() => { setUrgentOnly(false); setPage(1); }}
-            sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.75rem' }}
+            sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.86rem' }}
           />
         )}
         <TextField size="small" placeholder="Search name, case no…"
@@ -271,7 +271,7 @@ export default function VawcCasesPage() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.67rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Case ID', 'Subject', 'Type', 'Street/Barangay', 'Risk', 'Status', 'Filed', 'Updated'].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
@@ -292,7 +292,7 @@ export default function VawcCasesPage() {
                       <TableRow>
                         <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5 }}>
                           <FolderOpen sx={{ fontSize: 40, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-                          <Typography sx={{ fontSize: '0.88rem', color: '#94a3b8' }}>No VAWC cases found</Typography>
+                          <Typography sx={{ fontSize: '0.94rem', color: '#94a3b8' }}>No VAWC cases found</Typography>
                           <Button size="small" onClick={() => router.push('/vawc/walk-in')} sx={{ mt: 1, color: ACCENT, fontWeight: 600 }}>
                             File a new case →
                           </Button>
@@ -305,32 +305,32 @@ export default function VawcCasesPage() {
                         onClick={() => setSelected(c)}
                         sx={{ cursor: 'pointer', '& td': { py: 1.3, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#fafbfc' } }}
                       >
-                        <TableCell><Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
                         <TableCell>
-                          <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#0c1e46' }}>{c.residentName}</Typography>
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0c1e46' }}>{c.residentName}</Typography>
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.75rem', color: '#64748b', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.caseType}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#64748b', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.caseType}</Typography></TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <LocationOn sx={{ fontSize: 13, color: '#94a3b8' }} />
-                            <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{c.barangay}</Typography>
+                            <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.barangay}</Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
                           <Chip label={c.riskLevel} size="small"
-                            sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.68rem', height: 20 }} />
+                            sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                         </TableCell>
                         <TableCell>
                           <Chip label={c.status} size="small"
-                            sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.68rem', height: 20 }} />
+                            sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <CalendarToday sx={{ fontSize: 12, color: '#94a3b8' }} />
-                            <Typography sx={{ fontSize: '0.73rem', color: '#94a3b8' }}>{new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Typography>
+                            <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.73rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
+                        <TableCell><Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
                       </MotionTableRow>
                     ))
                 }
@@ -341,7 +341,7 @@ export default function VawcCasesPage() {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, py: 1.75, borderTop: '1px solid #f1f5f9' }}>
-            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>Page {page} of {totalPages} · {data?.total} cases</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>Page {page} of {totalPages} · {data?.total} cases</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)} sx={{ minWidth: 60 }}>Prev</Button>
               <Button size="small" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ minWidth: 60 }}>Next</Button>

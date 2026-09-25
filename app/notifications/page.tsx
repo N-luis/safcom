@@ -93,7 +93,7 @@ export default function NotificationsPage() {
             </Box>
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 800 }}>Notifications</Typography>
-              <Typography color="text.secondary" sx={{ fontSize: '0.88rem' }}>
+              <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>
                 {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
               </Typography>
             </Box>
@@ -110,18 +110,18 @@ export default function NotificationsPage() {
             {/* Tabs + filters */}
             <Box sx={{ px: 3, pt: 2, pb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ minHeight: 36 }}>
-                <Tab value="all" label="All" sx={{ textTransform: 'none', minHeight: 36, fontSize: '0.85rem' }} />
+                <Tab value="all" label="All" sx={{ textTransform: 'none', minHeight: 36, fontSize: '0.94rem' }} />
                 <Tab
                   value="unread"
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                       Unread
                       {unreadCount > 0 && (
-                        <Chip label={unreadCount} size="small" color="error" sx={{ height: 18, fontSize: '0.68rem', '& .MuiChip-label': { px: 0.75 } }} />
+                        <Chip label={unreadCount} size="small" color="error" sx={{ height: 22, fontSize: '0.78rem', '& .MuiChip-label': { px: 0.75 } }} />
                       )}
                     </Box>
                   }
-                  sx={{ textTransform: 'none', minHeight: 36, fontSize: '0.85rem' }}
+                  sx={{ textTransform: 'none', minHeight: 36, fontSize: '0.94rem' }}
                 />
               </Tabs>
               <Box sx={{ display: 'flex', gap: 1 }}>
@@ -133,7 +133,7 @@ export default function NotificationsPage() {
                     onClick={() => setTypeFilter(t)}
                     variant={typeFilter === t ? 'filled' : 'outlined'}
                     color={typeFilter === t ? 'primary' : 'default'}
-                    sx={{ fontSize: '0.72rem', cursor: 'pointer' }}
+                    sx={{ fontSize: '0.82rem', cursor: 'pointer' }}
                   />
                 ))}
               </Box>
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
               <Box sx={{ py: 10, textAlign: 'center' }}>
                 <CheckCircle sx={{ fontSize: 56, color: '#22c55e', mb: 2, opacity: 0.7 }} />
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>All caught up!</Typography>
-                <Typography color="text.secondary" sx={{ fontSize: '0.875rem' }}>No notifications to show.</Typography>
+                <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>No notifications to show.</Typography>
               </Box>
             ) : (
               <Box>
@@ -165,7 +165,7 @@ export default function NotificationsPage() {
                   return (
                     <Box key={label}>
                       <Box sx={{ px: 3, py: 1, bgcolor: 'action.hover' }}>
-                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }} color="text.secondary">
+                        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }} color="text.secondary">
                           {label}
                         </Typography>
                       </Box>
@@ -197,11 +197,11 @@ export default function NotificationsPage() {
                                 </Box>
                                 <Box sx={{ flex: 1, minWidth: 0 }}>
                                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
-                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: n.read ? 500 : 700, lineHeight: 1.3 }}>
+                                    <Typography sx={{ fontSize: '0.94rem', fontWeight: n.read ? 500 : 700, lineHeight: 1.3 }}>
                                       {n.title as string}
                                     </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-                                      <Typography sx={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }} color="text.disabled">
+                                      <Typography sx={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }} color="text.disabled">
                                         {timeAgo(n.createdAt as string)}
                                       </Typography>
                                       {!n.read && (
@@ -218,10 +218,10 @@ export default function NotificationsPage() {
                                       </Tooltip>
                                     </Box>
                                   </Box>
-                                  <Typography sx={{ fontSize: '0.8rem', mt: 0.3 }} color="text.secondary">
+                                  <Typography sx={{ fontSize: '0.9rem', mt: 0.3 }} color="text.secondary">
                                     {n.message as string}
                                   </Typography>
-                                  <Chip label={cfg.label} size="small" sx={{ mt: 0.75, height: 18, fontSize: '0.68rem', bgcolor: cfg.bg, color: cfg.color, '& .MuiChip-label': { px: 0.75 } }} />
+                                  <Chip label={cfg.label} size="small" sx={{ mt: 0.75, height: 22, fontSize: '0.78rem', bgcolor: cfg.bg, color: cfg.color, '& .MuiChip-label': { px: 0.75 } }} />
                                 </Box>
                               </Box>
                               <Divider />

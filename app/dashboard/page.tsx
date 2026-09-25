@@ -1,729 +1,696 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-
+import { useState, useEffect, ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Drawer,
-  IconButton,
-  InputAdornment,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+  Box, Card, CardContent, Typography, Chip, Button, Avatar, Skeleton,
+  Divider, IconButton, Tooltip, Drawer, useMediaQuery, useTheme,
+  ToggleButton, ToggleButtonGroup, LinearProgress, Grid,
+  ListItemButton, ListItemIcon, ListItemText,
+} from '@mui/material';
+import {
+  Dashboard as DashboardIcon, Groups, FolderOpen, Security, Warning,
+  Logout, Menu as MenuIcon, ArrowForward, Gavel, Shield, PersonOutlined,
+  TrendingUp, CheckCircle, Refresh, AssignmentInd, NotificationsActive,
+} from '@mui/icons-material';
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip as ChartTooltip, Legend,
+} from 'recharts';
+import { motion } from 'framer-motion';
+import useSWR from 'swr';
 
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
-import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+const SIDEBAR_W = 260;
+const ACCENT = '#0f766e';
 
-const drawerWidth = 260;
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then(r => {
+    if (!r.ok) throw new Error(String(r.status));
+    return r.json().then(d => d.data);
+  });
 
-const menuItems = [
-  {
-    label: "Dashboard",
-    icon: <DashboardOutlinedIcon />,
-  },
-  {
-    label: "User Management",
-    icon: <GroupOutlinedIcon />,
-  },
-  {
-    label: "Case Monitoring",
-    icon: <DescriptionOutlinedIcon />,
-  },
-  {
-    label: "AI Risk Analytics",
-    icon: <PsychologyOutlinedIcon />,
-  },
-  {
-    label: "Reports",
-    icon: <AssessmentOutlinedIcon />,
-  },
-  {
-    label: "Notifications",
-    icon: <NotificationsOutlinedIcon />,
-  },
-  {
-    label: "Search",
-    icon: <SearchOutlinedIcon />,
-  },
-  {
-    label: "Audit Logs",
-    icon: <AssignmentOutlinedIcon />,
-  },
+const RISK_COLOR: Record<string, string> = {
+  Critical: '#dc2626', High: '#f97316', Medium: '#f59e0b', Low: '#22c55e',
+};
+const MODULE_COLOR: Record<string, string> = { Blotter: '#3b82f6', VAWC: '#7c3aed' };
+const ROLE_LABEL: Record<string, string> = {
+  admin: 'Barangay Captain',
+  system_admin: 'System Admin',
+  officer: 'Blotter Officer',
+  vawc_officer: 'VAWC Officer',
+};
+
+interface CaseRow {
+  id: string; caseNumber: string; residentName: string; caseType: string;
+  module: 'Blotter' | 'VAWC'; status: string; riskLevel: string;
+  barangay: string; filedAt: string; officer: string | null;
+}
+interface ModuleSummary {
+  total: number; open: number; inProgress: number; resolved: number;
+  critical: number; highRisk: number; unassigned: number;
+}
+interface Overview {
+  generatedAt: string;
+  residents: { total: number; pending: number; active: number };
+  staff: {
+    total: number;
+    byRole: { role: string; count: number }[];
+    members: { id: string; name: string; email: string; role: string; barangay: string | null; joinedAt: string; caseload: number }[];
+  };
+  modules: { blotter: ModuleSummary; vawc: ModuleSummary };
+  totals: { cases: number; active: number; resolved: number; criticalOpen: number; alerts: number; resolutionRate: number; safetyIndex: number };
+  trends: { month: string; blotter: number; vawc: number; resolved: number }[];
+  recentCases: CaseRow[];
+  escalations: CaseRow[];
+  alerts: { id: string; title: string; message: string; level: string; createdAt: string }[];
+  activities: { id: string; type: string; message: string; color: string; createdAt: string }[];
+}
+
+function timeAgo(d: string) {
+  const diff = Date.now() - new Date(d).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return new Date(d).toLocaleDateString();
+}
+
+// ─── Sidebar ─────────────────────────────────────────────────────────────────
+
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Command Overview', icon: DashboardIcon, path: '/dashboard', exact: true },
+  { id: 'blotter', label: 'Blotter Module', icon: Gavel, path: '/blotter-officer' },
+  { id: 'vawc', label: 'VAWC Module', icon: Shield, path: '/vawc' },
+  { id: 'residents', label: 'Residents', icon: Groups, path: '/residents' },
+  { id: 'reports', label: 'Reports', icon: FolderOpen, path: '/reports' },
+  { id: 'users', label: 'Staff & Users', icon: AssignmentInd, path: '/users' },
 ];
 
-const stats = [
-  {
-    title: "TOTAL RESIDENTS",
-    value: "12,482",
-    icon: <PersonOutlineOutlinedIcon />,
-    badge: "+2.4%",
-    color: "#0f766e",
-    bg: "#ecfeff",
-  },
-  {
-    title: "ACTIVE CASES",
-    value: "42",
-    icon: <AssignmentOutlinedIcon />,
-    badge: "8 Pending",
-    color: "#d97706",
-    bg: "#fff7ed",
-  },
-  {
-    title: "ACTIVE ALERTS",
-    value: "3",
-    icon: <WarningAmberRoundedIcon />,
-    color: "#dc2626",
-    bg: "#fef2f2",
-    border: true,
-  },
-  {
-    title: "SAFETY INDEX",
-    value: "94.8%",
-    icon: <AssessmentOutlinedIcon />,
-    badge: "This Month",
-    color: "#475569",
-    bg: "#f1f5f9",
-  },
-];
+function Sidebar({ onClose, userName }: { onClose: () => void; userName: string }) {
+  const pathname = usePathname();
+  const router = useRouter();
 
-const activities = [
-  {
-    title: "New Case Filed",
-    description:
-      "Noise complaint reported at Block 12, Area B.",
-    color: "#2563eb",
-  },
-  {
-    title: "Case Resolved",
-    description:
-      "Dispute at Barangay Plaza successfully mediated.",
-    color: "#059669",
-  },
-  {
-    title: "System Update",
-    description:
-      "AI Risk models updated for Q4 analytics.",
-    color: "#d97706",
-  },
-  {
-    title: "New Resident Registered",
-    description:
-      "L. Santos added to Zone 4 digital registry.",
-    color: "#6b7280",
-  },
-];
+  const isActive = (path: string, exact?: boolean) =>
+    exact ? pathname === path : pathname === path || pathname.startsWith(path + '/');
 
-export default function DashboardPage() {
-  const [selectedMenu, setSelectedMenu] =
-    useState("Dashboard");
+  const go = (path: string) => { router.push(path); onClose(); };
 
-  const [mobileOpen, setMobileOpen] =
-    useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    router.push('/login');
   };
 
-  const drawerContent = (
-    <>
-      {/* LOGO */}
-      <Box sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              width: 42,
-              height: 42,
-              borderRadius: "12px",
-              backgroundColor: "#14b8a6",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <SecurityOutlinedIcon />
-          </Box>
-
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 800,
-              }}
-            >
-              SafeComm
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "0.72rem",
-                color: "#5eead4",
-                letterSpacing: 1,
-              }}
-            >
-              BARANGAY MANAGEMENT
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
-
-      {/* MENU */}
-      <List sx={{ px: 2, mt: 2 }}>
-        {menuItems.map((item) => (
-          <ListItemButton
-            key={item.label}
-            onClick={() => {}}
-            sx={{
-              borderRadius: "12px",
-              mb: 1,
-              borderLeft:
-                selectedMenu === item.label
-                  ? "4px solid #14b8a6"
-                  : "4px solid transparent",
-
-              backgroundColor:
-                selectedMenu === item.label
-                  ? "rgba(255,255,255,0.08)"
-                  : "transparent",
-
-              transition: "0.2s",
-
-              "&:hover": {
-                backgroundColor:
-                  "rgba(255,255,255,0.08)",
-              },
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                color:
-                  selectedMenu === item.label
-                    ? "#ffffff"
-                    : "#94a3b8",
-
-                minWidth: 40,
-              }}
-            >
-              {item.icon}
-            </ListItemIcon>
-
-            <ListItemText
-              primary={item.label}
-            />
-          </ListItemButton>
-        ))}
-      </List>
-
-      {/* USER */}
-      <Box
-        sx={{
-          mt: "auto",
-          p: 3,
-        }}
-      >
-        <Divider
-          sx={{
-            borderColor:
-              "rgba(255,255,255,0.08)",
-            mb: 3,
-          }}
-        />
-
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: "center",
-          }}
-        >
-          <Avatar>A</Avatar>
-
-          <Box>
-            <Typography
-              sx={{
-                fontWeight: 700,
-              }}
-            >
-              Captain A. Reyes
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "0.82rem",
-                color: "#94a3b8",
-              }}
-            >
-              Main Admin
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
-    </>
-  );
-
   return (
-    <Box
+    <Box sx={{
+      width: SIDEBAR_W, height: '100%',
+      background: 'linear-gradient(180deg, #0c1e46 0%, #071739 100%)',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* Logo */}
+      <Box sx={{ px: 2.5, pt: 2.5, pb: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{
+          width: 38, height: 38, borderRadius: '10px',
+          background: `linear-gradient(135deg, ${ACCENT}, #14b8a6)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          boxShadow: `0 4px 14px rgba(15,118,110,0.4)`,
+        }}>
+          <Security sx={{ fontSize: 20, color: 'white' }} />
+        </Box>
+        <Box>
+          <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#fff', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+            SafeComm
+          </Typography>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+            Barangay Captain
+          </Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.07)', mx: 2 }} />
+
+      {/* Nav */}
+      <Box sx={{
+        flex: 1, overflowY: 'auto', px: 1.5, pt: 1.5, pb: 1,
+        '&::-webkit-scrollbar': { width: 3 },
+        '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 },
+      }}>
+        {NAV_ITEMS.map(item => {
+          const active = isActive(item.path, item.exact);
+          return (
+            <ListItemButton key={item.id} onClick={() => go(item.path)}
+              sx={{
+                borderRadius: '10px', mb: 0.5,
+                pl: active ? '13px' : '16px', pr: 1.5, py: 0.85,
+                color: active ? '#fff' : 'rgba(255,255,255,0.55)',
+                bgcolor: active ? 'rgba(15,118,110,0.22)' : 'transparent',
+                borderLeft: active ? `3px solid #14b8a6` : '3px solid transparent',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.07)', color: '#fff' },
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 34, color: 'inherit' }}>
+                <item.icon sx={{ fontSize: 19 }} />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: active ? 600 : 400, lineHeight: 1.4, display: 'block' }}>
+                    {item.label}
+                  </Box>
+                }
+              />
+            </ListItemButton>
+          );
+        })}
+      </Box>
+
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.07)', mx: 2 }} />
+
+      {/* User footer */}
+      <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+        <Avatar sx={{
+          width: 34, height: 34,
+          background: `linear-gradient(135deg, ${ACCENT}, #14b8a6)`,
+          border: `2px solid rgba(15,118,110,0.4)`,
+          fontSize: '0.82rem', fontWeight: 700,
+        }}>
+          {userName ? userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'BC'}
+        </Avatar>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {userName || 'Barangay Captain'}
+          </Typography>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Barangay Captain</Typography>
+        </Box>
+        <Tooltip title="Logout">
+          <IconButton size="small" onClick={logout}
+            sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, borderRadius: 1.5 }}>
+            <Logout sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
+}
+
+// ─── Small pieces ────────────────────────────────────────────────────────────
+
+function StatCard({ label, value, sub, color, icon, loading, onClick }: {
+  label: string; value: ReactNode; sub?: string; color: string;
+  icon: ReactNode; loading: boolean; onClick?: () => void;
+}) {
+  return (
+    <Card
+      onClick={onClick}
       sx={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#f5f7fb",
+        height: '100%', borderLeft: `3px solid ${color}`,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.2s',
+        ...(onClick && { '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 10px 26px ${color}22` } }),
       }}
     >
-      {/* MOBILE DRAWER */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        sx={{
-          display: {
-            xs: "block",
-            lg: "none",
-          },
+      <CardContent sx={{ p: 2.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Box sx={{ width: 34, height: 34, borderRadius: 2, bgcolor: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+          </Box>
+          {onClick && <ArrowForward sx={{ fontSize: 15, color: '#cbd5e1' }} />}
+        </Box>
+        <Typography sx={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+          {label}
+        </Typography>
+        {loading
+          ? <Skeleton variant="text" width={70} height={42} />
+          : <Typography sx={{ fontSize: '1.75rem', fontWeight: 800, color, lineHeight: 1.2 }}>{value}</Typography>}
+        {sub && <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{sub}</Typography>}
+      </CardContent>
+    </Card>
+  );
+}
 
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            background:
-              "linear-gradient(180deg, #0f172a 0%, #111827 100%)",
-            color: "#ffffff",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
+function ModuleCard({ title, summary, color, icon, loading, onOpen }: {
+  title: string; summary?: ModuleSummary; color: string;
+  icon: ReactNode; loading: boolean; onOpen: () => void;
+}) {
+  const rows = [
+    { label: 'Open', value: summary?.open ?? 0, color: '#3b82f6' },
+    { label: 'In progress', value: summary?.inProgress ?? 0, color: '#f59e0b' },
+    { label: 'Resolved', value: summary?.resolved ?? 0, color: '#22c55e' },
+  ];
+  const total = summary?.total ?? 0;
 
-      {/* DESKTOP DRAWER */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: {
-            xs: "none",
-            lg: "block",
-          },
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardContent sx={{ p: 2.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+          <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>{title}</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
+              {loading ? '—' : `${total} case${total !== 1 ? 's' : ''} on record`}
+            </Typography>
+          </Box>
+          <Button size="small" onClick={onOpen} endIcon={<ArrowForward sx={{ fontSize: 14 }} />}
+            sx={{ color, fontWeight: 700, fontSize: '0.86rem', textTransform: 'none' }}>
+            Open
+          </Button>
+        </Box>
 
-          width: drawerWidth,
-          flexShrink: 0,
+        {loading ? <Skeleton variant="rectangular" height={86} sx={{ borderRadius: 2 }} /> : (
+          <>
+            <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+              {rows.map(r => (
+                <Box key={r.label} sx={{ flex: 1, textAlign: 'center', py: 1, borderRadius: 2, bgcolor: `${r.color}0d`, border: `1px solid ${r.color}22` }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: r.color, lineHeight: 1.2 }}>{r.value}</Typography>
+                  <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>{r.label}</Typography>
+                </Box>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
+              {(summary?.critical ?? 0) > 0 && (
+                <Chip size="small" label={`${summary?.critical} critical`}
+                  sx={{ bgcolor: '#fef2f2', color: '#dc2626', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+              )}
+              {(summary?.unassigned ?? 0) > 0 && (
+                <Chip size="small" label={`${summary?.unassigned} unassigned`}
+                  sx={{ bgcolor: '#fff7ed', color: '#d97706', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+              )}
+              {(summary?.critical ?? 0) === 0 && (summary?.unassigned ?? 0) === 0 && (
+                <Chip size="small" label="No escalations" icon={<CheckCircle sx={{ fontSize: '11px !important' }} />}
+                  sx={{ bgcolor: '#f0fdf4', color: '#15803d', fontWeight: 600, fontSize: '0.72rem', height: 22 }} />
+              )}
+            </Box>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            background:
-              "linear-gradient(180deg, #0f172a 0%, #111827 100%)",
-            borderRight: "none",
-            color: "#ffffff",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      {/* MAIN */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 4,
-        }}
-      >
-        {/* HEADER */}
-        <Stack
-          direction="row"
-          sx={{
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 4,
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: "center",
-            }}
-          >
-            {/* MOBILE MENU BUTTON */}
-            <IconButton
-              onClick={handleDrawerToggle}
-              sx={{
-                display: {
-                  xs: "flex",
-                  lg: "none",
-                },
-              }}
-            >
-              <MenuOutlinedIcon />
-            </IconButton>
-
+function CaseTable({ rows, loading, emptyText }: { rows: CaseRow[]; loading: boolean; emptyText: string }) {
+  if (loading) {
+    return <Box sx={{ p: 2 }}>{[0, 1, 2, 3].map(i => <Skeleton key={i} variant="text" height={38} />)}</Box>;
+  }
+  if (rows.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 5 }}>
+        <CheckCircle sx={{ fontSize: 34, color: '#cbd5e1', mb: 1 }} />
+        <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>{emptyText}</Typography>
+      </Box>
+    );
+  }
+  return (
+    <Box sx={{ overflowX: 'auto' }}>
+      <Box sx={{ minWidth: 720 }}>
+        <Box sx={{
+          display: 'grid', gridTemplateColumns: '1.1fr 1.5fr 0.9fr 1fr 0.9fr 1fr',
+          gap: 1.5, px: 2, py: 1.25, bgcolor: '#f8fafc',
+          fontSize: '0.78rem', fontWeight: 800, color: '#64748b',
+          textTransform: 'uppercase', letterSpacing: '0.05em',
+        }}>
+          <span>Case</span><span>Resident / Type</span><span>Module</span>
+          <span>Risk</span><span>Status</span><span>Officer</span>
+        </Box>
+        {rows.map(c => (
+          <Box key={c.id} sx={{
+            display: 'grid', gridTemplateColumns: '1.1fr 1.5fr 0.9fr 1fr 0.9fr 1fr',
+            gap: 1.5, px: 2, py: 1.4, alignItems: 'center',
+            borderTop: '1px solid #f1f5f9',
+            '&:hover': { bgcolor: '#fafbfc' },
+          }}>
             <Box>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 800,
-                  color: "#111827",
-                }}
-              >
-                {selectedMenu}
+              <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0f172a' }}>{c.caseNumber}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{timeAgo(c.filedAt)}</Typography>
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: '0.86rem', color: '#1f2937', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {c.residentName}
               </Typography>
-
-              <Typography
-                sx={{
-                  color: "#6b7280",
-                  mt: 1,
-                }}
-              >
-                Monday, May 22, 2026 •
-                09:42 AM
+              <Typography sx={{ fontSize: '0.78rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {c.caseType}
               </Typography>
             </Box>
-          </Stack>
+            <Chip size="small" label={c.module}
+              sx={{ width: 'fit-content', bgcolor: `${MODULE_COLOR[c.module]}15`, color: MODULE_COLOR[c.module], fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+            <Chip size="small" label={c.riskLevel}
+              sx={{ width: 'fit-content', bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}15`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+            <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{c.status}</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: c.officer ? '#475569' : '#f97316', fontWeight: c.officer ? 400 : 700 }}>
+              {c.officer ?? 'Unassigned'}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
 
-          {/* SEARCH */}
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              placeholder="Quick search..."
-              size="small"
-              sx={{
-                width: 250,
-                backgroundColor: "#ffffff",
-                borderRadius: "12px",
-              }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchOutlinedIcon />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
+// ─── Page ────────────────────────────────────────────────────────────────────
 
-            <IconButton>
-              <NotificationsOutlinedIcon />
-            </IconButton>
+export default function KapitanDashboardPage() {
+  const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [scope, setScope] = useState<'all' | 'Blotter' | 'VAWC'>('all');
 
-            <IconButton>
-              <CalendarMonthOutlinedIcon />
-            </IconButton>
+  const { data, error, isLoading, mutate } = useSWR<Overview>('/api/kapitan/overview', fetcher, {
+    refreshInterval: 30000,
+  });
 
-            <IconButton>
-              <SettingsOutlinedIcon />
-            </IconButton>
-          </Stack>
-        </Stack>
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(r => { if (!r.ok) { router.push('/login'); return null; } return r.json(); })
+      .then(d => { if (d?.data) setUserName(d.data.name || ''); })
+      .catch(() => router.push('/login'));
+  }, [router]);
 
-        {/* STATS */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "1fr 1fr",
-              xl: "repeat(4, 1fr)",
-            },
-            gap: 3,
-          }}
-        >
-          {stats.map((item) => (
-            <Card
-              key={item.title}
-              sx={{
-                borderRadius: "18px",
-                border: item.border
-                  ? "2px solid #dc2626"
-                  : "1px solid #e5e7eb",
+  // On error we stop "loading" so the banner shows instead of skeletons spinning forever.
+  const loading = !error && (isLoading || !data);
+  const t = data?.totals;
 
-                boxShadow:
-                  "0px 4px 18px rgba(0,0,0,0.04)",
-              }}
-            >
-              <CardContent>
-                <Stack
-                  direction="row"
-                  sx={{
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "flex-start",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "12px",
-                      backgroundColor:
-                        item.bg,
-                      display: "flex",
-                      justifyContent:
-                        "center",
-                      alignItems: "center",
-                      color: item.color,
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
+  const recent = (data?.recentCases ?? []).filter(c => scope === 'all' || c.module === scope);
+  const escalations = (data?.escalations ?? []).filter(c => scope === 'all' || c.module === scope);
 
-                  {item.badge && (
-                    <Chip
-                      label={item.badge}
-                      size="small"
-                    />
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f5f7fb' }}>
+      {!isMobile && (
+        <Box sx={{ width: SIDEBAR_W, flexShrink: 0 }}>
+          <Box sx={{ position: 'fixed', top: 0, left: 0, width: SIDEBAR_W, height: '100vh', zIndex: 100 }}>
+            <Sidebar onClose={() => {}} userName={userName} />
+          </Box>
+        </Box>
+      )}
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}
+        sx={{ '& .MuiDrawer-paper': { width: SIDEBAR_W, border: 'none' } }} ModalProps={{ keepMounted: true }}>
+        <Sidebar onClose={() => setDrawerOpen(false)} userName={userName} />
+      </Drawer>
+
+      <Box component="main" sx={{ flex: 1, minWidth: 0, p: { xs: 2, sm: 3 } }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            {isMobile && (
+              <IconButton size="small" onClick={() => setDrawerOpen(true)}><MenuIcon /></IconButton>
+            )}
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                  Command Overview
+                </Typography>
+                <Chip label="Barangay Captain" size="small"
+                  sx={{ bgcolor: `${ACCENT}14`, color: ACCENT, fontWeight: 700, fontSize: '0.72rem', height: 24 }} />
+              </Box>
+              <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mt: 0.2 }}>
+                Consolidated oversight of the Blotter and VAWC modules
+                {data && ` · updated ${timeAgo(data.generatedAt)}`}
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
+            <ToggleButtonGroup size="small" exclusive value={scope}
+              onChange={(_, v) => v && setScope(v)}
+              sx={{ flex: { xs: 1, sm: 'none' }, '& .MuiToggleButton-root': { flex: { xs: 1, sm: 'none' } } }}>
+              <ToggleButton value="all" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>All</ToggleButton>
+              <ToggleButton value="Blotter" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>Blotter</ToggleButton>
+              <ToggleButton value="VAWC" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>VAWC</ToggleButton>
+            </ToggleButtonGroup>
+            <Tooltip title="Refresh">
+              <IconButton size="small" onClick={() => mutate()} sx={{ border: '1px solid #e2e8f0', borderRadius: 2 }}>
+                <Refresh sx={{ fontSize: 17 }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+
+        {error && (
+          <Card sx={{ mb: 2.5, border: '1px solid #fecaca', bgcolor: '#fef2f2' }}>
+            <CardContent sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Warning sx={{ color: '#dc2626' }} />
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#991b1b' }}>
+                  {String(error.message) === '403'
+                    ? 'This dashboard is restricted to the Barangay Captain'
+                    : 'Could not load oversight data'}
+                </Typography>
+                <Typography sx={{ fontSize: '0.86rem', color: '#b91c1c' }}>
+                  {String(error.message) === '403'
+                    ? 'Your account does not have captain-level access.'
+                    : 'The server did not respond. Check your connection and try again.'}
+                </Typography>
+              </Box>
+              <Button size="small" onClick={() => mutate()} startIcon={<Refresh sx={{ fontSize: 15 }} />}
+                sx={{ textTransform: 'none', fontWeight: 700, color: '#991b1b' }}>
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Stat row */}
+        <Grid container spacing={2} sx={{ mb: 2.5 }}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <StatCard label="Total Residents" color="#0f766e" loading={loading}
+              icon={<PersonOutlined sx={{ fontSize: 18 }} />}
+              value={data?.residents.total ?? 0}
+              sub={`${data?.residents.pending ?? 0} pending verification`}
+              onClick={() => router.push('/residents')} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <StatCard label="Active Cases" color="#d97706" loading={loading}
+              icon={<FolderOpen sx={{ fontSize: 18 }} />}
+              value={t?.active ?? 0}
+              sub={`of ${t?.cases ?? 0} total on record`} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <StatCard label="Critical Open" color="#dc2626" loading={loading}
+              icon={<Warning sx={{ fontSize: 18 }} />}
+              value={t?.criticalOpen ?? 0}
+              sub={`${t?.alerts ?? 0} active alert${(t?.alerts ?? 0) !== 1 ? 's' : ''}`} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <StatCard label="Safety Index" color="#475569" loading={loading}
+              icon={<TrendingUp sx={{ fontSize: 18 }} />}
+              value={`${t?.safetyIndex ?? 0}%`}
+              sub={`${t?.resolutionRate ?? 0}% resolution rate`} />
+          </Grid>
+        </Grid>
+
+        {/* Module bridges */}
+        <Grid container spacing={2} sx={{ mb: 2.5 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <ModuleCard title="Blotter Module" color={MODULE_COLOR.Blotter} loading={loading}
+              icon={<Gavel sx={{ fontSize: 20 }} />}
+              summary={data?.modules.blotter}
+              onOpen={() => router.push('/blotter-officer')} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <ModuleCard title="VAWC Module" color={MODULE_COLOR.VAWC} loading={loading}
+              icon={<Shield sx={{ fontSize: 20 }} />}
+              summary={data?.modules.vawc}
+              onOpen={() => router.push('/vawc')} />
+          </Grid>
+        </Grid>
+
+        {/* Trends + escalations */}
+        <Grid container spacing={2} sx={{ mb: 2.5 }}>
+          <Grid size={{ xs: 12, lg: 7 }} sx={{ minWidth: 0 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>Case Intake Trends</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 2 }}>
+                  Cases filed per month, split by module — last 6 months
+                </Typography>
+                {/* minWidth:0 stops the grid item from collapsing ResponsiveContainer to -1 */}
+                <Box sx={{ height: { xs: 220, sm: 270 }, minWidth: 0 }}>
+                  {loading ? <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} /> : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={data?.trends ?? []} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="kb" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={MODULE_COLOR.Blotter} stopOpacity={0.35} />
+                            <stop offset="95%" stopColor={MODULE_COLOR.Blotter} stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="kv" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={MODULE_COLOR.VAWC} stopOpacity={0.35} />
+                            <stop offset="95%" stopColor={MODULE_COLOR.VAWC} stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                        <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <ChartTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }} />
+                        <Legend wrapperStyle={{ fontSize: '0.86rem' }} />
+                        <Area type="monotone" dataKey="blotter" name="Blotter" stroke={MODULE_COLOR.Blotter} fill="url(#kb)" strokeWidth={2.5} />
+                        <Area type="monotone" dataKey="vawc" name="VAWC" stroke={MODULE_COLOR.VAWC} fill="url(#kv)" strokeWidth={2.5} />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   )}
-                </Stack>
-
-                <Typography
-                  sx={{
-                    mt: 3,
-                    color: "#9ca3af",
-                    fontSize: "0.8rem",
-                  }}
-                >
-                  {item.title}
-                </Typography>
-
-                <Typography
-                  variant="h3"
-                  sx={{
-                    mt: 1,
-                    fontWeight: 800,
-                    color: item.color,
-                  }}
-                >
-                  {item.value}
-                </Typography>
+                </Box>
               </CardContent>
             </Card>
-          ))}
-        </Box>
+          </Grid>
 
-        {/* CONTENT */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              lg: "2fr 1fr",
-            },
-            gap: 3,
-            mt: 4,
-          }}
-        >
-          {/* CHART */}
-          <Card
-            sx={{
-              borderRadius: "20px",
-              border: "1px solid #e5e7eb",
-              minHeight: 420,
-            }}
-          >
-            <CardContent>
-              <Stack
-                direction="row"
-                sx={{
-                  justifyContent:
-                    "space-between",
-                  alignItems: "center",
-                  mb: 4,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 700,
-                  }}
-                >
-                  Crime & Security Trends
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
+                  <NotificationsActive sx={{ fontSize: 17, color: '#dc2626' }} />
+                  <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>Needs Your Attention</Typography>
+                </Box>
+                <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1.5 }}>
+                  Unresolved high and critical cases across both modules
                 </Typography>
-
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    textTransform: "none",
-                  }}
-                >
-                  Last 6 Months
-                </Button>
-              </Stack>
-
-              <Box
-                sx={{
-                  height: 260,
-                  borderRadius: "16px",
-                  border:
-                    "1px dashed #d1d5db",
-                  background:
-                    "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
-                }}
-              />
-
-              <Stack
-                direction="row"
-                spacing={4}
-                sx={{
-                  mt: 4,
-                }}
-              >
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      backgroundColor:
-                        "#14b8a6",
-                    }}
-                  />
-
-                  <Typography>
-                    Reported Incidents
-                  </Typography>
-                </Stack>
-
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      backgroundColor:
-                        "#cbd5e1",
-                    }}
-                  />
-
-                  <Typography>
-                    Resolved Cases
-                  </Typography>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-
-          {/* ACTIVITIES */}
-          <Card
-            sx={{
-              borderRadius: "20px",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <CardContent>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  mb: 4,
-                }}
-              >
-                Recent Activities
-              </Typography>
-
-              <Stack spacing={3}>
-                {activities.map(
-                  (activity) => (
-                    <Stack
-                      key={activity.title}
-                      direction="row"
-                      spacing={2}
-                    >
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius:
-                            "50%",
-                          backgroundColor:
-                            `${activity.color}15`,
-                          color:
-                            activity.color,
-                          display: "flex",
-                          justifyContent:
-                            "center",
-                          alignItems:
-                            "center",
-                          fontWeight: 700,
-                        }}
-                      >
-                        •
-                      </Box>
-
-                      <Box>
-                        <Typography
+                {loading ? (
+                  <Box>{[0, 1, 2].map(i => <Skeleton key={i} variant="text" height={44} />)}</Box>
+                ) : escalations.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <CheckCircle sx={{ fontSize: 32, color: '#22c55e', mb: 1 }} />
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>No open escalations</Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {escalations.map((c, i) => (
+                      <motion.div key={c.id} initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
+                        <Box
+                          onClick={() => router.push(c.module === 'VAWC' ? '/vawc/cases' : `/blotter-officer/case-management/${c.id}`)}
                           sx={{
-                            fontWeight: 700,
+                            display: 'flex', alignItems: 'center', gap: 1.25, p: 1.25,
+                            borderRadius: 2, cursor: 'pointer',
+                            border: `1px solid ${RISK_COLOR[c.riskLevel] ?? '#e2e8f0'}22`,
+                            bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}07`,
+                            '&:hover': { bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}12` },
+                            transition: 'background 0.15s',
                           }}
                         >
-                          {activity.title}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            color:
-                              "#6b7280",
-                            fontSize:
-                              "0.92rem",
-                            mt: 0.5,
-                          }}
-                        >
-                          {
-                            activity.description
-                          }
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  )
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: RISK_COLOR[c.riskLevel] ?? '#64748b', flexShrink: 0 }} />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {c.residentName}
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.78rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {c.caseType} · {c.officer ?? 'Unassigned'}
+                            </Typography>
+                          </Box>
+                          <Chip size="small" label={c.module}
+                            sx={{ bgcolor: `${MODULE_COLOR[c.module]}15`, color: MODULE_COLOR[c.module], fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                        </Box>
+                      </motion.div>
+                    ))}
+                  </Box>
                 )}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Case registry */}
+        <Card sx={{ mb: 2.5 }}>
+          <CardContent sx={{ p: 0 }}>
+            <Box sx={{ px: 2.5, pt: 2.5, pb: 1.5, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Box sx={{ flex: 1, minWidth: 200 }}>
+                <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>Latest Case Activity</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
+                  Most recent filings from both modules{scope !== 'all' ? ` — ${scope} only` : ''}
+                </Typography>
+              </Box>
+              <Button size="small" endIcon={<ArrowForward sx={{ fontSize: 14 }} />}
+                onClick={() => router.push(scope === 'VAWC' ? '/vawc/cases' : '/blotter-officer/case-management')}
+                sx={{ color: ACCENT, fontWeight: 700, fontSize: '0.86rem', textTransform: 'none' }}>
+                View all
+              </Button>
+            </Box>
+            <CaseTable rows={recent} loading={loading} emptyText={`No ${scope === 'all' ? '' : scope + ' '}cases on record yet`} />
+          </CardContent>
+        </Card>
+
+        {/* Staff + activity */}
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', flex: 1 }}>Barangay Staff</Typography>
+                  {(data?.staff.byRole ?? []).map(r => (
+                    <Chip key={r.role} size="small" label={`${ROLE_LABEL[r.role] ?? r.role}: ${r.count}`}
+                      sx={{ bgcolor: '#f1f5f9', color: '#475569', fontWeight: 600, fontSize: '0.72rem', height: 22 }} />
+                  ))}
+                </Box>
+                {loading ? (
+                  <Box>{[0, 1, 2].map(i => <Skeleton key={i} variant="text" height={44} />)}</Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                    {(data?.staff.members ?? []).slice(0, 6).map(m => (
+                      <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.1, borderRadius: 2, border: '1px solid #f1f5f9' }}>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: '#e2e8f0', color: '#475569', fontSize: '0.78rem', fontWeight: 700 }}>
+                          {m.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0f172a' }}>{m.name}</Typography>
+                          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {ROLE_LABEL[m.role] ?? m.role}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', minWidth: 74 }}>
+                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: m.caseload > 0 ? '#0f172a' : '#cbd5e1' }}>
+                            {m.caseload}
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>caseload</Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                    {(data?.staff.members.length ?? 0) > 6 && (
+                      <Button size="small" onClick={() => router.push('/users')}
+                        sx={{ alignSelf: 'flex-start', color: ACCENT, fontWeight: 700, fontSize: '0.82rem', textTransform: 'none' }}>
+                        View all {data?.staff.total} staff →
+                      </Button>
+                    )}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', mb: 1.5 }}>Recent Activity</Typography>
+                {loading ? (
+                  <Box>{[0, 1, 2, 3].map(i => <Skeleton key={i} variant="text" height={38} />)}</Box>
+                ) : (data?.activities.length ?? 0) === 0 ? (
+                  <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8', fontStyle: 'italic', py: 3, textAlign: 'center' }}>
+                    No recorded activity yet
+                  </Typography>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.4 }}>
+                    {(data?.activities ?? []).slice(0, 7).map(a => (
+                      <Box key={a.id} sx={{ display: 'flex', gap: 1.25 }}>
+                        <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: a.color || '#3b82f6', mt: '5px', flexShrink: 0 }} />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography sx={{ fontSize: '0.86rem', color: '#334155', lineHeight: 1.45 }}>{a.message}</Typography>
+                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{timeAgo(a.createdAt)}</Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {(t?.criticalOpen ?? 0) > 0 && (
+          <Box sx={{ mt: 2.5 }}>
+            <LinearProgress variant="determinate" value={t?.safetyIndex ?? 0}
+              sx={{ height: 5, borderRadius: 3, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: (t?.safetyIndex ?? 0) > 60 ? '#22c55e' : (t?.safetyIndex ?? 0) > 30 ? '#f59e0b' : '#dc2626', borderRadius: 3 } }} />
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.75 }}>
+              Safety index = resolution rate minus a penalty for unresolved critical and high-risk cases.
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   );

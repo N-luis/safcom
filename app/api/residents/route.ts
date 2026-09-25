@@ -50,7 +50,16 @@ export async function GET(req: NextRequest) {
         orderBy: { [sortBy]: sortDir },
         skip: (page - 1) * limit,
         take: limit,
-        include: { _count: { select: { cases: true } } },
+        // Explicit select: `include` alone returns every scalar, which leaked
+        // the bcrypt password hash to the browser.
+        select: {
+          id: true, residentNumber: true, firstName: true, lastName: true,
+          age: true, gender: true, barangay: true, address: true,
+          contactNumber: true, email: true, emailVerified: true,
+          idDocument: true, status: true, riskLevel: true, notes: true,
+          registeredAt: true, updatedAt: true,
+          _count: { select: { cases: true } },
+        },
       }),
       prisma.resident.count({ where }),
     ]);

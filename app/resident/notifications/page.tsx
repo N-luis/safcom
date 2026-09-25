@@ -59,13 +59,13 @@ export default function ResidentNotificationsPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.25 }}>
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Notifications</Typography>
             {(updates ?? []).length > 0 && (
-              <Chip label={`${(updates ?? []).length} updates`} size="small" sx={{ bgcolor: '#f0fdf4', color: '#15803d', fontWeight: 700, fontSize: '0.7rem', height: 22 }} />
+              <Chip label={`${(updates ?? []).length} updates`} size="small" sx={{ bgcolor: '#f0fdf4', color: '#15803d', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
             )}
             {newCount > 0 && (
-              <Chip label={`${newCount} new`} size="small" sx={{ bgcolor: '#fef2f2', color: '#dc2626', fontWeight: 700, fontSize: '0.7rem', height: 22 }} />
+              <Chip label={`${newCount} new`} size="small" sx={{ bgcolor: '#fef2f2', color: '#dc2626', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
             )}
           </Box>
-          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
             Case status updates and barangay announcements
           </Typography>
         </Box>
@@ -91,7 +91,7 @@ export default function ResidentNotificationsPage() {
               color: typeFilter === f.value ? f.color : '#64748b',
               fontWeight: typeFilter === f.value ? 700 : 400,
               border: typeFilter === f.value ? `1px solid ${f.color}30` : '1px solid transparent',
-              cursor: 'pointer', fontSize: '0.78rem', transition: 'all 0.15s',
+              cursor: 'pointer', fontSize: '0.86rem', transition: 'all 0.15s',
             }}
           />
         ))}
@@ -114,8 +114,8 @@ export default function ResidentNotificationsPage() {
         ) : displayed.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 7 }}>
             <Notifications sx={{ fontSize: 44, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1.5 }} />
-            <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.9rem' }}>No notifications</Typography>
-            <Typography sx={{ fontSize: '0.78rem', color: '#cbd5e1', mt: 0.5 }}>
+            <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.98rem' }}>No notifications</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: '#cbd5e1', mt: 0.5 }}>
               {typeFilter !== 'all' ? 'Try a different filter' : 'Updates will appear here once you have active cases'}
             </Typography>
           </Box>
@@ -151,20 +151,20 @@ export default function ResidentNotificationsPage() {
                             {new Date(u.createdAt).getTime() > lastSeen && (
                               <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: '#ef4444', flexShrink: 0 }} />
                             )}
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>
+                            <Typography sx={{ fontSize: '0.94rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>
                               {u.title}
                             </Typography>
                           </Box>
                           <Chip
                             label={SOURCE_LABEL[u.source]}
                             size="small"
-                            sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.62rem', height: 18, flexShrink: 0 }}
+                            sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.72rem', height: 22, flexShrink: 0 }}
                           />
                         </Box>
-                        <Typography sx={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5 }}>
                           {u.message}
                         </Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.5 }}>
+                        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.5 }}>
                           {timeAgo(u.createdAt)}
                         </Typography>
                       </Box>

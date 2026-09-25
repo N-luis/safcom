@@ -134,7 +134,7 @@ export default function ResidentProfilePage() {
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 900 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>My Profile</Typography>
-        <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>Your resident account information</Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Your resident account information</Typography>
       </Box>
 
       <Grid container spacing={3}>
@@ -158,14 +158,14 @@ export default function ResidentProfilePage() {
                     icon={<StatusIcon sx={{ fontSize: '14px !important' }} />}
                     label={profile?.status ?? 'Resident'}
                     size="small"
-                    sx={{ bgcolor: `${STATUS_COLOR[profile?.status ?? 'Active']}15`, color: STATUS_COLOR[profile?.status ?? 'Active'], fontWeight: 700, fontSize: '0.72rem', mb: 2 }}
+                    sx={{ bgcolor: `${STATUS_COLOR[profile?.status ?? 'Active']}15`, color: STATUS_COLOR[profile?.status ?? 'Active'], fontWeight: 700, fontSize: '0.82rem', mb: 2 }}
                   />
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, justifyContent: 'center', mb: 0.75 }}>
                     <Shield sx={{ fontSize: 14, color: '#14b8a6' }} />
-                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Barangay Management Portal</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Barangay Management Portal</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
                     {profile?.barangay ?? 'Barangay Resident'}
                   </Typography>
                 </motion.div>
@@ -180,9 +180,9 @@ export default function ResidentProfilePage() {
                 <CardContent sx={{ p: 2.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                     <VerifiedUser sx={{ fontSize: 18, color: STATUS_COLOR[profile.status] ?? '#94a3b8' }} />
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46' }}>Verification Status</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>Verification Status</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.76rem', color: '#64748b', lineHeight: 1.6 }}>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.6 }}>
                     {STATUS_MSG[profile.status] ?? ''}
                   </Typography>
                 </CardContent>
@@ -196,10 +196,10 @@ export default function ResidentProfilePage() {
           <Card sx={{ mb: 2.5 }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>Personal Information</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Personal Information</Typography>
                 {!editing && !isLoading && (
                   <Button startIcon={<Edit sx={{ fontSize: 15 }} />} size="small" onClick={startEdit}
-                    sx={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.8rem', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}>
+                    sx={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.9rem', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}>
                     Edit
                   </Button>
                 )}
@@ -213,9 +213,9 @@ export default function ResidentProfilePage() {
                     <f.icon sx={{ fontSize: 16, color: '#64748b' }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{f.label}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{f.label}</Typography>
                     {isLoading ? <Skeleton variant="text" width={180} height={20} />
-                      : <Typography sx={{ fontSize: '0.87rem', color: '#0c1e46', fontWeight: 500 }}>{f.value}</Typography>}
+                      : <Typography sx={{ fontSize: '0.94rem', color: '#0c1e46', fontWeight: 500 }}>{f.value}</Typography>}
                   </Box>
                 </Box>
               ))}
@@ -251,9 +251,9 @@ export default function ResidentProfilePage() {
                           <f.icon sx={{ fontSize: 16, color: '#64748b' }} />
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{f.label}</Typography>
+                          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{f.label}</Typography>
                           {isLoading ? <Skeleton variant="text" width={140} height={20} />
-                            : <Typography sx={{ fontSize: '0.87rem', color: '#0c1e46', fontWeight: 500 }}>{f.value}</Typography>}
+                            : <Typography sx={{ fontSize: '0.94rem', color: '#0c1e46', fontWeight: 500 }}>{f.value}</Typography>}
                         </Box>
                       </Box>
                     </Grid>
@@ -276,8 +276,8 @@ export default function ResidentProfilePage() {
                     <VerifiedUser sx={{ fontSize: 16, color: '#22c55e' }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>Government ID</Typography>
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>Required for account verification</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Government ID</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>Required for account verification</Typography>
                   </Box>
                 </Box>
                 {profile?.idDocument && (
@@ -287,7 +287,7 @@ export default function ResidentProfilePage() {
                     sx={{
                       bgcolor: `${STATUS_COLOR[profile.status] ?? '#94a3b8'}15`,
                       color: STATUS_COLOR[profile.status] ?? '#94a3b8',
-                      fontWeight: 700, fontSize: '0.68rem', height: 22,
+                      fontWeight: 700, fontSize: '0.78rem', height: 24,
                     }}
                   />
                 )}
@@ -312,22 +312,22 @@ export default function ResidentProfilePage() {
                       </Box>
                     )}
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography sx={{ fontWeight: 600, fontSize: '0.83rem', color: '#0c1e46', mb: 0.25 }}>
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.25 }}>
                         {isImageUrl(profile.idDocument) ? 'ID Document (Image)' : 'ID Document (PDF)'}
                       </Typography>
-                      <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', wordBreak: 'break-all' }}>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', wordBreak: 'break-all' }}>
                         {profile.idDocument.split('/').pop()}
                       </Typography>
                       <Box sx={{ mt: 0.75, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: STATUS_COLOR[profile.status] ?? '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.7rem', color: STATUS_COLOR[profile.status] ?? '#94a3b8', fontWeight: 600 }}>
+                        <Typography sx={{ fontSize: '0.78rem', color: STATUS_COLOR[profile.status] ?? '#94a3b8', fontWeight: 600 }}>
                           {profile.status === 'Active' ? 'ID Verified ✓' : profile.status === 'Rejected' ? 'Rejected — please resubmit' : 'Awaiting admin review'}
                         </Typography>
                       </Box>
                     </Box>
                     {isImageUrl(profile.idDocument) && (
                       <Button size="small" href={profile.idDocument} target="_blank" rel="noopener noreferrer"
-                        sx={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.75rem', flexShrink: 0 }}>
+                        sx={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.86rem', flexShrink: 0 }}>
                         View
                       </Button>
                     )}
@@ -341,7 +341,7 @@ export default function ResidentProfilePage() {
                 || !profile?.idDocument) && (
                 <Box>
                   {profile?.status === 'Rejected' && (
-                    <Alert severity="error" sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>
+                    <Alert severity="error" sx={{ mb: 2, borderRadius: 2, fontSize: '0.9rem' }}>
                       Your previous ID was rejected. Please upload a clearer, valid government-issued ID.
                     </Alert>
                   )}
@@ -360,8 +360,8 @@ export default function ResidentProfilePage() {
                               : <InsertDriveFile sx={{ color: '#14b8a6', fontSize: 24 }} />}
                           </Box>
                           <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography sx={{ fontWeight: 600, fontSize: '0.83rem', color: '#0c1e46', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{idFile.name}</Typography>
-                            <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{(idFile.size / 1024).toFixed(0)} KB · {idFile.type.split('/')[1]?.toUpperCase()}</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{idFile.name}</Typography>
+                            <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{(idFile.size / 1024).toFixed(0)} KB · {idFile.type.split('/')[1]?.toUpperCase()}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <CheckCircle sx={{ color: '#14b8a6', fontSize: 18 }} />
@@ -387,10 +387,10 @@ export default function ResidentProfilePage() {
                           }}
                         >
                           <CloudUpload sx={{ color: '#14b8a6', fontSize: 28, mb: 1 }} />
-                          <Typography sx={{ fontWeight: 600, color: '#374151', fontSize: '0.85rem', mb: 0.5 }}>
+                          <Typography sx={{ fontWeight: 600, color: '#374151', fontSize: '0.94rem', mb: 0.5 }}>
                             {profile?.idDocument ? 'Replace ID Document' : 'Upload Government ID'}
                           </Typography>
-                          <Typography sx={{ fontSize: '0.72rem', color: '#9ca3af' }}>
+                          <Typography sx={{ fontSize: '0.82rem', color: '#9ca3af' }}>
                             Drag & drop or click · JPG, PNG, PDF · max 5 MB
                           </Typography>
                         </Box>
@@ -401,7 +401,7 @@ export default function ResidentProfilePage() {
                   {uploading && (
                     <Box sx={{ mb: 1.5 }}>
                       <LinearProgress sx={{ borderRadius: 4, height: 5, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: '#14b8a6' } }} />
-                      <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mt: 0.5, textAlign: 'center' }}>Uploading…</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mt: 0.5, textAlign: 'center' }}>Uploading…</Typography>
                     </Box>
                   )}
 
@@ -411,7 +411,7 @@ export default function ResidentProfilePage() {
                     {uploading ? 'Uploading…' : profile?.idDocument ? 'Resubmit ID for Verification' : 'Submit ID for Verification'}
                   </Button>
 
-                  <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mt: 1.5, textAlign: 'center', lineHeight: 1.6 }}>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mt: 1.5, textAlign: 'center', lineHeight: 1.6 }}>
                     Accepted: Passport · Driver&apos;s License · PhilSys ID · Voter&apos;s ID · UMID
                   </Typography>
                 </Box>
@@ -419,7 +419,7 @@ export default function ResidentProfilePage() {
 
               {/* Already verified — show resubmit option */}
               {!isLoading && profile?.status === 'Active' && profile.idDocument && (
-                <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8', mt: 1, textAlign: 'center' }}>
+                <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8', mt: 1, textAlign: 'center' }}>
                   Your ID is verified. Contact the barangay office to update your ID document.
                 </Typography>
               )}

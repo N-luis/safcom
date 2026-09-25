@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
+import { useClerk } from '@clerk/nextjs';
 import { RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY } from '@/lib/notifications';
 
 const SIDEBAR_W = 230;
@@ -38,6 +39,7 @@ interface SidebarProps {
 function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { signOut } = useClerk();
 
   const isActive = (path: string, exact?: boolean) =>
     exact ? pathname === path : pathname === path || pathname.startsWith(path + '/');
@@ -45,8 +47,16 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
   const go = (path: string) => { router.push(path); onClose(); };
 
   const logout = async () => {
+    // Clear the app's own resident_token first.
     await fetch('/api/auth/resident-logout', { method: 'POST', credentials: 'include' });
-    router.push('/resident-login');
+    // Clerk owns resident identity now, so end that session too — otherwise the
+    // next person on this device is silently signed back in.
+    try {
+      await signOut({ redirectUrl: '/login' });
+    } catch {
+      /* no Clerk session to end — the cookie above was the only one */
+    }
+    router.replace('/login');
   };
 
   const initials = residentName
@@ -70,10 +80,10 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
           <Shield sx={{ fontSize: 20, color: 'white' }} />
         </Box>
         <Box>
-          <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#fff', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+          <Typography sx={{ fontWeight: 800, fontSize: '1.02rem', color: '#fff', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
             SafeComm
           </Typography>
-          <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             Barangay Management
           </Typography>
         </Box>
@@ -108,7 +118,7 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
                   <Badge
                     badgeContent={unreadCount > 9 ? '9+' : unreadCount}
                     color="error"
-                    sx={{ '& .MuiBadge-badge': { fontSize: '0.6rem', height: 16, minWidth: 16 } }}
+                    sx={{ '& .MuiBadge-badge': { fontSize: '0.72rem', height: 22, minWidth: 16 } }}
                   >
                     <item.icon sx={{ fontSize: 19 }} />
                   </Badge>
@@ -118,7 +128,7 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Box component="span" sx={{ fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1.4, display: 'block' }}>
+                  <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: active ? 600 : 400, lineHeight: 1.4, display: 'block' }}>
                     {item.label}
                   </Box>
                 }
@@ -132,14 +142,14 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
 
       {/* User footer */}
       <Box sx={{ px: 2, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.2 }}>
-        <Avatar sx={{ width: 34, height: 34, bgcolor: '#0891b2', border: '2px solid rgba(20,184,166,0.4)', fontSize: '0.72rem', fontWeight: 700 }}>
+        <Avatar sx={{ width: 34, height: 34, bgcolor: '#0891b2', border: '2px solid rgba(20,184,166,0.4)', fontSize: '0.82rem', fontWeight: 700 }}>
           {initials}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {residentName || 'Resident'}
           </Typography>
-          <Typography sx={{ fontSize: '0.63rem', color: 'rgba(255,255,255,0.38)' }}>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.38)' }}>
             {residentStatus || 'Verified Resident'}
           </Typography>
         </Box>
@@ -233,7 +243,7 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
             </IconButton>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Shield sx={{ fontSize: 18, color: '#14b8a6' }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'white' }}>SafeComm</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: 'white' }}>SafeComm</Typography>
             </Box>
           </Box>
         )}

@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 const ACCENT = '#7c3aed';
 
 const schema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Enter your email or username'),
   password: z.string().min(1, 'Password is required'),
 });
 type LoginForm = z.infer<typeof schema>;
@@ -97,7 +97,7 @@ export default function VawcLoginPage() {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1rem', lineHeight: 1.1 }}>SafeComm</Typography>
-              <Typography sx={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>VAWC Administration</Typography>
+              <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>VAWC Administration</Typography>
             </Box>
           </Box>
 
@@ -109,7 +109,7 @@ export default function VawcLoginPage() {
               <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1.7rem', lineHeight: 1.25, mb: 1.5 }}>
                 VAWC Officer<br />Portal
               </Typography>
-              <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.88rem', lineHeight: 1.7, mb: 3 }}>
+              <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.94rem', lineHeight: 1.7, mb: 3 }}>
                 Secure access to confidential VAWC case management, risk prediction, and intervention tracking.
               </Typography>
               {[
@@ -120,7 +120,7 @@ export default function VawcLoginPage() {
               ].map(item => (
                 <Box key={item} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.2 }}>
                   <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.7)', flexShrink: 0 }} />
-                  <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)' }}>{item}</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)' }}>{item}</Typography>
                 </Box>
               ))}
             </motion.div>
@@ -128,7 +128,7 @@ export default function VawcLoginPage() {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.75, borderRadius: 2.5, bgcolor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <Lock sx={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
-            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
+            <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
               This portal is restricted to authorized VAWC Officers. Unauthorized access is a criminal offense.
             </Typography>
           </Box>
@@ -151,23 +151,23 @@ export default function VawcLoginPage() {
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <Chip label="VAWC Officers Only" size="small"
-              sx={{ bgcolor: `${ACCENT}22`, color: '#c4b5fd', fontWeight: 700, fontSize: '0.65rem', border: `1px solid ${ACCENT}44`, mb: 2.5 }} />
+              sx={{ bgcolor: `${ACCENT}22`, color: '#c4b5fd', fontWeight: 700, fontSize: '0.72rem', border: `1px solid ${ACCENT}44`, mb: 2.5 }} />
             <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1.6rem', lineHeight: 1.2, mb: 0.75 }}>
               Sign in to VAWC Portal
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', mb: 3.5 }}>
+            <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.94rem', mb: 3.5 }}>
               Enter your credentials to access the VAWC module.
             </Typography>
 
             {apiError && (
-              <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2, '& .MuiAlert-message': { fontSize: '0.82rem' } }}>
+              <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2, '& .MuiAlert-message': { fontSize: '0.9rem' } }}>
                 {apiError}
               </Alert>
             )}
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <TextField
-                label="Email Address" type="email" {...register('email')}
+                label="Email or Username" type="text" {...register('email')}
                 error={!!errors.email} helperText={errors.email?.message}
                 fullWidth autoComplete="email"
                 sx={{
@@ -204,7 +204,7 @@ export default function VawcLoginPage() {
                 type="submit" variant="contained" size="large" fullWidth disabled={isSubmitting}
                 endIcon={!isSubmitting && <ArrowForward sx={{ fontSize: 18 }} />}
                 sx={{
-                  mt: 0.5, py: 1.5, fontWeight: 700, fontSize: '0.95rem', borderRadius: 2,
+                  mt: 0.5, py: 1.5, fontWeight: 700, fontSize: '0.98rem', borderRadius: 2,
                   background: `linear-gradient(135deg, #6d28d9, ${ACCENT})`,
                   boxShadow: `0 6px 20px ${ACCENT}50`,
                   '&:hover': { background: 'linear-gradient(135deg, #5b21b6, #6d28d9)', transform: 'translateY(-1px)' },
@@ -220,17 +220,17 @@ export default function VawcLoginPage() {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '0.77rem', color: 'rgba(255,255,255,0.35)' }}>Admin or Officer?</Typography>
+                <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.35)' }}>Admin or Officer?</Typography>
                 <Button size="small" onClick={() => router.push('/login')}
                   startIcon={<Shield sx={{ fontSize: 14 }} />}
-                  sx={{ color: '#60a5fa', fontWeight: 600, fontSize: '0.77rem', p: 0, minWidth: 0, '&:hover': { color: '#93c5fd', bgcolor: 'transparent' }, textTransform: 'none' }}>
+                  sx={{ color: '#60a5fa', fontWeight: 600, fontSize: '0.86rem', p: 0, minWidth: 0, '&:hover': { color: '#93c5fd', bgcolor: 'transparent' }, textTransform: 'none' }}>
                   Admin Portal →
                 </Button>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '0.77rem', color: 'rgba(255,255,255,0.35)' }}>Are you a resident?</Typography>
+                <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.35)' }}>Are you a resident?</Typography>
                 <Button size="small" onClick={() => router.push('/resident-login')}
-                  sx={{ color: '#34d399', fontWeight: 600, fontSize: '0.77rem', p: 0, minWidth: 0, '&:hover': { color: '#6ee7b7', bgcolor: 'transparent' }, textTransform: 'none' }}>
+                  sx={{ color: '#34d399', fontWeight: 600, fontSize: '0.86rem', p: 0, minWidth: 0, '&:hover': { color: '#6ee7b7', bgcolor: 'transparent' }, textTransform: 'none' }}>
                   Resident Portal →
                 </Button>
               </Box>

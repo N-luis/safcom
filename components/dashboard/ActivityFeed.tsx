@@ -33,11 +33,11 @@ export default function ActivityFeed() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Activity</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.78rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.86rem' }}>
               Latest case updates & alerts
             </Typography>
           </Box>
-          <Chip label="Live" size="small" sx={{ bgcolor: '#22c55e', color: 'white', fontWeight: 700, fontSize: '0.7rem',
+          <Chip label="Live" size="small" sx={{ bgcolor: '#22c55e', color: 'white', fontWeight: 700, fontSize: '0.78rem',
             animation: 'pulse 2s infinite', '@keyframes pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.6 } } }} />
         </Box>
 
@@ -77,16 +77,16 @@ export default function ActivityFeed() {
                       </Box>
 
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ fontSize: '0.8rem', lineHeight: 1.4, mb: 0.3 }}>
+                        <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.4, mb: 0.3 }}>
                           {activity.message}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           {activity.user?.name && (
-                            <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: 'primary.main' }}>
+                            <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: 'primary.main' }}>
                               {activity.user.name}
                             </Typography>
                           )}
-                          <Typography sx={{ fontSize: '0.7rem' }} color="text.disabled">
+                          <Typography sx={{ fontSize: '0.78rem' }} color="text.disabled">
                             {timeAgo(activity.createdAt)}
                           </Typography>
                         </Box>

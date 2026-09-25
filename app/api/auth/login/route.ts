@@ -3,9 +3,12 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { signToken, successResponse, errorResponse } from '@/lib/auth';
+import { identifierWhere } from '@/lib/identifier';
 
+// `email` stays the wire field name for backwards compatibility, but it now
+// accepts a username too.
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1, 'Enter your email or username'),
   password: z.string().min(1),
 });
 
@@ -15,8 +18,8 @@ export async function POST(req: NextRequest) {
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) return errorResponse('Invalid credentials', 400);
 
-    const { email, password } = parsed.data;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { email: identifier, password } = parsed.data;
+    const user = await prisma.user.findFirst({ where: identifierWhere(identifier) });
     if (!user || !user.active) return errorResponse('Invalid credentials', 401);
 
     const valid = await bcrypt.compare(password, user.password);

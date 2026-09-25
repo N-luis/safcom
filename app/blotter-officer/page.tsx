@@ -68,23 +68,23 @@ function CaseDetailDialog({ c, onClose, onUpdate }: { c: CaseRow; onClose: () =>
             { label: 'Assigned To', value: c.assignedTo?.name || 'Unassigned' },
           ].map(row => (
             <Grid size={{ xs: 6 }} key={row.label}>
-              <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.25 }}>{row.label}</Typography>
-              <Typography sx={{ fontSize: '0.88rem', fontWeight: 500 }}>{row.value}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.25 }}>{row.label}</Typography>
+              <Typography sx={{ fontSize: '0.94rem', fontWeight: 500 }}>{row.value}</Typography>
             </Grid>
           ))}
           <Grid size={{ xs: 6 }}>
-            <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.25 }}>Status</Typography>
-            <Chip label={c.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[c.status] ?? '#94a3b8'}20`, color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.75rem' }} />
+            <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.25 }}>Status</Typography>
+            <Chip label={c.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[c.status] ?? '#94a3b8'}20`, color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.86rem' }} />
           </Grid>
           <Grid size={{ xs: 6 }}>
-            <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.25 }}>Risk Level</Typography>
-            <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}20`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 600, fontSize: '0.75rem' }} />
+            <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.25 }}>Risk Level</Typography>
+            <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}20`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 600, fontSize: '0.86rem' }} />
           </Grid>
           {c.description && (
             <Grid size={{ xs: 12 }}>
-              <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.5 }}>Description</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.5 }}>Description</Typography>
               <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: '#f8fafc' }}>
-                <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.6 }}>{c.description}</Typography>
+                <Typography sx={{ fontSize: '0.94rem', lineHeight: 1.6 }}>{c.description}</Typography>
               </Paper>
             </Grid>
           )}
@@ -153,7 +153,7 @@ export default function BlotterDashboard() {
         <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
           Dashboard Overview
         </Typography>
-        <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary', mt: 0.25 }}>
+        <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.25 }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </Typography>
       </Box>
@@ -176,14 +176,14 @@ export default function BlotterDashboard() {
               >
                 <CardContent sx={{ p: { xs: 1.75, sm: 2.5 } }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
-                    <Typography sx={{ fontSize: '0.65rem', color: card.subtitleColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.3 }}>
+                    <Typography sx={{ fontSize: '0.72rem', color: card.subtitleColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.3 }}>
                       {card.subtitle}
                     </Typography>
                     <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: `${card.iconColor}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ml: 1 }}>
                       <card.icon sx={{ fontSize: 20, color: card.iconColor }} />
                     </Box>
                   </Box>
-                  <Typography sx={{ fontSize: '0.68rem', color: 'text.secondary', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     {card.title}
                   </Typography>
                   {statsLoading ? (
@@ -207,17 +207,17 @@ export default function BlotterDashboard() {
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                   Case Distribution by Category
                 </Typography>
-                <Chip label="All-Time Totals" size="small" sx={{ fontSize: '0.7rem', height: 24, bgcolor: '#f1f5f9' }} />
+                <Chip label="All-Time Totals" size="small" sx={{ fontSize: '0.78rem', height: 24, bgcolor: '#f1f5f9' }} />
               </Box>
 
               {statsLoading ? (
                 <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
               ) : categories.length === 0 ? (
                 <Box sx={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>No cases recorded yet</Typography>
+                  <Typography sx={{ fontSize: '0.94rem', color: 'text.secondary' }}>No cases recorded yet</Typography>
                 </Box>
               ) : (
               <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3 }}>
@@ -239,7 +239,7 @@ export default function BlotterDashboard() {
                       </Pie>
                       <ChartTooltip
                         formatter={(value: unknown, _name: unknown, item: { payload?: { count?: number } }) => [`${value}% (${item?.payload?.count ?? 0} cases)`, '']}
-                        contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.8rem' }}
+                        contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.9rem' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -250,8 +250,8 @@ export default function BlotterDashboard() {
                     <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>
                       {categories.length}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b', lineHeight: 1.4 }}>Categories</Typography>
-                    <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8' }}>Total Data</Typography>
+                    <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', lineHeight: 1.4 }}>Categories</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total Data</Typography>
                   </Box>
                 </Box>
 
@@ -268,15 +268,15 @@ export default function BlotterDashboard() {
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: cat.color, flexShrink: 0 }} />
-                        <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{cat.name}</Typography>
+                        <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>{cat.name}</Typography>
                       </Box>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#0c1e46' }}>{cat.value}% · {cat.count}</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>{cat.value}% · {cat.count}</Typography>
                     </Box>
                   ))}
                   <Divider sx={{ my: 1.5 }} />
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Total Recorded</Typography>
-                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#0c1e46' }}>
+                    <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>Total Recorded</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>
                       {(stats?.total ?? 0).toLocaleString()}
                     </Typography>
                   </Box>
@@ -293,7 +293,7 @@ export default function BlotterDashboard() {
             <CardContent sx={{ p: 2.5, pb: 1, flexShrink: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Warning sx={{ color: '#ef4444', fontSize: 20 }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                   Urgent Cases (High Risk)
                 </Typography>
               </Box>
@@ -301,7 +301,7 @@ export default function BlotterDashboard() {
               {urgentCases.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <CheckCircle sx={{ color: '#22c55e', fontSize: 36, mb: 1 }} />
-                  <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>No high-risk cases</Typography>
+                  <Typography sx={{ fontSize: '0.94rem', color: 'text.secondary' }}>No high-risk cases</Typography>
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -316,25 +316,25 @@ export default function BlotterDashboard() {
                       }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                           {c.caseType} — #{c.caseNumber}
                         </Typography>
-                        <Chip label="HIGH" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.6rem', height: 18, px: 0.5 }} />
+                        <Chip label="HIGH" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22, px: 0.5 }} />
                       </Box>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#0c1e46', mb: 0.25 }}>
+                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0c1e46', mb: 0.25 }}>
                         {c.residentName}
                       </Typography>
                       {c.description && (
-                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary', mb: 0.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                           {c.description}
                         </Typography>
                       )}
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <LocationOn sx={{ fontSize: 12, color: '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>{c.barangay}</Typography>
+                        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.barangay}</Typography>
                         <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3 }}>
                           <AccessTime sx={{ fontSize: 11, color: '#94a3b8' }} />
-                          <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>{timeAgo(c.filedAt)}</Typography>
+                          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{timeAgo(c.filedAt)}</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -347,7 +347,7 @@ export default function BlotterDashboard() {
                 fullWidth variant="outlined" size="small"
                 endIcon={<ArrowForward fontSize="small" />}
                 onClick={() => router.push('/blotter-officer/case-management?riskLevel=High')}
-                sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#475569', fontSize: '0.78rem', '&:hover': { borderColor: '#ef4444', color: '#ef4444', bgcolor: '#fff5f5' } }}
+                sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#475569', fontSize: '0.86rem', '&:hover': { borderColor: '#ef4444', color: '#ef4444', bgcolor: '#fff5f5' } }}
               >
                 View All High Risk Cases
               </Button>
@@ -361,15 +361,15 @@ export default function BlotterDashboard() {
         <CardContent sx={{ p: 2.5, pb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5, flexWrap: 'wrap', gap: 1.5 }}>
             <Box>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>Recently Assigned Cases</Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Your current active queue for review and validation.</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Recently Assigned Cases</Typography>
+              <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>Your current active queue for review and validation.</Typography>
             </Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small" placeholder="Filter cases..."
                 value={search} onChange={(e) => setSearch(e.target.value)}
                 slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 16, color: 'text.disabled' }} /></InputAdornment> } }}
-                sx={{ width: { xs: '100%', sm: 210 }, '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: '0.83rem', height: 36 } }}
+                sx={{ width: { xs: '100%', sm: 210 }, '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: '0.9rem', height: 36 } }}
               />
               <Tooltip title="Open Case Management">
                 <IconButton
@@ -387,7 +387,7 @@ export default function BlotterDashboard() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Case ID', 'Reporter / Subject', 'Category', 'Status', 'Risk Level', 'Timestamp', ''].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
@@ -404,7 +404,7 @@ export default function BlotterDashboard() {
                 ))
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: 'text.secondary', fontSize: '0.85rem' }}>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: 'text.secondary', fontSize: '0.94rem' }}>
                     No cases found
                   </TableCell>
                 </TableRow>
@@ -416,41 +416,41 @@ export default function BlotterDashboard() {
                     onClick={() => setSelectedCase(c)}
                   >
                     <TableCell>
-                      <Typography sx={{ fontWeight: 600, fontSize: '0.82rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{
                           width: 30, height: 30, borderRadius: '50%', bgcolor: '#dbeafe',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.7rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0,
+                          fontSize: '0.78rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0,
                         }}>
                           {c.residentName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: '0.83rem', fontWeight: 500 }}>{c.residentName}</Typography>
-                          <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>Reporting Party</Typography>
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{c.residentName}</Typography>
+                          <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Reporting Party</Typography>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.82rem' }}>{c.caseType}</Typography>
+                      <Typography sx={{ fontSize: '0.9rem' }}>{c.caseType}</Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: STATUS_COLOR[c.status] ?? '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.8rem', color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600 }}>
+                        <Typography sx={{ fontSize: '0.9rem', color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600 }}>
                           {c.status}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8' }}>
+                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8' }}>
                         {c.riskLevel}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography>
+                      <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography>
                     </TableCell>
                     <TableCell>
                       <Tooltip title="View Details">
@@ -467,7 +467,7 @@ export default function BlotterDashboard() {
         </TableContainer>
 
         <Box sx={{ px: 2.5, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9' }}>
-          <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+          <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>
             Showing {filtered.length} of {casesData?.pagination?.total ?? 0} assigned cases
             {casesData?.pagination?.totalPages > 1 ? ` — page ${casesData.pagination.page} of ${casesData.pagination.totalPages}` : ''}
           </Typography>
@@ -475,7 +475,7 @@ export default function BlotterDashboard() {
             <Button
               size="small" variant="outlined"
               disabled={page <= 1}
-              sx={{ borderRadius: 1.5, fontSize: '0.78rem', py: 0.25, borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}
+              sx={{ borderRadius: 1.5, fontSize: '0.86rem', py: 0.25, borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}
               onClick={() => setPage(p => Math.max(1, p - 1))}
             >
               Previous
@@ -483,7 +483,7 @@ export default function BlotterDashboard() {
             <Button
               size="small" variant="outlined"
               disabled={!casesData?.pagination?.totalPages || page >= casesData.pagination.totalPages}
-              sx={{ borderRadius: 1.5, fontSize: '0.78rem', py: 0.25, borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}
+              sx={{ borderRadius: 1.5, fontSize: '0.86rem', py: 0.25, borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}
               onClick={() => setPage(p => p + 1)}
             >
               Next

@@ -65,9 +65,9 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
             <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon sx={{ fontSize: 20, color }} />
             </Box>
-            <Chip label={badge.text} size="small" sx={{ bgcolor: badge.bg, color: badge.color, fontWeight: 700, fontSize: '0.65rem', height: 20, borderRadius: 1 }} />
+            <Chip label={badge.text} size="small" sx={{ bgcolor: badge.bg, color: badge.color, fontWeight: 700, fontSize: '0.72rem', height: 24, borderRadius: 1 }} />
           </Box>
-          <Typography sx={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 500, mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</Typography>
+          <Typography sx={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 500, mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</Typography>
           {value === null
             ? <Skeleton variant="text" width={80} height={48} />
             : <Typography sx={{ fontSize: '2.2rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1, mb: 1 }}>{value.toLocaleString()}</Typography>
@@ -75,7 +75,7 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
           {sub && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               {sub.positive !== undefined && (sub.positive ? <TrendingUp sx={{ fontSize: 13, color: '#22c55e' }} /> : <TrendingDown sx={{ fontSize: 13, color: '#ef4444' }} />)}
-              <Typography sx={{ fontSize: '0.72rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
             </Box>
           )}
         </CardContent>
@@ -89,11 +89,11 @@ function ChartTooltipContent({ active, payload, label }: { active?: boolean; pay
   if (!active || !payload?.length) return null;
   return (
     <Box sx={{ bgcolor: 'white', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, boxShadow: '0 4px 16px rgba(0,0,0,0.1)', minWidth: 140 }}>
-      <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#0c1e46', mb: 0.75 }}>{label}</Typography>
+      <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46', mb: 0.75 }}>{label}</Typography>
       {payload.map(p => (
         <Box key={p.name} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
           <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: p.color, flexShrink: 0 }} />
-          <Typography sx={{ fontSize: '0.72rem', color: '#475569' }}>{p.name}: <Box component="span" sx={{ fontWeight: 700 }}>{p.value}</Box></Typography>
+          <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{p.name}: <Box component="span" sx={{ fontWeight: 700 }}>{p.value}</Box></Typography>
         </Box>
       ))}
     </Box>
@@ -138,10 +138,10 @@ export default function VawcDashboard() {
             <Chip
               label="LIVE ANALYTICS"
               size="small"
-              sx={{ bgcolor: 'rgba(20,184,166,0.1)', color: '#0d9488', fontWeight: 700, fontSize: '0.6rem', height: 20, letterSpacing: '0.06em', border: '1px solid rgba(20,184,166,0.25)' }}
+              sx={{ bgcolor: 'rgba(20,184,166,0.1)', color: '#0d9488', fontWeight: 700, fontSize: '0.72rem', height: 24, letterSpacing: '0.06em', border: '1px solid rgba(20,184,166,0.25)' }}
             />
           </Box>
-          <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mt: 0.25 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mt: 0.25 }}>
             Real-time monitoring of Violence Against Women and Children cases
           </Typography>
         </Box>
@@ -207,14 +207,14 @@ export default function VawcDashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 0.5 }}>
                 <Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>Monthly Incident Trends</Typography>
-                  <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mt: 0.2 }}>Comparative analysis of case reporting over time</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Monthly Incident Trends</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mt: 0.2 }}>Comparative analysis of case reporting over time</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', bgcolor: '#f8fafc', borderRadius: 1.5, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                   {([6, 12] as const).map(p => (
                     <Button key={p} size="small" onClick={() => setTrendPeriod(p)}
                       sx={{
-                        minWidth: 72, px: 1.25, py: 0.5, fontSize: '0.72rem', fontWeight: 600, borderRadius: 0,
+                        minWidth: 72, px: 1.25, py: 0.5, fontSize: '0.82rem', fontWeight: 600, borderRadius: 0,
                         bgcolor: trendPeriod === p ? ACCENT : 'transparent',
                         color: trendPeriod === p ? 'white' : '#64748b',
                         '&:hover': { bgcolor: trendPeriod === p ? ACCENT : 'rgba(0,0,0,0.04)' },
@@ -264,13 +264,13 @@ export default function VawcDashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46', mb: 0.25 }}>Case Distribution</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 0.25 }}>Case Distribution</Typography>
 
               {!stats ? (
                 <Skeleton variant="rectangular" height={240} sx={{ borderRadius: 2, mt: 1 }} />
               ) : total === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 5 }}>
-                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>No case data yet</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No case data yet</Typography>
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 240, mt: 1.5 }}>
@@ -284,7 +284,7 @@ export default function VawcDashboard() {
                       </PieChart>
                     </ResponsiveContainer>
                     <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', pointerEvents: 'none' }}>
-                      <Typography sx={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Average</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Average</Typography>
                       <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1.1 }}>{resolutionRate}%</Typography>
                     </Box>
                   </Box>
@@ -295,9 +295,9 @@ export default function VawcDashboard() {
                       <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1, borderBottom: '1px solid #f8fafc' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: d.color, flexShrink: 0 }} />
-                          <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>{d.name}</Typography>
+                          <Typography sx={{ fontSize: '0.86rem', color: '#475569' }}>{d.name}</Typography>
                         </Box>
-                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: '#0c1e46' }}>
+                        <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>
                           {total && total > 0 ? `${Math.round((d.value / total) * 100)}%` : '0%'}
                         </Typography>
                       </Box>
@@ -320,7 +320,7 @@ export default function VawcDashboard() {
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
             <PushPin sx={{ fontSize: 16, color: '#94a3b8' }} />
-            <Typography sx={{ fontWeight: 700, color: 'white', fontSize: '0.9rem' }}>
+            <Typography sx={{ fontWeight: 700, color: 'white', fontSize: '0.98rem' }}>
               Urgent Cases Needing Attention
             </Typography>
           </Box>
@@ -328,7 +328,7 @@ export default function VawcDashboard() {
             <Chip
               label={`ACTION REQUIRED: ${newCount} NEW`}
               size="small"
-              sx={{ bgcolor: '#ef4444', color: 'white', fontWeight: 700, fontSize: '0.62rem', height: 22, letterSpacing: '0.04em' }}
+              sx={{ bgcolor: '#ef4444', color: 'white', fontWeight: 700, fontSize: '0.72rem', height: 24, letterSpacing: '0.04em' }}
             />
           )}
         </Box>
@@ -336,7 +336,7 @@ export default function VawcDashboard() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Subject Name', 'Risk Level', 'Reporting Date', 'Last Interaction'].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
@@ -355,7 +355,7 @@ export default function VawcDashboard() {
                 <TableRow>
                   <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
                     <CheckCircle sx={{ fontSize: 32, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-                    <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8' }}>No urgent cases right now</Typography>
+                    <Typography sx={{ fontSize: '0.94rem', color: '#94a3b8' }}>No urgent cases right now</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -369,20 +369,20 @@ export default function VawcDashboard() {
                     sx={{ cursor: 'pointer', '& td': { py: 1.4, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#fafbfc' } }}
                   >
                     <TableCell>
-                      <Typography sx={{ fontWeight: 700, fontSize: '0.83rem', color: '#0c1e46' }}>{c.subjectName}</Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>{c.barangay}</Typography>
+                      <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>{c.subjectName}</Typography>
+                      <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.barangay}</Typography>
                     </TableCell>
                     <TableCell>
                       <Chip label={c.riskLevel.toUpperCase().replace('HIGH', 'HIGH RISK')} size="small"
-                        sx={{ bgcolor: RISK_BG[c.riskLevel] ?? '#f8fafc', color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.65rem', height: 22, border: `1px solid ${RISK_COLOR[c.riskLevel] ?? '#e2e8f0'}30` }} />
+                        sx={{ bgcolor: RISK_BG[c.riskLevel] ?? '#f8fafc', color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 24, border: `1px solid ${RISK_COLOR[c.riskLevel] ?? '#e2e8f0'}30` }} />
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>
                         {new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>{timeAgo(c.updatedAt)}</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>{timeAgo(c.updatedAt)}</Typography>
                     </TableCell>
                   </MotionTableRow>
                 ))
@@ -396,7 +396,7 @@ export default function VawcDashboard() {
           <Button
             size="small" endIcon={<ArrowForward sx={{ fontSize: 14 }} />}
             onClick={() => router.push('/vawc/cases?filter=urgent')}
-            sx={{ color: '#14b8a6', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.04em', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}
+            sx={{ color: '#14b8a6', fontWeight: 700, fontSize: '0.86rem', letterSpacing: '0.04em', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}
           >
             SEE ALL URGENT ALERTS ({totalUrgent})
           </Button>

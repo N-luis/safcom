@@ -13,13 +13,14 @@ import { CheckCircle, Send, ArrowBack, MonitorHeart, Info, AutoAwesome } from '@
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import StreetSelect from '@/components/forms/StreetSelect';
 
 const ACCENT = '#7c3aed';
 
 const schema = z.object({
   residentName: z.string().min(2, 'Full name is required'),
   caseType: z.string().min(1, 'Select a case type'),
-  barangay: z.string().min(1, 'Select a street/barangay'),
+  barangay: z.string().min(1, 'Select the street'),
   description: z.string().min(20, 'Describe the incident (min 20 characters)'),
   notes: z.string().optional(),
 });
@@ -71,24 +72,24 @@ export default function VawcWalkInPage() {
                 <CheckCircle sx={{ fontSize: 40, color: ACCENT }} />
               </Box>
               <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#0c1e46', mb: 1 }}>Case Filed Successfully</Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', mb: 2, lineHeight: 1.6 }}>
+              <Typography sx={{ color: '#64748b', fontSize: '0.94rem', mb: 2, lineHeight: 1.6 }}>
                 <Box component="span" sx={{ fontWeight: 700, color: '#0c1e46' }}>{submitted.name}</Box>&apos;s case has been registered and assigned to an officer.
               </Typography>
               <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: 2 }}>
-                <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mb: 0.5, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}>Case Number</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mb: 0.5, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}>Case Number</Typography>
                 <Typography sx={{ fontWeight: 800, fontSize: '1.4rem', color: ACCENT, letterSpacing: '0.06em' }}>#{submitted.caseNumber}</Typography>
               </Box>
               {risk && (
                 <Box sx={{ bgcolor: RISK_BG[risk.level] ?? '#f8fafc', border: `1px solid ${RISK_COLOR[risk.level] ?? '#e2e8f0'}30`, borderRadius: 2, p: 2, mb: 3, textAlign: 'left' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
                     <AutoAwesome sx={{ fontSize: 16, color: RISK_COLOR[risk.level] ?? ACCENT }} />
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI Risk Assessment</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI Risk Assessment</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
                     <Chip label={`${risk.level} Risk`} size="small" sx={{ bgcolor: RISK_COLOR[risk.level], color: 'white', fontWeight: 700 }} />
-                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Score {risk.score}/100 · {risk.confidence}% confidence</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Score {risk.score}/100 · {risk.confidence}% confidence</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.55 }}>{risk.recommendation}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55 }}>{risk.recommendation}</Typography>
                 </Box>
               )}
               <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -119,7 +120,7 @@ export default function VawcWalkInPage() {
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
             Walk-in Report
           </Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>File a VAWC case for an in-person complainant</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>File a VAWC case for an in-person complainant</Typography>
         </Box>
       </Box>
 
@@ -132,7 +133,7 @@ export default function VawcWalkInPage() {
 
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1 }}>Subject / Complainant</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.86rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1 }}>Subject / Complainant</Typography>
                     <TextField label="Full Name of Subject *" fullWidth {...register('residentName')}
                       error={!!errors.residentName} helperText={errors.residentName?.message}
                       placeholder="Last name, First name, Middle initial" />
@@ -147,8 +148,14 @@ export default function VawcWalkInPage() {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Controller name="barangay" control={control} render={({ field }) => (
-                      <TextField {...field} value={field.value ?? ''} label="Street/Barangay *" fullWidth
-                        error={!!errors.barangay} helperText={errors.barangay?.message} />
+                      <StreetSelect
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        required
+                        size="medium"
+                        error={!!errors.barangay}
+                        helperText={errors.barangay?.message}
+                      />
                     )} />
                   </Grid>
                 </Grid>
@@ -157,8 +164,8 @@ export default function VawcWalkInPage() {
                 <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', p: 2, borderRadius: 2, border: '1px dashed #c4b5fd', bgcolor: '#faf5ff' }}>
                   <AutoAwesome sx={{ color: ACCENT, fontSize: 20, mt: 0.25 }} />
                   <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46', mb: 0.25 }}>AI Risk Assessment</Typography>
-                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.6 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 0.25 }}>AI Risk Assessment</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.6 }}>
                       Risk level is no longer assigned manually. The moment this case is filed, SafComm AI analyzes the case type, the subject&apos;s incident history, and street/barangay hotspot data, then automatically flags it as <Box component="span" sx={{ fontWeight: 700, color: ACCENT }}>Low, Medium, High, or Critical</Box>.
                     </Typography>
                   </Box>
@@ -207,7 +214,7 @@ export default function VawcWalkInPage() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                 <MonitorHeart sx={{ fontSize: 18, color: ACCENT }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1e46' }}>What happens next?</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>What happens next?</Typography>
               </Box>
               {[
                 { num: '01', text: 'Case is logged and assigned a unique VC-number immediately.' },
@@ -217,9 +224,9 @@ export default function VawcWalkInPage() {
               ].map(s => (
                 <Box key={s.num} sx={{ display: 'flex', gap: 1.25, mb: 1.5 }}>
                   <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Typography sx={{ fontSize: '0.58rem', fontWeight: 800, color: 'white' }}>{s.num}</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: 'white' }}>{s.num}</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.55 }}>{s.text}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.55 }}>{s.text}</Typography>
                 </Box>
               ))}
             </CardContent>
@@ -229,14 +236,14 @@ export default function VawcWalkInPage() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <Info sx={{ fontSize: 16, color: '#f97316' }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#7c2d12' }}>Privacy Notice</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#7c2d12' }}>Privacy Notice</Typography>
               </Box>
-              <Typography sx={{ fontSize: '0.76rem', color: '#9a3412', lineHeight: 1.6 }}>
+              <Typography sx={{ fontSize: '0.86rem', color: '#9a3412', lineHeight: 1.6 }}>
                 Case details are confidential under <Box component="span" sx={{ fontWeight: 700 }}>RA 9262 (VAWC Law)</Box>. Do not disclose subject information to unauthorized persons. Access is logged.
               </Typography>
               <Divider sx={{ my: 1.5, borderColor: '#fed7aa' }} />
-              <Typography sx={{ fontSize: '0.72rem', color: '#c2410c', fontWeight: 600 }}>
-                Emergency? Call <Box component="span" sx={{ fontSize: '0.85rem', color: '#ef4444' }}>911</Box> or WCPD <Box component="span" sx={{ fontSize: '0.85rem', color: '#ef4444' }}>166</Box>
+              <Typography sx={{ fontSize: '0.82rem', color: '#c2410c', fontWeight: 600 }}>
+                Emergency? Call <Box component="span" sx={{ fontSize: '0.94rem', color: '#ef4444' }}>911</Box> or WCPD <Box component="span" sx={{ fontSize: '0.94rem', color: '#ef4444' }}>166</Box>
               </Typography>
             </CardContent>
           </Card>

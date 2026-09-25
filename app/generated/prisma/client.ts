@@ -62,6 +62,11 @@ export type Report = Prisma.ReportModel
  */
 export type Resident = Prisma.ResidentModel
 /**
+ * Model EmailVerificationToken
+ * 
+ */
+export type EmailVerificationToken = Prisma.EmailVerificationTokenModel
+/**
  * Model Activity
  * 
  */

@@ -136,21 +136,21 @@ function ReportViewDialog({ r, onClose }: { r: Report; onClose: () => void }) {
         <Typography sx={{ fontWeight: 700, mb: 1.5 }}>{r.title}</Typography>
         <Grid container spacing={1.5} sx={{ mb: 2 }}>
           {[
-            { label: 'Status', value: <Chip label={r.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[r.status] ?? '#94a3b8'}20`, color: STATUS_COLOR[r.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.72rem' }} /> },
-            { label: 'Priority', value: <Chip label={r.priority} size="small" sx={{ bgcolor: `${PRIORITY_COLOR[r.priority] ?? '#94a3b8'}20`, color: PRIORITY_COLOR[r.priority] ?? '#94a3b8', fontWeight: 600, fontSize: '0.72rem' }} /> },
-            { label: 'Created', value: <Typography sx={{ fontSize: '0.83rem' }}>{new Date(r.createdAt).toLocaleDateString()}</Typography> },
-            { label: 'By', value: <Typography sx={{ fontSize: '0.83rem' }}>{r.submittedBy?.name ?? 'System'}</Typography> },
+            { label: 'Status', value: <Chip label={r.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[r.status] ?? '#94a3b8'}20`, color: STATUS_COLOR[r.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.82rem' }} /> },
+            { label: 'Priority', value: <Chip label={r.priority} size="small" sx={{ bgcolor: `${PRIORITY_COLOR[r.priority] ?? '#94a3b8'}20`, color: PRIORITY_COLOR[r.priority] ?? '#94a3b8', fontWeight: 600, fontSize: '0.82rem' }} /> },
+            { label: 'Created', value: <Typography sx={{ fontSize: '0.9rem' }}>{new Date(r.createdAt).toLocaleDateString()}</Typography> },
+            { label: 'By', value: <Typography sx={{ fontSize: '0.9rem' }}>{r.submittedBy?.name ?? 'System'}</Typography> },
           ].map(({ label, value }) => (
             <Grid size={{ xs: 6 }} key={label}>
-              <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mb: 0.25 }}>{label}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.25 }}>{label}</Typography>
               {value}
             </Grid>
           ))}
         </Grid>
         <Divider sx={{ mb: 2 }} />
-        <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, mb: 1 }}>Content</Typography>
+        <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1 }}>Content</Typography>
         <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #f1f5f9' }}>
-          <Typography sx={{ fontSize: '0.83rem', lineHeight: 1.7, color: '#475569', whiteSpace: 'pre-wrap' }}>{r.content}</Typography>
+          <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.7, color: '#475569', whiteSpace: 'pre-wrap' }}>{r.content}</Typography>
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -222,7 +222,7 @@ export default function ReportsPage() {
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Reports</Typography>
-          <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary' }}>Generate, manage and export blotter reports</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Generate, manage and export blotter reports</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
@@ -253,7 +253,7 @@ export default function ReportsPage() {
                   {isLoading ? <Skeleton variant="text" width={40} sx={{ mx: 'auto' }} /> : (
                     <Typography sx={{ fontSize: '1.5rem', fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</Typography>
                   )}
-                  <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 500 }}>{s.label}</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', fontWeight: 500 }}>{s.label}</Typography>
                 </CardContent>
               </Card>
             </motion.div>
@@ -287,7 +287,7 @@ export default function ReportsPage() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.5, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Report #', 'Title', 'Category', 'Priority', 'Status', 'Created', 'Actions'].map(h => <TableCell key={h}>{h}</TableCell>)}
               </TableRow>
             </TableHead>
@@ -298,26 +298,26 @@ export default function ReportsPage() {
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5 }}>
                     <Assessment sx={{ fontSize: 36, color: '#cbd5e1', display: 'block', mx: 'auto', mb: 1 }} />
-                    <Typography color="text.secondary" sx={{ fontSize: '0.85rem' }}>No reports found</Typography>
+                    <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>No reports found</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 reports.map(r => (
                   <TableRow key={r.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f8fafc' }, '& td': { py: 1.25, borderBottom: '1px solid #f8fafc' } }} onClick={() => setViewReport(r)}>
-                    <TableCell><Typography sx={{ fontWeight: 600, fontSize: '0.82rem', color: '#0c1e46' }}>{r.reportNumber}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>{r.reportNumber}</Typography></TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.83rem', fontWeight: 500, maxWidth: 200, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, maxWidth: 200, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                         {r.title}
                       </Typography>
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>{r.category}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{r.category}</Typography></TableCell>
                     <TableCell>
-                      <Chip label={r.priority} size="small" sx={{ bgcolor: `${PRIORITY_COLOR[r.priority] ?? '#94a3b8'}18`, color: PRIORITY_COLOR[r.priority] ?? '#94a3b8', fontWeight: 700, fontSize: '0.7rem', height: 20 }} />
+                      <Chip label={r.priority} size="small" sx={{ bgcolor: `${PRIORITY_COLOR[r.priority] ?? '#94a3b8'}18`, color: PRIORITY_COLOR[r.priority] ?? '#94a3b8', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                     </TableCell>
                     <TableCell>
-                      <Chip label={r.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[r.status] ?? '#94a3b8'}18`, color: STATUS_COLOR[r.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.72rem', height: 20 }} />
+                      <Chip label={r.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[r.status] ?? '#94a3b8'}18`, color: STATUS_COLOR[r.status] ?? '#94a3b8', fontWeight: 600, fontSize: '0.82rem', height: 24 }} />
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{new Date(r.createdAt).toLocaleDateString()}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{new Date(r.createdAt).toLocaleDateString()}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 0.25 }}>
                         <Tooltip title="View">
@@ -340,12 +340,12 @@ export default function ReportsPage() {
         </TableContainer>
 
         <Box sx={{ px: 2.5, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9' }}>
-          <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Page {page} of {totalPages} · {total} reports</Typography>
+          <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>Page {page} of {totalPages} · {total} reports</Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button size="small" variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)} sx={{ borderRadius: 1.5, fontSize: '0.78rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
+            <Button size="small" variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)} sx={{ borderRadius: 1.5, fontSize: '0.86rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
               Previous
             </Button>
-            <Button size="small" variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ borderRadius: 1.5, fontSize: '0.78rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
+            <Button size="small" variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} sx={{ borderRadius: 1.5, fontSize: '0.86rem', borderColor: '#e2e8f0', color: '#475569', '&:hover': { borderColor: '#0c1e46', color: '#0c1e46' } }}>
               Next
             </Button>
           </Box>

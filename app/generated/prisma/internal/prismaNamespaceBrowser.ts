@@ -55,6 +55,7 @@ export const ModelName = {
   Case: 'Case',
   Report: 'Report',
   Resident: 'Resident',
+  EmailVerificationToken: 'EmailVerificationToken',
   Activity: 'Activity',
   Notification: 'Notification',
   Alert: 'Alert',
@@ -81,6 +82,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  username: 'username',
   name: 'name',
   password: 'password',
   role: 'role',
@@ -142,16 +144,31 @@ export const ResidentScalarFieldEnum = {
   address: 'address',
   contactNumber: 'contactNumber',
   email: 'email',
+  username: 'username',
+  clerkId: 'clerkId',
   password: 'password',
   idDocument: 'idDocument',
   status: 'status',
   riskLevel: 'riskLevel',
   notes: 'notes',
+  emailVerified: 'emailVerified',
   registeredAt: 'registeredAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ResidentScalarFieldEnum = (typeof ResidentScalarFieldEnum)[keyof typeof ResidentScalarFieldEnum]
+
+
+export const EmailVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  residentId: 'residentId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailVerificationTokenScalarFieldEnum = (typeof EmailVerificationTokenScalarFieldEnum)[keyof typeof EmailVerificationTokenScalarFieldEnum]
 
 
 export const ActivityScalarFieldEnum = {

@@ -336,7 +336,7 @@ function RiskScoreRing({ score, level, size = 64 }: { score: number; level: stri
           </Typography>
         </Box>
       </Box>
-      <Chip label={level} size="small" sx={{ bgcolor: `${color}18`, color, fontWeight: 700, fontSize: '0.6rem', height: 18, px: 0.5 }} />
+      <Chip label={level} size="small" sx={{ bgcolor: `${color}18`, color, fontWeight: 700, fontSize: '0.72rem', height: 22, px: 0.5 }} />
     </Box>
   );
 }
@@ -351,19 +351,19 @@ function FactorRow({ f, i }: { f: FactorScore; i: number }) {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
             <IconComp sx={{ fontSize: 13, color: col }} />
-            <Typography sx={{ fontSize: '0.77rem', fontWeight: 600, color: '#374151' }}>
+            <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#374151' }}>
               {meta?.name ?? f.factor}
             </Typography>
-            <Chip label={`w:${f.weight}%`} size="small" sx={{ height: 15, fontSize: '0.58rem', bgcolor: '#f1f5f9', color: '#94a3b8', ml: 0.25 }} />
+            <Chip label={`w:${f.weight}%`} size="small" sx={{ height: 22, fontSize: '0.72rem', bgcolor: '#f1f5f9', color: '#94a3b8', ml: 0.25 }} />
           </Box>
-          <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: col }}>{f.contribution}pts</Typography>
+          <Typography sx={{ fontSize: '0.82rem', fontWeight: 800, color: col }}>{f.contribution}pts</Typography>
         </Box>
         <LinearProgress
           variant="determinate"
           value={f.score}
           sx={{ height: 5, borderRadius: 5, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: col, borderRadius: 5 } }}
         />
-        <Typography sx={{ fontSize: '0.67rem', color: '#94a3b8', mt: 0.3, lineHeight: 1.4 }}>{f.detail}</Typography>
+        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.3, lineHeight: 1.4 }}>{f.detail}</Typography>
       </Box>
     </motion.div>
   );
@@ -387,17 +387,17 @@ function ExpandableRow({ c }: { c: RiskCase }) {
         }}
       >
         <TableCell>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
         </TableCell>
         <TableCell>
-          <Typography sx={{ fontSize: '0.8rem', fontWeight: 500 }}>{c.residentName}</Typography>
-          <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8' }}>{c.barangay}</Typography>
+          <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{c.residentName}</Typography>
+          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.barangay}</Typography>
         </TableCell>
         <TableCell>
           <Chip
             label={c.caseType.split(' ').slice(0, 2).join(' ')}
             size="small"
-            sx={{ fontSize: '0.68rem', height: 20, bgcolor: '#f1f5f9', color: '#475569' }}
+            sx={{ fontSize: '0.78rem', height: 24, bgcolor: '#f1f5f9', color: '#475569' }}
           />
         </TableCell>
         <TableCell>
@@ -410,11 +410,11 @@ function ExpandableRow({ c }: { c: RiskCase }) {
               bgcolor: c.status === 'Open' ? '#f97316' : c.status === 'In Progress' ? '#3b82f6' : '#22c55e',
               flexShrink: 0,
             }} />
-            <Typography sx={{ fontSize: '0.75rem' }}>{c.status}</Typography>
+            <Typography sx={{ fontSize: '0.86rem' }}>{c.status}</Typography>
           </Box>
         </TableCell>
         <TableCell>
-          <Chip label={`${c.confidence}% conf.`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 18 }} />
+          <Chip label={`${c.confidence}% conf.`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
         </TableCell>
         <TableCell padding="none" sx={{ pr: 1 }}>
           <IconButton size="small" sx={{ p: 0.3 }}>
@@ -435,16 +435,16 @@ function ExpandableRow({ c }: { c: RiskCase }) {
               }}>
                 <AutoAwesome sx={{ fontSize: 14, color, mt: '1px', flexShrink: 0 }} />
                 <Box>
-                  <Typography sx={{ fontSize: '0.77rem', fontWeight: 700, color, mb: 0.25 }}>
+                  <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color, mb: 0.25 }}>
                     AI Justification
                   </Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#374151', lineHeight: 1.5 }}>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#374151', lineHeight: 1.5 }}>
                     {c.justification}
                   </Typography>
                   {c.riskFactors?.length > 0 && (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.75 }}>
                       {c.riskFactors.map((rf, i) => (
-                        <Chip key={i} label={rf} size="small" sx={{ bgcolor: `${color}14`, color, fontSize: '0.6rem', height: 17 }} />
+                        <Chip key={i} label={rf} size="small" sx={{ bgcolor: `${color}14`, color, fontSize: '0.72rem', height: 22 }} />
                       ))}
                     </Box>
                   )}
@@ -452,7 +452,7 @@ function ExpandableRow({ c }: { c: RiskCase }) {
               </Box>
 
               {/* Ensemble scorecard */}
-              <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46', mb: 1.25 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 1.25 }}>
                 Ensemble Risk Scorecard — {c.score}/100
               </Typography>
               <Grid container spacing={1.5} sx={{ mb: 2 }}>
@@ -468,10 +468,10 @@ function ExpandableRow({ c }: { c: RiskCase }) {
               {/* AI Recommended Actions */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
                 <AutoAwesome sx={{ fontSize: 14, color }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>
                   Recommended Actions
                 </Typography>
-                <Chip label="Decision Support" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.6rem', height: 17 }} />
+                <Chip label="Decision Support" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
                 {caseRecs.map((rec, i) => {
@@ -483,7 +483,7 @@ function ExpandableRow({ c }: { c: RiskCase }) {
                       bgcolor: `${rec.color}0f`, border: `1px solid ${rec.color}22`,
                     }}>
                       <IconComp sx={{ fontSize: 13, color: rec.color, flexShrink: 0 }} />
-                      <Typography sx={{ fontSize: '0.76rem', color: '#374151', fontWeight: 500 }}>
+                      <Typography sx={{ fontSize: '0.86rem', color: '#374151', fontWeight: 500 }}>
                         {rec.label}
                       </Typography>
                     </Box>
@@ -508,7 +508,7 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
         <CardContent sx={{ p: 2.5, textAlign: 'center', py: 4 }}>
           <CheckCircle sx={{ fontSize: 36, color: '#22c55e', mb: 1 }} />
           <Typography sx={{ fontWeight: 600, color: '#374151' }}>No Data for Recommendations</Typography>
-          <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mt: 0.5 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.5 }}>
             Run analysis to generate area-specific intervention recommendations.
           </Typography>
         </CardContent>
@@ -527,20 +527,20 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.4 }}>
               <Assessment sx={{ color: '#0c1e46', fontSize: 20 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46' }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                 Priority Intervention Plan
               </Typography>
               <Chip
                 label="AI-Generated"
                 size="small"
                 icon={<AutoAwesome sx={{ fontSize: '11px !important', color: '#7c3aed !important' }} />}
-                sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700, fontSize: '0.65rem', height: 20 }}
+                sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700, fontSize: '0.72rem', height: 24 }}
               />
               {highPriority > 0 && (
-                <Chip label={`${highPriority} High Priority`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.65rem', height: 20 }} />
+                <Chip label={`${highPriority} High Priority`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 24 }} />
               )}
             </Box>
-            <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary' }}>
+            <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>
               Actionable recommendations derived from historical case patterns, area risk scoring, and incident type analysis
             </Typography>
           </Box>
@@ -549,10 +549,10 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
               <Select
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(Number(e.target.value))}
-                sx={{ fontSize: '0.8rem', borderRadius: 2 }}
+                sx={{ fontSize: '0.9rem', borderRadius: 2 }}
               >
                 {areaInterventions.map((a, i) => (
-                  <MenuItem key={a.barangay} value={i} sx={{ fontSize: '0.8rem' }}>
+                  <MenuItem key={a.barangay} value={i} sx={{ fontSize: '0.9rem' }}>
                     {a.barangay} ({a.highRisk} high-risk)
                   </MenuItem>
                 ))}
@@ -569,13 +569,13 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <LocationOn sx={{ fontSize: 14, color: scoreColor(area.avgScore) }} />
-            <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#0c1e46' }}>{area.barangay}</Typography>
+            <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>{area.barangay}</Typography>
           </Box>
-          <Chip label={`Avg Score: ${area.avgScore}/100`} size="small" sx={{ bgcolor: `${scoreColor(area.avgScore)}18`, color: scoreColor(area.avgScore), fontWeight: 700, fontSize: '0.64rem', height: 19 }} />
-          <Chip label={`${area.highRisk} High-Risk`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.64rem', height: 19 }} />
-          <Chip label={`${area.total} Total Cases`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.64rem', height: 19 }} />
+          <Chip label={`Avg Score: ${area.avgScore}/100`} size="small" sx={{ bgcolor: `${scoreColor(area.avgScore)}18`, color: scoreColor(area.avgScore), fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          <Chip label={`${area.highRisk} High-Risk`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          <Chip label={`${area.total} Total Cases`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
           {area.dominantCaseTypes.length > 0 && (
-            <Typography sx={{ fontSize: '0.68rem', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
               Dominant: {area.dominantCaseTypes.join(' · ')}
             </Typography>
           )}
@@ -610,17 +610,17 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
                 <Box sx={{ p: 0.45, bgcolor: `${inv.color}18`, borderRadius: 1, display: 'flex', flexShrink: 0 }}>
                   <IconComp sx={{ fontSize: 14, color: inv.color }} />
                 </Box>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.82rem', color: '#0c1e46', flexGrow: 1 }}>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', flexGrow: 1 }}>
                   {inv.category}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mr: 0.5 }}>
                   <Chip
                     label={inv.priority}
                     size="small"
-                    sx={{ bgcolor: `${PRIORITY_COLOR[inv.priority]}18`, color: PRIORITY_COLOR[inv.priority], fontWeight: 700, fontSize: '0.59rem', height: 17 }}
+                    sx={{ bgcolor: `${PRIORITY_COLOR[inv.priority]}18`, color: PRIORITY_COLOR[inv.priority], fontWeight: 700, fontSize: '0.72rem', height: 22 }}
                   />
-                  <Chip label={inv.timeframe} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.59rem', height: 17 }} />
-                  <Chip label={`${inv.actions.length} action${inv.actions.length !== 1 ? 's' : ''}`} size="small" sx={{ bgcolor: `${inv.color}14`, color: inv.color, fontWeight: 700, fontSize: '0.59rem', height: 17 }} />
+                  <Chip label={inv.timeframe} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
+                  <Chip label={`${inv.actions.length} action${inv.actions.length !== 1 ? 's' : ''}`} size="small" sx={{ bgcolor: `${inv.color}14`, color: inv.color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ px: 1.75, pb: 1.5, pt: 0.25 }}>
@@ -632,7 +632,7 @@ function InterventionsPanel({ areaInterventions }: { areaInterventions: AreaInte
                       bgcolor: `${inv.color}07`, border: `1px solid ${inv.color}18`,
                     }}>
                       <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: inv.color, mt: '7px', flexShrink: 0 }} />
-                      <Typography sx={{ fontSize: '0.78rem', color: '#374151', lineHeight: 1.55 }}>
+                      <Typography sx={{ fontSize: '0.86rem', color: '#374151', lineHeight: 1.55 }}>
                         {action}
                       </Typography>
                     </Box>
@@ -661,42 +661,42 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
           <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
             <Chip label="Active" color="success" size="small" sx={{ fontWeight: 700 }} />
             <Chip label="6-Model Consensus" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700 }} />
-            <Chip label="No API key required" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.7rem' }} />
+            <Chip label="No API key required" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.78rem' }} />
           </Box>
           <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>
             SafComm Rule-Based Ensemble v2.0
           </Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1.5, lineHeight: 1.6 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mb: 1.5, lineHeight: 1.6 }}>
             6 specialized sub-models independently analyze each case. Risk level is assigned by rule-based consensus — not a simple score threshold. Each decision is fully traceable.
           </Typography>
           <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 1.75 }}>
-            <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#374151', mb: 1 }}>Sub-Model Breakdown</Typography>
+            <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#374151', mb: 1 }}>Sub-Model Breakdown</Typography>
             {MODEL_ORDER.map(key => {
               const meta = MODEL_META[key];
               if (!meta) return null;
               const IconComp = ICON_MAP[meta.iconKey] ?? Info;
               return (
                 <Box key={key} sx={{ display: 'flex', gap: 1, mb: 0.75, alignItems: 'flex-start' }}>
-                  <Chip label={`${meta.weight}%`} size="small" sx={{ height: 18, fontSize: '0.62rem', bgcolor: `${meta.color}18`, color: meta.color, fontWeight: 700, flexShrink: 0, mt: '1px' }} />
+                  <Chip label={`${meta.weight}%`} size="small" sx={{ height: 22, fontSize: '0.72rem', bgcolor: `${meta.color}18`, color: meta.color, fontWeight: 700, flexShrink: 0, mt: '1px' }} />
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
                     <IconComp sx={{ fontSize: 14, color: meta.color, mt: '1px' }} />
                     <Box>
-                      <Typography sx={{ fontSize: '0.77rem', fontWeight: 600, color: '#374151' }}>{meta.name}</Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>{meta.desc}</Typography>
+                      <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#374151' }}>{meta.name}</Typography>
+                      <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{meta.desc}</Typography>
                     </Box>
                   </Box>
                 </Box>
               );
             })}
             <Divider sx={{ my: 1.25 }} />
-            <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
               Rule-based classification: High (explicit triggers) → Medium (indicator pattern) → Low (no signals)
             </Typography>
           </Box>
         </Box>
 
         <Divider sx={{ mb: 2 }} />
-        <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#0c1e46', mb: 1.5 }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 1.5 }}>
           AI Upgrade Options
         </Typography>
 
@@ -720,16 +720,16 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
           <Box key={m.name} sx={{ mb: 1.5, p: 1.5, border: '1px solid #f1f5f9', borderRadius: 2, '&:hover': { bgcolor: '#fafbfc' }, transition: 'all 0.15s' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
               <Typography sx={{ fontSize: '1rem', lineHeight: 1, color: m.color }}>{m.icon}</Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1e46' }}>{m.name}</Typography>
-              <Chip label={m.tag} size="small" sx={{ bgcolor: `${m.color}14`, color: m.color, fontWeight: 700, fontSize: '0.62rem', height: 18 }} />
+              <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>{m.name}</Typography>
+              <Chip label={m.tag} size="small" sx={{ bgcolor: `${m.color}14`, color: m.color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
             </Box>
             {m.pros.map(p => (
               <Box key={p} sx={{ display: 'flex', gap: 0.75, mb: 0.2, alignItems: 'flex-start' }}>
                 <TrendingUp sx={{ fontSize: 12, color: m.color, mt: '2px', flexShrink: 0 }} />
-                <Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>{p}</Typography>
+                <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{p}</Typography>
               </Box>
             ))}
-            <Typography sx={{ fontSize: '0.71rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
+            <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
               {m.how}
             </Typography>
           </Box>
@@ -786,16 +786,16 @@ export default function AIRiskPredictionPage() {
               label="Ensemble Engine v2.0"
               size="small"
               icon={<Hub sx={{ fontSize: '13px !important', color: '#7c3aed !important' }} />}
-              sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+              sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700, fontSize: '0.78rem', height: 24 }}
             />
             <Chip
               label="Decision Support"
               size="small"
               icon={<Shield sx={{ fontSize: '12px !important', color: '#0c1e46 !important' }} />}
-              sx={{ bgcolor: '#f1f5f9', color: '#0c1e46', fontWeight: 600, fontSize: '0.68rem', height: 22 }}
+              sx={{ bgcolor: '#f1f5f9', color: '#0c1e46', fontWeight: 600, fontSize: '0.78rem', height: 24 }}
             />
           </Box>
-          <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary' }}>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
             {stats
               ? `${totalAnalyzed} case${totalAnalyzed !== 1 ? 's' : ''} analyzed · Last run: ${new Date(stats.lastUpdated).toLocaleTimeString()} · ${stats.modelEngine}`
               : '6-model ensemble scoring with actionable intervention recommendations from live case data'}
@@ -806,7 +806,7 @@ export default function AIRiskPredictionPage() {
             variant="outlined" size="small"
             startIcon={<DataObject sx={{ fontSize: 16 }} />}
             onClick={() => setModelInfoOpen(true)}
-            sx={{ borderRadius: 2, fontSize: '0.8rem', color: '#64748b', borderColor: '#e2e8f0', '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' } }}
+            sx={{ borderRadius: 2, fontSize: '0.9rem', color: '#64748b', borderColor: '#e2e8f0', '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' } }}
           >
             Model Info
           </Button>
@@ -839,8 +839,8 @@ export default function AIRiskPredictionPage() {
                     ? <Skeleton variant="text" width={44} height={48} sx={{ mx: 'auto' }} />
                     : <Typography sx={{ fontSize: '2.1rem', fontWeight: 800, color: r.color, lineHeight: 1 }}>{r.count}</Typography>
                   }
-                  <Typography sx={{ fontSize: '0.75rem', color: '#374151', fontWeight: 700, mt: 0.4 }}>{r.label}</Typography>
-                  <Typography sx={{ fontSize: '0.67rem', color: 'text.secondary', mt: 0.2 }}>{r.desc}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#374151', fontWeight: 700, mt: 0.4 }}>{r.label}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mt: 0.2 }}>{r.desc}</Typography>
                 </CardContent>
               </Card>
             </motion.div>
@@ -853,10 +853,10 @@ export default function AIRiskPredictionPage() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46', mb: 0.4 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 0.4 }}>
                 Risk Pattern by Category
               </Typography>
-              <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.5 }}>
                 Average AI risk score per incident type
               </Typography>
               <Box sx={{ height: 240 }}>
@@ -871,7 +871,7 @@ export default function AIRiskPredictionPage() {
                         <Radar name="Avg Risk Score" dataKey="score" stroke="#0c1e46" fill="#0c1e46" fillOpacity={0.16} strokeWidth={2} dot={{ fill: '#0c1e46', r: 3 }} />
                         <ChartTooltip
                           formatter={(v: unknown) => [`${String(v)}/100`, 'Avg Risk Score']}
-                          contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }}
+                          contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }}
                         />
                       </RadarChart>
                     </ResponsiveContainer>
@@ -879,7 +879,7 @@ export default function AIRiskPredictionPage() {
                   : (
                     <Box sx={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                       <Psychology sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                      <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8' }}>No case data yet</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No case data yet</Typography>
                     </Box>
                   )
                 }
@@ -891,10 +891,10 @@ export default function AIRiskPredictionPage() {
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46', mb: 0.4 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 0.4 }}>
                 Monthly Risk Distribution
               </Typography>
-              <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.5 }}>
                 AI-computed risk levels stacked by month (last 6 months)
               </Typography>
               <Box sx={{ height: 240 }}>
@@ -906,8 +906,8 @@ export default function AIRiskPredictionPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
-                        <ChartTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }} />
-                        <Legend iconSize={10} wrapperStyle={{ fontSize: '0.76rem' }} />
+                        <ChartTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }} />
+                        <Legend iconSize={10} wrapperStyle={{ fontSize: '0.86rem' }} />
                         <Bar dataKey="High" stackId="a" fill="#ef4444" />
                         <Bar dataKey="Medium" stackId="a" fill="#f97316" />
                         <Bar dataKey="Low" stackId="a" fill="#22c55e" radius={[3, 3, 0, 0]} />
@@ -926,9 +926,9 @@ export default function AIRiskPredictionPage() {
         <CardContent sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
             <LocationOn sx={{ color: '#ef4444', fontSize: 18 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>Street Risk Hotspots</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Street Risk Hotspots</Typography>
           </Box>
-          <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.75 }}>
+          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
             Top 8 streets by average AI risk score (color = risk level)
           </Typography>
           <Box sx={{ height: stats?.byBarangay?.length ? Math.max(160, (stats.byBarangay.length * 32) + 40) : 160 }}>
@@ -946,7 +946,7 @@ export default function AIRiskPredictionPage() {
                         `${String(v)}${name === 'avgScore' ? '/100' : ' cases'}`,
                         name === 'avgScore' ? 'Avg Risk Score' : 'High-Risk Cases',
                       ]}
-                      contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }}
+                      contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }}
                     />
                     <Bar dataKey="avgScore" name="avgScore" radius={[0, 4, 4, 0]} label={{ position: 'right', fontSize: 11, fill: '#64748b' }}>
                       {(stats?.byBarangay ?? []).map((d, i) => (
@@ -959,7 +959,7 @@ export default function AIRiskPredictionPage() {
               : (
                 <Box sx={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                   <LocationOn sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                  <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8' }}>No street data yet</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No street data yet</Typography>
                 </Box>
               )
             }
@@ -978,22 +978,22 @@ export default function AIRiskPredictionPage() {
             }}>
               <LocationOn sx={{ fontSize: 14, color: 'white' }} />
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
               Street Risk Heatmap
             </Typography>
             <Chip
               label="Live Map"
               size="small"
-              sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.65rem', height: 20 }}
+              sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.72rem', height: 24 }}
             />
             <Chip
               label="Bocaue, Bulacan"
               size="small"
               icon={<LocationOn sx={{ fontSize: '11px !important', color: '#64748b !important' }} />}
-              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 20 }}
+              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 24 }}
             />
           </Box>
-          <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.75 }}>
+          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
             Street-level risk network plotted over the Biñan 2nd area map — heat intensity shows incident concentration per intersection and landmark
           </Typography>
           <RiskHeatMap />
@@ -1016,16 +1016,16 @@ export default function AIRiskPredictionPage() {
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Warning sx={{ color: '#ef4444', fontSize: 18 }} />
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                     High-Risk Cases
                   </Typography>
                   {stats?.topRiskCases && stats.topRiskCases.length > 0 && (
-                    <Chip label={`${stats.topRiskCases.length} flagged`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.68rem', height: 20 }} />
+                    <Chip label={`${stats.topRiskCases.length} flagged`} size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                   )}
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.75 }}>
-                  <Chip label="Live" size="small" sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.65rem', height: 20 }} />
-                  <Chip label="Click row to expand scorecard" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 20 }} />
+                  <Chip label="Live" size="small" sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.72rem', height: 24 }} />
+                  <Chip label="Click row to expand scorecard" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 24 }} />
                 </Box>
               </Box>
             </CardContent>
@@ -1033,7 +1033,7 @@ export default function AIRiskPredictionPage() {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.67rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.2, borderBottom: '1px solid #f1f5f9' } }}>
+                  <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.2, borderBottom: '1px solid #f1f5f9' } }}>
                     {['Case #', 'Subject', 'Type', 'AI Score', 'Status', 'Confidence', ''].map(h => (
                       <TableCell key={h}>{h}</TableCell>
                     ))}
@@ -1054,10 +1054,10 @@ export default function AIRiskPredictionPage() {
                           <TableRow>
                             <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5 }}>
                               <CheckCircle sx={{ fontSize: 36, color: '#22c55e', display: 'block', mx: 'auto', mb: 1 }} />
-                              <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#374151' }}>
+                              <Typography sx={{ fontSize: '0.94rem', fontWeight: 600, color: '#374151' }}>
                                 All Clear — No High-Risk Cases
                               </Typography>
-                              <Typography sx={{ fontSize: '0.76rem', color: 'text.secondary', mt: 0.25 }}>
+                              <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary', mt: 0.25 }}>
                                 The AI engine found no high-risk cases in the database.
                               </Typography>
                             </TableCell>

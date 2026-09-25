@@ -126,11 +126,11 @@ export default function ReportsTable() {
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>Case Records</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.78rem' }}>{total} cases found</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.86rem' }}>{total} cases found</Typography>
             </Box>
             <TextField size="small" placeholder="Search cases..." value={search}
               onChange={e => handleSearch(e.target.value)}
-              slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment>, sx: { borderRadius: 2.5, fontSize: '0.85rem' } } }}
+              slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment>, sx: { borderRadius: 2.5, fontSize: '0.94rem' } } }}
               sx={{ width: 220 }} />
           </Box>
 
@@ -140,14 +140,14 @@ export default function ReportsTable() {
                 onClick={() => { setFilterStatus(s); setPage(0); }}
                 variant={filterStatus === s ? 'filled' : 'outlined'}
                 color={filterStatus === s ? 'primary' : 'default'}
-                sx={{ fontSize: '0.75rem', fontWeight: filterStatus === s ? 700 : 400 }} />
+                sx={{ fontSize: '0.86rem', fontWeight: filterStatus === s ? 700 : 400 }} />
             ))}
           </Box>
 
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.78rem', bgcolor: 'action.hover', py: 1.2 } }}>
+                <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.86rem', bgcolor: 'action.hover', py: 1.2 } }}>
                   {columns.map(col => (
                     <TableCell key={col.id}>
                       <TableSortLabel active={sortField === col.id} direction={sortField === col.id ? sortDir : 'asc'} onClick={() => handleSort(col.id)}>
@@ -169,33 +169,33 @@ export default function ReportsTable() {
                       <TableRow>
                         <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                           <FolderOpen sx={{ fontSize: 40, opacity: 0.2, display: 'block', mx: 'auto', mb: 1 }} />
-                          <Typography color="text.secondary" sx={{ fontSize: '0.875rem' }}>No cases match your filters</Typography>
+                          <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>No cases match your filters</Typography>
                         </TableCell>
                       </TableRow>
                     )
                   : cases.map(c => (
                       <TableRow key={c.id}
                         onClick={() => { setActiveCase(c); setViewOpen(true); }}
-                        sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, transition: 'background 0.15s', '& td': { py: 1.3, fontSize: '0.82rem' } }}>
+                        sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, transition: 'background 0.15s', '& td': { py: 1.3, fontSize: '0.9rem' } }}>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                            <Avatar sx={{ width: 30, height: 30, bgcolor: getAvatarColor(c.residentName), fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}>
+                            <Avatar sx={{ width: 30, height: 30, bgcolor: getAvatarColor(c.residentName), fontSize: '0.72rem', fontWeight: 700, flexShrink: 0 }}>
                               {c.residentName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </Avatar>
                             <Box>
-                              <Typography sx={{ fontWeight: 600, fontSize: '0.82rem' }}>{c.residentName}</Typography>
-                              <Typography sx={{ fontSize: '0.7rem' }} color="text.secondary">{c.caseNumber}</Typography>
+                              <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>{c.residentName}</Typography>
+                              <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{c.caseNumber}</Typography>
                             </Box>
                           </Box>
                         </TableCell>
                         <TableCell>{c.caseType}</TableCell>
                         <TableCell>
                           <Chip label={c.status} size="small"
-                            sx={{ bgcolor: getStatusBgColor(c.status), color: getStatusColor(c.status), fontWeight: 700, fontSize: '0.7rem' }} />
+                            sx={{ bgcolor: getStatusBgColor(c.status), color: getStatusColor(c.status), fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>
                           <Chip label={c.riskLevel} size="small"
-                            sx={{ bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), fontWeight: 700, fontSize: '0.7rem' }} />
+                            sx={{ bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>{new Date(c.filedAt).toLocaleDateString()}</TableCell>
                         <TableCell>{c.barangay}</TableCell>
@@ -218,14 +218,14 @@ export default function ReportsTable() {
       {/* Row action menu */}
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
         slotProps={{ paper: { elevation: 4, sx: { borderRadius: 2.5, minWidth: 160 } } }}>
-        <MenuItem onClick={() => { setMenuAnchor(null); setViewOpen(true); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MenuItem onClick={() => { setMenuAnchor(null); setViewOpen(true); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Visibility fontSize="small" color="primary" /> View Details
         </MenuItem>
-        <MenuItem onClick={() => { setMenuAnchor(null); setEditOpen(true); }} sx={{ gap: 1.5, fontSize: '0.85rem' }}>
+        <MenuItem onClick={() => { setMenuAnchor(null); setEditOpen(true); }} sx={{ gap: 1.5, fontSize: '0.94rem' }}>
           <Edit fontSize="small" /> Edit Case
         </MenuItem>
         <Divider />
-        <MenuItem onClick={() => { setMenuAnchor(null); setDeleteOpen(true); }} sx={{ gap: 1.5, fontSize: '0.85rem', color: 'error.main' }}>
+        <MenuItem onClick={() => { setMenuAnchor(null); setDeleteOpen(true); }} sx={{ gap: 1.5, fontSize: '0.94rem', color: 'error.main' }}>
           <Delete fontSize="small" color="error" /> Delete
         </MenuItem>
       </Menu>
@@ -277,10 +277,10 @@ function ViewCaseDialog({ caseData, open, onClose, onEdit, onDelete }: {
           </Avatar>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="h6" sx={{ fontWeight: 800, color: 'white', lineHeight: 1.2 }}>{caseData.residentName}</Typography>
-            <Typography sx={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>{caseData.caseNumber} · {caseData.caseType}</Typography>
+            <Typography sx={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>{caseData.caseNumber} · {caseData.caseType}</Typography>
             <Box sx={{ display: 'flex', gap: 1, mt: 1.25, flexWrap: 'wrap' }}>
-              <Chip label={caseData.status} size="small" sx={{ bgcolor: getStatusBgColor(caseData.status), color: getStatusColor(caseData.status), fontWeight: 700, fontSize: '0.7rem' }} />
-              <Chip label={caseData.riskLevel} size="small" sx={{ bgcolor: getRiskBgColor(caseData.riskLevel), color: getRiskColor(caseData.riskLevel), fontWeight: 700, fontSize: '0.7rem' }} />
+              <Chip label={caseData.status} size="small" sx={{ bgcolor: getStatusBgColor(caseData.status), color: getStatusColor(caseData.status), fontWeight: 700, fontSize: '0.78rem' }} />
+              <Chip label={caseData.riskLevel} size="small" sx={{ bgcolor: getRiskBgColor(caseData.riskLevel), color: getRiskColor(caseData.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
             </Box>
           </Box>
           <IconButton size="small" onClick={onClose} sx={{ color: 'rgba(255,255,255,0.8)', mt: -0.5 }}><Close fontSize="small" /></IconButton>
@@ -300,8 +300,8 @@ function ViewCaseDialog({ caseData, open, onClose, onEdit, onDelete }: {
                     <Icon sx={{ fontSize: 15, color }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
-                    <Typography sx={{ fontSize: '0.875rem' }}>{value}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }} color="text.secondary">{label}</Typography>
+                    <Typography sx={{ fontSize: '0.94rem' }}>{value}</Typography>
                   </Box>
                 </Box>
               </Grid>
@@ -309,14 +309,14 @@ function ViewCaseDialog({ caseData, open, onClose, onEdit, onDelete }: {
           </Grid>
 
           <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, mb: caseData.notes ? 2 : 0 }}>
-            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Description</Typography>
-            <Typography sx={{ fontSize: '0.875rem', lineHeight: 1.7 }}>{caseData.description}</Typography>
+            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Description</Typography>
+            <Typography sx={{ fontSize: '0.94rem', lineHeight: 1.7 }}>{caseData.description}</Typography>
           </Box>
 
           {caseData.notes && (
             <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Notes</Typography>
-              <Typography sx={{ fontSize: '0.875rem', lineHeight: 1.7 }}>{caseData.notes}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.75 }} color="text.secondary">Notes</Typography>
+              <Typography sx={{ fontSize: '0.94rem', lineHeight: 1.7 }}>{caseData.notes}</Typography>
             </Box>
           )}
         </Box>
@@ -424,14 +424,14 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
       <DialogTitle sx={{ fontWeight: 700, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box>
           Edit Case
-          {caseData && <Typography component="span" sx={{ fontSize: '0.8rem', fontWeight: 400, color: 'text.secondary', ml: 1.5 }}>{caseData.caseNumber}</Typography>}
+          {caseData && <Typography component="span" sx={{ fontSize: '0.9rem', fontWeight: 400, color: 'text.secondary', ml: 1.5 }}>{caseData.caseNumber}</Typography>}
         </Box>
         <IconButton size="small" onClick={onClose}><Close fontSize="small" /></IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ pt: 1 }}>
         {/* Case Info */}
-        <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2, mt: 1 }} color="primary">
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2, mt: 1 }} color="primary">
           Case Information
         </Typography>
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -500,7 +500,7 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
         <Divider sx={{ mb: 2.5 }} />
 
         {/* Description & Notes */}
-        <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
+        <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }} color="primary">
           Case Details
         </Typography>
         <Grid container spacing={2}>
@@ -521,7 +521,7 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
         {/* Status change notice */}
         {(form.status === 'Resolved' || form.status === 'Closed') && caseData?.status !== 'Resolved' && caseData?.status !== 'Closed' && (
           <Box sx={{ mt: 2, p: 1.5, bgcolor: '#dcfce7', border: '1px solid #86efac', borderRadius: 2 }}>
-            <Typography sx={{ fontSize: '0.82rem', color: '#15803d' }}>
+            <Typography sx={{ fontSize: '0.9rem', color: '#15803d' }}>
               Setting status to <strong>{form.status}</strong> will record the resolution date as today.
             </Typography>
           </Box>
@@ -560,7 +560,7 @@ function DeleteCaseDialog({ caseData, open, onClose, onConfirm }: {
         Delete Case
       </DialogTitle>
       <DialogContent>
-        <DialogContentText sx={{ fontSize: '0.875rem' }}>
+        <DialogContentText sx={{ fontSize: '0.94rem' }}>
           Are you sure you want to delete case <strong>{caseData?.caseNumber}</strong> for <strong>{caseData?.residentName}</strong>? All activity logs for this case will also be removed. This cannot be undone.
         </DialogContentText>
       </DialogContent>

@@ -33,7 +33,7 @@ export default function VawcSearchPage() {
   return (
     <Box sx={{ maxWidth: 900 }}>
       <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', mb: 0.5 }}>Search</Typography>
-      <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 3 }}>Search VAWC cases by subject name, case number, or description</Typography>
+      <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mb: 3 }}>Search VAWC cases by subject name, case number, or description</Typography>
 
       <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
         <TextField
@@ -53,7 +53,7 @@ export default function VawcSearchPage() {
       {!submitted ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Search sx={{ fontSize: 56, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 2 }} />
-          <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.9rem' }}>Enter a name or case number to begin</Typography>
+          <Typography sx={{ fontWeight: 600, color: '#94a3b8', fontSize: '0.98rem' }}>Enter a name or case number to begin</Typography>
         </Box>
       ) : isLoading ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -62,11 +62,11 @@ export default function VawcSearchPage() {
       ) : !data?.cases?.length ? (
         <Box sx={{ textAlign: 'center', py: 6 }}>
           <FolderOpen sx={{ fontSize: 40, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-          <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No results for &quot;{submitted}&quot;</Typography>
+          <Typography sx={{ fontSize: '0.98rem', color: '#94a3b8' }}>No results for &quot;{submitted}&quot;</Typography>
         </Box>
       ) : (
         <>
-          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mb: 1.5 }}>
+          <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8', mb: 1.5 }}>
             Found <Box component="span" sx={{ fontWeight: 700, color: ACCENT }}>{data.total}</Box> case{data.total !== 1 ? 's' : ''}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -77,21 +77,21 @@ export default function VawcSearchPage() {
                     <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
-                          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.67rem', height: 20 }} />
-                          <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}14`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.67rem', height: 20 }} />
+                          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
+                          <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
+                          <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}14`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                         </Box>
-                        <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', color: '#374151', mb: 0.3 }}>{c.residentName}</Typography>
-                        <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>{c.caseType}</Typography>
+                        <Typography sx={{ fontWeight: 600, fontSize: '0.94rem', color: '#374151', mb: 0.3 }}>{c.residentName}</Typography>
+                        <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>{c.caseType}</Typography>
                       </Box>
                       <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'flex-end', mb: 0.5 }}>
                           <LocationOn sx={{ fontSize: 12, color: '#94a3b8' }} />
-                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{c.barangay}</Typography>
+                          <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{c.barangay}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'flex-end' }}>
                           <CalendarToday sx={{ fontSize: 12, color: '#94a3b8' }} />
-                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                          <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
                             {new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </Typography>
                         </Box>

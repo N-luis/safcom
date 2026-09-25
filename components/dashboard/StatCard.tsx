@@ -108,7 +108,7 @@ export default function StatCard({
                   ? <TrendingUp sx={{ fontSize: 14, color: '#22c55e' }} />
                   : <TrendingDown sx={{ fontSize: 14, color: '#ef4444' }} />
                 }
-                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: positive ? '#22c55e' : '#ef4444' }}>
+                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: positive ? '#22c55e' : '#ef4444' }}>
                   {positive ? '+' : ''}{change}%
                 </Typography>
               </Box>
@@ -117,10 +117,10 @@ export default function StatCard({
             <Typography sx={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, mb: 0.5 }}>
               {displayValue.toLocaleString()}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, fontSize: '0.8rem', mb: 0.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, fontSize: '0.9rem', mb: 0.5 }}>
               {title}
             </Typography>
-            <Typography sx={{ fontSize: '0.7rem' }} color="text.disabled">
+            <Typography sx={{ fontSize: '0.78rem' }} color="text.disabled">
               {changeLabel}
             </Typography>
           </CardContent>

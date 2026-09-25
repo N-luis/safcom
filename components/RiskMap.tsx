@@ -448,7 +448,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
     }}>
       {/* Demo mode banner */}
       {isSampleMode && (
-        <Alert severity="info" icon={false} sx={{ borderRadius: 0, borderBottom: '1px solid #bae6fd', py: 0.6, '& .MuiAlert-message': { fontSize: '0.74rem', width: '100%' } }}>
+        <Alert severity="info" icon={false} sx={{ borderRadius: 0, borderBottom: '1px solid #bae6fd', py: 0.6, '& .MuiAlert-message': { fontSize: '0.82rem', width: '100%' } }}>
           <strong>Demo Mode</strong> — Showing 15 sample incidents across Biñan 2nd, Bocaue, Bulacan. Submit real cases to populate live data.
         </Alert>
       )}
@@ -460,7 +460,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
         <Box sx={{ display: 'flex', bgcolor: 'white', borderRadius: 1.5, border: '1px solid #e2e8f0', p: '2px', gap: '2px', flexShrink: 0 }}>
           {(['map', 'table'] as const).map(v => (
             <Box key={v} onClick={() => setView(v)} sx={{ px: 1.5, py: 0.5, borderRadius: 1.25, cursor: 'pointer', bgcolor: view === v ? '#0c1e46' : 'transparent', transition: 'all .15s' }}>
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: view === v ? 'white' : '#94a3b8', userSelect: 'none' }}>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: view === v ? 'white' : '#94a3b8', userSelect: 'none' }}>
                 {v === 'map' ? '🗺 Map' : '📊 Table'}
               </Typography>
             </Box>
@@ -476,7 +476,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
               { k: 'zones'   as const, label: '⚠ Risk Zones' },
             ]).map(({ k, label }) => (
               <Chip key={k} label={label} size="small" onClick={() => setLayer(k)}
-                sx={{ fontWeight: 700, fontSize: '0.7rem', height: 26, cursor: 'pointer',
+                sx={{ fontWeight: 700, fontSize: '0.78rem', height: 26, cursor: 'pointer',
                   bgcolor: layer === k ? '#0c1e46' : 'white',
                   color:   layer === k ? 'white'   : '#64748b',
                   border: `1px solid ${layer === k ? '#0c1e46' : '#e2e8f0'}`,
@@ -495,7 +495,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
               { v: 'all'   as const, label: 'All'    },
             ]).map(({ v, label }) => (
               <Chip key={v} label={label} size="small" onClick={() => setTimeRange(v)}
-                sx={{ fontSize: '0.67rem', fontWeight: 700, height: 24, cursor: 'pointer',
+                sx={{ fontSize: '0.78rem', fontWeight: 700, height: 24, cursor: 'pointer',
                   bgcolor: timeRange === v ? '#6366f1' : 'white',
                   color:   timeRange === v ? 'white'   : '#64748b',
                   border: `1px solid ${timeRange === v ? '#6366f1' : '#e2e8f0'}`,
@@ -513,7 +513,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
             { r: 'Low',    label: '🟢 L', bg: '#22c55e' },
           ]).map(({ r, label, bg }) => (
             <Chip key={r || 'all'} label={label} size="small" onClick={() => setFilterRisk(r)}
-              sx={{ fontSize: '0.67rem', fontWeight: 700, height: 24, cursor: 'pointer',
+              sx={{ fontSize: '0.78rem', fontWeight: 700, height: 24, cursor: 'pointer',
                 bgcolor: filterRisk === r ? bg    : 'white',
                 color:   filterRisk === r ? 'white' : '#64748b',
                 border: `1px solid ${filterRisk === r ? 'transparent' : '#e2e8f0'}`,
@@ -524,22 +524,22 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
         {/* Dropdowns */}
         {caseTypes.length > 1 && (
           <Select size="small" value={filterType} onChange={e => setFilterType(e.target.value as string)} displayEmpty
-            sx={{ fontSize: '0.7rem', height: 28, borderRadius: 1.5, minWidth: 110, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' }, '& .MuiSelect-select': { py: '4px' } }}>
-            <MenuItem value="" sx={{ fontSize: '0.72rem' }}>All Types</MenuItem>
-            {caseTypes.map(t => <MenuItem key={t} value={t} sx={{ fontSize: '0.72rem' }}>{t}</MenuItem>)}
+            sx={{ fontSize: '0.78rem', height: 28, borderRadius: 1.5, minWidth: 110, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' }, '& .MuiSelect-select': { py: '4px' } }}>
+            <MenuItem value="" sx={{ fontSize: '0.82rem' }}>All Types</MenuItem>
+            {caseTypes.map(t => <MenuItem key={t} value={t} sx={{ fontSize: '0.82rem' }}>{t}</MenuItem>)}
           </Select>
         )}
         {statuses.length > 1 && (
           <Select size="small" value={filterStatus} onChange={e => setFilterStatus(e.target.value as string)} displayEmpty
-            sx={{ fontSize: '0.7rem', height: 28, borderRadius: 1.5, minWidth: 110, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' }, '& .MuiSelect-select': { py: '4px' } }}>
-            <MenuItem value="" sx={{ fontSize: '0.72rem' }}>All Status</MenuItem>
-            {statuses.map(s => <MenuItem key={s} value={s} sx={{ fontSize: '0.72rem' }}>{s}</MenuItem>)}
+            sx={{ fontSize: '0.78rem', height: 28, borderRadius: 1.5, minWidth: 110, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' }, '& .MuiSelect-select': { py: '4px' } }}>
+            <MenuItem value="" sx={{ fontSize: '0.82rem' }}>All Status</MenuItem>
+            {statuses.map(s => <MenuItem key={s} value={s} sx={{ fontSize: '0.82rem' }}>{s}</MenuItem>)}
           </Select>
         )}
 
         {hasFilters && (
           <Chip label="✕ Clear" size="small" onClick={clearFilters}
-            sx={{ fontSize: '0.65rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', height: 24, cursor: 'pointer' }} />
+            sx={{ fontSize: '0.72rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', height: 24, cursor: 'pointer' }} />
         )}
 
         {/* Fullscreen toggle */}
@@ -559,12 +559,12 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
           {/* Stats overlay — top-left */}
           <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 0.75, pointerEvents: 'none' }}>
             <Paper elevation={6} sx={{ px: 1.75, py: 1.25, borderRadius: 2.5, bgcolor: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', minWidth: 158 }}>
-              <Typography sx={{ fontSize: '0.56rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 0.6 }}>
+              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 0.6 }}>
                 📍 Biñan 2nd · Bocaue, Bulacan
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, mb: 0.75 }}>
                 <Typography sx={{ fontSize: '1.7rem', fontWeight: 900, color: '#0c1e46', lineHeight: 1 }}>{filtered.length}</Typography>
-                <Typography sx={{ fontSize: '0.68rem', color: '#64748b' }}>incident{filtered.length !== 1 ? 's' : ''}</Typography>
+                <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>incident{filtered.length !== 1 ? 's' : ''}</Typography>
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', alignItems: 'center' }}>
                 {[
@@ -579,7 +579,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
                     : (
                       <Box key={item.label} sx={{ textAlign: 'center' }}>
                         <Typography sx={{ fontSize: '1rem', fontWeight: 900, color: item.color, lineHeight: 1 }}>{item.n}</Typography>
-                        <Typography sx={{ fontSize: '0.52rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.06em' }}>{item.label}</Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.06em' }}>{item.label}</Typography>
                       </Box>
                     )
                 )}
@@ -590,14 +590,14 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
               <Paper elevation={6} sx={{ px: 1.5, py: 1, borderRadius: 2.5, bgcolor: 'rgba(254,242,242,0.97)', backdropFilter: 'blur(16px)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mb: 0.5 }}>
                   <Warning sx={{ fontSize: 12, color: '#dc2626' }} />
-                  <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#dc2626' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 800, color: '#dc2626' }}>
                     {highRiskAreas.length} High-Risk Zone{highRiskAreas.length !== 1 ? 's' : ''}
                   </Typography>
                 </Box>
                 {highRiskAreas.slice(0, 3).map(a => (
                   <Box key={a.barangay} sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mt: 0.35 }}>
                     <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#ef4444', flexShrink: 0 }} />
-                    <Typography sx={{ fontSize: '0.6rem', color: '#dc2626' }}>{a.barangay} · {a.avgScore}/100</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', color: '#dc2626' }}>{a.barangay} · {a.avgScore}/100</Typography>
                   </Box>
                 ))}
               </Paper>
@@ -710,7 +710,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
             <TableHead>
               <TableRow>
                 {['Case ID', 'Incident Type', 'Risk', 'AI Score', 'Location', 'Status', 'Date Filed', ''].map(h => (
-                  <TableCell key={h} sx={{ bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.67rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1.25, whiteSpace: 'nowrap' }}>
+                  <TableCell key={h} sx={{ bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1.25, whiteSpace: 'nowrap' }}>
                     {h}
                   </TableCell>
                 ))}
@@ -719,7 +719,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8', fontSize: '0.83rem' }}>
+                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8', fontSize: '0.9rem' }}>
                     No incidents match the selected filters
                   </TableCell>
                 </TableRow>
@@ -730,24 +730,24 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         {c.level === 'High' && <Warning sx={{ fontSize: 13, color: '#ef4444' }} />}
-                        <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
-                        {c.isSample && <Chip label="demo" size="small" sx={{ fontSize: '0.56rem', height: 15, bgcolor: '#f1f5f9', color: '#94a3b8' }} />}
+                        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
+                        {c.isSample && <Chip label="demo" size="small" sx={{ fontSize: '0.72rem', height: 22, bgcolor: '#f1f5f9', color: '#94a3b8' }} />}
                       </Box>
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.79rem' }}>{c.caseType}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem' }}>{c.caseType}</Typography></TableCell>
                     <TableCell>
-                      <Chip label={c.level} size="small" sx={{ bgcolor: `${col}16`, color: col, fontWeight: 700, fontSize: '0.67rem', height: 20 }} />
+                      <Chip label={c.level} size="small" sx={{ bgcolor: `${col}16`, color: col, fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 95 }}>
                         <LinearProgress variant="determinate" value={c.score}
                           sx={{ flex: 1, height: 5, borderRadius: 4, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: col, borderRadius: 4 } }} />
-                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: col, minWidth: 24 }}>{c.score}</Typography>
+                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: col, minWidth: 24 }}>{c.score}</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.77rem', color: '#64748b' }}>{c.barangay}</Typography></TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.77rem', color: '#475569' }}>{c.status}</Typography></TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>{fmtDate(c.filedAt)}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.barangay}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#475569' }}>{c.status}</Typography></TableCell>
+                    <TableCell><Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>{fmtDate(c.filedAt)}</Typography></TableCell>
                     <TableCell>
                       {!c.isSample ? (
                         <Tooltip title="Open case detail">
@@ -756,7 +756,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
                           </IconButton>
                         </Tooltip>
                       ) : (
-                        <Typography sx={{ fontSize: '0.6rem', color: '#cbd5e1' }}>demo</Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: '#cbd5e1' }}>demo</Typography>
                       )}
                     </TableCell>
                   </TableRow>
@@ -766,12 +766,12 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
           </Table>
           {filtered.length > 0 && (
             <Box sx={{ px: 2, py: 1.25, bgcolor: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '0.73rem', color: '#64748b' }}>
+              <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
                 <strong>{filtered.length}</strong> incident{filtered.length !== 1 ? 's' : ''} · Biñan 2nd, Bocaue, Bulacan
               </Typography>
-              <Typography sx={{ fontSize: '0.73rem', color: '#ef4444', fontWeight: 700 }}>{counts.high} High</Typography>
-              <Typography sx={{ fontSize: '0.73rem', color: '#f97316', fontWeight: 700 }}>{counts.medium} Medium</Typography>
-              <Typography sx={{ fontSize: '0.73rem', color: '#22c55e', fontWeight: 700 }}>{counts.low} Low</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#ef4444', fontWeight: 700 }}>{counts.high} High</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#f97316', fontWeight: 700 }}>{counts.medium} Medium</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#22c55e', fontWeight: 700 }}>{counts.low} Low</Typography>
             </Box>
           )}
         </Box>
@@ -780,7 +780,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
       {/* ── Hotspot ranking strip ── */}
       {displayAreas.length > 0 && (
         <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#fafafa', borderTop: '1px solid #e2e8f0' }}>
-          <Typography sx={{ fontSize: '0.63rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
+          <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
             🔥 Street Hotspot Ranking — Biñan 2nd, Bocaue, Bulacan
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -791,16 +791,16 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
               return (
                 <Box key={area.barangay} sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.25, py: 0.75, borderRadius: 2, bgcolor: 'white', border: `1px solid ${col}22`, flex: '1 0 130px', maxWidth: 200 }}>
                   <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: `${col}14`, border: `2px solid ${col}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Typography sx={{ fontSize: '0.68rem', fontWeight: 900, color: col }}>#{i + 1}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 900, color: col }}>#{i + 1}</Typography>
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography sx={{ fontSize: '0.71rem', fontWeight: 700, color: '#0c1e46', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#0c1e46', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {area.barangay}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mt: 0.3 }}>
                       <LinearProgress variant="determinate" value={area.avgScore}
                         sx={{ flex: 1, height: 4, borderRadius: 4, bgcolor: `${col}16`, '& .MuiLinearProgress-bar': { bgcolor: col, borderRadius: 4 } }} />
-                      <Typography sx={{ fontSize: '0.6rem', fontWeight: 800, color: col, minWidth: 20 }}>{area.avgScore}</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: col, minWidth: 20 }}>{area.avgScore}</Typography>
                     </Box>
                   </Box>
                   {isHigh && <Warning sx={{ fontSize: 12, color: '#ef4444', flexShrink: 0 }} />}
@@ -813,7 +813,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
 
       {/* ── Legend ── */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, px: 2, py: 1.25, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', alignItems: 'center' }}>
-        <Typography sx={{ fontSize: '0.58rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Legend</Typography>
+        <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Legend</Typography>
         {[
           { col: '#ef4444', label: 'High ≥ 65',   pulse: true  },
           { col: '#f97316', label: 'Medium 40–64', pulse: false },
@@ -824,13 +824,13 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
               width: 10, height: 10, borderRadius: '50%', bgcolor: col,
               ...(pulse ? { animation: 'lm-pulse 1.9s ease-out infinite' } : {}),
             }} />
-            <Typography sx={{ fontSize: '0.66rem', color: '#64748b' }}>{label}</Typography>
+            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>{label}</Typography>
           </Box>
         ))}
         {view === 'map' && (
           <>
             <Divider orientation="vertical" flexItem sx={{ mx: 0.25 }} />
-            <Typography sx={{ fontSize: '0.62rem', color: '#94a3b8' }}>
+            <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
               {layer === 'markers'
                 ? 'Click marker for details · Numbered clusters auto-expand · High-risk markers pulse'
                 : layer === 'heatmap'
@@ -839,7 +839,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
             </Typography>
           </>
         )}
-        <Typography sx={{ fontSize: '0.57rem', color: '#cbd5e1', ml: 'auto' }}>
+        <Typography sx={{ fontSize: '0.72rem', color: '#cbd5e1', ml: 'auto' }}>
           © OSM · CARTO · SafComm GeoRisk Engine
         </Typography>
       </Box>

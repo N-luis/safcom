@@ -144,7 +144,7 @@ function ProgressTracker({ status }: { status: string }) {
   return (
     <Card sx={{ mb: 2.5 }}>
       <CardContent sx={{ px: 3, py: 2.5 }}>
-        <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46', mb: 2 }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 2 }}>
           Case Progress
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
@@ -177,7 +177,7 @@ function ProgressTracker({ status }: { status: string }) {
                   {active && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'white' }} />}
                 </Box>
                 <Typography sx={{
-                  fontSize: '0.63rem', fontWeight: active ? 700 : done ? 600 : 400,
+                  fontSize: '0.72rem', fontWeight: active ? 700 : done ? 600 : 400,
                   color: active ? col : done ? '#64748b' : '#94a3b8',
                   mt: 0.75, textAlign: 'center', lineHeight: 1.3, maxWidth: 80,
                 }}>
@@ -250,20 +250,20 @@ function TimelineEntry({
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 0.5, gap: 1, flexWrap: 'wrap' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
             {entry.kind === 'filed' && (
-              <Chip label="Case Filed" size="small" sx={{ bgcolor: '#0c1e4618', color: '#0c1e46', fontWeight: 700, fontSize: '0.65rem', height: 18 }} />
+              <Chip label="Case Filed" size="small" sx={{ bgcolor: '#0c1e4618', color: '#0c1e46', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
             )}
             {entry.kind === 'follow_up' && meta && (
-              <Chip label={meta.label} size="small" sx={{ bgcolor: `${color}18`, color, fontWeight: 700, fontSize: '0.65rem', height: 18 }} />
+              <Chip label={meta.label} size="small" sx={{ bgcolor: `${color}18`, color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
             )}
             {entry.kind === 'activity' && (
-              <Chip label="System" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.63rem', height: 18 }} />
+              <Chip label="System" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
             )}
             {entry.userName && (
-              <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>by {entry.userName}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>by {entry.userName}</Typography>
             )}
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>
               {fullDate(entry.createdAt)}
             </Typography>
             {entry.kind === 'follow_up' && entry.canEdit && hover && (
@@ -286,9 +286,9 @@ function TimelineEntry({
         {/* Status change badge */}
         {isStatusChange && entry.statusFrom && entry.statusTo && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
-            <Chip label={entry.statusFrom} size="small" sx={{ bgcolor: `${STATUS_COLOR[entry.statusFrom] ?? '#94a3b8'}18`, color: STATUS_COLOR[entry.statusFrom] ?? '#94a3b8', fontSize: '0.62rem', height: 17 }} />
-            <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8' }}>→</Typography>
-            <Chip label={entry.statusTo} size="small" sx={{ bgcolor: `${STATUS_COLOR[entry.statusTo] ?? '#94a3b8'}18`, color: STATUS_COLOR[entry.statusTo] ?? '#94a3b8', fontWeight: 700, fontSize: '0.62rem', height: 17 }} />
+            <Chip label={entry.statusFrom} size="small" sx={{ bgcolor: `${STATUS_COLOR[entry.statusFrom] ?? '#94a3b8'}18`, color: STATUS_COLOR[entry.statusFrom] ?? '#94a3b8', fontSize: '0.72rem', height: 22 }} />
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>→</Typography>
+            <Chip label={entry.statusTo} size="small" sx={{ bgcolor: `${STATUS_COLOR[entry.statusTo] ?? '#94a3b8'}18`, color: STATUS_COLOR[entry.statusTo] ?? '#94a3b8', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
           </Box>
         )}
 
@@ -297,7 +297,7 @@ function TimelineEntry({
           p: 1.25, borderRadius: 1.5, bgcolor: entry.kind === 'filed' ? '#f8fafc' : `${color}05`,
           borderColor: entry.kind === 'activity' ? '#f1f5f9' : `${color}22`,
         }}>
-          <Typography sx={{ fontSize: '0.8rem', color: '#374151', lineHeight: 1.6 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6 }}>
             {entry.content}
           </Typography>
         </Paper>
@@ -306,7 +306,7 @@ function TimelineEntry({
         {isIntervention && entry.outcome && (
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, mt: 0.75, px: 1, py: 0.6, borderRadius: 1.5, bgcolor: `${color}0a`, border: `1px solid ${color}22` }}>
             <CheckCircle sx={{ fontSize: 12, color, mt: '2px', flexShrink: 0 }} />
-            <Typography sx={{ fontSize: '0.75rem', color: '#374151' }}>
+            <Typography sx={{ fontSize: '0.86rem', color: '#374151' }}>
               <strong>Outcome:</strong> {entry.outcome}
             </Typography>
           </Box>
@@ -379,7 +379,7 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved }: {
           <Card variant="outlined" sx={{ borderColor: '#e2e8f0', borderRadius: 2 }}>
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.75 }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0c1e46' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>
                   New Follow-Up Entry
                 </Typography>
                 <IconButton size="small" onClick={() => { setOpen(false); reset(); }}>
@@ -436,10 +436,10 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved }: {
                     onChange={e => setUpdateStatus((e.target as HTMLInputElement).checked)}
                     style={{ cursor: 'pointer', width: 14, height: 14, accentColor: '#0c1e46' }}
                   />
-                  <Typography sx={{ fontSize: '0.8rem', color: '#374151', cursor: 'pointer' }} onClick={() => setUpdateStatus(p => !p)}>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#374151', cursor: 'pointer' }} onClick={() => setUpdateStatus(p => !p)}>
                     Also update case status
                   </Typography>
-                  <Chip label={currentStatus} size="small" sx={{ bgcolor: `${STATUS_COLOR[currentStatus] ?? '#94a3b8'}18`, color: STATUS_COLOR[currentStatus] ?? '#94a3b8', fontWeight: 600, fontSize: '0.62rem', height: 17, ml: 'auto' }} />
+                  <Chip label={currentStatus} size="small" sx={{ bgcolor: `${STATUS_COLOR[currentStatus] ?? '#94a3b8'}18`, color: STATUS_COLOR[currentStatus] ?? '#94a3b8', fontWeight: 600, fontSize: '0.72rem', height: 22, ml: 'auto' }} />
                 </Box>
                 {updateStatus && (
                   <FormControl fullWidth size="small">
@@ -514,7 +514,7 @@ function EditFollowUpModal({ caseId, fid, initialContent, initialOutcome, onDone
     <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
       <Card variant="outlined" sx={{ borderColor: '#3b82f6', borderRadius: 2, mb: 2 }}>
         <CardContent sx={{ p: 2 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46', mb: 1.5 }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 1.5 }}>
             Edit Follow-Up
           </Typography>
           <TextField fullWidth multiline rows={3} size="small" label="Content" value={content}
@@ -550,8 +550,8 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
       <CardContent sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
           <Psychology sx={{ fontSize: 18, color: '#7c3aed' }} />
-          <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1e46' }}>AI Risk Assessment</Typography>
-          <Chip label="Ensemble Engine v2.0" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontSize: '0.6rem', fontWeight: 700, height: 17, ml: 'auto' }} />
+          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>AI Risk Assessment</Typography>
+          <Chip label="Ensemble Engine v2.0" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontSize: '0.72rem', fontWeight: 700, height: 17, ml: 'auto' }} />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: ai ? 1.25 : 0 }}>
@@ -563,22 +563,22 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
           }}>
             <Box sx={{ width: inner, height: inner, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: col, lineHeight: 1 }}>{score}</Typography>
-              <Typography sx={{ fontSize: '0.52rem', color: '#94a3b8' }}>/100</Typography>
+              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>/100</Typography>
             </Box>
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Chip label={ai?.level ?? riskLevel} size="small" sx={{ bgcolor: `${col}18`, color: col, fontWeight: 700, mb: 0.5 }} />
             {ai?.confidence && (
-              <Typography sx={{ fontSize: '0.7rem', color: '#64748b' }}>{ai.confidence}% model confidence</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>{ai.confidence}% model confidence</Typography>
             )}
             {ai?.highRiskZone && (
-              <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.62rem', height: 17, mt: 0.5 }} />
+              <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22, mt: 0.5 }} />
             )}
           </Box>
         </Box>
 
         {ai?.justification && (
-          <Typography sx={{ fontSize: '0.76rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>
+          <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>
             {ai.justification}
           </Typography>
         )}
@@ -586,7 +586,7 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
         {ai?.riskFactors && ai.riskFactors.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: expanded ? 1.25 : 0 }}>
             {ai.riskFactors.map((rf, i) => (
-              <Chip key={i} label={rf} size="small" sx={{ bgcolor: `${col}0f`, color: col, fontSize: '0.62rem', height: 17 }} />
+              <Chip key={i} label={rf} size="small" sx={{ bgcolor: `${col}0f`, color: col, fontSize: '0.72rem', height: 22 }} />
             ))}
           </Box>
         )}
@@ -595,7 +595,7 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
           <>
             <Button
               size="small" onClick={() => setExpanded(p => !p)}
-              sx={{ fontSize: '0.72rem', color: '#64748b', px: 0, '&:hover': { bgcolor: 'transparent', color: '#0c1e46' } }}
+              sx={{ fontSize: '0.82rem', color: '#64748b', px: 0, '&:hover': { bgcolor: 'transparent', color: '#0c1e46' } }}
             >
               {expanded ? 'Hide' : 'Show'} factor breakdown
             </Button>
@@ -604,13 +604,13 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
                 {ai.factors.map(f => (
                   <Box key={f.factor} sx={{ mb: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.3 }}>
-                      <Typography sx={{ fontSize: '0.71rem', color: '#64748b' }}>{f.factor}</Typography>
-                      <Typography sx={{ fontSize: '0.71rem', fontWeight: 700, color: col }}>{f.contribution}pts</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{f.factor}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: col }}>{f.contribution}pts</Typography>
                     </Box>
                     <LinearProgress variant="determinate" value={f.score}
                       sx={{ height: 4, borderRadius: 4, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: col, borderRadius: 4 } }}
                     />
-                    <Typography sx={{ fontSize: '0.63rem', color: '#94a3b8', mt: 0.25 }}>{f.detail}</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mt: 0.25 }}>{f.detail}</Typography>
                   </Box>
                 ))}
               </Box>
@@ -622,7 +622,7 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
           <Box sx={{ mt: 1.25, p: 1, borderRadius: 1.5, bgcolor: `${col}08`, border: `1px solid ${col}22` }}>
             <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'flex-start' }}>
               <AutoAwesome sx={{ fontSize: 13, color: col, mt: '1px', flexShrink: 0 }} />
-              <Typography sx={{ fontSize: '0.75rem', color: '#374151' }}>{ai.recommendation}</Typography>
+              <Typography sx={{ fontSize: '0.86rem', color: '#374151' }}>{ai.recommendation}</Typography>
             </Box>
           </Box>
         )}
@@ -774,18 +774,18 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               <Chip
                 label={caseData.status}
                 size="small"
-                sx={{ bgcolor: `${statusCol}18`, color: statusCol, fontWeight: 700, fontSize: '0.75rem' }}
+                sx={{ bgcolor: `${statusCol}18`, color: statusCol, fontWeight: 700, fontSize: '0.86rem' }}
               />
               <Chip
                 label={`${caseData.riskLevel} Risk`}
                 size="small"
-                sx={{ bgcolor: `${riskCol}18`, color: riskCol, fontWeight: 700, fontSize: '0.75rem' }}
+                sx={{ bgcolor: `${riskCol}18`, color: riskCol, fontWeight: 700, fontSize: '0.86rem' }}
               />
               {caseData.aiRiskAssessment?.highRiskZone && (
-                <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.7rem' }} />
+                <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem' }} />
               )}
             </Box>
-            <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary', mt: 0.25 }}>
+            <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.25 }}>
               {caseData.caseType} · {caseData.residentName} · {caseData.barangay}
             </Typography>
           </Box>
@@ -796,7 +796,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               variant="outlined" size="small"
               startIcon={<OpenInNew sx={{ fontSize: 15 }} />}
               onClick={() => router.push(`/blotter-officer/case-management?caseNumber=${caseData.caseNumber}`)}
-              sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b', fontSize: '0.78rem' }}
+              sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b', fontSize: '0.86rem' }}
             >
               Case List
             </Button>
@@ -816,7 +816,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           {/* Case Info */}
           <Card sx={{ mb: 2 }}>
             <CardContent sx={{ p: 2 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1e46', mb: 1.5 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1.5 }}>
                 Case Information
               </Typography>
               {[
@@ -835,8 +835,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                     <Icon sx={{ fontSize: 14, color: '#64748b' }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: '0.68rem', color: 'text.secondary' }}>{label}</Typography>
-                    <Typography sx={{ fontSize: '0.83rem', fontWeight: 500 }}>{value}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{label}</Typography>
+                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{value}</Typography>
                   </Box>
                 </Box>
               ))}
@@ -847,21 +847,21 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                     <CheckCircle sx={{ fontSize: 14, color: '#22c55e' }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: '0.68rem', color: 'text.secondary' }}>Resolved On</Typography>
-                    <Typography sx={{ fontSize: '0.83rem', fontWeight: 500, color: '#22c55e' }}>{fullDate(caseData.resolvedAt)}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Resolved On</Typography>
+                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#22c55e' }}>{fullDate(caseData.resolvedAt)}</Typography>
                   </Box>
                 </Box>
               )}
 
               <Divider sx={{ my: 1.25 }} />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
                   Last updated {timeAgo(caseData.updatedAt)}
                 </Typography>
                 <Chip
                   label={`${(caseData.followUps ?? []).length} follow-up${(caseData.followUps ?? []).length !== 1 ? 's' : ''}`}
                   size="small"
-                  sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 18 }}
+                  sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }}
                 />
               </Box>
             </CardContent>
@@ -873,21 +873,21 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           {/* Original Description */}
           <Card>
             <CardContent sx={{ p: 2 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1e46', mb: 1 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1 }}>
                 Original Report
               </Typography>
               <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#f8fafc' }}>
-                <Typography sx={{ fontSize: '0.82rem', lineHeight: 1.65, color: '#475569' }}>
+                <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#475569' }}>
                   {caseData.description}
                 </Typography>
               </Paper>
               {caseData.notes && (
                 <Box sx={{ mt: 1.5 }}>
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.8rem', color: '#0c1e46', mb: 0.75 }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>
                     Additional Notes
                   </Typography>
                   <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fefce8', borderColor: '#fef08a' }}>
-                    <Typography sx={{ fontSize: '0.81rem', lineHeight: 1.65, color: '#78350f', whiteSpace: 'pre-wrap' }}>
+                    <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#78350f', whiteSpace: 'pre-wrap' }}>
                       {caseData.notes}
                     </Typography>
                   </Paper>
@@ -903,10 +903,10 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                     Case Timeline
                   </Typography>
-                  <Chip label={`${timeline.length} event${timeline.length !== 1 ? 's' : ''}`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 18 }} />
+                  <Chip label={`${timeline.length} event${timeline.length !== 1 ? 's' : ''}`} size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <Chip
@@ -916,7 +916,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                     sx={{
                       bgcolor: timelineFilter === 'all' ? '#0c1e46' : '#f1f5f9',
                       color: timelineFilter === 'all' ? 'white' : '#64748b',
-                      fontWeight: 600, fontSize: '0.68rem', height: 22, cursor: 'pointer',
+                      fontWeight: 600, fontSize: '0.78rem', height: 24, cursor: 'pointer',
                     }}
                   />
                   <Chip
@@ -926,7 +926,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                     sx={{
                       bgcolor: timelineFilter === 'interventions' ? '#8b5cf6' : '#f1f5f9',
                       color: timelineFilter === 'interventions' ? 'white' : '#64748b',
-                      fontWeight: 600, fontSize: '0.68rem', height: 22, cursor: 'pointer',
+                      fontWeight: 600, fontSize: '0.78rem', height: 24, cursor: 'pointer',
                     }}
                   />
                 </Box>
@@ -952,7 +952,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               {displayTimeline.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Shield sx={{ fontSize: 32, color: '#e2e8f0', mb: 1 }} />
-                  <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary' }}>
+                  <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
                     {timelineFilter === 'interventions' ? 'No interventions recorded yet' : 'No timeline events'}
                   </Typography>
                 </Box>

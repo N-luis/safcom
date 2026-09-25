@@ -119,7 +119,7 @@ export default function ResidentDashboard() {
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1280 }}>
       {/* ── Top bar ── */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Typography sx={{ fontSize: { xs: '0.95rem', sm: '1.05rem' }, color: '#475569' }}>
+        <Typography sx={{ fontSize: { xs: '0.98rem', sm: '1.05rem' }, color: '#475569' }}>
           Welcome back,{' '}
           <Box component="span" sx={{ fontWeight: 800, color: '#0c1e46' }}>
             {residentName ? `Resident ${residentName}` : 'Resident'}
@@ -127,11 +127,11 @@ export default function ResidentDashboard() {
         </Typography>
         <Button
           variant="outlined"
-          startIcon={<Avatar sx={{ width: 18, height: 18, fontSize: '0.6rem', bgcolor: '#14b8a6' }}>
+          startIcon={<Avatar sx={{ width: 18, height: 22, fontSize: '0.72rem', bgcolor: '#14b8a6' }}>
             {residentName?.[0] ?? 'R'}
           </Avatar>}
           onClick={() => router.push('/resident/profile')}
-          sx={{ borderColor: '#14b8a6', color: '#14b8a6', fontWeight: 600, fontSize: '0.82rem', borderRadius: 2, '&:hover': { bgcolor: 'rgba(20,184,166,0.06)', borderColor: '#0d9488' } }}
+          sx={{ borderColor: '#14b8a6', color: '#14b8a6', fontWeight: 600, fontSize: '0.9rem', borderRadius: 2, '&:hover': { bgcolor: 'rgba(20,184,166,0.06)', borderColor: '#0d9488' } }}
         >
           Resident Profile
         </Button>
@@ -148,9 +148,9 @@ export default function ResidentDashboard() {
                     <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: `${card.color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <card.icon sx={{ fontSize: 20, color: card.color }} />
                     </Box>
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{card.label}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>{card.label}</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 1.5, mb: 0.5 }}>{card.title}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#64748b', mt: 1.5, mb: 0.5 }}>{card.title}</Typography>
                   {statsLoading
                     ? <Skeleton variant="text" width={50} height={42} />
                     : <Typography sx={{ fontSize: '2rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1.1 }}>
@@ -159,7 +159,7 @@ export default function ResidentDashboard() {
                   }
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
                     {card.sub.icon && <card.sub.icon sx={{ fontSize: 13, color: card.sub.color }} />}
-                    <Typography sx={{ fontSize: '0.72rem', color: card.sub.color }}>{card.sub.text}</Typography>
+                    <Typography sx={{ fontSize: '0.82rem', color: card.sub.color }}>{card.sub.text}</Typography>
                   </Box>
                 </CardContent>
               </Card>
@@ -177,12 +177,12 @@ export default function ResidentDashboard() {
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 0.5 }}>
                 <Box>
                   <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46' }}>Recent Reports</Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>History of your latest community submissions</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>History of your latest community submissions</Typography>
                 </Box>
                 <Button
                   size="small"
                   onClick={() => router.push('/resident/my-cases')}
-                  sx={{ fontSize: '0.78rem', color: '#14b8a6', fontWeight: 600, '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}
+                  sx={{ fontSize: '0.86rem', color: '#14b8a6', fontWeight: 600, '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' } }}
                 >
                   View All
                 </Button>
@@ -191,7 +191,7 @@ export default function ResidentDashboard() {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
+                  <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
                     {['Case ID', 'Description', 'Category', 'Status', 'Date'].map(h => (
                       <TableCell key={h}>{h}</TableCell>
                     ))}
@@ -211,7 +211,7 @@ export default function ResidentDashboard() {
                         <TableRow>
                           <TableCell colSpan={5} sx={{ textAlign: 'center', py: 5 }}>
                             <Assessment sx={{ fontSize: 36, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-                            <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>No reports yet</Typography>
+                            <Typography sx={{ fontSize: '0.94rem', color: '#94a3b8', fontWeight: 500 }}>No reports yet</Typography>
                             <Button size="small" onClick={() => router.push('/resident/report-case')} sx={{ mt: 1, color: '#14b8a6', fontWeight: 600 }}>
                               File your first report →
                             </Button>
@@ -228,17 +228,17 @@ export default function ResidentDashboard() {
                           sx={{ cursor: 'pointer', '& td': { py: 1.35, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#f8fafc' } }}
                         >
                           <TableCell>
-                            <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0c1e46' }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>
                               #{c.caseNumber}
                             </Typography>
                           </TableCell>
                           <TableCell>
-                            <Typography sx={{ fontSize: '0.8rem', color: '#374151', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontSize: '0.9rem', color: '#374151', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {c.description.length > 28 ? c.description.slice(0, 28) + '…' : c.description}
                             </Typography>
                           </TableCell>
                           <TableCell>
-                            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>{c.caseType.split(' ')[0]}</Typography>
+                            <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.caseType.split(' ')[0]}</Typography>
                           </TableCell>
                           <TableCell>
                             <Chip
@@ -247,13 +247,13 @@ export default function ResidentDashboard() {
                               sx={{
                                 bgcolor: STATUS_CHIP[c.status] ?? '#f1f5f9',
                                 color: STATUS_COLOR[c.status] ?? '#64748b',
-                                fontWeight: 700, fontSize: '0.7rem', height: 22,
+                                fontWeight: 700, fontSize: '0.78rem', height: 24,
                                 border: `1px solid ${STATUS_COLOR[c.status] ?? '#e2e8f0'}30`,
                               }}
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                            <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>
                               {new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
                           </TableCell>
@@ -278,7 +278,7 @@ export default function ResidentDashboard() {
                 ? (
                     <Box sx={{ textAlign: 'center', py: 3 }}>
                       <GridView sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                      <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mt: 1 }}>No case data yet</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8', mt: 1 }}>No case data yet</Typography>
                     </Box>
                   )
                 : (
@@ -297,14 +297,14 @@ export default function ResidentDashboard() {
                             </Pie>
                             <ChartTooltip
                               formatter={(v: unknown) => [`${String(v)} cases`, '']}
-                              contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }}
+                              contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }}
                             />
                           </PieChart>
                         </ResponsiveContainer>
                         {/* Center label */}
                         <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', pointerEvents: 'none' }}>
                           <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>{total}</Typography>
-                          <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>TOTAL</Typography>
+                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>TOTAL</Typography>
                         </Box>
                       </Box>
                       {/* Legend */}
@@ -313,9 +313,9 @@ export default function ResidentDashboard() {
                           <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 0.6, borderBottom: '1px solid #f8fafc' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: d.color, flexShrink: 0 }} />
-                              <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{d.name}</Typography>
+                              <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>{d.name}</Typography>
                             </Box>
-                            <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: '#0c1e46' }}>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>
                               {total > 0 ? `${Math.round((d.value / total) * 100)}%` : '0%'}
                             </Typography>
                           </Box>
@@ -352,7 +352,7 @@ export default function ResidentDashboard() {
                 ? (
                     <Box sx={{ textAlign: 'center', py: 2.5 }}>
                       <Update sx={{ fontSize: 32, color: '#e2e8f0' }} />
-                      <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mt: 0.75 }}>No updates yet</Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8', mt: 0.75 }}>No updates yet</Typography>
                     </Box>
                   )
                 : (updates ?? []).map((u, i) => {
@@ -364,9 +364,9 @@ export default function ResidentDashboard() {
                             <IconComp sx={{ fontSize: 18, color: u.color }} />
                           </Box>
                           <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>{u.title}</Typography>
-                            <Typography sx={{ fontSize: '0.75rem', color: '#64748b', mt: 0.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.message}</Typography>
-                            <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', mt: 0.35 }}>{timeAgo(u.createdAt)}</Typography>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>{u.title}</Typography>
+                            <Typography sx={{ fontSize: '0.86rem', color: '#64748b', mt: 0.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.message}</Typography>
+                            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.35 }}>{timeAgo(u.createdAt)}</Typography>
                           </Box>
                         </Box>
                       </motion.div>
@@ -379,7 +379,7 @@ export default function ResidentDashboard() {
                 variant="outlined"
                 startIcon={<Refresh sx={{ fontSize: 16 }} />}
                 onClick={() => refreshUpdates()}
-                sx={{ mt: 0.5, borderColor: '#e2e8f0', color: '#64748b', fontWeight: 600, fontSize: '0.8rem', '&:hover': { borderColor: '#14b8a6', color: '#14b8a6', bgcolor: 'rgba(20,184,166,0.04)' } }}
+                sx={{ mt: 0.5, borderColor: '#e2e8f0', color: '#64748b', fontWeight: 600, fontSize: '0.9rem', '&:hover': { borderColor: '#14b8a6', color: '#14b8a6', bgcolor: 'rgba(20,184,166,0.04)' } }}
               >
                 Refresh Feed
               </Button>

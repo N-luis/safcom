@@ -113,7 +113,7 @@ export default function QuickActions() {
       <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Quick Actions</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, fontSize: '0.78rem' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, fontSize: '0.86rem' }}>
             Common management tasks
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -148,7 +148,7 @@ export default function QuickActions() {
                       borderRadius: 2.5,
                       borderColor: isDone ? '#22c55e' : `${action.color}40`,
                       color: isDone ? '#22c55e' : action.color,
-                      fontWeight: 600, fontSize: '0.82rem',
+                      fontWeight: 600, fontSize: '0.9rem',
                       textTransform: 'none',
                       '&:hover': {
                         borderColor: isDone ? '#22c55e' : action.color,
@@ -273,7 +273,7 @@ function AddReportDialog({
                 <MenuItem key={c} value={c}>{c}</MenuItem>
               )}
             </Select>
-            {errors.category && <Typography sx={{ fontSize: '0.72rem', color: 'error.main', mt: 0.5, ml: 1.75 }}>{errors.category}</Typography>}
+            {errors.category && <Typography sx={{ fontSize: '0.82rem', color: 'error.main', mt: 0.5, ml: 1.75 }}>{errors.category}</Typography>}
           </FormControl>
           <FormControl fullWidth size="small">
             <InputLabel>Priority</InputLabel>
@@ -404,7 +404,7 @@ function SendNotificationDialog({
           slotProps={{ input: { sx: { borderRadius: 2 } } }}
         />
         <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
-          <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">
+          <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">
             This notification will be sent as a broadcast and visible to all users in the system.
           </Typography>
         </Box>
@@ -530,7 +530,7 @@ function CreateAlertDialog({
         />
         {form.level === 'critical' && (
           <Box sx={{ p: 1.5, bgcolor: 'rgba(239,68,68,0.08)', border: '1px solid', borderColor: 'rgba(239,68,68,0.3)', borderRadius: 2 }}>
-            <Typography sx={{ fontSize: '0.78rem', color: '#ef4444', fontWeight: 600 }}>
+            <Typography sx={{ fontSize: '0.86rem', color: '#ef4444', fontWeight: 600 }}>
               Critical alert — this will appear prominently for all users.
             </Typography>
           </Box>

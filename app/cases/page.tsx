@@ -37,7 +37,7 @@ export default function CasesPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>Cases</Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '0.9rem' }}>Manage all community cases and interventions</Typography>
+            <Typography color="text.secondary" sx={{ fontSize: '0.98rem' }}>Manage all community cases and interventions</Typography>
           </Box>
           {canCreateCase && (
             <Button variant="contained" startIcon={<Add />} sx={{ borderRadius: 2.5, textTransform: 'none' }} onClick={() => setNewCaseOpen(true)}>
@@ -59,7 +59,7 @@ export default function CasesPage() {
                     ) : (
                       <Typography variant="h3" sx={{ fontWeight: 900, color: s.color }}>{s.count}</Typography>
                     )}
-                    <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">{s.label}</Typography>
+                    <Typography sx={{ fontSize: '0.9rem' }} color="text.secondary">{s.label}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>

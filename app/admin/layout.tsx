@@ -8,7 +8,7 @@ import {
   useMediaQuery, useTheme,
 } from '@mui/material';
 import {
-  Dashboard, ManageAccounts, VerifiedUser,
+  Dashboard, ManageAccounts,
   Menu as MenuIcon, Logout, AdminPanelSettings,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -19,7 +19,6 @@ const ACCENT = '#0ea5e9';
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/admin', exact: true },
   { id: 'users', label: 'User Management', icon: ManageAccounts, path: '/admin/users' },
-  { id: 'id-verification', label: 'ID Verification', icon: VerifiedUser, path: '/admin/id-verification' },
 ];
 
 function SidebarContent({ onClose, userName }: { onClose: () => void; userName: string }) {
@@ -54,7 +53,7 @@ function SidebarContent({ onClose, userName }: { onClose: () => void; userName: 
         </Box>
         <Box>
           <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#fff', lineHeight: 1.2, letterSpacing: '-0.02em' }}>SafeComm</Typography>
-          <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>System Admin</Typography>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>System Admin</Typography>
         </Box>
       </Box>
 
@@ -62,7 +61,7 @@ function SidebarContent({ onClose, userName }: { onClose: () => void; userName: 
 
       {/* Nav */}
       <Box sx={{ flex: 1, overflowY: 'auto', px: 1.5, pt: 1.5, pb: 1, '&::-webkit-scrollbar': { width: 3 }, '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 } }}>
-        <Typography sx={{ px: 1, pt: 1, pb: 0.75, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Administration</Typography>
+        <Typography sx={{ px: 1, pt: 1, pb: 0.75, fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Administration</Typography>
         {NAV_ITEMS.map(item => {
           const active = isActive(item.path, item.exact);
           return (
@@ -82,7 +81,7 @@ function SidebarContent({ onClose, userName }: { onClose: () => void; userName: 
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Box component="span" sx={{ fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1.4, display: 'block' }}>
+                  <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: active ? 600 : 400, lineHeight: 1.4, display: 'block' }}>
                     {item.label}
                   </Box>
                 }
@@ -96,14 +95,14 @@ function SidebarContent({ onClose, userName }: { onClose: () => void; userName: 
 
       {/* User footer */}
       <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.2 }}>
-        <Avatar sx={{ width: 34, height: 34, background: `linear-gradient(135deg, #0284c7, ${ACCENT})`, border: `2px solid rgba(14,165,233,0.4)`, fontSize: '0.72rem', fontWeight: 700 }}>
+        <Avatar sx={{ width: 34, height: 34, background: `linear-gradient(135deg, #0284c7, ${ACCENT})`, border: `2px solid rgba(14,165,233,0.4)`, fontSize: '0.82rem', fontWeight: 700 }}>
           {userName ? userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SA'}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {userName || 'System Admin'}
           </Typography>
-          <Typography sx={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)' }}>System Administrator</Typography>
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>System Administrator</Typography>
         </Box>
         <Tooltip title="Logout">
           <IconButton size="small" onClick={logout} sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, borderRadius: 1.5 }}>
@@ -151,7 +150,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <IconButton size="small" onClick={() => setDrawerOpen(true)} sx={{ color: 'white' }}><MenuIcon /></IconButton>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <AdminPanelSettings sx={{ fontSize: 18, color: ACCENT }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'white' }}>SafeComm Admin</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: 'white' }}>SafeComm Admin</Typography>
             </Box>
           </Box>
         )}

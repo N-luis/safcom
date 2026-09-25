@@ -67,9 +67,9 @@ export default function VawcAiRiskPage() {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>AI Risk Prediction</Typography>
-          <Chip label="RULE-BASED ENGINE v1" size="small" sx={{ bgcolor: `${ACCENT}12`, color: ACCENT, fontWeight: 700, fontSize: '0.62rem', height: 20 }} />
+          <Chip label="RULE-BASED ENGINE v1" size="small" sx={{ bgcolor: `${ACCENT}12`, color: ACCENT, fontWeight: 700, fontSize: '0.72rem', height: 24 }} />
         </Box>
-        <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Automated risk scoring and pattern analysis for VAWC case escalation</Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>Automated risk scoring and pattern analysis for VAWC case escalation</Typography>
       </Box>
 
       {/* ── Risk Summary Cards ── */}
@@ -86,7 +86,7 @@ export default function VawcAiRiskPage() {
                 <CardContent sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                     <s.icon sx={{ fontSize: 15, color: s.color }} />
-                    <Typography sx={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{s.label}</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>{s.label}</Typography>
                   </Box>
                   {stats ? (
                     <Typography sx={{ fontSize: '1.5rem', fontWeight: 800, color: s.color, lineHeight: 1.1 }}>
@@ -107,7 +107,7 @@ export default function VawcAiRiskPage() {
         <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 2 }}>Overall Risk Level</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 2 }}>Overall Risk Level</Typography>
               <Box sx={{ textAlign: 'center', py: 1 }}>
                 <Box sx={{
                   width: 100, height: 100, borderRadius: '50%', mx: 'auto', mb: 2,
@@ -118,10 +118,10 @@ export default function VawcAiRiskPage() {
                 }}>
                   <Box sx={{ width: 76, height: 76, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                     <Typography sx={{ fontSize: '1.4rem', fontWeight: 800, color: RISK_COLOR[riskTrend], lineHeight: 1 }}>{riskRatio.toFixed(0)}%</Typography>
-                    <Typography sx={{ fontSize: '0.58rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>High Risk</Typography>
+                    <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>High Risk</Typography>
                   </Box>
                 </Box>
-                <Chip label={riskTrend} sx={{ bgcolor: `${RISK_COLOR[riskTrend]}14`, color: RISK_COLOR[riskTrend], fontWeight: 700, fontSize: '0.8rem', mb: 1.5 }} />
+                <Chip label={riskTrend} sx={{ bgcolor: `${RISK_COLOR[riskTrend]}14`, color: RISK_COLOR[riskTrend], fontWeight: 700, fontSize: '0.9rem', mb: 1.5 }} />
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
                 {[
@@ -131,8 +131,8 @@ export default function VawcAiRiskPage() {
                 ].map(item => (
                   <Box key={item.label}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                      <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>{item.label}</Typography>
-                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: item.color }}>{item.value}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{item.label}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: item.color }}>{item.value}</Typography>
                     </Box>
                     <LinearProgress variant="determinate" value={total > 0 ? (item.value / total) * 100 : 0}
                       sx={{ height: 4, borderRadius: 2, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: item.color, borderRadius: 2 } }} />
@@ -147,14 +147,14 @@ export default function VawcAiRiskPage() {
         <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 0.25 }}>6-Month Pattern Radar</Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', mb: 1.5 }}>Monthly case volume, high-risk proportion and resolution index</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46', mb: 0.25 }}>6-Month Pattern Radar</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mb: 1.5 }}>Monthly case volume, high-risk proportion and resolution index</Typography>
               {!trends ? (
                 <Skeleton variant="rectangular" height={240} sx={{ borderRadius: 2 }} />
               ) : radarData.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                   <FolderOpen sx={{ fontSize: 36, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
-                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>Not enough data for radar analysis</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>Not enough data for radar analysis</Typography>
                 </Box>
               ) : (
                 <Box sx={{ minWidth: 0 }}>
@@ -165,7 +165,7 @@ export default function VawcAiRiskPage() {
                       <PolarRadiusAxis tick={{ fontSize: 10, fill: '#94a3b8' }} />
                       <Radar name="Cases" dataKey="cases" stroke={ACCENT} fill={ACCENT} fillOpacity={0.15} strokeWidth={2} />
                       <Radar name="High Risk" dataKey="highRisk" stroke="#ef4444" fill="#ef4444" fillOpacity={0.12} strokeWidth={1.5} strokeDasharray="5 3" />
-                      <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.78rem' }} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.86rem' }} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </Box>
@@ -180,9 +180,9 @@ export default function VawcAiRiskPage() {
         <CardContent sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
             <LocationOn sx={{ color: '#ef4444', fontSize: 18 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>Street Risk Hotspots</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Street Risk Hotspots</Typography>
           </Box>
-          <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.75 }}>
+          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
             Top streets by average VAWC risk score (color = risk level)
           </Typography>
           <Box sx={{ height: stats?.byStreet?.length ? Math.max(160, (stats.byStreet.length * 32) + 40) : 160 }}>
@@ -200,7 +200,7 @@ export default function VawcAiRiskPage() {
                         `${String(v)}${name === 'avgScore' ? '/100' : ' cases'}`,
                         name === 'avgScore' ? 'Avg Risk Score' : 'High-Risk Cases',
                       ]}
-                      contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.8rem' }}
+                      contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }}
                     />
                     <Bar dataKey="avgScore" name="avgScore" radius={[0, 4, 4, 0]} label={{ position: 'right', fontSize: 11, fill: '#64748b' }}>
                       {(stats.byStreet ?? []).map((d, i) => (
@@ -213,7 +213,7 @@ export default function VawcAiRiskPage() {
               : (
                 <Box sx={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                   <LocationOn sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                  <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8' }}>No street data yet</Typography>
+                  <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No street data yet</Typography>
                 </Box>
               )
             }
@@ -232,16 +232,16 @@ export default function VawcAiRiskPage() {
             }}>
               <LocationOn sx={{ fontSize: 14, color: 'white' }} />
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
               Street Risk Heatmap
             </Typography>
             <Chip label="Live Map" size="small"
-              sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.65rem', height: 20 }} />
+              sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.72rem', height: 24 }} />
             <Chip label="Bocaue, Bulacan" size="small"
               icon={<LocationOn sx={{ fontSize: '11px !important', color: '#64748b !important' }} />}
-              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.65rem', height: 20 }} />
+              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 24 }} />
           </Box>
-          <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.75 }}>
+          <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
             Street-level risk network plotted over the Biñan 2nd area map — heat intensity shows incident concentration per intersection and landmark
           </Typography>
           <RiskHeatMap
@@ -258,9 +258,9 @@ export default function VawcAiRiskPage() {
           <CardContent sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
               <ReportProblem sx={{ color: ACCENT, fontSize: 18 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>Priority Areas</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Priority Areas</Typography>
             </Box>
-            <Typography sx={{ fontSize: '0.73rem', color: 'text.secondary', mb: 1.75 }}>
+            <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
               Streets ranked by VAWC risk, with the case types driving each score
             </Typography>
             <Grid container spacing={1.5}>
@@ -273,21 +273,21 @@ export default function VawcAiRiskPage() {
                       bgcolor: `${scoreColor(a.avgScore)}06`,
                     }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, flexWrap: 'wrap' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: '0.82rem', color: '#0c1e46', flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', flex: 1, minWidth: 0 }}>
                           {a.barangay}
                         </Typography>
                         <Chip label={`${a.avgScore}/100`} size="small"
-                          sx={{ bgcolor: `${scoreColor(a.avgScore)}18`, color: scoreColor(a.avgScore), fontWeight: 700, fontSize: '0.62rem', height: 19 }} />
+                          sx={{ bgcolor: `${scoreColor(a.avgScore)}18`, color: scoreColor(a.avgScore), fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
                       </Box>
                       <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap', mb: 0.75 }}>
                         <Chip label={`${a.total} case${a.total !== 1 ? 's' : ''}`} size="small"
-                          sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.6rem', height: 18 }} />
+                          sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
                         {a.highRisk > 0 && (
                           <Chip label={`${a.highRisk} high-risk`} size="small"
-                            sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.6rem', height: 18 }} />
+                            sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
                         )}
                       </Box>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.5 }}>
+                      <Typography sx={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>
                         {a.dominantCaseTypes.length > 0 ? a.dominantCaseTypes.join(' · ') : 'No dominant case type'}
                       </Typography>
                     </Box>
@@ -304,10 +304,10 @@ export default function VawcAiRiskPage() {
         <Card>
           <CardContent sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>Highest Risk — Action Required</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>Highest Risk — Action Required</Typography>
               <Button size="small" endIcon={<ArrowForward sx={{ fontSize: 14 }} />}
                 onClick={() => router.push('/vawc/cases?filter=urgent')}
-                sx={{ color: ACCENT, fontWeight: 600, fontSize: '0.78rem' }}>
+                sx={{ color: ACCENT, fontWeight: 600, fontSize: '0.86rem' }}>
                 View All
               </Button>
             </Box>
@@ -324,11 +324,11 @@ export default function VawcAiRiskPage() {
                         <Shield sx={{ fontSize: 16, color: RISK_COLOR[c.riskLevel] ?? '#64748b' }} />
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ fontWeight: 600, fontSize: '0.82rem', color: '#0c1e46' }}>{c.subjectName}</Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8' }}>#{c.caseNumber}</Typography>
+                        <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>{c.subjectName}</Typography>
+                        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>#{c.caseNumber}</Typography>
                       </Box>
                       <Chip label={c.riskLevel} size="small"
-                        sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}12`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.68rem', height: 20 }} />
+                        sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}12`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                     </Box>
                   </motion.div>
                 ))}

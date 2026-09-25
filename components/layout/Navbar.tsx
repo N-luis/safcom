@@ -113,7 +113,7 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
 
         <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column' }}>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, fontSize: '1.1rem' }}>{currentLabel}</Typography>
-          <Typography sx={{ fontSize: '0.72rem' }} color="text.secondary">SafeComm · {userRole}</Typography>
+          <Typography sx={{ fontSize: '0.82rem' }} color="text.secondary">SafeComm · {userRole}</Typography>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -130,7 +130,7 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
         >
           <Search sx={{ fontSize: 18, color: 'text.secondary' }} />
           <InputBase placeholder="Search..." value={searchValue} onChange={(e) => setSearchValue(e.target.value)}
-            sx={{ fontSize: '0.875rem', flex: 1, color: 'inherit' }} />
+            sx={{ fontSize: '0.94rem', flex: 1, color: 'inherit' }} />
         </Paper>
 
         <Tooltip title={darkMode ? 'Light Mode' : 'Dark Mode'}>
@@ -162,12 +162,12 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
           sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', px: 1, py: 0.5, borderRadius: 2.5,
             '&:hover': { background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }, transition: 'background 0.2s' }}>
           <Box sx={{ position: 'relative' }}>
-            <Avatar sx={{ width: 36, height: 36, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', fontSize: '0.8rem', fontWeight: 700 }}>{userInitials}</Avatar>
+            <Avatar sx={{ width: 36, height: 36, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', fontSize: '0.9rem', fontWeight: 700 }}>{userInitials}</Avatar>
             <Circle sx={{ position: 'absolute', bottom: -1, right: -1, fontSize: 11, color: '#22c55e' }} />
           </Box>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.2 }}>{userName}</Typography>
-            <Typography sx={{ fontSize: '0.68rem' }} color="text.secondary">{userRole}</Typography>
+            <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{userName}</Typography>
+            <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">{userRole}</Typography>
           </Box>
         </Box>
       </Toolbar>
@@ -181,13 +181,13 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
         <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography sx={{ fontWeight: 700 }}>Notifications</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {unreadCount > 0 && <Chip label={`${unreadCount} new`} size="small" color="primary" sx={{ fontSize: '0.7rem' }} />}
+            {unreadCount > 0 && <Chip label={`${unreadCount} new`} size="small" color="primary" sx={{ fontSize: '0.78rem' }} />}
           </Box>
         </Box>
         <Divider />
         {notifications.length === 0 ? (
           <Box sx={{ py: 4, textAlign: 'center' }}>
-            <Typography color="text.secondary" sx={{ fontSize: '0.875rem' }}>No notifications</Typography>
+            <Typography color="text.secondary" sx={{ fontSize: '0.94rem' }}>No notifications</Typography>
           </Box>
         ) : notifications.slice(0, 6).map((n) => (
           <MenuItem key={n.id as string}
@@ -197,11 +197,11 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
           >
             <NotificationsActive sx={{ fontSize: 18, color: notifColors[(n.type as string)] ?? '#3b82f6', flexShrink: 0 }} />
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontSize: '0.8rem', fontWeight: n.read ? 400 : 600 }}>{n.title as string}</Typography>
-              <Typography sx={{ fontSize: '0.72rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} color="text.secondary">
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: n.read ? 400 : 600 }}>{n.title as string}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} color="text.secondary">
                 {n.message as string}
               </Typography>
-              <Typography sx={{ fontSize: '0.65rem', mt: 0.3 }} color="text.disabled">{timeAgo(n.createdAt as string)}</Typography>
+              <Typography sx={{ fontSize: '0.72rem', mt: 0.3 }} color="text.disabled">{timeAgo(n.createdAt as string)}</Typography>
             </Box>
           </MenuItem>
         ))}
@@ -209,12 +209,12 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
         <Box sx={{ display: 'flex' }}>
           {unreadCount > 0 && (
             <MenuItem onClick={() => { markAllRead(); setNotifAnchor(null); }} sx={{ flex: 1, justifyContent: 'center', py: 1.2 }}>
-              <Typography sx={{ fontSize: '0.8rem', fontWeight: 600 }} color="primary">Mark all as read</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600 }} color="primary">Mark all as read</Typography>
             </MenuItem>
           )}
           <MenuItem onClick={() => { setNotifAnchor(null); router.push('/notifications'); }} sx={{ flex: 1, justifyContent: 'center', py: 1.2, gap: 0.5 }}>
             <OpenInNew sx={{ fontSize: 14 }} color="action" />
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600 }} color="text.secondary">View all</Typography>
+            <Typography sx={{ fontSize: '0.9rem', fontWeight: 600 }} color="text.secondary">View all</Typography>
           </MenuItem>
         </Box>
       </Menu>
@@ -226,22 +226,22 @@ export default function Navbar({ onMobileMenuOpen }: NavbarProps) {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>{userName}</Typography>
-          <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{userEmail || userRole}</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.98rem' }}>{userName}</Typography>
+          <Typography sx={{ fontSize: '0.86rem' }} color="text.secondary">{userEmail || userRole}</Typography>
         </Box>
         <Divider />
         <MenuItem sx={{ gap: 1.5, py: 1.2 }} onClick={() => { setProfileAnchor(null); router.push('/settings'); }}>
           <ListItemIcon><AccountCircle fontSize="small" /></ListItemIcon>
-          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.85rem' } } }}>Profile</ListItemText>
+          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.94rem' } } }}>Profile</ListItemText>
         </MenuItem>
         <MenuItem sx={{ gap: 1.5, py: 1.2 }} onClick={() => { setProfileAnchor(null); router.push('/settings'); }}>
           <ListItemIcon><Settings fontSize="small" /></ListItemIcon>
-          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.85rem' } } }}>Settings</ListItemText>
+          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.94rem' } } }}>Settings</ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem sx={{ gap: 1.5, py: 1.2, color: '#ef4444' }} onClick={handleLogout}>
           <ListItemIcon><Logout fontSize="small" sx={{ color: '#ef4444' }} /></ListItemIcon>
-          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.85rem', color: '#ef4444' } } }}>Logout</ListItemText>
+          <ListItemText slotProps={{ primary: { sx: { fontSize: '0.94rem', color: '#ef4444' } } }}>Logout</ListItemText>
         </MenuItem>
       </Menu>
     </AppBar>

@@ -14,9 +14,24 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import StreetSelect from '@/components/forms/StreetSelect';
 
 const INCIDENT_TYPES = ['Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault', 'Cybercrime', 'Vandalism', 'Drug-Related', 'Trespassing', 'Other'];
 const GENDERS = ['Male', 'Female', 'Other'];
+
+// Philippine mobile numbers are 11 digits and always start 09.
+const PH_MOBILE = /^09\d{9}$/;
+
+/**
+ * Strips everything but digits and caps the field at 11. A pasted +63 number
+ * is converted to its 09 form first — otherwise truncating would silently drop
+ * the last digit and leave the officer with a number that looks complete.
+ */
+function normalizePhone(v: string): string {
+  let d = v.replace(/\D/g, '');
+  if (d.length === 12 && d.startsWith('63')) d = `0${d.slice(2)}`;
+  return d.slice(0, 11);
+}
 
 const STEPS = ['Reporter Info', 'Incident Details', 'Classification', 'Review & Submit'];
 
@@ -41,13 +56,38 @@ const RISK_COLOR: Record<string, string> = { Critical: '#8b5cf6', High: '#ef4444
 
 function StepReporterInfo({ form, setForm }: { form: FormData; setForm: (f: FormData) => void }) {
   const set = (k: keyof FormData, v: string) => setForm({ ...form, [k]: v });
+
+  // Only flag a bad number once the officer has started typing, so the field
+  // isn't red before they touch it.
+  const contactDigits = form.contactNumber.length;
+  const contactValid = PH_MOBILE.test(form.contactNumber);
+  const contactError = contactDigits > 0 && !contactValid;
+  const contactHelper = contactError
+    ? (form.contactNumber.startsWith('09')
+        ? `Must be exactly 11 digits — ${contactDigits}/11 entered`
+        : 'Philippine mobile numbers start with 09')
+    : `${contactDigits}/11 digits`;
+
   return (
     <Grid container spacing={2.5}>
       <Grid size={{ xs: 12 }}>
         <TextField fullWidth label="Full Name *" size="small" value={form.reporterName} onChange={e => set('reporterName', e.target.value)} placeholder="Juan Dela Cruz" sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TextField fullWidth label="Contact Number *" size="small" value={form.contactNumber} onChange={e => set('contactNumber', e.target.value)} placeholder="09XXXXXXXXX" slotProps={{ input: { startAdornment: <Phone sx={{ fontSize: 16, color: '#94a3b8', mr: 0.5 }} /> } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+        <TextField fullWidth label="Contact Number *" size="small"
+          value={form.contactNumber}
+          onChange={e => set('contactNumber', normalizePhone(e.target.value))}
+          error={contactError}
+          helperText={contactHelper}
+          placeholder="09171234567"
+          slotProps={{
+            htmlInput: { maxLength: 11, inputMode: 'numeric', pattern: '[0-9]*', autoComplete: 'tel-national' },
+            input: { startAdornment: <Phone sx={{ fontSize: 16, color: '#94a3b8', mr: 0.5 }} /> },
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': { borderRadius: 2 },
+            ...(contactValid && { '& .MuiFormHelperText-root': { color: '#16a34a', fontWeight: 600 } }),
+          }} />
       </Grid>
       <Grid size={{ xs: 12, sm: 3 }}>
         <TextField fullWidth label="Age" size="small" type="number" value={form.age} onChange={e => set('age', e.target.value)} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
@@ -69,6 +109,7 @@ function StepReporterInfo({ form, setForm }: { form: FormData; setForm: (f: Form
 
 function StepIncidentDetails({ form, setForm }: { form: FormData; setForm: (f: FormData) => void }) {
   const set = (k: keyof FormData, v: string) => setForm({ ...form, [k]: v });
+
   return (
     <Grid container spacing={2.5}>
       <Grid size={{ xs: 12, sm: 6 }}>
@@ -80,7 +121,8 @@ function StepIncidentDetails({ form, setForm }: { form: FormData; setForm: (f: F
         </FormControl>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TextField fullWidth label="Street" size="small" value={form.barangay} onChange={e => set('barangay', e.target.value)} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+        {/* `barangay` is the Case column the Street field reads from. */}
+        <StreetSelect value={form.barangay} onChange={v => set('barangay', v)} required />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <TextField fullWidth label="Date of Incident *" size="small" type="date" value={form.incidentDate} onChange={e => set('incidentDate', e.target.value)} slotProps={{ inputLabel: { shrink: true } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
@@ -103,12 +145,12 @@ function StepClassification({ form, setForm }: { form: FormData; setForm: (f: Fo
   return (
     <Grid container spacing={2.5}>
       <Grid size={{ xs: 12 }}>
-        <FormLabel sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#0c1e46', mb: 1, display: 'block' }}>Risk Classification</FormLabel>
+        <FormLabel sx={{ fontSize: '0.94rem', fontWeight: 600, color: '#0c1e46', mb: 1, display: 'block' }}>Risk Classification</FormLabel>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', p: 2, border: '1px dashed #c7d2fe', borderRadius: 2.5, bgcolor: '#eef2ff' }}>
           <AutoAwesome sx={{ color: '#4f46e5', fontSize: 20, mt: 0.25 }} />
           <Box>
-            <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#0c1e46', mb: 0.5 }}>AI Risk Assessment</Typography>
-            <Typography sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.6 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 0.5 }}>AI Risk Assessment</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.6 }}>
               Officers no longer assign the risk level manually. The instant this report is filed, SafComm AI analyzes the incident type, the reporter&apos;s case history, and location hotspot density, then automatically flags it as <Box component="span" sx={{ fontWeight: 700, color: '#4f46e5' }}>Low, Medium, High, or Critical</Box>.
             </Typography>
           </Box>
@@ -135,13 +177,13 @@ function StepReview({ form, caseNumber }: { form: FormData; caseNumber: string }
     <Box>
       <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', border: '1px solid #86efac', borderRadius: 2, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
         <CheckCircle sx={{ color: '#22c55e', fontSize: 18 }} />
-        <Typography sx={{ fontSize: '0.82rem', color: '#15803d', fontWeight: 500 }}>
+        <Typography sx={{ fontSize: '0.9rem', color: '#15803d', fontWeight: 500 }}>
           Ready to submit — Case number will be <strong>{caseNumber}</strong>
         </Typography>
       </Box>
       <Box sx={{ p: 1.5, bgcolor: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <AutoAwesome sx={{ color: '#4f46e5', fontSize: 16 }} />
-        <Typography sx={{ fontSize: '0.78rem', color: '#3730a3' }}>
+        <Typography sx={{ fontSize: '0.86rem', color: '#3730a3' }}>
           Risk level will be automatically assessed by SafComm AI the moment this report is submitted.
         </Typography>
       </Box>
@@ -149,8 +191,8 @@ function StepReview({ form, caseNumber }: { form: FormData; caseNumber: string }
         {rows.map(({ label, value }) => (
           <Grid size={{ xs: 6 }} key={label}>
             <Paper variant="outlined" sx={{ p: 1.25, borderRadius: 2, borderColor: '#f1f5f9' }}>
-              <Typography sx={{ fontSize: '0.68rem', color: 'text.secondary', mb: 0.2 }}>{label}</Typography>
-              <Typography sx={{ fontSize: '0.83rem', fontWeight: 500, color: '#0c1e46' }}>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.2 }}>{label}</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#0c1e46' }}>
                 {value || '—'}
               </Typography>
             </Paper>
@@ -159,8 +201,8 @@ function StepReview({ form, caseNumber }: { form: FormData; caseNumber: string }
         {form.description && (
           <Grid size={{ xs: 12 }}>
             <Paper variant="outlined" sx={{ p: 1.25, borderRadius: 2, borderColor: '#f1f5f9' }}>
-              <Typography sx={{ fontSize: '0.68rem', color: 'text.secondary', mb: 0.2 }}>Description</Typography>
-              <Typography sx={{ fontSize: '0.83rem', color: '#475569', lineHeight: 1.6 }}>{form.description}</Typography>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.2 }}>Description</Typography>
+              <Typography sx={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6 }}>{form.description}</Typography>
             </Paper>
           </Grid>
         )}
@@ -183,9 +225,14 @@ export default function WalkInReportPage() {
     if (step === 0) {
       if (!form.reporterName.trim()) { toast.error('Reporter name is required'); return false; }
       if (!form.contactNumber.trim()) { toast.error('Contact number is required'); return false; }
+      if (!PH_MOBILE.test(form.contactNumber)) {
+        toast.error('Enter a valid 11-digit mobile number starting with 09 (e.g. 09171234567)');
+        return false;
+      }
       if (!form.address.trim()) { toast.error('Address is required'); return false; }
     }
     if (step === 1) {
+      if (!form.barangay.trim()) { toast.error('Select the street where the incident happened'); return false; }
       if (!form.description.trim()) { toast.error('Description is required'); return false; }
     }
     return true;
@@ -196,6 +243,13 @@ export default function WalkInReportPage() {
 
   const submit = async () => {
     if (!validate()) return;
+    // validate() is step-scoped; re-check the number here so an edit made after
+    // stepping back can never be filed.
+    if (!PH_MOBILE.test(form.contactNumber)) {
+      toast.error('Enter a valid 11-digit mobile number starting with 09 (e.g. 09171234567)');
+      setStep(0);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/cases', {
@@ -240,19 +294,19 @@ export default function WalkInReportPage() {
               </Typography>
               <Chip
                 label={`Case Number: ${submittedCase}`}
-                sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 700, fontSize: '0.88rem', px: 1, py: 0.5, height: 32, mb: 2 }}
+                sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 700, fontSize: '0.94rem', px: 1, py: 0.5, height: 32, mb: 2 }}
               />
               {aiRisk && (
                 <Box sx={{ maxWidth: 380, mx: 'auto', mb: 3, p: 2, borderRadius: 2.5, textAlign: 'left', bgcolor: `${RISK_COLOR[aiRisk.level]}0c`, border: `1px solid ${RISK_COLOR[aiRisk.level]}35` }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
                     <AutoAwesome sx={{ fontSize: 16, color: RISK_COLOR[aiRisk.level] }} />
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI-Flagged Risk Level</Typography>
+                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI-Flagged Risk Level</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
                     <Chip label={`${aiRisk.level} Risk`} size="small" sx={{ bgcolor: RISK_COLOR[aiRisk.level], color: 'white', fontWeight: 700 }} />
-                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Score {aiRisk.score}/100 · {aiRisk.confidence}% confidence</Typography>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Score {aiRisk.score}/100 · {aiRisk.confidence}% confidence</Typography>
                   </Box>
-                  <Typography sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.55 }}>{aiRisk.recommendation}</Typography>
+                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55 }}>{aiRisk.recommendation}</Typography>
                 </Box>
               )}
               <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -274,7 +328,7 @@ export default function WalkInReportPage() {
     <Box>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Walk-in Report</Typography>
-        <Typography sx={{ fontSize: '0.83rem', color: 'text.secondary' }}>Record a walk-in complainant and file a blotter entry</Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Record a walk-in complainant and file a blotter entry</Typography>
       </Box>
 
       <Grid container spacing={3}>
@@ -282,7 +336,7 @@ export default function WalkInReportPage() {
         <Grid size={{ xs: 12, md: 3 }}>
           <Card sx={{ position: { md: 'sticky' }, top: 24 }}>
             <CardContent sx={{ p: 2 }}>
-              <Stepper orientation="vertical" activeStep={step} nonLinear sx={{ '& .MuiStepLabel-label': { fontSize: '0.82rem' } }}>
+              <Stepper orientation="vertical" activeStep={step} nonLinear sx={{ '& .MuiStepLabel-label': { fontSize: '0.9rem' } }}>
                 {STEPS.map((label, i) => (
                   <Step key={label} completed={i < step}>
                     <StepLabel
@@ -296,13 +350,13 @@ export default function WalkInReportPage() {
               </Stepper>
               <Divider sx={{ my: 1.5 }} />
               <Box sx={{ px: 0.5 }}>
-                <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', mb: 0.5 }}>Progress</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 0.5 }}>Progress</Typography>
                 <LinearProgress
                   variant="determinate"
                   value={((step) / (STEPS.length - 1)) * 100}
                   sx={{ height: 5, borderRadius: 5, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: '#0c1e46', borderRadius: 5 } }}
                 />
-                <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary', mt: 0.5 }}>
+                <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mt: 0.5 }}>
                   Step {step + 1} of {STEPS.length}
                 </Typography>
               </Box>
@@ -318,7 +372,7 @@ export default function WalkInReportPage() {
                 {[<Person />, <Assignment />, <Gavel />, <CheckCircle />][step]}
                 <Box>
                   <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0c1e46' }}>{STEPS[step]}</Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                  <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>
                     {['Enter the reporter\'s personal details', 'Describe what happened in detail', 'Classify the incident risk level', 'Review all information before submitting'][step]}
                   </Typography>
                 </Box>
