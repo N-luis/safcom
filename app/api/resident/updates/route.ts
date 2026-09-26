@@ -44,7 +44,9 @@ export async function GET(req: NextRequest) {
           AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }],
         },
         orderBy: { createdAt: 'desc' },
-        take: 5,
+        // Announcements are published from the Blotter/VAWC Reports boards and
+        // can stack up during a storm, so keep more than a couple.
+        take: 10,
         select: { id: true, title: true, message: true, level: true, createdAt: true },
       }),
     ]);

@@ -1,8 +1,9 @@
-import router from 'next/dist/shared/lib/router/router'
+'use client';
+
 import React from 'react'
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Button from "@mui/material/Button";
-import { useRouter } from 'next/dist/client/components/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function CreatePage() {
   const router = useRouter();

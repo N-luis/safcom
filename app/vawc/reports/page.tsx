@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
+import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
 
 const ACCENT = '#7c3aed';
 const RISK_COLOR: Record<string, string> = {
@@ -478,6 +479,9 @@ export default function VawcReportsPage() {
           </Box>
         )}
       </Card>
+
+      {/* Barangay announcements - published straight to residents' Notifications */}
+      <AnnouncementsPanel accent={ACCENT} />
     </Box>
   );
 }

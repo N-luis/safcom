@@ -1319,6 +1319,8 @@ export const AlertScalarFieldEnum = {
   level: 'level',
   barangay: 'barangay',
   active: 'active',
+  module: 'module',
+  createdBy: 'createdBy',
   createdAt: 'createdAt',
   expiresAt: 'expiresAt'
 } as const

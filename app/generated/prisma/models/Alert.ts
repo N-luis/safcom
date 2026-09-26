@@ -31,6 +31,8 @@ export type AlertMinAggregateOutputType = {
   level: string | null
   barangay: string | null
   active: boolean | null
+  module: string | null
+  createdBy: string | null
   createdAt: Date | null
   expiresAt: Date | null
 }
@@ -42,6 +44,8 @@ export type AlertMaxAggregateOutputType = {
   level: string | null
   barangay: string | null
   active: boolean | null
+  module: string | null
+  createdBy: string | null
   createdAt: Date | null
   expiresAt: Date | null
 }
@@ -53,6 +57,8 @@ export type AlertCountAggregateOutputType = {
   level: number
   barangay: number
   active: number
+  module: number
+  createdBy: number
   createdAt: number
   expiresAt: number
   _all: number
@@ -66,6 +72,8 @@ export type AlertMinAggregateInputType = {
   level?: true
   barangay?: true
   active?: true
+  module?: true
+  createdBy?: true
   createdAt?: true
   expiresAt?: true
 }
@@ -77,6 +85,8 @@ export type AlertMaxAggregateInputType = {
   level?: true
   barangay?: true
   active?: true
+  module?: true
+  createdBy?: true
   createdAt?: true
   expiresAt?: true
 }
@@ -88,6 +98,8 @@ export type AlertCountAggregateInputType = {
   level?: true
   barangay?: true
   active?: true
+  module?: true
+  createdBy?: true
   createdAt?: true
   expiresAt?: true
   _all?: true
@@ -172,6 +184,8 @@ export type AlertGroupByOutputType = {
   level: string
   barangay: string | null
   active: boolean
+  module: string | null
+  createdBy: string | null
   createdAt: Date
   expiresAt: Date | null
   _count: AlertCountAggregateOutputType | null
@@ -204,6 +218,8 @@ export type AlertWhereInput = {
   level?: Prisma.StringFilter<"Alert"> | string
   barangay?: Prisma.StringNullableFilter<"Alert"> | string | null
   active?: Prisma.BoolFilter<"Alert"> | boolean
+  module?: Prisma.StringNullableFilter<"Alert"> | string | null
+  createdBy?: Prisma.StringNullableFilter<"Alert"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Alert"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"Alert"> | Date | string | null
 }
@@ -215,6 +231,8 @@ export type AlertOrderByWithRelationInput = {
   level?: Prisma.SortOrder
   barangay?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  module?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
 }
@@ -229,6 +247,8 @@ export type AlertWhereUniqueInput = Prisma.AtLeast<{
   level?: Prisma.StringFilter<"Alert"> | string
   barangay?: Prisma.StringNullableFilter<"Alert"> | string | null
   active?: Prisma.BoolFilter<"Alert"> | boolean
+  module?: Prisma.StringNullableFilter<"Alert"> | string | null
+  createdBy?: Prisma.StringNullableFilter<"Alert"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Alert"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"Alert"> | Date | string | null
 }, "id">
@@ -240,6 +260,8 @@ export type AlertOrderByWithAggregationInput = {
   level?: Prisma.SortOrder
   barangay?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  module?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AlertCountOrderByAggregateInput
@@ -257,6 +279,8 @@ export type AlertScalarWhereWithAggregatesInput = {
   level?: Prisma.StringWithAggregatesFilter<"Alert"> | string
   barangay?: Prisma.StringNullableWithAggregatesFilter<"Alert"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"Alert"> | boolean
+  module?: Prisma.StringNullableWithAggregatesFilter<"Alert"> | string | null
+  createdBy?: Prisma.StringNullableWithAggregatesFilter<"Alert"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Alert"> | Date | string
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Alert"> | Date | string | null
 }
@@ -268,6 +292,8 @@ export type AlertCreateInput = {
   level?: string
   barangay?: string | null
   active?: boolean
+  module?: string | null
+  createdBy?: string | null
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -279,6 +305,8 @@ export type AlertUncheckedCreateInput = {
   level?: string
   barangay?: string | null
   active?: boolean
+  module?: string | null
+  createdBy?: string | null
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -290,6 +318,8 @@ export type AlertUpdateInput = {
   level?: Prisma.StringFieldUpdateOperationsInput | string
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  module?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -301,6 +331,8 @@ export type AlertUncheckedUpdateInput = {
   level?: Prisma.StringFieldUpdateOperationsInput | string
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  module?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -312,6 +344,8 @@ export type AlertCreateManyInput = {
   level?: string
   barangay?: string | null
   active?: boolean
+  module?: string | null
+  createdBy?: string | null
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -323,6 +357,8 @@ export type AlertUpdateManyMutationInput = {
   level?: Prisma.StringFieldUpdateOperationsInput | string
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  module?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -334,6 +370,8 @@ export type AlertUncheckedUpdateManyInput = {
   level?: Prisma.StringFieldUpdateOperationsInput | string
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  module?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -345,6 +383,8 @@ export type AlertCountOrderByAggregateInput = {
   level?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  module?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -356,6 +396,8 @@ export type AlertMaxOrderByAggregateInput = {
   level?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  module?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -367,6 +409,8 @@ export type AlertMinOrderByAggregateInput = {
   level?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  module?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -380,6 +424,8 @@ export type AlertSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   level?: boolean
   barangay?: boolean
   active?: boolean
+  module?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }, ExtArgs["result"]["alert"]>
@@ -391,6 +437,8 @@ export type AlertSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   level?: boolean
   barangay?: boolean
   active?: boolean
+  module?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }, ExtArgs["result"]["alert"]>
@@ -402,6 +450,8 @@ export type AlertSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   level?: boolean
   barangay?: boolean
   active?: boolean
+  module?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }, ExtArgs["result"]["alert"]>
@@ -413,11 +463,13 @@ export type AlertSelectScalar = {
   level?: boolean
   barangay?: boolean
   active?: boolean
+  module?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }
 
-export type AlertOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "message" | "level" | "barangay" | "active" | "createdAt" | "expiresAt", ExtArgs["result"]["alert"]>
+export type AlertOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "message" | "level" | "barangay" | "active" | "module" | "createdBy" | "createdAt" | "expiresAt", ExtArgs["result"]["alert"]>
 
 export type $AlertPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Alert"
@@ -429,6 +481,8 @@ export type $AlertPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     level: string
     barangay: string | null
     active: boolean
+    module: string | null
+    createdBy: string | null
     createdAt: Date
     expiresAt: Date | null
   }, ExtArgs["result"]["alert"]>
@@ -860,6 +914,8 @@ export interface AlertFieldRefs {
   readonly level: Prisma.FieldRef<"Alert", 'String'>
   readonly barangay: Prisma.FieldRef<"Alert", 'String'>
   readonly active: Prisma.FieldRef<"Alert", 'Boolean'>
+  readonly module: Prisma.FieldRef<"Alert", 'String'>
+  readonly createdBy: Prisma.FieldRef<"Alert", 'String'>
   readonly createdAt: Prisma.FieldRef<"Alert", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"Alert", 'DateTime'>
 }

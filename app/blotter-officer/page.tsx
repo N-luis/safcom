@@ -16,6 +16,7 @@ import { PieChart, Pie, Cell, Tooltip as ChartTooltip, ResponsiveContainer } fro
 import { motion } from 'framer-motion';
 import { useCaseStats, useCases } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
+import AnnounceButton from '@/components/announcements/AnnounceButton';
 
 const CATEGORY_COLORS = ['#14b8a6', '#3b82f6', '#f97316', '#8b5cf6', '#ef4444', '#94a3b8'];
 
@@ -149,13 +150,16 @@ export default function BlotterDashboard() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
-          Dashboard Overview
-        </Typography>
-        <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.25 }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
+            Dashboard Overview
+          </Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', mt: 0.25 }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </Typography>
+        </Box>
+        <AnnounceButton accent="#3b82f6" />
       </Box>
 
       {/* Stat cards */}

@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { useReports } from '@/hooks/useApi';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
 
 // ─── CSV helpers ──────────────────────────────────────────────────────────────
 function escapeCell(v: string | number | null | undefined) {
@@ -351,6 +352,9 @@ export default function ReportsPage() {
           </Box>
         </Box>
       </Card>
+
+      {/* Barangay announcements - published straight to residents' Notifications */}
+      <AnnouncementsPanel accent="#3b82f6" />
 
       <NewReportDialog open={newOpen} onClose={() => setNewOpen(false)} />
       {viewReport && <ReportViewDialog r={viewReport} onClose={() => setViewReport(null)} />}

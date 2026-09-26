@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
+import AnnounceButton from '@/components/announcements/AnnounceButton';
 
 const SIDEBAR_W = 260;
 const ACCENT = '#0f766e';
@@ -418,6 +419,7 @@ export default function KapitanDashboardPage() {
               <ToggleButton value="Blotter" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>Blotter</ToggleButton>
               <ToggleButton value="VAWC" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>VAWC</ToggleButton>
             </ToggleButtonGroup>
+            <AnnounceButton accent={ACCENT} />
             <Tooltip title="Refresh">
               <IconButton size="small" onClick={() => mutate()} sx={{ border: '1px solid #e2e8f0', borderRadius: 2 }}>
                 <Refresh sx={{ fontSize: 17 }} />

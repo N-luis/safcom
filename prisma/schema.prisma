@@ -133,6 +133,10 @@ model Alert {
   level     String    @default("warning")
   barangay  String?
   active    Boolean   @default(true)
+  // Which module published it (blotter / vawc / admin) and the officer who did.
+  // Denormalised so the announcement board never needs a join.
+  module    String?
+  createdBy String?
   createdAt DateTime  @default(now())
   expiresAt DateTime?
 }

@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
+import AnnounceButton from '@/components/announcements/AnnounceButton';
 
 const MotionTableRow = motion(TableRow);
 
@@ -129,7 +130,7 @@ export default function VawcDashboard() {
   return (
     <Box sx={{ maxWidth: 1280 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap', mb: 3 }}>
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
@@ -145,6 +146,7 @@ export default function VawcDashboard() {
             Real-time monitoring of Violence Against Women and Children cases
           </Typography>
         </Box>
+        <AnnounceButton accent="#7c3aed" />
       </Box>
 
       {/* Stat cards */}
