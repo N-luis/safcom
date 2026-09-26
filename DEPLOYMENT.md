@@ -4,7 +4,21 @@ The build already succeeds. If the deployed site shows a blank page with the
 text **`Internal Server Error`**, the cause is almost always the same: the
 environment variables are missing on Vercel.
 
-## Why a missing variable takes the whole site down
+## Behaviour when variables are missing
+
+Since commit `proxy.ts` made Clerk optional, a missing Clerk key no longer takes
+the site down — it degrades:
+
+| Set | Result |
+|---|---|
+| Nothing | Pages render. Staff sign-in fails (no database) |
+| `DATABASE_URL` + `JWT_SECRET` | **The whole staff system works** — Blotter, VAWC, Captain, System Admin |
+| + Clerk keys | Resident sign-up / sign-in works too. Full system |
+
+So you can deploy and demo the officer modules with just two variables, and add
+Clerk when you are ready.
+
+## Why it used to take the whole site down
 
 `proxy.ts` (the Next.js middleware) runs on every request:
 
