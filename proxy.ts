@@ -10,6 +10,8 @@ const PUBLIC_PATHS = [
   '/verify-email', '/api/auth/verify-email', '/api/auth/resend-verification',
   // Clerk handles resident identity + verification emails.
   '/sign-in', '/sign-up', '/__clerk', '/api/auth/clerk-session', '/complete-profile',
+  // Deployment diagnostics - must be reachable before anyone can sign in.
+  '/api/health',
   '/uploads',
 ];
 
