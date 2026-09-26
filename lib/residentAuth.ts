@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from './jwtSecret';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'safcom-super-secret-2024-dev';
+
 const COOKIE = 'resident_token';
 
 export interface ResidentPayload {
@@ -12,12 +13,12 @@ export interface ResidentPayload {
 }
 
 export function signResidentToken(payload: ResidentPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' });
 }
 
 export function verifyResidentToken(token: string): ResidentPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as ResidentPayload;
+    return jwt.verify(token, getJwtSecret()) as ResidentPayload;
   } catch {
     return null;
   }

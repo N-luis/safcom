@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { prisma } from './prisma';
+import { getJwtSecret } from './jwtSecret';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'safcom-super-secret-2024-dev';
+
 
 export interface JwtPayload {
   userId: string;
@@ -11,12 +12,12 @@ export interface JwtPayload {
 }
 
 export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+    return jwt.verify(token, getJwtSecret()) as JwtPayload;
   } catch {
     return null;
   }
