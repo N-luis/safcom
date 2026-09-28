@@ -8,7 +8,7 @@ import {
   useMediaQuery, useTheme,
 } from '@mui/material';
 import {
-  Dashboard, FolderOpen, Category, Psychology, Assessment,
+  Dashboard, FolderOpen, Category, Psychology, Campaign,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
   Shield, Logout, Message, ArrowBack,
 } from '@mui/icons-material';
@@ -25,7 +25,9 @@ const NAV_ITEMS = [
   { id: 'cases', label: 'Case Management', icon: FolderOpen, path: '/blotter-officer/case-management' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
   { id: 'ai', label: 'AI Risk Prediction', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
-  { id: 'reports', label: 'Reports', icon: Assessment, path: '/blotter-officer/reports' },
+  // Path kept as /reports so existing links still resolve; the page behind it
+  // is now purely announcements.
+  { id: 'announcements', label: 'Announcements', icon: Campaign, path: '/blotter-officer/reports' },
   { id: 'messages', label: 'Messages', icon: Message, path: '/blotter-officer/messages' },
   { id: 'notifs', label: 'Notifications', icon: Notifications, path: '/blotter-officer/notifications' },
   { id: 'search', label: 'Search', icon: Search, path: '/blotter-officer/search' },
