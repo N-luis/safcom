@@ -18,7 +18,6 @@ import {
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
-const BARANGAYS = ['Binan 2nd'];
 const ACCENT = '#0a7c6b';
 
 // Age is derived from the birth date rather than typed, so it can't be misstated.
@@ -55,7 +54,7 @@ const schema = z.object({
     .length(11, 'Contact number must be exactly 11 digits')
     .regex(/^09\d{9}$/, 'Enter a valid mobile number starting with 09'),
   streetAddress: z.string().min(3, 'Enter your house number and street'),
-  barangay: z.string().min(1, 'Select your barangay'),
+  barangay: z.string().min(2, 'Enter your barangay'),
   city: z.string().min(2, 'Enter your city or municipality'),
   zipCode: z.string().regex(/^\d{4}$/, 'ZIP code must be 4 digits'),
 });
@@ -89,7 +88,7 @@ export default function CompleteProfilePage() {
       firstName: '', lastName: '', birthDate: '',
       gender: '' as 'Male' | 'Female' | 'Other',
       username: '', contactNumber: '',
-      streetAddress: '', barangay: '', city: 'Bocaue', zipCode: '3018',
+      streetAddress: '', barangay: '', city: '', zipCode: '',
     },
     mode: 'onChange',
   });
@@ -283,20 +282,20 @@ export default function CompleteProfilePage() {
                   slotProps={{ input: { startAdornment: <InputAdornment position="start"><Home sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
                   sx={tf} />
               </Grid>
+              {/* All three are free text so a resident can enter whatever
+                  address they actually live at, rather than being held to a
+                  fixed barangay list. */}
               <Grid size={{ xs: 12, sm: 4 }}>
-                <Controller name="barangay" control={control} render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.barangay} sx={tf}>
-                    <InputLabel>Barangay *</InputLabel>
-                    <Select {...field} value={field.value ?? ''} label="Barangay *" sx={{ borderRadius: 2.5 }}>
-                      {BARANGAYS.map(b => <MenuItem key={b} value={b}>{b}</MenuItem>)}
-                    </Select>
-                    {errors.barangay && <FormHelperText>{errors.barangay.message}</FormHelperText>}
-                  </FormControl>
-                )} />
+                <TextField label="Barangay *" fullWidth {...register('barangay')}
+                  error={!!errors.barangay} helperText={errors.barangay?.message}
+                  placeholder="Biñang 2nd"
+                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><LocationOn sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
+                  sx={tf} />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="City / Municipality *" fullWidth {...register('city')}
                   error={!!errors.city} helperText={errors.city?.message}
+                  placeholder="Bocaue"
                   slotProps={{ input: { startAdornment: <InputAdornment position="start"><LocationOn sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
                   sx={tf} />
               </Grid>

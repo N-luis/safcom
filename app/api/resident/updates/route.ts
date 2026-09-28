@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       prisma.alert.findMany({
         where: {
           active: true,
-          OR: [{ barangay: null }, { barangay: '' }, ...(resident?.barangay ? [{ barangay: resident.barangay }] : [])],
+          OR: [{ barangay: null }, { barangay: '' }, ...(resident?.barangay ? [{ barangay: { equals: resident.barangay, mode: 'insensitive' as const } }] : [])],
           AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }],
         },
         orderBy: { createdAt: 'desc' },

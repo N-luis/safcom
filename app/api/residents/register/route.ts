@@ -12,7 +12,7 @@ const registerSchema = z.object({
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   age: z.coerce.number().int().min(1, 'Age must be at least 1').max(120, 'Invalid age'),
   gender: z.enum(['Male', 'Female', 'Other'], { error: 'Please select a gender' }),
-  barangay: z.string().min(1, 'Please select your barangay'),
+  barangay: z.string().min(2, 'Please enter your barangay'),
   address: z.string().min(5, 'Please enter your full address'),
   contactNumber: z.string().regex(/^09\d{9}$/, 'Contact number must be 11 digits starting with 09'),
   email: z.string().email('Please enter a valid email address'),
