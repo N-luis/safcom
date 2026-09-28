@@ -9,7 +9,16 @@ const createSchema = z.object({
   level: z.enum(['info', 'warning', 'critical']).optional(),
   barangay: z.string().optional(),
   expiresAt: z.string().optional(),
+  audience: z.enum(['residents', 'officers', 'everyone']).optional(),
+  audienceModule: z.enum(['blotter', 'vawc', 'captain']).optional(),
 });
+
+/** The staff roles behind each module label, for officer-targeted posts. */
+const ROLES_FOR_MODULE: Record<string, string[]> = {
+  blotter: ['officer', 'blotter_officer'],
+  vawc: ['vawc_officer', 'vawc', 'vawc_lead'],
+  captain: ['admin'],
+};
 
 /**
  * Which module an announcement was published from. Residents see every
@@ -71,7 +80,14 @@ export async function POST(req: NextRequest) {
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Invalid data', 400);
 
-    const { expiresAt, barangay, ...rest } = parsed.data;
+    const { expiresAt, barangay, audience: rawAudience, audienceModule: rawModule, ...rest } = parsed.data;
+
+    const audience = rawAudience ?? 'residents';
+    // A module only narrows an officer audience; keeping it on a residents-only
+    // post would leave a field that nothing reads and everything has to explain.
+    const audienceModule = audience === 'residents' ? null : (rawModule ?? null);
+    // Likewise a barangay only narrows a resident audience.
+    const targetBarangay = audience === 'officers' ? null : (barangay?.trim() || null);
 
     if (expiresAt && Number.isNaN(Date.parse(expiresAt))) {
       return errorResponse('Invalid expiry date', 400);
@@ -92,12 +108,40 @@ export async function POST(req: NextRequest) {
         level: rest.level ?? 'warning',
         // Empty string means "every barangay" — store null so the resident
         // feed's `barangay: null` match picks it up.
-        barangay: barangay?.trim() ? barangay.trim() : null,
+        barangay: targetBarangay,
+        audience,
+        audienceModule,
         expiresAt: expiry,
         module: moduleForRole(auth.user.role),
         createdBy: poster?.name ?? auth.user.email,
       },
     });
+
+    // Officers read their own Notifications page, which serves rows addressed to
+    // them plus broadcasts (userId: null). Residents never read that table, so
+    // this is what makes an officer-targeted announcement actually arrive.
+    if (audience === 'officers' || audience === 'everyone') {
+      const type = alert.level === 'critical' ? 'error' : alert.level === 'warning' ? 'warning' : 'info';
+      if (audienceModule) {
+        const roles = ROLES_FOR_MODULE[audienceModule] ?? [];
+        const targets = await prisma.user.findMany({
+          where: { role: { in: roles } },
+          select: { id: true },
+        });
+        if (targets.length) {
+          await prisma.notification.createMany({
+            data: targets.map(u => ({
+              title: alert.title, message: alert.message, type, userId: u.id,
+            })),
+          });
+        }
+      } else {
+        // One broadcast row rather than a copy per officer.
+        await prisma.notification.create({
+          data: { title: alert.title, message: alert.message, type, userId: null },
+        });
+      }
+    }
 
     await prisma.activity.create({
       data: {

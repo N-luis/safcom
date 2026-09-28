@@ -16,6 +16,15 @@ interface UpdateItem {
   color: string; createdAt: string;
 }
 
+/** A row from the staff notifications table. */
+interface StaffNotification {
+  id: string; title: string; message: string; type: string; createdAt: string;
+}
+
+const TYPE_COLOR: Record<string, string> = {
+  error: '#ef4444', warning: '#f97316', success: '#22c55e', info: '#3b82f6',
+};
+
 function timeAgo(d: string) {
   const diff = Date.now() - new Date(d).getTime();
   const m = Math.floor(diff / 60000);
@@ -31,9 +40,29 @@ const SOURCE_LABEL: Record<string, string> = { case: 'Case Update', alert: 'Stre
 
 export default function VawcNotificationsPage() {
   const [filter, setFilter] = useState<'all' | 'case' | 'alert'>('all');
-  const { data, isLoading, mutate } = useSWR<UpdateItem[]>('/api/resident/updates?limit=30', fetcher, { refreshInterval: 30000 });
+  const { data: updates, isLoading, mutate } = useSWR<UpdateItem[]>('/api/resident/updates?limit=30', fetcher, { refreshInterval: 30000 });
+  // Announcements addressed to officers land in the staff notifications table,
+  // which the barangay-wide feed above does not cover - without this, picking
+  // "VAWC officers" as an announcement's audience would reach nobody here.
+  const { data: staff, mutate: mutateStaff } = useSWR<{ notifications: StaffNotification[] }>(
+    '/api/notifications?limit=30', fetcher, { refreshInterval: 30000 },
+  );
 
-  const displayed = (data ?? []).filter(u => filter === 'all' || u.source === filter);
+  const data = [
+    ...(updates ?? []),
+    ...(staff?.notifications ?? []).map<UpdateItem>(n => ({
+      id: `n-${n.id}`,
+      source: 'alert',
+      title: n.title,
+      message: n.message,
+      color: TYPE_COLOR[n.type] ?? '#3b82f6',
+      createdAt: n.createdAt,
+    })),
+  ].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+
+  const refresh = () => { mutate(); mutateStaff(); };
+
+  const displayed = data.filter(u => filter === 'all' || u.source === filter);
 
   return (
     <Box sx={{ maxWidth: 860 }}>
@@ -41,13 +70,13 @@ export default function VawcNotificationsPage() {
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Notifications</Typography>
-            {(data ?? []).length > 0 && (
-              <Chip label={`${(data ?? []).length}`} size="small" sx={{ bgcolor: `${ACCENT}14`, color: ACCENT, fontWeight: 700, height: 20 }} />
+            {data.length > 0 && (
+              <Chip label={`${data.length}`} size="small" sx={{ bgcolor: `${ACCENT}14`, color: ACCENT, fontWeight: 700, height: 20 }} />
             )}
           </Box>
           <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>Case activity and street/barangay-wide alerts</Typography>
         </Box>
-        <Button variant="outlined" startIcon={<Refresh />} onClick={() => mutate()} size="small"
+        <Button variant="outlined" startIcon={<Refresh />} onClick={refresh} size="small"
           sx={{ borderColor: '#e2e8f0', color: '#64748b', '&:hover': { borderColor: ACCENT, color: ACCENT } }}>
           Refresh
         </Button>

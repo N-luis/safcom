@@ -209,7 +209,9 @@ export const AlertScalarFieldEnum = {
   module: 'module',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
-  expiresAt: 'expiresAt'
+  expiresAt: 'expiresAt',
+  audience: 'audience',
+  audienceModule: 'audienceModule'
 } as const
 
 export type AlertScalarFieldEnum = (typeof AlertScalarFieldEnum)[keyof typeof AlertScalarFieldEnum]

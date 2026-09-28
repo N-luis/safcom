@@ -40,6 +40,10 @@ export async function GET(req: NextRequest) {
       prisma.alert.findMany({
         where: {
           active: true,
+          // An officers-only announcement must never reach a resident, so the
+          // audience is filtered here rather than relying on the barangay match.
+          // Rows predating the audience column default to 'residents'.
+          audience: { in: ['residents', 'everyone'] },
           OR: [{ barangay: null }, { barangay: '' }, ...(resident?.barangay ? [{ barangay: { equals: resident.barangay, mode: 'insensitive' as const } }] : [])],
           AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }],
         },

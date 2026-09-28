@@ -12,7 +12,7 @@ import {
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import ComposeAnnouncementDialog, {
-  type Announcement, levelOf, MODULE_LABEL, timeAgo,
+  type Announcement, levelOf, MODULE_LABEL, timeAgo, audienceLabel,
 } from './ComposeAnnouncementDialog';
 
 /**
@@ -161,6 +161,14 @@ export default function AnnouncementsPanel({ accent = '#0ea5e9' }: { accent?: st
                       <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46' }}>{a.title}</Typography>
                       <Chip label={lvl.label} size="small"
                         sx={{ bgcolor: `${lvl.color}16`, color: lvl.color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                      {a.audience === 'officers' && (
+                        <Chip label="Officers only" size="small"
+                          sx={{ bgcolor: '#eef2ff', color: '#4338ca', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                      )}
+                      {a.audience === 'everyone' && (
+                        <Chip label="Everyone" size="small"
+                          sx={{ bgcolor: '#ecfeff', color: '#0e7490', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+                      )}
                       {a.expired && <Chip label="Expired" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />}
                       {!a.active && <Chip label="Taken down" size="small" sx={{ bgcolor: '#fef2f2', color: '#b91c1c', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />}
                     </Box>
@@ -172,7 +180,7 @@ export default function AnnouncementsPanel({ accent = '#0ea5e9' }: { accent?: st
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', color: '#94a3b8', fontSize: '0.75rem' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
                         <Public sx={{ fontSize: 13 }} />
-                        {a.barangay ? a.barangay : 'All residents'}
+                        {audienceLabel(a)}
                       </Box>
                       {a.createdBy && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>

@@ -139,6 +139,13 @@ model Alert {
   createdBy String?
   createdAt DateTime  @default(now())
   expiresAt DateTime?
+  // Who it is addressed to: "residents", "officers" or "everyone". Residents
+  // must never be shown an officers-only post, so the resident feed filters on
+  // this rather than trusting the barangay match alone.
+  audience       String  @default("residents")
+  // Narrows an officer audience to a single module ("blotter" / "vawc" /
+  // "captain"); null means every officer.
+  audienceModule String?
 }
 
 model CaseFollowUp {

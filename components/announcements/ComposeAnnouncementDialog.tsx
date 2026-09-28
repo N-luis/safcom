@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   Box, Typography, Button, Chip, IconButton,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, ListSubheader,
   Alert as MuiAlert, CircularProgress,
 } from '@mui/material';
 import { Campaign, Close, Info, WarningAmber, ErrorOutlined } from '@mui/icons-material';
@@ -26,6 +26,10 @@ export interface Announcement {
   barangay: string | null;
   active: boolean;
   module: string | null;
+  /** 'residents' | 'officers' | 'everyone' - who the post was addressed to. */
+  audience?: string | null;
+  /** When officers are included, limits it to one module; null = all officers. */
+  audienceModule?: string | null;
   createdBy: string | null;
   createdAt: string;
   expiresAt: string | null;
@@ -46,6 +50,92 @@ export const MODULE_LABEL: Record<string, string> = {
 
 /** Mirrors the barangay list on the resident registration form. */
 const BARANGAYS = ['Biñang 2nd'];
+
+export interface AudienceOption {
+  key: string;
+  label: string;
+  group: string;
+  audience: 'residents' | 'officers' | 'everyone';
+  audienceModule: string | null;
+  barangay: string | null;
+  /** Spelled out under the field, so nobody has to guess who gets it. */
+  hint: string;
+  /** Wording for the publish button and the dialog subtitle. */
+  action: string;
+  subtitle: string;
+}
+
+/**
+ * Every option carries a non-empty `key`. The old field used '' for
+ * "All residents", which MUI reads as no-value: the label never shrank and the
+ * box rendered blank, so the default looked unset even though it was selected.
+ */
+export const AUDIENCES: AudienceOption[] = [
+  {
+    key: 'residents-all', label: 'All residents', group: 'Residents',
+    audience: 'residents', audienceModule: null, barangay: null,
+    hint: 'Every resident sees it in their Notifications feed',
+    action: 'Publish to Residents',
+    subtitle: "Goes straight to every resident's Notifications feed",
+  },
+  ...BARANGAYS.map(b => ({
+    key: `residents-${b}`, label: `${b} residents only`, group: 'Residents',
+    audience: 'residents' as const, audienceModule: null, barangay: b,
+    hint: `Only residents registered in ${b}`,
+    action: 'Publish to Residents',
+    subtitle: `Goes to residents registered in ${b}`,
+  })),
+  {
+    key: 'officers-all', label: 'All officers', group: 'Officers',
+    audience: 'officers', audienceModule: null, barangay: null,
+    hint: 'Blotter, VAWC and the Barangay Captain — residents do not see it',
+    action: 'Publish to Officers',
+    subtitle: "Goes to the officers' Notifications — not to residents",
+  },
+  {
+    key: 'officers-blotter', label: 'Blotter officers', group: 'Officers',
+    audience: 'officers', audienceModule: 'blotter', barangay: null,
+    hint: 'Only the blotter desk — residents do not see it',
+    action: 'Publish to Officers',
+    subtitle: "Goes to the blotter officers' Notifications — not to residents",
+  },
+  {
+    key: 'officers-vawc', label: 'VAWC officers', group: 'Officers',
+    audience: 'officers', audienceModule: 'vawc', barangay: null,
+    hint: 'Only the VAWC desk — residents do not see it',
+    action: 'Publish to Officers',
+    subtitle: "Goes to the VAWC officers' Notifications — not to residents",
+  },
+  {
+    key: 'officers-captain', label: 'Barangay Captain', group: 'Officers',
+    audience: 'officers', audienceModule: 'captain', barangay: null,
+    hint: 'Only the Barangay Captain — residents do not see it',
+    action: 'Publish to the Captain',
+    subtitle: "Goes to the Barangay Captain's Notifications — not to residents",
+  },
+  {
+    key: 'everyone', label: 'Everyone (residents + officers)', group: 'Everyone',
+    audience: 'everyone', audienceModule: null, barangay: null,
+    hint: 'Residents and every officer',
+    action: 'Publish to Everyone',
+    subtitle: 'Goes to every resident and every officer',
+  },
+];
+
+export const DEFAULT_AUDIENCE = AUDIENCES[0].key;
+
+export const audienceOf = (key: string) =>
+  AUDIENCES.find(a => a.key === key) ?? AUDIENCES[0];
+
+/** Short label for the board, reconstructed from what was stored on the row. */
+export function audienceLabel(a: Pick<Announcement, 'audience' | 'audienceModule' | 'barangay'>): string {
+  if (a.audience === 'everyone') return 'Everyone';
+  if (a.audience === 'officers') {
+    const m = a.audienceModule;
+    return m ? `${MODULE_LABEL[m] ?? m} officers` : 'All officers';
+  }
+  return a.barangay ? `${a.barangay} residents` : 'All residents';
+}
 
 export function timeAgo(d: string) {
   const diff = Date.now() - new Date(d).getTime();
@@ -72,7 +162,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [level, setLevel] = useState('warning');
-  const [barangay, setBarangay] = useState('');
+  const [audienceKey, setAudienceKey] = useState(DEFAULT_AUDIENCE);
   const [expiresAt, setExpiresAt] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -81,10 +171,12 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
 
   const reset = () => {
     setTitle(''); setMessage(''); setLevel('warning');
-    setBarangay(''); setExpiresAt(''); setError('');
+    setAudienceKey(DEFAULT_AUDIENCE); setExpiresAt(''); setError('');
   };
 
   const close = () => { if (!saving) { reset(); onClose(); } };
+
+  const aud = audienceOf(audienceKey);
 
   const publish = async () => {
     setError('');
@@ -100,14 +192,18 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
           title: title.trim(),
           message: message.trim(),
           level,
-          barangay: barangay || undefined,
+          // The three stored fields are derived from the one picked option, so
+          // the form can never send a combination the server would reject.
+          audience: aud.audience,
+          audienceModule: aud.audienceModule ?? undefined,
+          barangay: aud.barangay ?? undefined,
           // Sent as an ISO instant so the server stores a real point in time.
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
         }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? 'Could not publish the announcement'); return; }
-      toast.success('Announcement published — residents can see it now');
+      toast.success(`Announcement published to ${aud.label.toLowerCase()}`);
       reset();
       onPublished();
       onClose();
@@ -129,7 +225,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
             <Box>
               <Typography sx={{ fontWeight: 800, color: '#0c1e46', fontSize: '1.02rem' }}>New Announcement</Typography>
               <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
-                Goes straight to every resident&apos;s Notifications feed
+                {aud.subtitle}
               </Typography>
             </Box>
           </Box>
@@ -184,13 +280,24 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
 
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
-            select label="Audience" value={barangay} onChange={e => setBarangay(e.target.value)}
+            select label="Audience" value={audienceKey} onChange={e => setAudienceKey(e.target.value)}
             sx={{ flex: 1, minWidth: 200 }}
             slotProps={{ input: { sx: { borderRadius: 2 } } }}
-            helperText="Who receives it"
+            helperText={aud.hint}
           >
-            <MenuItem value="">All residents</MenuItem>
-            {BARANGAYS.map(b => <MenuItem key={b} value={b}>{b} only</MenuItem>)}
+            {AUDIENCES.reduce<React.ReactNode[]>((acc, a, i) => {
+              // A subheader whenever the group changes, so residents and
+              // officers never get picked by mistake for one another.
+              if (i === 0 || a.group !== AUDIENCES[i - 1].group) {
+                acc.push(
+                  <ListSubheader key={`h-${a.group}`} sx={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94a3b8', lineHeight: 2.2 }}>
+                    {a.group}
+                  </ListSubheader>,
+                );
+              }
+              acc.push(<MenuItem key={a.key} value={a.key}>{a.label}</MenuItem>);
+              return acc;
+            }, [])}
           </TextField>
 
           <TextField
@@ -209,7 +316,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
         {/* What the resident will actually see */}
         <Box>
           <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1 }}>
-            Resident preview
+            {aud.audience === 'officers' ? 'Officer preview' : 'Resident preview'}
           </Typography>
           <Box sx={{ border: '1px solid #e8edf2', borderRadius: 2.5, p: 1.75, display: 'flex', gap: 1.5, bgcolor: '#fafbfc' }}>
             <Box sx={{ width: 32, height: 32, borderRadius: 1.5, bgcolor: `${lvl.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -224,7 +331,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8', mt: 0.4 }}>Just now</Typography>
             </Box>
-            <Chip label="Barangay Alert" size="small"
+            <Chip label={aud.audience === 'officers' ? 'Officer Notice' : 'Barangay Alert'} size="small"
               sx={{ bgcolor: `${lvl.color}14`, color: lvl.color, fontWeight: 700, fontSize: '0.72rem', height: 22, alignSelf: 'flex-start' }} />
           </Box>
         </Box>
@@ -237,7 +344,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
           startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <Campaign />}
           sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, bgcolor: accent, '&:hover': { bgcolor: accent, filter: 'brightness(0.9)' } }}
         >
-          {saving ? 'Publishing…' : 'Publish to Residents'}
+          {saving ? 'Publishing…' : aud.action}
         </Button>
       </DialogActions>
     </Dialog>
