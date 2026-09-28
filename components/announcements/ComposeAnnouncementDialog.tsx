@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { Campaign, Close, Info, WarningAmber, ErrorOutlined } from '@mui/icons-material';
 import toast from 'react-hot-toast';
+import { markAnnouncementsSeen } from '@/components/notifications/LiveAnnouncements';
 
 /**
  * The single place an announcement is composed. Shared by the announcements
@@ -203,6 +204,10 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? 'Could not publish the announcement'); return; }
+      // Move the watcher's watermark past this post: the author already has
+      // this success message and does not need their own announcement
+      // popping up at them a few seconds later.
+      markAnnouncementsSeen();
       toast.success(`Announcement published to ${aud.label.toLowerCase()}`);
       reset();
       onPublished();
