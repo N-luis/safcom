@@ -59,9 +59,19 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
   color: string; iconBg: string; delay: number;
 }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.35 }}>
-      <Card sx={{ height: '100%', transition: 'box-shadow 0.2s', '&:hover': { boxShadow: `0 8px 28px ${color}22` } }}>
-        <CardContent sx={{ p: 2.5, pb: '20px !important' }}>
+    // The Card's height:100% only resolves if every wrapper between it and the
+    // Grid item also has a height — motion.div sits in between, so it needs one
+    // too or the cards collapse to their own content height.
+    <motion.div
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.35 }}
+      style={{ height: '100%' }}
+    >
+      <Card sx={{
+        height: '100%', display: 'flex', flexDirection: 'column',
+        transition: 'box-shadow 0.2s', '&:hover': { boxShadow: `0 8px 28px ${color}22` },
+      }}>
+        <CardContent sx={{ p: 2.5, pb: '20px !important', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
             <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon sx={{ fontSize: 20, color }} />
@@ -70,15 +80,19 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
           </Box>
           <Typography sx={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 500, mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</Typography>
           {value === null
-            ? <Skeleton variant="text" width={80} height={48} />
+            ? <Skeleton variant="text" width={80} sx={{ fontSize: '2.2rem', mb: 1 }} />
             : <Typography sx={{ fontSize: '2.2rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1, mb: 1 }}>{value.toLocaleString()}</Typography>
           }
-          {sub && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              {sub.positive !== undefined && (sub.positive ? <TrendingUp sx={{ fontSize: 13, color: '#22c55e' }} /> : <TrendingDown sx={{ fontSize: 13, color: '#ef4444' }} />)}
-              <Typography sx={{ fontSize: '0.82rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
-            </Box>
-          )}
+          {/* Always rendered, even when empty: only two of the four cards have a
+              sub-line, and omitting the row entirely made those cards shorter. */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 20, mt: 'auto' }}>
+            {sub && (
+              <>
+                {sub.positive !== undefined && (sub.positive ? <TrendingUp sx={{ fontSize: 13, color: '#22c55e' }} /> : <TrendingDown sx={{ fontSize: 13, color: '#ef4444' }} />)}
+                <Typography sx={{ fontSize: '0.82rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
+              </>
+            )}
+          </Box>
         </CardContent>
       </Card>
     </motion.div>
