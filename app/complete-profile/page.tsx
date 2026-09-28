@@ -83,7 +83,7 @@ export default function CompleteProfilePage() {
   const [checking, setChecking] = useState(true);
   const [serverError, setServerError] = useState('');
 
-  const { register, handleSubmit, watch, control, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, watch, control, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       firstName: '', lastName: '', birthDate: '',
@@ -93,6 +93,19 @@ export default function CompleteProfilePage() {
     },
     mode: 'onChange',
   });
+
+  // Google (and other OAuth providers) hand Clerk the person's name. Prefill it
+  // so signing in with Gmail doesn't mean retyping what Clerk already knows.
+  // Only fills blanks, so it can never overwrite something already typed.
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    if (user.firstName && !getValues('firstName')) {
+      setValue('firstName', user.firstName, { shouldValidate: true });
+    }
+    if (user.lastName && !getValues('lastName')) {
+      setValue('lastName', user.lastName, { shouldValidate: true });
+    }
+  }, [isLoaded, user, setValue, getValues]);
 
   const birthValue = watch('birthDate', '');
   const parsedAge = birthValue ? calculateAge(birthValue) : NaN;
