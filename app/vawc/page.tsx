@@ -75,11 +75,18 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay, 
       <Card sx={{
         height: '100%', display: 'flex', flexDirection: 'column',
         transition: 'box-shadow 0.2s, transform 0.2s, border-color 0.2s',
-        border: '1px solid transparent',
-        '&:hover': { boxShadow: `0 10px 30px ${color}2e`, transform: 'translateY(-3px)', borderColor: `${color}55` },
+        // A resting border that is visible but quiet: the card reads as a
+        // surface you can act on even before the pointer reaches it.
+        border: `1px solid ${color}26`,
+        '&:hover': { boxShadow: `0 10px 30px ${color}2e`, transform: 'translateY(-3px)', borderColor: color },
+        // Pressing it moves: without this the click feels like nothing happened
+        // during the moment before the next page paints.
+        '&:active': { transform: 'translateY(-1px)', boxShadow: `0 4px 14px ${color}33`, transition: 'transform 0.06s, box-shadow 0.06s' },
         // Keyboard users get the same affordance as the pointer hover.
         '&:has(a:focus-visible)': { boxShadow: `0 10px 30px ${color}2e`, borderColor: color },
-        '@media (prefers-reduced-motion: reduce)': { '&:hover': { transform: 'none' } },
+        '@media (prefers-reduced-motion: reduce)': {
+          '&:hover': { transform: 'none' }, '&:active': { transform: 'none' },
+        },
       }}>
         {/* A real anchor, not a button: middle-click and open-in-new-tab work,
             and it is reachable by keyboard without extra handlers. */}
@@ -89,15 +96,25 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay, 
           aria-label={`${label}: view ${hint}`}
           sx={{
             flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
+            // stretch makes CardContent fill the width on its own. Do NOT add
+            // width:100% - there is no CssBaseline in this layout, so box-sizing
+            // is content-box and the 20px padding would land outside the card,
+            // clipping the badge chip and the View hint against its right edge.
             alignItems: 'stretch', justifyContent: 'flex-start', borderRadius: 'inherit',
             '& .MuiCardActionArea-focusHighlight': { display: 'none' },
-            '&:hover .stat-card-hint': { opacity: 1 },
-            '&:focus-visible .stat-card-hint': { opacity: 1 },
+            // The hint is always on screen; hover only strengthens it and
+            // nudges the arrow, so the card never looks inert at rest.
+            '&:hover .stat-card-hint, &:focus-visible .stat-card-hint': { opacity: 1 },
+            '&:hover .stat-card-arrow, &:focus-visible .stat-card-arrow': { transform: 'translateX(3px)' },
+            '&:hover .stat-card-icon, &:focus-visible .stat-card-icon': { transform: 'scale(1.08)' },
+            '@media (prefers-reduced-motion: reduce)': {
+              '&:hover .stat-card-arrow, &:hover .stat-card-icon': { transform: 'none' },
+            },
           }}
         >
-        <CardContent sx={{ p: 2.5, pb: '20px !important', flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <CardContent sx={{ p: 2.5, pb: '20px !important', flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
-            <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Box className="stat-card-icon" sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'transform 0.2s' }}>
               <Icon sx={{ fontSize: 20, color }} />
             </Box>
             <Chip label={badge.text} size="small" sx={{ bgcolor: badge.bg, color: badge.color, fontWeight: 700, fontSize: '0.72rem', height: 24, borderRadius: 1 }} />
@@ -109,24 +126,27 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay, 
           }
           {/* Always rendered, even when empty: only two of the four cards have a
               sub-line, and omitting the row entirely made those cards shorter. */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 20, mt: 'auto' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, rowGap: 0.5, minHeight: 20, mt: 'auto', flexWrap: 'wrap' }}>
             {sub && (
-              <>
+              // Grouped so wrapping moves the whole sub-line, never splitting the
+              // trend arrow away from its text.
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
                 {sub.positive !== undefined && (sub.positive ? <TrendingUp sx={{ fontSize: 13, color: '#22c55e' }} /> : <TrendingDown sx={{ fontSize: 13, color: '#ef4444' }} />)}
                 <Typography sx={{ fontSize: '0.82rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
-              </>
+              </Box>
             )}
-            {/* Fades in on hover inside the row already reserved above, so
-                revealing it cannot change the card's height. */}
+            {/* Sits in the row already reserved above, so it can never change
+                the card's height. Visible at rest - a hover-only cue leaves the
+                card looking unclickable to anyone who has not hovered it yet. */}
             <Box
               className="stat-card-hint"
               sx={{
                 ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3,
-                opacity: 0, transition: 'opacity 0.2s', color, flexShrink: 0,
+                opacity: 0.8, transition: 'opacity 0.2s', color, flexShrink: 0,
               }}
             >
               <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'inherit', whiteSpace: 'nowrap' }}>View</Typography>
-              <ArrowForward sx={{ fontSize: 13 }} />
+              <ArrowForward className="stat-card-arrow" sx={{ fontSize: 13, transition: 'transform 0.2s' }} />
             </Box>
           </Box>
         </CardContent>
