@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 import StreetSelect from '@/components/forms/StreetSelect';
+import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 
 const INCIDENT_TYPES = ['Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault', 'Cybercrime', 'Vandalism', 'Drug-Related', 'Trespassing', 'Other'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -37,7 +38,7 @@ const STEPS = ['Reporter Info', 'Incident Details', 'Classification', 'Review & 
 
 interface FormData {
   reporterName: string; contactNumber: string; address: string; age: string; gender: string;
-  incidentType: string; incidentDate: string; incidentTime: string; barangay: string;
+  incidentType: string; otherType: string; incidentDate: string; incidentTime: string; barangay: string;
   description: string; witnesses: string;
   notes: string;
 }
@@ -46,7 +47,7 @@ interface AiRisk { level: string; score: number; recommendation: string; confide
 
 const EMPTY: FormData = {
   reporterName: '', contactNumber: '', address: '', age: '', gender: 'Male',
-  incidentType: 'Theft & Robbery', incidentDate: new Date().toISOString().split('T')[0],
+  incidentType: 'Theft & Robbery', otherType: '', incidentDate: new Date().toISOString().split('T')[0],
   incidentTime: new Date().toTimeString().slice(0, 5), barangay: '',
   description: '', witnesses: '',
   notes: '',
@@ -120,6 +121,19 @@ function StepIncidentDetails({ form, setForm }: { form: FormData; setForm: (f: F
           </Select>
         </FormControl>
       </Grid>
+      {/* Picking "Other" asks what the incident actually is */}
+      {isOtherType(form.incidentType) && (
+        <Grid size={{ xs: 12 }}>
+          <OtherTypeField
+            size="small"
+            label="Please specify the incident type *"
+            value={form.otherType}
+            onChange={v => set('otherType', v)}
+            helperText="Describe the kind of incident in a few words - e.g. Lost property, Animal complaint"
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+          />
+        </Grid>
+      )}
       <Grid size={{ xs: 12, sm: 6 }}>
         {/* `barangay` is the Case column the Street field reads from. */}
         <StreetSelect value={form.barangay} onChange={v => set('barangay', v)} required />
@@ -169,7 +183,8 @@ function StepReview({ form, caseNumber }: { form: FormData; caseNumber: string }
     { label: 'Contact', value: form.contactNumber },
     { label: 'Age / Gender', value: `${form.age || '—'} / ${form.gender}` },
     { label: 'Address', value: form.address },
-    { label: 'Incident Type', value: form.incidentType },
+    { label: 'Incident Type', value: isOtherType(form.incidentType) && form.otherType.trim()
+        ? `Other - ${form.otherType.trim()}` : form.incidentType },
     { label: 'Date & Time', value: `${form.incidentDate} at ${form.incidentTime}` },
     { label: 'Street', value: form.barangay },
   ];
@@ -233,6 +248,9 @@ export default function WalkInReportPage() {
     }
     if (step === 1) {
       if (!form.barangay.trim()) { toast.error('Select the street where the incident happened'); return false; }
+      if (isOtherType(form.incidentType) && form.otherType.trim().length < 3) {
+        toast.error('Tell us what kind of incident this is'); return false;
+      }
       if (!form.description.trim()) { toast.error('Description is required'); return false; }
     }
     return true;
@@ -261,7 +279,11 @@ export default function WalkInReportPage() {
           caseType: form.incidentType,
           status: 'Open',
           barangay: form.barangay,
-          description: `[Walk-in Report ${form.incidentDate} ${form.incidentTime}]\n\n${form.description}${form.witnesses ? `\n\nWitnesses: ${form.witnesses}` : ''}`,
+          description: withOtherDetail(
+            `[Walk-in Report ${form.incidentDate} ${form.incidentTime}]\n\n${form.description}${form.witnesses ? `\n\nWitnesses: ${form.witnesses}` : ''}`,
+            form.incidentType,
+            form.otherType,
+          ),
           notes: form.notes || undefined,
         }),
       });

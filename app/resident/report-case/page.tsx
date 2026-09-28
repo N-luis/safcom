@@ -18,6 +18,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
+import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 
 const ACCENT = '#14b8a6';
 
@@ -33,6 +34,9 @@ const RISK_BG:    Record<string, string> = { Low: '#f0fdf4', Medium: '#fff7ed', 
 
 const schema = z.object({
   caseType:        z.string().min(1, 'Please select a case type'),
+  // Only meaningful when caseType is an "Other" option; the refine below
+  // makes it required in that case.
+  otherType:       z.string().optional(),
   description:     z.string().min(20, 'Please describe the incident (min 20 characters)'),
   // The street is stored on the case itself so reports and the risk heatmap
   // group by where the incident happened, not by the reporter's barangay.
@@ -42,7 +46,10 @@ const schema = z.object({
   physicalHarm:    z.boolean(),
   recurring:       z.boolean(),
   additionalNotes: z.string().optional(),
-});
+}).refine(
+  d => !isOtherType(d.caseType) || (d.otherType ?? '').trim().length >= 3,
+  { path: ['otherType'], message: 'Tell us what kind of case this is' },
+);
 type FormData = z.infer<typeof schema>;
 
 interface AiRisk {
@@ -92,7 +99,7 @@ export default function ReportCasePage() {
   const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      caseType: '', description: '', street: '', location: '',
+      caseType: '', otherType: '', description: '', street: '', location: '',
       minorsInvolved: false, physicalHarm: false, recurring: false,
       additionalNotes: '',
     },
@@ -115,7 +122,11 @@ export default function ReportCasePage() {
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
-          description: `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
+          description: withOtherDetail(
+            `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
+            data.caseType,
+            data.otherType ?? '',
+          ),
           minorsInvolved: data.minorsInvolved,
           physicalHarm: data.physicalHarm,
           recurring: data.recurring,
@@ -258,6 +269,22 @@ export default function ReportCasePage() {
                     </TextField>
                   )}
                 />
+
+                {/* Picking "Other" asks what the case actually is */}
+                {isOtherType(selectedCaseType) && (
+                  <Controller
+                    name="otherType"
+                    control={control}
+                    render={({ field }) => (
+                      <OtherTypeField
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        error={!!errors.otherType}
+                        helperText={errors.otherType?.message}
+                      />
+                    )}
+                  />
+                )}
 
                 {/* Where it happened — street is structured, landmark is free text */}
                 <Controller

@@ -14,16 +14,22 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
+import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 
 const ACCENT = '#7c3aed';
 
 const schema = z.object({
   residentName: z.string().min(2, 'Full name is required'),
   caseType: z.string().min(1, 'Select a case type'),
+  // Required only when the selected type is a "VAWC - Other" option.
+  otherType: z.string().optional(),
   barangay: z.string().min(1, 'Select the street'),
   description: z.string().min(20, 'Describe the incident (min 20 characters)'),
   notes: z.string().optional(),
-});
+}).refine(
+  d => !isOtherType(d.caseType) || (d.otherType ?? '').trim().length >= 3,
+  { path: ['otherType'], message: 'Tell us what kind of case this is' },
+);
 type FormData = z.infer<typeof schema>;
 
 interface AiRisk { level: string; score: number; recommendation: string; confidence: number }
@@ -38,10 +44,11 @@ export default function VawcWalkInPage() {
 
   const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { residentName: '', caseType: '', barangay: '', description: '', notes: '' },
+    defaultValues: { residentName: '', caseType: '', otherType: '', barangay: '', description: '', notes: '' },
   });
 
   const descLen = watch('description')?.length ?? 0;
+  const caseTypeValue = watch('caseType');
 
   const onSubmit = async (data: FormData) => {
     setApiError('');
@@ -50,7 +57,13 @@ export default function VawcWalkInPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          // caseType stays exactly as selected: /api/kapitan/overview decides
+          // Blotter vs VAWC with an exact VAWC_TYPES match, so free text here
+          // would drop the case out of the VAWC module.
+          description: withOtherDetail(data.description, data.caseType, data.otherType ?? ''),
+        }),
       });
       const json = await res.json();
       if (!res.ok) { setApiError(json.error || 'Submission failed'); return; }
@@ -146,6 +159,19 @@ export default function VawcWalkInPage() {
                       </TextField>
                     )} />
                   </Grid>
+                  {/* Picking "VAWC - Other" asks what the case actually is */}
+                  {isOtherType(caseTypeValue) && (
+                    <Grid size={12}>
+                      <Controller name="otherType" control={control} render={({ field }) => (
+                        <OtherTypeField
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          error={!!errors.otherType}
+                          helperText={errors.otherType?.message}
+                        />
+                      )} />
+                    </Grid>
+                  )}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Controller name="barangay" control={control} render={({ field }) => (
                       <StreetSelect
