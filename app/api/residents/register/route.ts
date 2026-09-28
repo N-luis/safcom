@@ -6,6 +6,7 @@ import { auth } from '@clerk/nextjs/server';
 import { successResponse, errorResponse } from '@/lib/auth';
 import { issueVerificationToken } from '@/lib/verification';
 import { sendVerificationEmail } from '@/lib/email';
+import { missingRequired, checkDatabase } from '@/lib/configCheck';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -22,7 +23,31 @@ const registerSchema = z.object({
   idDocument: z.string().optional(),
 });
 
+/** Next unissued resident number for the current year. */
+async function nextResidentNumber(): Promise<string> {
+  const prefix = `RES-${new Date().getFullYear()}-`;
+  const latest = await prisma.resident.findFirst({
+    where: { residentNumber: { startsWith: prefix } },
+    orderBy: { residentNumber: 'desc' },
+    select: { residentNumber: true },
+  });
+  const highest = latest ? Number(latest.residentNumber.slice(prefix.length)) : 0;
+  const next = (Number.isFinite(highest) ? highest : 0) + 1;
+  return `${prefix}${String(next).padStart(5, '0')}`;
+}
+
+/** Prisma's unique-constraint error, and which field tripped it. */
+function uniqueViolation(err: unknown): string | null {
+  const e = err as { code?: string; meta?: { target?: string[] | string } };
+  if (e?.code !== 'P2002') return null;
+  const target = Array.isArray(e.meta?.target) ? e.meta.target.join(',') : String(e.meta?.target ?? '');
+  return target;
+}
+
 export async function POST(req: NextRequest) {
+  const misconfigured = missingRequired();
+  if (misconfigured) return errorResponse(misconfigured, 503);
+
   try {
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);
@@ -42,9 +67,13 @@ export async function POST(req: NextRequest) {
     });
     if (usernameTaken) return errorResponse('That username is already taken', 409);
 
-    const count = await prisma.resident.count();
-    const year = new Date().getFullYear();
-    const residentNumber = `RES-${year}-${String(count + 1).padStart(5, '0')}`;
+    // Numbering used to be `count + 1`, which collides the moment any resident
+    // is deleted: with 00002/00003/00005 on file the count is 3 and the next
+    // number computes to 00004 — but after another deletion it lands on one
+    // that already exists, and residentNumber is unique. Take the highest
+    // number actually issued this year instead. The suffix is zero-padded, so
+    // ordering by the string is the same as ordering numerically.
+    const residentNumber = await nextResidentNumber();
 
     // When Clerk created the account it already verified the email and owns the
     // credentials, so there is no local password to hash.
@@ -55,35 +84,60 @@ export async function POST(req: NextRequest) {
       return errorResponse('A password is required', 400);
     }
 
-    const resident = await prisma.resident.create({
-      data: {
-        residentNumber,
-        firstName,
-        lastName,
-        age,
-        gender,
-        barangay,
-        address,
-        contactNumber,
-        email,
-        username,
-        clerkId: clerkId ?? null,
-        password: hashed,
-        idDocument: idDocument ?? null,
-        status: 'Pending',
-        riskLevel: 'Low',
-        emailVerified: Boolean(clerkId),
-      },
-      select: {
-        id: true, residentNumber: true, firstName: true, lastName: true,
-        email: true, status: true, registeredAt: true,
-      },
-    });
+    // Two people finishing their profile at the same moment can compute the
+    // same number, so retry on that specific collision rather than failing.
+    let resident;
+    let number = residentNumber;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        resident = await prisma.resident.create({
+          data: {
+            residentNumber: number,
+            firstName,
+            lastName,
+            age,
+            gender,
+            barangay,
+            address,
+            contactNumber,
+            email,
+            username,
+            clerkId: clerkId ?? null,
+            password: hashed,
+            idDocument: idDocument ?? null,
+            status: 'Pending',
+            riskLevel: 'Low',
+            emailVerified: Boolean(clerkId),
+          },
+          select: {
+            id: true, residentNumber: true, firstName: true, lastName: true,
+            email: true, status: true, registeredAt: true,
+          },
+        });
+        break;
+      } catch (err) {
+        const field = uniqueViolation(err);
+        if (field === null) throw err;
+
+        // Say which field clashed instead of a blanket "Server error".
+        if (field.includes('username')) {
+          return errorResponse('That username is already taken', 409);
+        }
+        if (field.includes('clerkId')) {
+          return errorResponse('This account already has a resident profile.', 409);
+        }
+        if (field.includes('residentNumber') && attempt < 5) {
+          number = await nextResidentNumber();
+          continue;
+        }
+        throw err;
+      }
+    }
 
     await prisma.activity.create({
       data: {
         type: 'resident_registered',
-        message: `New resident self-registered: ${firstName} ${lastName} (${residentNumber})`,
+        message: `New resident self-registered: ${firstName} ${lastName} (${resident.residentNumber})`,
         entityId: resident.id,
         entityType: 'Resident',
         color: '#14b8a6',
@@ -106,7 +160,22 @@ export async function POST(req: NextRequest) {
       { ...resident, emailSent: send.ok, emailReason: send.reason, emailDetail: send.detail },
       201,
     );
-  } catch {
-    return errorResponse('Server error', 500);
+  } catch (err) {
+    // Log the real cause so it reaches the hosting provider's function logs.
+    console.error('[Resident register]', err);
+
+    const field = uniqueViolation(err);
+    if (field) {
+      return errorResponse(`That ${field.includes('username') ? 'username' : 'detail'} is already in use`, 409);
+    }
+
+    const db = await checkDatabase();
+    if (!db.ok) {
+      return errorResponse(
+        `Cannot reach the database (${db.reason}). Check DATABASE_URL in your hosting environment variables.`,
+        503,
+      );
+    }
+    return errorResponse('Could not save your profile. Please try again.', 500);
   }
 }
