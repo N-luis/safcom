@@ -5,6 +5,11 @@ import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/l
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { computeRisk } from '@/lib/riskEngine';
 
+/** Reads a filter param that may hold one value or a comma-separated group. */
+function csv(raw: string | null): string[] {
+  return (raw ?? '').split(',').map(v => v.trim()).filter(Boolean);
+}
+
 const createSchema = z.object({
   residentName: z.string().min(2),
   caseType: z.string().min(1),
@@ -21,8 +26,11 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(sp.get('page') ?? 1));
   const limit = Math.min(Number(sp.get('limit') ?? 20), 100);
   const search = sp.get('search') ?? '';
-  const status = sp.get('status') ?? '';
-  const risk = sp.get('risk') ?? '';
+  // Status and risk accept a comma-separated list so a caller can ask for a
+  // group the dashboard actually counts as one number - e.g. the Resolved card
+  // counts 'Resolved' plus 'Closed', and High-Risk counts 'High' plus 'Critical'.
+  const status = csv(sp.get('status'));
+  const risk = csv(sp.get('risk'));
   const type = sp.get('type') ?? '';
   const urgent = sp.get('urgent') === 'true';
   const fromParam = sp.get('from');
@@ -34,7 +42,10 @@ export async function GET(req: NextRequest) {
       caseType: type ? { equals: type } : { in: [...VAWC_TYPES] },
       ...(urgent
         ? { riskLevel: { in: ['High', 'Critical'] }, status: { notIn: ['Resolved', 'Closed'] } }
-        : { ...(status && { status }), ...(risk && { riskLevel: risk }) }),
+        : {
+            ...(status.length && { status: { in: status } }),
+            ...(risk.length && { riskLevel: { in: risk } }),
+          }),
       ...(validFrom && { filedAt: { gte: validFrom } }),
       ...(search && {
         OR: [

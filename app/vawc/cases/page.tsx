@@ -170,6 +170,30 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
   );
 }
 
+// ─── Filter presets ───────────────────────────────────────────────────────────
+// Each dashboard stat card links here with ?filter=<key>. A preset exists because
+// some cards count a GROUP of values as one number, which the single-value Status
+// and Risk dropdowns cannot express - so the preset drives the query instead and
+// says so on screen, keeping the list total equal to the number that was clicked.
+const PRESETS: Record<string, { label: string; params: Record<string, string>; bg: string; fg: string }> = {
+  urgent: {
+    label: 'Urgent only (High/Critical, unresolved)',
+    params: { urgent: 'true' }, bg: '#fef2f2', fg: '#ef4444',
+  },
+  'high-risk': {
+    label: 'High-risk cases (High + Critical)',
+    params: { risk: 'High,Critical' }, bg: '#fef2f2', fg: '#ef4444',
+  },
+  active: {
+    label: 'Active interventions (In Progress)',
+    params: { status: 'In Progress' }, bg: '#eff6ff', fg: '#3b82f6',
+  },
+  resolved: {
+    label: 'Resolved cases (Resolved + Closed)',
+    params: { status: 'Resolved,Closed' }, bg: '#f0fdf4', fg: '#22c55e',
+  },
+};
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function VawcCasesPage() {
   const router = useRouter();
@@ -179,10 +203,11 @@ export default function VawcCasesPage() {
   const [type, setType] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<CaseRow | null>(null);
-  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [preset, setPreset] = useState('');
   const [highlightId, setHighlightId] = useState<string | null>(null);
 
-  // Deep-link support: dashboard links navigate here with ?highlight=, ?filter=urgent, ?riskLevel=, ?status=, ?search=
+  // Deep-link support: dashboard links navigate here with ?highlight=,
+  // ?filter=<preset key>, ?riskLevel=, ?status=, ?search=
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
     const hl = sp.get('highlight');
@@ -191,7 +216,9 @@ export default function VawcCasesPage() {
     const statusParam = sp.get('status');
     const searchParam = sp.get('search');
     if (hl) setHighlightId(hl);
-    if (f === 'urgent') setUrgentOnly(true);
+    if (f && PRESETS[f]) setPreset(f);
+    // Single-value deep links still drive the dropdowns directly; a preset wins
+    // because it can express groups the dropdowns cannot.
     if (riskParam) setRisk(riskParam);
     if (statusParam) setStatus(statusParam);
     if (searchParam) setSearch(searchParam);
@@ -199,7 +226,7 @@ export default function VawcCasesPage() {
 
   const query = new URLSearchParams({
     limit: '15', page: String(page),
-    ...(urgentOnly ? { urgent: 'true' } : { ...(status && { status }), ...(risk && { risk }) }),
+    ...(preset ? PRESETS[preset].params : { ...(status && { status }), ...(risk && { risk }) }),
     ...(type && { type }), ...(search && { search }),
   }).toString();
 
@@ -232,11 +259,11 @@ export default function VawcCasesPage() {
 
       {/* Filters */}
       <Box sx={{ display: 'flex', gap: 1.5, mb: 2.5, flexWrap: 'wrap', alignItems: 'center' }}>
-        {urgentOnly && (
+        {preset && PRESETS[preset] && (
           <Chip
-            label="Urgent only (High/Critical, unresolved)"
-            onDelete={() => { setUrgentOnly(false); setPage(1); }}
-            sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.86rem' }}
+            label={PRESETS[preset].label}
+            onDelete={() => { setPreset(''); setPage(1); }}
+            sx={{ bgcolor: PRESETS[preset].bg, color: PRESETS[preset].fg, fontWeight: 700, fontSize: '0.86rem' }}
           />
         )}
         <TextField size="small" placeholder="Search name, case no…"
@@ -244,16 +271,16 @@ export default function VawcCasesPage() {
           sx={{ width: { xs: '100%', sm: 260 } }}
           slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 17, color: '#94a3b8' }} /></InputAdornment> } }}
         />
-        <FormControl size="small" sx={{ minWidth: 130 }} disabled={urgentOnly}>
+        <FormControl size="small" sx={{ minWidth: 130 }} disabled={!!preset}>
           <InputLabel>Status</InputLabel>
-          <Select value={urgentOnly ? '' : status} onChange={e => { setStatus(e.target.value); setPage(1); }} label="Status">
+          <Select value={preset ? '' : status} onChange={e => { setStatus(e.target.value); setPage(1); }} label="Status">
             <MenuItem value="">All</MenuItem>
             {['Open', 'In Progress', 'Resolved', 'Closed'].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ minWidth: 130 }} disabled={urgentOnly}>
+        <FormControl size="small" sx={{ minWidth: 130 }} disabled={!!preset}>
           <InputLabel>Risk Level</InputLabel>
-          <Select value={urgentOnly ? '' : risk} onChange={e => { setRisk(e.target.value); setPage(1); }} label="Risk Level">
+          <Select value={preset ? '' : risk} onChange={e => { setRisk(e.target.value); setPage(1); }} label="Risk Level">
             <MenuItem value="">All</MenuItem>
             {['Critical', 'High', 'Medium', 'Low'].map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
           </Select>

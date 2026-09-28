@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
-  Box, Typography, Card, CardContent, Grid, Chip, Button,
+  Box, Typography, Card, CardActionArea, CardContent, Grid, Chip, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Skeleton,
 } from '@mui/material';
@@ -53,10 +54,14 @@ const RISK_COLOR: Record<string, string> = { Critical: '#ef4444', High: '#f97316
 const RISK_BG: Record<string, string> = { Critical: '#fef2f2', High: '#fff7ed', Medium: '#fffbeb', Low: '#f0fdf4' };
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
-function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }: {
+function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay, href, hint }: {
   icon: React.ElementType; label: string; badge: { text: string; color: string; bg: string };
   value: number | null; sub: { text: string; positive?: boolean } | null;
   color: string; iconBg: string; delay: number;
+  /** Where the card's number lives - the filtered case list that adds up to it. */
+  href: string;
+  /** What the viewer lands on, shown on hover so the click is predictable. */
+  hint: string;
 }) {
   return (
     // The Card's height:100% only resolves if every wrapper between it and the
@@ -69,9 +74,28 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
     >
       <Card sx={{
         height: '100%', display: 'flex', flexDirection: 'column',
-        transition: 'box-shadow 0.2s', '&:hover': { boxShadow: `0 8px 28px ${color}22` },
+        transition: 'box-shadow 0.2s, transform 0.2s, border-color 0.2s',
+        border: '1px solid transparent',
+        '&:hover': { boxShadow: `0 10px 30px ${color}2e`, transform: 'translateY(-3px)', borderColor: `${color}55` },
+        // Keyboard users get the same affordance as the pointer hover.
+        '&:has(a:focus-visible)': { boxShadow: `0 10px 30px ${color}2e`, borderColor: color },
+        '@media (prefers-reduced-motion: reduce)': { '&:hover': { transform: 'none' } },
       }}>
-        <CardContent sx={{ p: 2.5, pb: '20px !important', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* A real anchor, not a button: middle-click and open-in-new-tab work,
+            and it is reachable by keyboard without extra handlers. */}
+        <CardActionArea
+          component={Link}
+          href={href}
+          aria-label={`${label}: view ${hint}`}
+          sx={{
+            flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
+            alignItems: 'stretch', justifyContent: 'flex-start', borderRadius: 'inherit',
+            '& .MuiCardActionArea-focusHighlight': { display: 'none' },
+            '&:hover .stat-card-hint': { opacity: 1 },
+            '&:focus-visible .stat-card-hint': { opacity: 1 },
+          }}
+        >
+        <CardContent sx={{ p: 2.5, pb: '20px !important', flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
             <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon sx={{ fontSize: 20, color }} />
@@ -92,8 +116,21 @@ function StatCard({ icon: Icon, label, badge, value, sub, color, iconBg, delay }
                 <Typography sx={{ fontSize: '0.82rem', color: sub.positive === undefined ? '#94a3b8' : sub.positive ? '#22c55e' : '#ef4444' }}>{sub.text}</Typography>
               </>
             )}
+            {/* Fades in on hover inside the row already reserved above, so
+                revealing it cannot change the card's height. */}
+            <Box
+              className="stat-card-hint"
+              sx={{
+                ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3,
+                opacity: 0, transition: 'opacity 0.2s', color, flexShrink: 0,
+              }}
+            >
+              <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'inherit', whiteSpace: 'nowrap' }}>View</Typography>
+              <ArrowForward sx={{ fontSize: 13 }} />
+            </Box>
           </Box>
         </CardContent>
+        </CardActionArea>
       </Card>
     </motion.div>
   );
@@ -175,6 +212,8 @@ export default function VawcDashboard() {
             color="#14b8a6"
             iconBg="rgba(20,184,166,0.1)"
             delay={0}
+            href="/vawc/cases"
+            hint="all VAWC cases"
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -187,6 +226,8 @@ export default function VawcDashboard() {
             color="#ef4444"
             iconBg="rgba(239,68,68,0.1)"
             delay={0.07}
+            href="/vawc/cases?filter=high-risk"
+            hint="cases flagged High or Critical"
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -199,6 +240,8 @@ export default function VawcDashboard() {
             color="#3b82f6"
             iconBg="rgba(59,130,246,0.1)"
             delay={0.14}
+            href="/vawc/cases?filter=active"
+            hint="cases in progress"
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -211,6 +254,8 @@ export default function VawcDashboard() {
             color="#22c55e"
             iconBg="rgba(34,197,94,0.1)"
             delay={0.21}
+            href="/vawc/cases?filter=resolved"
+            hint="resolved and closed cases"
           />
         </Grid>
       </Grid>
