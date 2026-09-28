@@ -242,10 +242,10 @@ export default function VawcAiRiskPage() {
               sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 24 }} />
           </Box>
           <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
-            Street-level risk network plotted over the Biñan 2nd area map — heat intensity shows incident concentration per intersection and landmark
+            Street-level risk network plotted over the Biñang 2nd area map — heat intensity shows incident concentration per intersection and landmark
           </Typography>
           <RiskHeatMap
-            title="Biñan 2nd, Bocaue — VAWC Street Risk Heatmap"
+            title="Biñang 2nd, Bocaue — VAWC Street Risk Heatmap"
             contextLabel="VAWC geographic view"
             accent={ACCENT}
           />

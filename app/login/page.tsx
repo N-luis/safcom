@@ -477,7 +477,7 @@ export default function LoginPage() {
           <Grid container spacing={6} sx={{ alignItems: 'center' }}>
             <Grid size={12}>
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
-                <Chip icon={<Shield sx={{ fontSize: 14, color: '#60a5fa !important' }} />} label="Biñan City Public Safety Office"
+                <Chip icon={<Shield sx={{ fontSize: 14, color: '#60a5fa !important' }} />} label="Barangay Biñang 2nd Public Safety Office"
                   sx={{ mb: 3, background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', fontWeight: 600, fontSize: '0.86rem', '& .MuiChip-icon': { color: '#60a5fa' } }} />
                 <Typography variant="h2" sx={{ fontWeight: 800, color: 'white', lineHeight: 1.15, fontSize: { xs: '2.2rem', md: '3rem', lg: '3.5rem' }, mb: 2 }}>
                   Community Safety{' '}
@@ -485,7 +485,7 @@ export default function LoginPage() {
                   System
                 </Typography>
                 <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.75, mb: 4, maxWidth: 520 }}>
-                  SafCom centralizes incident reporting, case tracking, VAWC management, and AI-powered risk analytics for Biñan City&apos;s public safety officers — all in one secure platform.
+                  SafCom centralizes incident reporting, case tracking, VAWC management, and AI-powered risk analytics for Barangay Biñang 2nd&apos;s public safety officers — all in one secure platform.
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 5 }}>
                   <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
@@ -522,7 +522,7 @@ export default function LoginPage() {
                 <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Community Safety Platform</Typography>
               </Box>
             </Box>
-            <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>© 2025 Biñan City Public Safety Office. All rights reserved.</Typography>
+            <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>© 2025 Barangay Biñang 2nd Public Safety Office. All rights reserved.</Typography>
           </Box>
         </Container>
       </Box>

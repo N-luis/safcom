@@ -483,7 +483,7 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
             <TextField fullWidth label="Address" size="small" required
               value={form.barangay} onChange={e => setField('barangay', e.target.value)}
               error={Boolean(errors.barangay)} helperText={errors.barangay}
-              placeholder="House/Unit #, Street, Purok, Binan 2nd..."
+              placeholder="House/Unit #, Street, Purok, Biñang 2nd..."
               slotProps={{ input: { sx: { borderRadius: 2 } } }} />
           </Grid>
           <Grid size={{ xs: 12 }}>

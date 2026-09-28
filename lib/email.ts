@@ -60,7 +60,7 @@ function template(name: string, url: string): string {
           <p style="margin:0;font-size:13px;color:#475569;">Regards,<br><strong>SafeComm</strong></p>
         </td></tr>
       </table>
-      <p style="margin:16px 0 0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} Biñan City Public Safety Office</p>
+      <p style="margin:16px 0 0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} Barangay Biñang 2nd Public Safety Office</p>
     </td></tr>
   </table>
 </body></html>`;

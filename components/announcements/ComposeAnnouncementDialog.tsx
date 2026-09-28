@@ -45,7 +45,7 @@ export const MODULE_LABEL: Record<string, string> = {
 };
 
 /** Mirrors the barangay list on the resident registration form. */
-const BARANGAYS = ['Binan 2nd'];
+const BARANGAYS = ['Biñang 2nd'];
 
 export function timeAgo(d: string) {
   const diff = Date.now() - new Date(d).getTime();

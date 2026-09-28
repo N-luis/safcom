@@ -517,7 +517,7 @@ function CreateAlertDialog({
               label="Barangay" sx={{ borderRadius: 2 }} disabled={saving}
             >
               <MenuItem value="">All Barangays</MenuItem>
-              <MenuItem value="Binan 2nd">Binan 2nd</MenuItem>
+              <MenuItem value="Biñang 2nd">Biñang 2nd</MenuItem>
             </Select>
           </FormControl>
         </Box>

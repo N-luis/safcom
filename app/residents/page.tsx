@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 
-const BARANGAYS = ['Binan 2nd'];
+const BARANGAYS = ['Biñang 2nd'];
 const RISK_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
 const GENDERS = ['Male', 'Female', 'Other'];
 const CASE_TYPES = ['Domestic Violence', 'Child Neglect', 'Elder Abuse', 'Substance Abuse', 'Mental Health', 'Community Conflict', 'Economic Crisis', 'Child Abuse', 'Senior Welfare', 'Other'];
@@ -912,7 +912,7 @@ function AddResidentCaseDialog({
           </FormControl>
         </Box>
         <TextField label="Address" fullWidth size="small" required value={form.address} onChange={e => setField('address', e.target.value)}
-          placeholder="House/Unit #, Street, Purok, Binan 2nd..." disabled={saving}
+          placeholder="House/Unit #, Street, Purok, Biñang 2nd..." disabled={saving}
           slotProps={{ input: { sx: { borderRadius: 2 } } }} />
         <TextField label="Case Description" fullWidth multiline rows={4} size="small" required value={form.description} onChange={e => setField('description', e.target.value)}
           placeholder="Describe the incident, observations, and immediate actions taken..." disabled={saving}

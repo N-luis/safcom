@@ -164,7 +164,7 @@ function NewCaseDialog({ open, onClose, onCreated }: { open: boolean; onClose: (
             </Select>
           </FormControl>
         </Box>
-        <TextField label="Address" fullWidth size="small" required value={form.barangay} onChange={e => setField('barangay', e.target.value)} placeholder="House/Unit #, Street, Purok, Binan 2nd..." slotProps={{ input: { sx: { borderRadius: 2 } } }} />
+        <TextField label="Address" fullWidth size="small" required value={form.barangay} onChange={e => setField('barangay', e.target.value)} placeholder="House/Unit #, Street, Purok, Biñang 2nd..." slotProps={{ input: { sx: { borderRadius: 2 } } }} />
         <TextField
           label="Case Description" fullWidth multiline rows={4} size="small" required
           value={form.description} onChange={e => setField('description', e.target.value)}

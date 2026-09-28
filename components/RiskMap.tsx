@@ -49,9 +49,9 @@ interface DisplayCase extends MapCase {
   isSample: boolean;
 }
 
-// ─── Geographic constants — Biñan 2nd, Bocaue, Bulacan ───────────────────────
+// ─── Geographic constants — Biñang 2nd, Bocaue, Bulacan ───────────────────────
 // Bocaue municipality center: 14°47'46"N 120°54'44"E = [14.7961, 120.9122]
-// Biñan 2nd is in the northern section of Bocaue → shift north ~0.006°
+// Biñang 2nd is in the northern section of Bocaue → shift north ~0.006°
 
 const CENTER: [number, number] = [14.8020, 120.9085];
 const DEFAULT_ZOOM = 16;
@@ -72,7 +72,7 @@ const RISK = {
   Low:    { color: '#22c55e', light: '#f0fdf4', border: '#86efac', label: 'Low Risk'    },
 } as const;
 
-// ─── Named locations within Biñan 2nd (Bocaue, Bulacan) ─────────────────────
+// ─── Named locations within Biñang 2nd (Bocaue, Bulacan) ─────────────────────
 
 const LOC: Record<string, [number, number]> = {
   'purok 1':       [14.8038, 120.9068],
@@ -87,13 +87,16 @@ const LOC: Record<string, [number, number]> = {
   'chapel area':   [14.8028, 120.9079],
   'barangay hall': [14.8018, 120.9082],
   'sitio':         [14.8005, 120.9065],
+  // Canonical spelling first; the three below are aliases kept so
+  // addresses already saved the old way still resolve here.
+  'biñang 2nd':    [14.8020, 120.9085],
   'biñan 2nd':     [14.8020, 120.9085],
   'binan 2nd':     [14.8020, 120.9085],
   'binang 2nd':    [14.8020, 120.9085],
   'bocaue':        [14.7961, 120.9122],
 };
 
-// ─── Sample incident data — 15 cases spread across Biñan 2nd ─────────────────
+// ─── Sample incident data — 15 cases spread across Biñang 2nd ─────────────────
 
 const DEMO_CASES: DisplayCase[] = [
   // ── Purok 1 cluster (NW — highest risk zone)
@@ -249,7 +252,7 @@ function ZoomBtns() {
 
 function ReCenter({ onClick }: { onClick: () => void }) {
   return (
-    <Tooltip title="Re-centre — Biñan 2nd, Bocaue" placement="right">
+    <Tooltip title="Re-centre — Biñang 2nd, Bocaue" placement="right">
       <Paper elevation={4} onClick={onClick} sx={{ position: 'absolute', bottom: 72, left: 12, zIndex: 1000, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', borderRadius: '8px', bgcolor: 'white', transition: 'all .15s', '&:hover': { bgcolor: '#f1f5f9', transform: 'scale(1.1)' } }}>
         <MyLocation sx={{ fontSize: 14, color: '#374151' }} />
       </Paper>
@@ -288,7 +291,7 @@ function CasePopup({ c, onNavigate }: { c: DisplayCase; onNavigate: (id: string)
       {/* Details */}
       <div style={{ padding: '0 2px', display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, color: '#64748b' }}>
-          <span>📍</span><span>{c.barangay}, Biñan 2nd, Bocaue, Bulacan</span>
+          <span>📍</span><span>{c.barangay}, Biñang 2nd, Bocaue, Bulacan</span>
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, color: '#64748b' }}>
           <span>📅</span><span>Filed {fmtDate(c.filedAt)}</span>
@@ -449,7 +452,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
       {/* Demo mode banner */}
       {isSampleMode && (
         <Alert severity="info" icon={false} sx={{ borderRadius: 0, borderBottom: '1px solid #bae6fd', py: 0.6, '& .MuiAlert-message': { fontSize: '0.82rem', width: '100%' } }}>
-          <strong>Demo Mode</strong> — Showing 15 sample incidents across Biñan 2nd, Bocaue, Bulacan. Submit real cases to populate live data.
+          <strong>Demo Mode</strong> — Showing 15 sample incidents across Biñang 2nd, Bocaue, Bulacan. Submit real cases to populate live data.
         </Alert>
       )}
 
@@ -560,7 +563,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
           <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 0.75, pointerEvents: 'none' }}>
             <Paper elevation={6} sx={{ px: 1.75, py: 1.25, borderRadius: 2.5, bgcolor: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', minWidth: 158 }}>
               <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 0.6 }}>
-                📍 Biñan 2nd · Bocaue, Bulacan
+                📍 Biñang 2nd · Bocaue, Bulacan
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, mb: 0.75 }}>
                 <Typography sx={{ fontSize: '1.7rem', fontWeight: 900, color: '#0c1e46', lineHeight: 1 }}>{filtered.length}</Typography>
@@ -767,7 +770,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
           {filtered.length > 0 && (
             <Box sx={{ px: 2, py: 1.25, bgcolor: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
               <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
-                <strong>{filtered.length}</strong> incident{filtered.length !== 1 ? 's' : ''} · Biñan 2nd, Bocaue, Bulacan
+                <strong>{filtered.length}</strong> incident{filtered.length !== 1 ? 's' : ''} · Biñang 2nd, Bocaue, Bulacan
               </Typography>
               <Typography sx={{ fontSize: '0.82rem', color: '#ef4444', fontWeight: 700 }}>{counts.high} High</Typography>
               <Typography sx={{ fontSize: '0.82rem', color: '#f97316', fontWeight: 700 }}>{counts.medium} Medium</Typography>
@@ -781,7 +784,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
       {displayAreas.length > 0 && (
         <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#fafafa', borderTop: '1px solid #e2e8f0' }}>
           <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
-            🔥 Street Hotspot Ranking — Biñan 2nd, Bocaue, Bulacan
+            🔥 Street Hotspot Ranking — Biñang 2nd, Bocaue, Bulacan
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             {[...displayAreas].sort((a, b) => b.avgScore - a.avgScore).slice(0, 6).map((area, i) => {

@@ -267,7 +267,7 @@ export default function RiskHeatMap({
         <Box sx={{ bgcolor: '#fdfbf7' }}>
           <svg viewBox="0 0 760 400" width="100%" preserveAspectRatio="xMidYMid meet"
             style={{ display: 'block', width: '100%', height: 'auto' }}
-            aria-label="Binang 2nd, Bocaue street-level risk map, traced from the barangay hazard map">
+            aria-label="Biñang 2nd, Bocaue street-level risk map, traced from the barangay hazard map">
             <defs>
               <filter id="rh-h"><feGaussianBlur stdDeviation="15" /></filter>
               <filter id="rh-m"><feGaussianBlur stdDeviation="11" /></filter>
