@@ -9,13 +9,14 @@ import {
 } from '@mui/material';
 import {
   RecordVoiceOver, Person, Assignment, Gavel, CheckCircle,
-  ArrowForward, ArrowBack, Refresh, LocationOn, Phone, Print, AutoAwesome,
+  ArrowForward, ArrowBack, Refresh, LocationOn, Phone, Print, AutoAwesome, Cake,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
+import { ageOn, birthDateBounds } from '@/lib/age';
 
 const INCIDENT_TYPES = ['Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault', 'Cybercrime', 'Vandalism', 'Drug-Related', 'Trespassing', 'Other'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -37,7 +38,7 @@ function normalizePhone(v: string): string {
 const STEPS = ['Reporter Info', 'Incident Details', 'Classification', 'Review & Submit'];
 
 interface FormData {
-  reporterName: string; contactNumber: string; address: string; age: string; gender: string;
+  reporterName: string; contactNumber: string; address: string; birthDate: string; gender: string;
   incidentType: string; otherType: string; incidentDate: string; incidentTime: string; barangay: string;
   description: string; witnesses: string;
   notes: string;
@@ -46,7 +47,7 @@ interface FormData {
 interface AiRisk { level: string; score: number; recommendation: string; confidence: number }
 
 const EMPTY: FormData = {
-  reporterName: '', contactNumber: '', address: '', age: '', gender: 'Male',
+  reporterName: '', contactNumber: '', address: '', birthDate: '', gender: 'Male',
   incidentType: 'Theft & Robbery', otherType: '', incidentDate: new Date().toISOString().split('T')[0],
   incidentTime: new Date().toTimeString().slice(0, 5), barangay: '',
   description: '', witnesses: '',
@@ -68,6 +69,17 @@ function StepReporterInfo({ form, setForm }: { form: FormData; setForm: (f: Form
         ? `Must be exactly 11 digits — ${contactDigits}/11 entered`
         : 'Philippine mobile numbers start with 09')
     : `${contactDigits}/11 digits`;
+
+  // Computed once per mount: reading the clock while rendering would give a
+  // different answer on every re-render.
+  const [dateBounds] = useState(() => birthDateBounds());
+  const age = ageOn(form.birthDate);
+  const birthDateError = Boolean(form.birthDate) && age === null;
+  const birthHelper = birthDateError
+    ? 'That date has not happened yet'
+    : age !== null
+      ? `Age ${age}`
+      : 'Pick a date to show the age';
 
   return (
     <Grid container spacing={2.5}>
@@ -91,7 +103,23 @@ function StepReporterInfo({ form, setForm }: { form: FormData; setForm: (f: Form
           }} />
       </Grid>
       <Grid size={{ xs: 12, sm: 3 }}>
-        <TextField fullWidth label="Age" size="small" type="number" value={form.age} onChange={e => set('age', e.target.value)} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+        <TextField
+          fullWidth label="Date of Birth" size="small" type="date"
+          value={form.birthDate}
+          onChange={e => set('birthDate', e.target.value)}
+          error={birthDateError}
+          helperText={birthHelper}
+          slotProps={{
+            inputLabel: { shrink: true },
+            // A date picker cannot offer a birthday in the future, and a year
+            // typed as 1089 instead of 1989 is caught here rather than on submit.
+            htmlInput: { max: dateBounds.max, min: dateBounds.min },
+            input: { startAdornment: <Cake sx={{ fontSize: 16, color: '#94a3b8', mr: 0.75 }} /> },
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': { borderRadius: 2 },
+            ...(age !== null && { '& .MuiFormHelperText-root': { color: '#16a34a', fontWeight: 700 } }),
+          }} />
       </Grid>
       <Grid size={{ xs: 12, sm: 3 }}>
         <FormControl fullWidth size="small">
@@ -181,7 +209,7 @@ function StepReview({ form, caseNumber }: { form: FormData; caseNumber: string }
   const rows = [
     { label: 'Reporter', value: form.reporterName },
     { label: 'Contact', value: form.contactNumber },
-    { label: 'Age / Gender', value: `${form.age || '—'} / ${form.gender}` },
+    { label: 'Age / Gender', value: `${ageOn(form.birthDate) ?? '—'} / ${form.gender}` },
     { label: 'Address', value: form.address },
     { label: 'Incident Type', value: isOtherType(form.incidentType) && form.otherType.trim()
         ? `Other - ${form.otherType.trim()}` : form.incidentType },
@@ -242,6 +270,10 @@ export default function WalkInReportPage() {
       if (!form.contactNumber.trim()) { toast.error('Contact number is required'); return false; }
       if (!PH_MOBILE.test(form.contactNumber)) {
         toast.error('Enter a valid 11-digit mobile number starting with 09 (e.g. 09171234567)');
+        return false;
+      }
+      if (form.birthDate && ageOn(form.birthDate) === null) {
+        toast.error('The date of birth cannot be in the future');
         return false;
       }
       if (!form.address.trim()) { toast.error('Address is required'); return false; }
