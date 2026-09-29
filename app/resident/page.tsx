@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
-  Box, Typography, Card, CardContent, Grid, Chip, Button,
+  Box, Typography, Card, CardActionArea, CardContent, Grid, Chip, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Skeleton, Avatar, Fab, Tooltip, IconButton,
 } from '@mui/material';
 import {
   GridView, ChatBubbleOutlined, Autorenew, CheckCircleOutlined,
   TrendingUp, Add, MoreHoriz, Refresh, Shield, Assessment,
-  LocationOn, Update,
+  LocationOn, Update, ArrowForward,
 } from '@mui/icons-material';
 import { PieChart, Pie, Cell, Tooltip as ChartTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
@@ -91,6 +92,7 @@ export default function ResidentDashboard() {
   const statCards = [
     {
       icon: GridView, label: 'Lifetime', title: 'Total Reports Submitted',
+      href: '/resident/my-cases', hint: 'all your reports',
       value: stats?.total ?? 0, color: '#14b8a6',
       sub: stats?.growth != null
         ? { text: `${stats.growth >= 0 ? '+' : ''}${stats.growth}% from last month`, color: stats.growth >= 0 ? '#22c55e' : '#ef4444', icon: TrendingUp }
@@ -98,11 +100,13 @@ export default function ResidentDashboard() {
     },
     {
       icon: ChatBubbleOutlined, label: 'Urgent', title: 'Pending Cases',
+      href: '/resident/my-cases?status=Open', hint: 'reports awaiting verification',
       value: stats?.pending ?? 0, color: '#f59e0b',
       sub: { text: 'Awaiting verification', color: '#94a3b8', icon: null },
     },
     {
       icon: Autorenew, label: 'Active', title: 'Ongoing Cases',
+      href: '/resident/my-cases?status=In%20Progress', hint: 'cases being worked on',
       value: stats?.ongoing ?? 0, color: '#3b82f6',
       sub: stats?.lastUpdatedCase
         ? { text: `Updated ${timeAgo(stats.lastUpdatedCase)}`, color: '#3b82f6', icon: null }
@@ -110,6 +114,7 @@ export default function ResidentDashboard() {
     },
     {
       icon: CheckCircleOutlined, label: 'Success', title: 'Resolved Cases',
+      href: '/resident/my-cases?status=Resolved,Closed', hint: 'resolved and closed cases',
       value: stats?.resolved ?? 0, color: '#22c55e',
       sub: { text: 'Cases closed successfully', color: '#94a3b8', icon: null },
     },
@@ -141,9 +146,46 @@ export default function ResidentDashboard() {
       <Grid container spacing={2} sx={{ mb: 3.5 }}>
         {statCards.map((card, i) => (
           <Grid key={card.title} size={{ xs: 6, sm: 6, md: 3 }}>
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-              <Card sx={{ height: '100%', transition: 'all 0.2s', '&:hover': { boxShadow: `0 8px 24px ${card.color}20`, transform: 'translateY(-2px)' } }}>
-                <CardContent sx={{ p: 2.5, pb: '20px !important', position: 'relative' }}>
+            {/* height:100% on the Card only resolves if every wrapper between it
+              * and the Grid item also has one - motion.div sits in between. */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              style={{ height: '100%' }}
+            >
+              <Card sx={{
+                height: '100%', display: 'flex', flexDirection: 'column',
+                border: `1px solid ${card.color}26`,
+                transition: 'box-shadow 0.2s, transform 0.2s, border-color 0.2s',
+                '&:hover': { boxShadow: `0 10px 28px ${card.color}2e`, transform: 'translateY(-3px)', borderColor: card.color },
+                // Pressing it moves, so the click does not feel like nothing happened.
+                '&:active': { transform: 'translateY(-1px)', transition: 'transform 0.06s' },
+                '&:has(a:focus-visible)': { boxShadow: `0 10px 28px ${card.color}2e`, borderColor: card.color },
+                '@media (prefers-reduced-motion: reduce)': {
+                  '&:hover': { transform: 'none' }, '&:active': { transform: 'none' },
+                },
+              }}>
+                {/* A real anchor, so middle-click, open-in-new-tab and the
+                  * keyboard all work without extra handlers. */}
+                <CardActionArea
+                  component={Link}
+                  href={card.href}
+                  aria-label={`${card.title}: view ${card.hint}`}
+                  sx={{
+                    flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
+                    alignItems: 'stretch', justifyContent: 'flex-start', borderRadius: 'inherit',
+                    '& .MuiCardActionArea-focusHighlight': { display: 'none' },
+                    '&:hover .res-hint, &:focus-visible .res-hint': { opacity: 1 },
+                    '&:hover .res-arrow, &:focus-visible .res-arrow': { transform: 'translateX(3px)' },
+                    '@media (prefers-reduced-motion: reduce)': {
+                      '&:hover .res-arrow': { transform: 'none' },
+                    },
+                  }}
+                >
+                {/* No width:100% here: there is no CssBaseline in this layout, so
+                  * box-sizing is content-box and the padding would land outside
+                  * the card. The action area stretches its children already. */}
+                <CardContent sx={{ p: 2.5, pb: '20px !important', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: `${card.color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <card.icon sx={{ fontSize: 20, color: card.color }} />
@@ -157,11 +199,23 @@ export default function ResidentDashboard() {
                         {String(card.value).padStart(2, '0')}
                       </Typography>
                   }
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-                    {card.sub.icon && <card.sub.icon sx={{ fontSize: 13, color: card.sub.color }} />}
-                    <Typography sx={{ fontSize: '0.82rem', color: card.sub.color }}>{card.sub.text}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, rowGap: 0.5, mt: 'auto', pt: 1, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+                      {card.sub.icon && <card.sub.icon sx={{ fontSize: 13, color: card.sub.color }} />}
+                      <Typography sx={{ fontSize: '0.82rem', color: card.sub.color }}>{card.sub.text}</Typography>
+                    </Box>
+                    {/* Visible at rest: a hover-only cue leaves the card looking
+                      * unclickable to anyone who has not hovered it yet. */}
+                    <Box className="res-hint" sx={{
+                      ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3,
+                      opacity: 0.8, transition: 'opacity 0.2s', color: card.color, flexShrink: 0,
+                    }}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'inherit', whiteSpace: 'nowrap' }}>View</Typography>
+                      <ArrowForward className="res-arrow" sx={{ fontSize: 13, transition: 'transform 0.2s' }} />
+                    </Box>
                   </Box>
                 </CardContent>
+                </CardActionArea>
               </Card>
             </motion.div>
           </Grid>

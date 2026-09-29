@@ -21,11 +21,15 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, Number(searchParams.get('page') || 1));
   const limit = Math.min(50, Math.max(1, Number(searchParams.get('limit') || 10)));
-  const status = searchParams.get('status') || '';
+  // Accepts a comma-separated group so a caller can ask for exactly what the
+  // dashboard counts as one number - "Resolved Cases" there is Resolved plus
+  // Closed, which a single exact status could not express.
+  const status = (searchParams.get('status') || '')
+    .split(',').map(v => v.trim()).filter(Boolean);
   const search = searchParams.get('search') || '';
 
   const where: Record<string, unknown> = { residentId: auth.resident.residentId };
-  if (status) where.status = status;
+  if (status.length) where.status = { in: status };
   if (search) {
     where.OR = [
       { caseNumber: { contains: search } },

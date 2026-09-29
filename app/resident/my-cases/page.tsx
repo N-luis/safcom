@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Box, Typography, Card, CardContent, Grid, Chip, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -94,10 +94,15 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
   );
 }
 
-export default function MyCasesPage() {
+function MyCasesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  // The dashboard stat cards link here with ?status=, which may name a group
+  // ("Resolved,Closed") so the list total matches the number that was clicked.
+  // Seeded as the initial state rather than set from an effect: an effect would
+  // render the unfiltered list first and then replace it.
+  const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') ?? '');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<CaseRow | null>(null);
 
@@ -131,7 +136,7 @@ export default function MyCasesPage() {
           { label: 'All', value: '', count: data?.total ?? 0, color: '#0c1e46' },
           { label: 'Open', value: 'Open', count: null, color: '#f97316' },
           { label: 'In Progress', value: 'In Progress', count: null, color: '#3b82f6' },
-          { label: 'Resolved', value: 'Resolved', count: null, color: '#22c55e' },
+          { label: 'Resolved', value: 'Resolved,Closed', count: null, color: '#22c55e' },
         ].map(s => (
           <Chip
             key={s.label}
@@ -251,5 +256,23 @@ export default function MyCasesPage() {
         </Fab>
       </Tooltip>
     </Box>
+  );
+}
+
+/**
+ * useSearchParams bails out of static prerendering, so the page that uses it
+ * must sit behind a Suspense boundary - without this the production build
+ * fails on "/resident/my-cases" even though it runs fine in dev.
+ */
+export default function MyCasesPageWrapper() {
+  return (
+    <Suspense fallback={
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
+        <Skeleton variant="text" width={200} height={38} />
+        <Skeleton variant="rounded" height={320} sx={{ mt: 2 }} />
+      </Box>
+    }>
+      <MyCasesPage />
+    </Suspense>
   );
 }
