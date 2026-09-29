@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Typography, Chip } from '@mui/material';
+import { useState, useMemo } from 'react';
+import { Box, Typography, Chip, Tooltip } from '@mui/material';
+import useSWR from 'swr';
+import {
+  STREET_NODES, STREET_AREAS, worstLevel,
+  type StreetRiskResponse,
+} from '@/lib/streetRisk';
+import type { BarangayStreet } from '@/lib/streets';
 
 /**
  * Street risk heatmap for Brgy. Biñang 2nd, Bocaue.
@@ -73,6 +79,15 @@ const ZONES: Zone[] = [
     desc: 'PNR railway crossing — Gov. F. Halili Ave. continues south as Turo' },
   { id: 'ayukit-pnr', name: 'Ayukit × PNR crossing', short: 'Ayukit', x: 596, y: 283, level: 'None', incidents: 0, illZoneId: 'granville', major: true, labelDx: 34,
     desc: 'Ayukit meeting the railway, connecting Granville Subd. through to Turo' },
+  // These three are on the report form's street list but had no point on the
+  // map, so an incident there could never show. Minor: they stay unlabelled
+  // while quiet and name themselves once they carry incidents.
+  { id: 'benedicto', name: 'J. Benedicto St. × Gov. F. Halili Ext.', short: 'J. Benedicto St.', x: 307, y: 69, level: 'None', incidents: 0, illZoneId: 'north-res', major: false, labelDx: -22, labelDy: -12,
+    desc: 'J. Benedicto St. — northern row of the residential grid inside the loop' },
+  { id: 'mendoza', name: 'A. Mendoza St. × Gov. F. Halili Ext.', short: 'A. Mendoza St.', x: 307, y: 91, level: 'None', incidents: 0, illZoneId: 'north-res', major: false, labelDx: -22, labelDy: 6,
+    desc: 'A. Mendoza St. — southern row of the residential grid inside the loop' },
+  { id: 'granville-mid', name: 'Granville Subd. interior', short: 'Granville Subd.', x: 650, y: 204, level: 'None', incidents: 0, illZoneId: 'granville', major: false, labelDy: 4,
+    desc: 'Granville Subd. residential block, east of Ayukit and north of the railway' },
 ];
 
 /** Road network between monitored points. */
@@ -148,31 +163,92 @@ interface RiskHeatMapProps {
   title?: string;
   contextLabel?: string;
   accent?: string;
+  /** Which cases colour the map - the module showing it. */
+  scope?: 'all' | 'blotter' | 'vawc';
+}
+
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then(r => (r.ok ? r.json() : null)).then(d => d?.data ?? null);
+
+/**
+ * Folds the per-street totals onto the map. A street can cover more than one
+ * node (a stretch between two junctions), in which case both carry that
+ * street's count - the node number is "incidents on this street", not a
+ * separate tally per junction.
+ */
+function applyStreetRisk(data: StreetRiskResponse | null) {
+  const nodes = new Map<string, { level: RiskLevel; incidents: number; streets: string[] }>();
+  const areas = new Map<string, { level: RiskLevel; incidents: number; streets: string[] }>();
+
+  const add = (
+    map: Map<string, { level: RiskLevel; incidents: number; streets: string[] }>,
+    id: string, level: RiskLevel, n: number, street: string,
+  ) => {
+    const cur = map.get(id) ?? { level: 'None' as RiskLevel, incidents: 0, streets: [] };
+    map.set(id, {
+      level: worstLevel(cur.level, level),
+      incidents: cur.incidents + n,
+      streets: [...cur.streets, street],
+    });
+  };
+
+  for (const row of data?.streets ?? []) {
+    const key = row.street as BarangayStreet;
+    (STREET_NODES[key] ?? []).forEach(id => add(nodes, id, row.level as RiskLevel, row.total, row.street));
+    (STREET_AREAS[key] ?? []).forEach(id => add(areas, id, row.level as RiskLevel, row.total, row.street));
+  }
+
+  const zones: Zone[] = ZONES.map(z => {
+    const hit = nodes.get(z.id);
+    if (!hit) return z;
+    return {
+      ...z, level: hit.level, incidents: hit.incidents,
+      desc: `${hit.incidents} incident${hit.incidents === 1 ? '' : 's'} reported on ${hit.streets.join(' / ')}. ${z.desc}`,
+    };
+  });
+
+  const illZones: IllZone[] = ILL_ZONES.map(a => {
+    const hit = areas.get(a.id);
+    if (!hit) return a;
+    return { ...a, level: hit.level, incidents: hit.incidents };
+  });
+
+  return { zones, illZones };
 }
 
 export default function RiskHeatMap({
   title        = 'Biñang 2nd, Bocaue — Street Risk Heatmap',
   contextLabel = 'Geographic view',
   accent       = '#1d4ed8',
+  scope        = 'all',
 }: RiskHeatMapProps = {}) {
   const [filter, setFilter]           = useState<RiskLevel | 'All'>('All');
   const [hovered, setHovered]         = useState<Zone | null>(null);
   const [hoveredArea, setHoveredArea] = useState<IllZone | null>(null);
   const [selected, setSelected]       = useState<string | null>(null);
 
-  const zoneMap = Object.fromEntries(ZONES.map(z => [z.id, z]));
+  // Re-reads while the officer is looking, so a case filed at the desk shows up
+  // on the map without anyone reloading the page.
+  const { data: risk, isLoading } = useSWR<StreetRiskResponse | null>(
+    `/api/risk/streets?scope=${scope}`, fetcher, { refreshInterval: 30000, revalidateOnFocus: true },
+  );
+
+  const { zones: LIVE_ZONES, illZones: LIVE_AREAS } =
+    useMemo(() => applyStreetRisk(risk ?? null), [risk]);
+
+  const zoneMap = Object.fromEntries(LIVE_ZONES.map(z => [z.id, z]));
   const visible = (z: Zone) => filter === 'All' || z.level === filter;
 
   const counts: Record<RiskLevel, number> = {
-    High:   ZONES.filter(z => z.level === 'High').length,
-    Medium: ZONES.filter(z => z.level === 'Medium').length,
-    Low:    ZONES.filter(z => z.level === 'Low').length,
-    None:   ZONES.filter(z => z.level === 'None').length,
+    High:   LIVE_ZONES.filter(z => z.level === 'High').length,
+    Medium: LIVE_ZONES.filter(z => z.level === 'Medium').length,
+    Low:    LIVE_ZONES.filter(z => z.level === 'Low').length,
+    None:   LIVE_ZONES.filter(z => z.level === 'None').length,
   };
 
   const selectedNode = selected ? zoneMap[selected] ?? null : null;
   const pinnedArea   = selectedNode
-    ? ILL_ZONES.find(a => a.id === selectedNode.illZoneId) ?? null
+    ? LIVE_AREAS.find(a => a.id === selectedNode.illZoneId) ?? null
     : null;
 
   const panel =
@@ -195,8 +271,9 @@ export default function RiskHeatMap({
     { label: 'None',   color: '#94a3b8' },
   ];
 
-  const totalIncidents = ZONES.reduce((s, z) => s + z.incidents, 0);
-  const awaitingData = ZONES.every(z => z.level === 'None');
+  const totalIncidents = risk?.placed ?? 0;
+  const unplaced = risk?.unplaced ?? 0;
+  const awaitingData = !isLoading && totalIncidents === 0;
 
   const ROAD = '#cdc5b4';
   const LABEL = '#6b7280';
@@ -209,7 +286,7 @@ export default function RiskHeatMap({
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
           {filters.map(f => {
             const active = filter === f.label;
-            const count = f.label === 'All' ? ZONES.length : counts[f.label as RiskLevel];
+            const count = f.label === 'All' ? LIVE_ZONES.length : counts[f.label as RiskLevel];
             return (
               <Chip
                 key={f.label}
@@ -250,6 +327,14 @@ export default function RiskHeatMap({
             <Chip label="Awaiting incident data" size="small"
               sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
           )}
+          {unplaced > 0 && (
+            <Tooltip
+              title={`Filed against a location that is not one of the barangay's streets, so they cannot be placed: ${(risk?.unplacedValues ?? []).join(', ')}`}
+            >
+              <Chip label={`${unplaced} not on a street`} size="small"
+                sx={{ bgcolor: '#fff7ed', color: '#b45309', fontWeight: 700, fontSize: '0.72rem', height: 22, cursor: 'help' }} />
+            </Tooltip>
+          )}
           {pinnedArea && (
             <Chip label={`● ${pinnedArea.label}`} size="small"
               sx={{
@@ -260,7 +345,7 @@ export default function RiskHeatMap({
               }} />
           )}
           <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', ml: 'auto' }}>
-            {totalIncidents} incidents · {ZONES.length} monitored points
+            {totalIncidents} incidents · {LIVE_ZONES.length} monitored points
           </Typography>
         </Box>
 
@@ -288,7 +373,7 @@ export default function RiskHeatMap({
             <text x="416" y="22" fontSize={6.6} fill="#1d4ed8" fontFamily={FONT} fontWeight="700">BOCAUE RIVER</text>
 
             {/* Risk heat, generated from the street nodes (none while neutral) */}
-            {ZONES.filter(z => z.level !== 'None').map(z => {
+            {LIVE_ZONES.filter(z => z.level !== 'None').map(z => {
               const vis = visible(z);
               const op  = vis ? (filter === 'All' ? HEAT_OP[z.level] : HEAT_OP[z.level] * 1.6) : 0.015;
               const fid = z.level === 'High' ? 'rh-h' : z.level === 'Medium' ? 'rh-m' : 'rh-l';
@@ -425,7 +510,7 @@ export default function RiskHeatMap({
             <text x="232" y="300" textAnchor="middle" fontSize={5.8} fill={LABEL} fontFamily={FONT} fontWeight="600">METROVILLE SUBD.</text>
 
             {/* ── Area hover targets (under the network so nodes win) ── */}
-            {ILL_ZONES.map(a => {
+            {LIVE_AREAS.map(a => {
               const isHov = hoveredArea?.id === a.id;
               const isPin = pinnedArea?.id === a.id;
               return (
@@ -449,27 +534,29 @@ export default function RiskHeatMap({
               </rect>
             )}
 
-            {/* ── Risk-coloured street segments ── */}
+            {/* ── Links between monitored points ──
+              * Deliberately NOT risk-coloured. These are straight chords between
+              * node coordinates, not the real road geometry, which is drawn
+              * accurately underneath - a thick red chord would both cut across
+              * the map and imply risk on a street with no incidents, since an
+              * edge touches two nodes and only one of them may be reporting.
+              * Risk reads from the nodes and their halos instead. */}
             {STREETS.map(([a, b]) => {
               const zA = zoneMap[a]; const zB = zoneMap[b];
               if (!zA || !zB) return null;
               if (!visible(zA) && !visible(zB)) return null;
-              const lvl: RiskLevel = [zA.level, zB.level].includes('High') ? 'High'
-                : [zA.level, zB.level].includes('Medium') ? 'Medium'
-                : [zA.level, zB.level].includes('Low') ? 'Low' : 'None';
-              const w = lvl === 'High' ? 4.5 : lvl === 'Medium' ? 3.4 : lvl === 'Low' ? 2.4 : 2.6;
               const isSel = selected === zA.id || selected === zB.id;
               return (
                 <line key={`edge-${a}-${b}`} x1={zA.x} y1={zA.y} x2={zB.x} y2={zB.y}
-                  stroke={LEVEL_COLOR[lvl]} strokeWidth={isSel ? w + 1.8 : w}
-                  strokeLinecap="round" opacity={isSel ? 0.85 : lvl === 'None' ? 0.45 : 0.55}
-                  strokeDasharray={lvl === 'None' ? '5,4' : undefined}
+                  stroke={LEVEL_COLOR.None} strokeWidth={isSel ? 4.4 : 2.6}
+                  strokeLinecap="round" opacity={isSel ? 0.7 : 0.45}
+                  strokeDasharray="5,4"
                   style={{ pointerEvents: 'none' }} />
               );
             })}
 
             {/* ── High-risk pulse rings ── */}
-            {ZONES.filter(z => z.level === 'High' && visible(z)).map(z => (
+            {LIVE_ZONES.filter(z => z.level === 'High' && visible(z)).map(z => (
               <circle key={`pulse-${z.id}`} cx={z.x} cy={z.y} r={NODE_R.High}
                 fill="none" stroke={LEVEL_COLOR.High} strokeWidth={2} opacity={0}
                 style={{ pointerEvents: 'none' }}>
@@ -487,12 +574,12 @@ export default function RiskHeatMap({
             )}
 
             {/* ── Street nodes ── */}
-            {ZONES.map(z => {
+            {LIVE_ZONES.map(z => {
               const vis   = visible(z);
               const isHov = hovered?.id === z.id;
               const isSel = selected === z.id;
               const r     = NODE_R[z.level] + (isHov || isSel ? 2 : 0);
-              const showLabel = vis && (z.major || isHov || isSel);
+              const showLabel = vis && (z.major || z.level !== 'None' || isHov || isSel);
               return (
                 <g key={z.id} style={{ cursor: 'pointer' }}
                   onMouseEnter={() => setHovered(z)}
@@ -590,7 +677,7 @@ export default function RiskHeatMap({
       {/* ── Summary chips ── */}
       <Box sx={{ display: 'flex', gap: 0.75, mt: 1.5, flexWrap: 'wrap' }}>
         {(['High', 'Medium', 'Low', 'None'] as RiskLevel[]).map(lv => {
-          const names = ZONES.filter(z => z.level === lv).map(z => z.short);
+          const names = LIVE_ZONES.filter(z => z.level === lv).map(z => z.short);
           if (names.length === 0) return null;
           return (
             <Chip key={lv} label={`${LEVEL_LABEL[lv]}: ${names.join(' · ')}`} size="small"

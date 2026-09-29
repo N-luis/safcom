@@ -996,7 +996,7 @@ export default function AIRiskPredictionPage() {
           <Typography sx={{ fontSize: '0.82rem', color: 'text.secondary', mb: 1.75 }}>
             Street-level risk network plotted over the Biñang 2nd area map — heat intensity shows incident concentration per intersection and landmark
           </Typography>
-          <RiskHeatMap />
+          <RiskHeatMap scope="blotter" />
         </CardContent>
       </Card>
 

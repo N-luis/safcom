@@ -248,6 +248,7 @@ export default function VawcAiRiskPage() {
             title="Biñang 2nd, Bocaue — VAWC Street Risk Heatmap"
             contextLabel="VAWC geographic view"
             accent={ACCENT}
+            scope="vawc"
           />
         </CardContent>
       </Card>
