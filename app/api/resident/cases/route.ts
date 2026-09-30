@@ -10,9 +10,6 @@ const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   barangay: z.string().optional(),
-  minorsInvolved: z.boolean().optional(),
-  physicalHarm: z.boolean().optional(),
-  recurring: z.boolean().optional(),
   additionalNotes: z.string().optional(),
   // Photos arrive as data URLs; the bytes are decoded and stored separately.
   attachments: z.array(z.object({
@@ -84,7 +81,7 @@ export async function POST(req: NextRequest) {
     const barangay = parsed.data.barangay || resident.barangay;
     const filedAt = new Date();
 
-    const { minorsInvolved, physicalHarm, recurring, additionalNotes } = parsed.data;
+    const { additionalNotes } = parsed.data;
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [barangayCaseCount, residentCaseCount, highRiskAreaCaseCount] = await Promise.all([
@@ -109,19 +106,14 @@ export async function POST(req: NextRequest) {
       status: 'Open',
       barangayCaseCount,
       residentPriorCases: Math.max(0, residentCaseCount),
-      minorsInvolved,
-      physicalHarm,
-      recurring,
+      // Physical harm, minors and recurrence are deliberately not passed: the
+      // form no longer asks the resident to classify their own incident, so the
+      // engine reads them out of the description and the case history instead.
+      // Passing false here would have suppressed that detection entirely.
       highRiskAreaCaseCount,
     });
 
-    // Encode risk context and notes into the notes field
-    const contextLines: string[] = [];
-    if (physicalHarm)    contextLines.push('Physical harm: Yes');
-    if (minorsInvolved)  contextLines.push('Minors involved: Yes');
-    if (recurring)       contextLines.push('Recurring incident: Yes');
-    if (additionalNotes) contextLines.push(`Notes: ${additionalNotes}`);
-    const notesValue = contextLines.length ? contextLines.join('\n') : undefined;
+    const notesValue = additionalNotes ? `Notes: ${additionalNotes}` : undefined;
 
     const incoming = parsed.data.attachments ?? [];
     const photos: { filename: string; mimeType: string; size: number; data: Uint8Array<ArrayBuffer> }[] = [];

@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import {
   CheckCircle, Send, ArrowBack, AutoAwesome,
-  FamilyRestroom, Repeat, LocalHospital,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -43,9 +42,6 @@ const schema = z.object({
   // group by where the incident happened, not by the reporter's barangay.
   street:          z.string().min(1, 'Please select the street'),
   location:        z.string().optional(),
-  minorsInvolved:  z.boolean(),
-  physicalHarm:    z.boolean(),
-  recurring:       z.boolean(),
   additionalNotes: z.string().optional(),
 }).refine(
   d => !isOtherType(d.caseType) || (d.otherType ?? '').trim().length >= 3,
@@ -63,34 +59,6 @@ interface AiRisk {
   highRiskZone: boolean;
 }
 
-function YesNoToggle({
-  label, icon: Icon, value, onChange,
-}: { label: string; icon: React.ElementType; value: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-        <Icon sx={{ fontSize: 16, color: '#64748b' }} />
-        <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569' }}>{label}</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        {[{ label: 'Yes', val: true, activeColor: '#ef4444' }, { label: 'No', val: false, activeColor: ACCENT }].map(opt => (
-          <Chip
-            key={String(opt.val)}
-            label={opt.label}
-            onClick={() => onChange(opt.val)}
-            sx={{
-              fontWeight: value === opt.val ? 700 : 400,
-              bgcolor: value === opt.val ? `${opt.activeColor}15` : '#f1f5f9',
-              color: value === opt.val ? opt.activeColor : '#64748b',
-              border: value === opt.val ? `1.5px solid ${opt.activeColor}40` : '1.5px solid transparent',
-              cursor: 'pointer', fontSize: '0.86rem', px: 0.5, transition: 'all 0.15s',
-            }}
-          />
-        ))}
-      </Box>
-    </Box>
-  );
-}
 
 export default function ReportCasePage() {
   const router = useRouter();
@@ -101,7 +69,6 @@ export default function ReportCasePage() {
     resolver: zodResolver(schema),
     defaultValues: {
       caseType: '', otherType: '', description: '', street: '', location: '',
-      minorsInvolved: false, physicalHarm: false, recurring: false,
       additionalNotes: '',
     },
   });
@@ -109,7 +76,6 @@ export default function ReportCasePage() {
   const descLen = watch('description')?.length ?? 0;
   const selectedCaseType = watch('caseType');
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
-  const hasHighRiskFlag = watch('physicalHarm') || watch('minorsInvolved') || watch('recurring');
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
 
@@ -130,9 +96,6 @@ export default function ReportCasePage() {
             data.caseType,
             data.otherType ?? '',
           ),
-          minorsInvolved: data.minorsInvolved,
-          physicalHarm: data.physicalHarm,
-          recurring: data.recurring,
           additionalNotes: data.additionalNotes,
           attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
         }),
@@ -245,12 +208,6 @@ export default function ReportCasePage() {
                 </Alert>
               )}
 
-              {hasHighRiskFlag && (
-                <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2, bgcolor: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', '& .MuiAlert-icon': { color: '#ef4444' } }}>
-                  Based on your answers, this case may be classified as <strong>High Risk</strong>. An officer will be prioritized to review it.
-                </Alert>
-              )}
-
               <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
                 {/* Case Type */}
@@ -324,37 +281,6 @@ export default function ReportCasePage() {
                     slotProps={{ htmlInput: { maxLength: 800 } }}
                   />
                 </Box>
-
-                <Divider />
-
-                {/* Risk-context toggles */}
-                <Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Incident Context
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8', mb: 2 }}>
-                    This helps the AI classify the risk level accurately and prioritize your case.
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <Controller name="physicalHarm" control={control} render={({ field }) => (
-                        <YesNoToggle label="Physical harm occurred?" icon={LocalHospital} value={field.value} onChange={field.onChange} />
-                      )} />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <Controller name="minorsInvolved" control={control} render={({ field }) => (
-                        <YesNoToggle label="Minors involved?" icon={FamilyRestroom} value={field.value} onChange={field.onChange} />
-                      )} />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <Controller name="recurring" control={control} render={({ field }) => (
-                        <YesNoToggle label="Has this happened before?" icon={Repeat} value={field.value} onChange={field.onChange} />
-                      )} />
-                    </Grid>
-                  </Grid>
-                </Box>
-
-                <Divider />
 
                 {/* Additional notes */}
                 <TextField

@@ -112,6 +112,47 @@ function detectMinorsInDescription(desc: string): boolean {
   return ['minor', 'child', 'bata', 'anak', 'underage', 'juvenile', 'teen', 'teenager', 'baby', 'infant', 'toddler'].some(kw => lower.includes(kw));
 }
 
+/**
+ * Physical harm read out of the description.
+ *
+ * The reporting form used to ask "Physical harm occurred?" as a Yes/No, which
+ * put the classification in the reporter's hands and defaulted to No - so a
+ * report describing an injury was scored as though none had happened. The words
+ * people actually use are matched here instead, in English and Tagalog.
+ */
+function detectPhysicalHarmInDescription(desc: string): boolean {
+  const lower = desc.toLowerCase();
+  return [
+    // English
+    'hit', 'hitting', 'punch', 'punched', 'slap', 'slapped', 'beat', 'beaten',
+    'kick', 'kicked', 'choke', 'choked', 'strangl', 'stab', 'stabbed', 'shot',
+    'injur', 'wound', 'bruise', 'bleeding', 'blood', 'broken bone', 'fracture',
+    'burn', 'burned', 'assault', 'attacked', 'hurt', 'hospital', 'unconscious',
+    'pushed', 'dragged', 'threw',
+    // Tagalog
+    'sinaktan', 'saktan', 'binugbog', 'bugbog', 'sinuntok', 'suntok',
+    'sinampal', 'sampal', 'sinipa', 'sipa', 'sinaksak', 'saksak',
+    'sugat', 'pasa', 'dumudugo', 'nagdudugo', 'binaril', 'tinulak',
+  ].some(kw => lower.includes(kw));
+}
+
+/**
+ * Recurrence read out of the description, for the first report of a pattern -
+ * case history alone cannot see an incident that has been happening for months
+ * but is only now being reported.
+ */
+function detectRecurrenceInDescription(desc: string): boolean {
+  const lower = desc.toLowerCase();
+  return [
+    'again', 'always', 'every night', 'every day', 'every week', 'repeatedly',
+    'keeps happening', 'keeps doing', 'multiple times', 'several times',
+    'many times', 'second time', 'third time', 'not the first',
+    'has happened before', 'happened before', 'ongoing for',
+    'paulit-ulit', 'paulit ulit', 'lagi', 'palagi', 'madalas',
+    'dati pa', 'noon pa', 'ilang beses', 'ulit na naman', 'araw-araw',
+  ].some(kw => lower.includes(kw));
+}
+
 // Detect active/pending legal case keywords
 function detectLegalCaseInDescription(desc: string): boolean {
   const lower = desc.toLowerCase();
@@ -210,18 +251,31 @@ export function computeRisk(input: ScoringInput): RiskResult {
 
   // ── Rule-based classification (framework) ────────────────────────────────────
   // Derive implicit values from description/history when not explicitly provided
-  const hasPhysicalHarm = input.physicalHarm ?? (descSev >= 80);
+  // Each falls back to reading the report when the caller does not assert it.
+  // The resident form no longer asks; the officer walk-in form may still pass
+  // what the complainant stated at the desk.
+  const harmInText      = detectPhysicalHarmInDescription(input.description ?? '');
+  const recurrenceInText = detectRecurrenceInDescription(input.description ?? '');
+  const hasPhysicalHarm = input.physicalHarm ?? (harmInText || descSev >= 80);
   const hasMinors       = input.minorsInvolved ?? detectMinorsInDescription(input.description ?? '');
-  const isRecurring     = input.recurring ?? (priorN >= 2);
+  const isRecurring     = input.recurring ?? (priorN >= 2 || recurrenceInText);
   const hasLegalCase    = detectLegalCaseInDescription(input.description ?? '');
   const hrAreaCount     = Math.max(0, input.highRiskAreaCaseCount ?? 0);
   const isHighRiskZone  = hrAreaCount >= 3;
 
   // Evaluate High-Risk triggers (any single trigger → High)
   const highTriggers: string[] = [];
-  if (hasPhysicalHarm)   highTriggers.push('Physical harm occurred or is imminent');
+  if (hasPhysicalHarm) {
+    highTriggers.push(harmInText
+      ? 'Physical harm described in the report'
+      : 'Physical harm occurred or is imminent');
+  }
   if (hasMinors)         highTriggers.push('Minors or highly vulnerable individuals involved');
-  if (isRecurring)       highTriggers.push('Recurring incident — same parties involved');
+  if (isRecurring) {
+    highTriggers.push(priorN >= 2
+      ? `Recurring incident — ${priorN} prior cases on record`
+      : 'Recurring incident described in the report');
+  }
   if (hasLegalCase)      highTriggers.push('Active or pending legal case referenced');
   if (descSev >= 96)     highTriggers.push('Life-threatening or weapon-related language in report');
   if (isHighRiskZone)    highTriggers.push(`High-Risk Zone: ${hrAreaCount} similar High-Risk cases already filed in ${input.barangay}`);
