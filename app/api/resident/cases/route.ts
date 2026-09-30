@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { computeRisk } from '@/lib/riskEngine';
+import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
+import { createWithCaseNumber } from '@/lib/caseNumber';
 
 const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
@@ -12,6 +14,11 @@ const createSchema = z.object({
   physicalHarm: z.boolean().optional(),
   recurring: z.boolean().optional(),
   additionalNotes: z.string().optional(),
+  // Photos arrive as data URLs; the bytes are decoded and stored separately.
+  attachments: z.array(z.object({
+    name: z.string().min(1).max(200),
+    dataUrl: z.string().min(1),
+  })).max(MAX_ATTACHMENTS, `You can attach up to ${MAX_ATTACHMENTS} photos`).optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -74,9 +81,6 @@ export async function POST(req: NextRequest) {
     });
     if (!resident) return rError('Resident not found', 404);
 
-    const count = await prisma.case.count();
-    const year = new Date().getFullYear();
-    const caseNumber = `SC-${year}-${String(count + 1).padStart(4, '0')}`;
     const barangay = parsed.data.barangay || resident.barangay;
     const filedAt = new Date();
 
@@ -119,20 +123,42 @@ export async function POST(req: NextRequest) {
     if (additionalNotes) contextLines.push(`Notes: ${additionalNotes}`);
     const notesValue = contextLines.length ? contextLines.join('\n') : undefined;
 
-    const newCase = await prisma.case.create({
-      data: {
-        caseNumber,
-        residentName: `${resident.firstName} ${resident.lastName}`,
-        caseType: parsed.data.caseType,
-        description: parsed.data.description,
-        barangay,
-        status: 'Open',
-        riskLevel: aiRisk.level,
-        filedAt,
-        residentId: auth.resident.residentId,
-        ...(notesValue && { notes: notesValue }),
-      },
-    });
+    const incoming = parsed.data.attachments ?? [];
+    const photos: { filename: string; mimeType: string; size: number; data: Uint8Array<ArrayBuffer> }[] = [];
+    for (const a of incoming) {
+      const result = parseImageDataUrl(a.dataUrl);
+      if ('error' in result) return rError(`${a.name}: ${result.error}`, 400);
+      photos.push({
+        filename: a.name, mimeType: result.mimeType,
+        size: result.bytes.length, data: result.bytes,
+      });
+    }
+
+    // Retried: two residents filing at the same moment can be handed the same
+    // number, and the unique constraint rejects the loser.
+    const newCase = await createWithCaseNumber('SC', caseNumber =>
+      prisma.case.create({
+        data: {
+          caseNumber,
+          residentName: `${resident.firstName} ${resident.lastName}`,
+          caseType: parsed.data.caseType,
+          description: parsed.data.description,
+          barangay,
+          status: 'Open',
+          riskLevel: aiRisk.level,
+          filedAt,
+          residentId: auth.resident.residentId,
+          ...(notesValue && { notes: notesValue }),
+        },
+      }),
+    );
+    const caseNumber = newCase.caseNumber;
+
+    if (photos.length) {
+      await prisma.caseAttachment.createMany({
+        data: photos.map(p => ({ ...p, caseId: newCase.id })),
+      });
+    }
 
     const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — AI risk: ${aiRisk.level}${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
 
@@ -148,7 +174,10 @@ export async function POST(req: NextRequest) {
     });
 
     return rSuccess({ ...newCase, aiRiskAssessment: aiRisk }, 201);
-  } catch {
+  } catch (err) {
+    // Logged: a silent 500 here hid an attachment failure that looked identical
+    // to any other server fault.
+    console.error('[Resident case create]', err);
     return rError('Server error', 500);
   }
 }

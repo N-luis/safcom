@@ -47,6 +47,26 @@ model Case {
   updatedAt    DateTime       @updatedAt
   activities   Activity[]
   followUps    CaseFollowUp[]
+  attachments  CaseAttachment[]
+}
+
+/**
+ * A photo filed with a report. The bytes live here rather than on disk because
+ * the app runs serverless - a file written into public/uploads is gone on the
+ * next request - and no object storage is configured. Kept in its own table so
+ * listing cases never drags the image data along.
+ */
+model CaseAttachment {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  filename  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([caseId])
 }
 
 model Report {

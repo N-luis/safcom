@@ -719,14 +719,6 @@ export type ResidentUpdateOneWithoutCasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutCasesInput, Prisma.ResidentUpdateWithoutCasesInput>, Prisma.ResidentUncheckedUpdateWithoutCasesInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ResidentCreateNestedOneWithoutVerificationTokensInput = {
   create?: Prisma.XOR<Prisma.ResidentCreateWithoutVerificationTokensInput, Prisma.ResidentUncheckedCreateWithoutVerificationTokensInput>
   connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutVerificationTokensInput

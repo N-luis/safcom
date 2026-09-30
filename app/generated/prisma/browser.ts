@@ -28,6 +28,15 @@ export type User = Prisma.UserModel
  */
 export type Case = Prisma.CaseModel
 /**
+ * Model CaseAttachment
+ * *
+ *  * A photo filed with a report. The bytes live here rather than on disk because
+ *  * the app runs serverless - a file written into public/uploads is gone on the
+ *  * next request - and no object storage is configured. Kept in its own table so
+ *  * listing cases never drags the image data along.
+ */
+export type CaseAttachment = Prisma.CaseAttachmentModel
+/**
  * Model Report
  * 
  */

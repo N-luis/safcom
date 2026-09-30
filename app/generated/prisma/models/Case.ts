@@ -258,6 +258,7 @@ export type CaseWhereInput = {
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
+  attachments?: Prisma.CaseAttachmentListRelationFilter
 }
 
 export type CaseOrderByWithRelationInput = {
@@ -279,6 +280,7 @@ export type CaseOrderByWithRelationInput = {
   resident?: Prisma.ResidentOrderByWithRelationInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
   followUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
+  attachments?: Prisma.CaseAttachmentOrderByRelationAggregateInput
 }
 
 export type CaseWhereUniqueInput = Prisma.AtLeast<{
@@ -303,6 +305,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
+  attachments?: Prisma.CaseAttachmentListRelationFilter
 }, "id" | "caseNumber">
 
 export type CaseOrderByWithAggregationInput = {
@@ -362,6 +365,7 @@ export type CaseCreateInput = {
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateInput = {
@@ -381,6 +385,7 @@ export type CaseUncheckedCreateInput = {
   updatedAt?: Date | string
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUpdateInput = {
@@ -400,6 +405,7 @@ export type CaseUpdateInput = {
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateInput = {
@@ -419,6 +425,7 @@ export type CaseUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyInput = {
@@ -531,14 +538,14 @@ export type CaseMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type CaseNullableScalarRelationFilter = {
-  is?: Prisma.CaseWhereInput | null
-  isNot?: Prisma.CaseWhereInput | null
-}
-
 export type CaseScalarRelationFilter = {
   is?: Prisma.CaseWhereInput
   isNot?: Prisma.CaseWhereInput
+}
+
+export type CaseNullableScalarRelationFilter = {
+  is?: Prisma.CaseWhereInput | null
+  isNot?: Prisma.CaseWhereInput | null
 }
 
 export type CaseCreateNestedManyWithoutAssignedToInput = {
@@ -585,6 +592,20 @@ export type CaseUncheckedUpdateManyWithoutAssignedToNestedInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type CaseCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutAttachmentsInput, Prisma.CaseUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutAttachmentsInput, Prisma.CaseUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.CaseUpsertWithoutAttachmentsInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.CaseUpdateWithoutAttachmentsInput>, Prisma.CaseUncheckedUpdateWithoutAttachmentsInput>
 }
 
 export type CaseCreateNestedManyWithoutResidentInput = {
@@ -675,6 +696,7 @@ export type CaseCreateWithoutAssignedToInput = {
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssignedToInput = {
@@ -693,6 +715,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   updatedAt?: Date | string
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssignedToInput = {
@@ -741,6 +764,98 @@ export type CaseScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
 }
 
+export type CaseCreateWithoutAttachmentsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string
+  barangay: string
+  description: string
+  notes?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutAttachmentsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string
+  barangay: string
+  description: string
+  notes?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutAttachmentsInput, Prisma.CaseUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type CaseUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutAttachmentsInput, Prisma.CaseUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutAttachmentsInput, Prisma.CaseUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutAttachmentsInput, Prisma.CaseUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type CaseUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+}
+
 export type CaseCreateWithoutResidentInput = {
   id?: string
   caseNumber: string
@@ -757,6 +872,7 @@ export type CaseCreateWithoutResidentInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutResidentInput = {
@@ -775,6 +891,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   updatedAt?: Date | string
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutResidentInput = {
@@ -819,6 +936,7 @@ export type CaseCreateWithoutActivitiesInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutActivitiesInput = {
@@ -837,6 +955,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutActivitiesInput = {
@@ -871,6 +990,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutActivitiesInput = {
@@ -889,6 +1009,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutFollowUpsInput = {
@@ -907,6 +1028,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutFollowUpsInput = {
@@ -925,6 +1047,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutFollowUpsInput = {
@@ -959,6 +1082,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutFollowUpsInput = {
@@ -977,6 +1101,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyAssignedToInput = {
@@ -1011,6 +1136,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssignedToInput = {
@@ -1029,6 +1155,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
@@ -1079,6 +1206,7 @@ export type CaseUpdateWithoutResidentInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutResidentInput = {
@@ -1097,6 +1225,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutResidentInput = {
@@ -1123,11 +1252,13 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
 export type CaseCountOutputType = {
   activities: number
   followUps: number
+  attachments: number
 }
 
 export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   activities?: boolean | CaseCountOutputTypeCountActivitiesArgs
   followUps?: boolean | CaseCountOutputTypeCountFollowUpsArgs
+  attachments?: boolean | CaseCountOutputTypeCountAttachmentsArgs
 }
 
 /**
@@ -1154,6 +1285,13 @@ export type CaseCountOutputTypeCountFollowUpsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.CaseFollowUpWhereInput
 }
 
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseAttachmentWhereInput
+}
+
 
 export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1174,6 +1312,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
   followUps?: boolean | Prisma.Case$followUpsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Case$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
 
@@ -1238,6 +1377,7 @@ export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
   followUps?: boolean | Prisma.Case$followUpsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Case$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1256,6 +1396,7 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     resident: Prisma.$ResidentPayload<ExtArgs> | null
     activities: Prisma.$ActivityPayload<ExtArgs>[]
     followUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
+    attachments: Prisma.$CaseAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1670,6 +1811,7 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   resident<T extends Prisma.Case$residentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$residentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activities<T extends Prisma.Case$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   followUps<T extends Prisma.Case$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.Case$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2197,6 +2339,30 @@ export type Case$followUpsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CaseFollowUpScalarFieldEnum | Prisma.CaseFollowUpScalarFieldEnum[]
+}
+
+/**
+ * Case.attachments
+ */
+export type Case$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseAttachment
+   */
+  select?: Prisma.CaseAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseAttachment
+   */
+  omit?: Prisma.CaseAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseAttachmentInclude<ExtArgs> | null
+  where?: Prisma.CaseAttachmentWhereInput
+  orderBy?: Prisma.CaseAttachmentOrderByWithRelationInput | Prisma.CaseAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.CaseAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseAttachmentScalarFieldEnum | Prisma.CaseAttachmentScalarFieldEnum[]
 }
 
 /**

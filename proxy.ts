@@ -15,6 +15,17 @@ const PUBLIC_PATHS = [
   '/uploads',
 ];
 
+/**
+ * Routes that authorise themselves because they serve both audiences, each
+ * carrying a different cookie. The proxy cannot pick one: gating them as staff
+ * locks residents out, and gating them as resident locks officers out. These
+ * are NOT public - the handler checks the caller and returns 401/403 itself.
+ */
+const SELF_AUTHORISED_PATHS = [
+  // Report photos: barangay staff see any case's, a resident sees only theirs.
+  '/api/attachments',
+];
+
 // paths that require resident_token instead of safcom_token
 const RESIDENT_PATHS = ['/resident/', '/api/resident/', '/api/auth/resident-me', '/api/auth/resident-logout'];
 
@@ -71,6 +82,7 @@ async function route(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) return NextResponse.next();
+  if (SELF_AUTHORISED_PATHS.some(p => pathname.startsWith(p))) return NextResponse.next();
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) return NextResponse.next();
 
   // Resident portal — check resident_token

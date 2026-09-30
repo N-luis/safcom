@@ -11,14 +11,15 @@ import {
   Divider,
 } from '@mui/material';
 import {
-  CheckCircle, Send, ArrowBack, AutoAwesome, Info,
-  Shield, FamilyRestroom, Repeat, LocalHospital,
+  CheckCircle, Send, ArrowBack, AutoAwesome,
+  FamilyRestroom, Repeat, LocalHospital,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
+import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 
 const ACCENT = '#14b8a6';
 
@@ -110,6 +111,8 @@ export default function ReportCasePage() {
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
   const hasHighRiskFlag = watch('physicalHarm') || watch('minorsInvolved') || watch('recurring');
 
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+
   const onSubmit = async (data: FormData) => {
     setApiError('');
     try {
@@ -131,6 +134,7 @@ export default function ReportCasePage() {
           physicalHarm: data.physicalHarm,
           recurring: data.recurring,
           additionalNotes: data.additionalNotes,
+          attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
         }),
       });
       const json = await res.json();
@@ -230,7 +234,7 @@ export default function ReportCasePage() {
       </Box>
 
       <Grid container spacing={3} sx={{ maxWidth: 940 }}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               {apiError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{apiError}</Alert>}
@@ -360,6 +364,14 @@ export default function ReportCasePage() {
                   fullWidth multiline rows={2}
                 />
 
+                {/* Photo evidence — shrunk in the browser before upload */}
+                <PhotoAttachments
+                  photos={photos}
+                  onChange={setPhotos}
+                  disabled={isSubmitting}
+                  accent={ACCENT}
+                />
+
                 <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                   <Button
                     type="submit"
@@ -381,55 +393,6 @@ export default function ReportCasePage() {
           </Card>
         </Grid>
 
-        {/* Info sidebar */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ bgcolor: '#f8fafc', border: '1px solid #f1f5f9', mb: 2 }}>
-            <CardContent sx={{ p: 2.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                <Shield sx={{ fontSize: 17, color: ACCENT }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>What happens next?</Typography>
-              </Box>
-              {[
-                { num: '01', text: 'Your report is logged and a case number is assigned immediately.' },
-                { num: '02', text: 'SafComm AI classifies the risk level — Low, Medium, or High — based on your answers.' },
-                { num: '03', text: 'High-Risk cases are flagged for priority review and officer assignment.' },
-                { num: '04', text: 'Track status updates in "My Cases" at any time.' },
-              ].map(s => (
-                <Box key={s.num} sx={{ display: 'flex', gap: 1.25, mb: 1.5 }}>
-                  <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: '1px' }}>
-                    <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: 'white' }}>{s.num}</Typography>
-                  </Box>
-                  <Typography sx={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.55 }}>{s.text}</Typography>
-                </Box>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card sx={{ bgcolor: '#fef9c3', border: '1px solid #fef08a' }}>
-            <CardContent sx={{ p: 2.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Info sx={{ fontSize: 16, color: '#ca8a04' }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#713f12' }}>Risk Classification</Typography>
-              </Box>
-              {[
-                { level: 'Low', color: '#22c55e', desc: 'Isolated, no harm, no history' },
-                { level: 'Medium', color: '#f97316', desc: 'Verbal/emotional, limited history' },
-                { level: 'High', color: '#ef4444', desc: 'Physical harm, minors, or recurring' },
-              ].map(r => (
-                <Box key={r.level} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: r.color, flexShrink: 0 }} />
-                  <Typography sx={{ fontSize: '0.86rem', color: '#92400e' }}>
-                    <Box component="span" sx={{ fontWeight: 700 }}>{r.level}</Box> — {r.desc}
-                  </Typography>
-                </Box>
-              ))}
-              <Divider sx={{ my: 1.25, borderColor: '#fef08a' }} />
-              <Typography sx={{ fontSize: '0.82rem', color: '#92400e', lineHeight: 1.55 }}>
-                For emergencies, call <strong style={{ color: '#ef4444' }}>911</strong> or your local barangay hotline directly.
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
       </Grid>
     </Box>
   );

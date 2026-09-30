@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseAttachment: 'CaseAttachment',
   Report: 'Report',
   Resident: 'Resident',
   EmailVerificationToken: 'EmailVerificationToken',
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message"
+    modelProps: "user" | "case" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -558,6 +559,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CaseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseAttachment: {
+      payload: Prisma.$CaseAttachmentPayload<ExtArgs>
+      fields: Prisma.CaseAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.CaseAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.CaseAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.CaseAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        update: {
+          args: Prisma.CaseAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseAttachment>
+        }
+        groupBy: {
+          args: Prisma.CaseAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseAttachmentCountAggregateOutputType> | number
         }
       }
     }
@@ -1230,6 +1305,19 @@ export const CaseScalarFieldEnum = {
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
 
 
+export const CaseAttachmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  filename: 'filename',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseAttachmentScalarFieldEnum = (typeof CaseAttachmentScalarFieldEnum)[keyof typeof CaseAttachmentScalarFieldEnum]
+
+
 export const ReportScalarFieldEnum = {
   id: 'id',
   reportNumber: 'reportNumber',
@@ -1440,6 +1528,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes[]'
+ */
+export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1564,6 +1666,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   case?: Prisma.CaseOmit
+  caseAttachment?: Prisma.CaseAttachmentOmit
   report?: Prisma.ReportOmit
   resident?: Prisma.ResidentOmit
   emailVerificationToken?: Prisma.EmailVerificationTokenOmit

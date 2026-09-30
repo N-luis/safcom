@@ -77,6 +77,7 @@ interface CaseDetail {
   resident?: { id: string; firstName: string; lastName: string } | null;
   activities: CaseActivity[];
   followUps: FollowUp[];
+  attachments?: { id: string; filename: string; mimeType: string; size: number }[];
   aiRiskAssessment?: AIRisk;
 }
 
@@ -881,6 +882,26 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                   {caseData.description}
                 </Typography>
               </Paper>
+              {(caseData.attachments ?? []).length > 0 && (
+                <Box sx={{ mt: 1.5 }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>
+                    Photos from the reporter ({(caseData.attachments ?? []).length})
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1.25, flexWrap: 'wrap' }}>
+                    {(caseData.attachments ?? []).map((a, i) => (
+                      <a key={a.id} href={`/api/attachments/${a.id}`} target="_blank" rel="noopener noreferrer"
+                        title={`${a.filename} - open full size`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/attachments/${a.id}`}
+                          alt={`Photo ${i + 1} filed with this report: ${a.filename}`}
+                          style={{ width: 104, height: 104, objectFit: 'cover', borderRadius: 8, border: '1px solid #e2e8f0', display: 'block' }}
+                        />
+                      </a>
+                    ))}
+                  </Box>
+                </Box>
+              )}
               {caseData.notes && (
                 <Box sx={{ mt: 1.5 }}>
                   <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>

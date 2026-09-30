@@ -35,6 +35,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           orderBy: { createdAt: 'asc' },
           include: { user: { select: { id: true, name: true, role: true } } },
         },
+        // `select` on purpose: including the row would carry every photo's
+        // bytes in the case detail response.
+        attachments: {
+          orderBy: { createdAt: 'asc' },
+          select: { id: true, filename: true, mimeType: true, size: true, createdAt: true },
+        },
       },
     });
     if (!c) return errorResponse('Case not found', 404);

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { computeRisk } from '@/lib/riskEngine';
+import { nextCaseNumber } from '@/lib/caseNumber';
 
 /** Reads a filter param that may hold one value or a comma-separated group. */
 function csv(raw: string | null): string[] {
@@ -95,9 +96,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const count = await prisma.case.count();
-    const year = new Date().getFullYear();
-    const caseNumber = `VC-${year}-${String(count + 1).padStart(4, '0')}`;
+    // Counting and adding one breaks as soon as a case is deleted - the number
+    // it lands on already exists and every later filing is rejected.
+    const caseNumber = await nextCaseNumber('VC');
     const filedAt = new Date();
 
     // AI risk assessment — the officer no longer sets the risk level manually;

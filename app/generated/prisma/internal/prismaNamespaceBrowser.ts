@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseAttachment: 'CaseAttachment',
   Report: 'Report',
   Resident: 'Resident',
   EmailVerificationToken: 'EmailVerificationToken',
@@ -115,6 +116,19 @@ export const CaseScalarFieldEnum = {
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CaseAttachmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  filename: 'filename',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseAttachmentScalarFieldEnum = (typeof CaseAttachmentScalarFieldEnum)[keyof typeof CaseAttachmentScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {
