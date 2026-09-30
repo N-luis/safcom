@@ -19,6 +19,9 @@ import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
+import RiskProcessing, { type ProcessingState } from '@/components/ai/RiskProcessing';
+import RiskAssessmentResult from '@/components/ai/RiskAssessmentResult';
+import type { GbvAnalysis } from '@/lib/gbvAnalysis';
 
 const ACCENT = '#14b8a6';
 
@@ -57,6 +60,7 @@ interface AiRisk {
   recommendation: string;
   confidence: number;
   highRiskZone: boolean;
+  assessment?: GbvAnalysis;
 }
 
 
@@ -78,9 +82,16 @@ export default function ReportCasePage() {
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  // Mirrors the request lifecycle, so the stages shown are never ahead of
+  // the work and a failure never leaves a fabricated classification behind.
+  const [processing, setProcessing] = useState<ProcessingState>('idle');
+  // Bumped per submission so the stage list remounts at the first stage.
+  const [runId, setRunId] = useState(0);
 
   const onSubmit = async (data: FormData) => {
     setApiError('');
+    setRunId(n => n + 1);
+    setProcessing('running');
     try {
       const res = await fetch('/api/resident/cases', {
         method: 'POST',
@@ -101,13 +112,19 @@ export default function ReportCasePage() {
         }),
       });
       const json = await res.json();
-      if (!res.ok) { setApiError(json.error || 'Submission failed'); return; }
+      if (!res.ok) {
+        setProcessing('error');
+        setApiError(json.error || 'Submission failed');
+        return;
+      }
+      setProcessing('done');
       setSubmitted({
         caseNumber: json.data.caseNumber,
         aiRisk: json.data.aiRiskAssessment ?? null,
       });
       toast.success('Report submitted successfully!');
     } catch {
+      setProcessing('error');
       setApiError('Network error. Please try again.');
     }
   };
@@ -117,7 +134,7 @@ export default function ReportCasePage() {
     return (
       <Box sx={{ p: { xs: 2, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-          <Card sx={{ maxWidth: 520, p: 1 }}>
+          <Card sx={{ maxWidth: 600, p: 1 }}>
             <CardContent sx={{ p: 3.5 }}>
               <Box sx={{ width: 68, height: 68, borderRadius: '50%', bgcolor: '#f0fdf4', mx: 'auto', mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CheckCircle sx={{ fontSize: 38, color: '#22c55e' }} />
@@ -136,33 +153,14 @@ export default function ReportCasePage() {
                 </Typography>
               </Box>
 
-              {risk && (
-                <Box sx={{ bgcolor: RISK_BG[risk.level] ?? '#f8fafc', border: `1px solid ${RISK_COLOR[risk.level] ?? '#e2e8f0'}30`, borderRadius: 2, p: 2, mb: 2.5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-                    <AutoAwesome sx={{ fontSize: 15, color: RISK_COLOR[risk.level] }} />
-                    <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>AI Risk Assessment</Typography>
-                    {risk.highRiskZone && (
-                      <Chip label="High-Risk Zone" size="small" sx={{ bgcolor: '#ef444420', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22, ml: 'auto' }} />
-                    )}
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Chip label={`${risk.level} Risk`} size="small" sx={{ bgcolor: RISK_COLOR[risk.level], color: 'white', fontWeight: 700, fontSize: '0.82rem' }} />
-                    <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Score {risk.score}/100 · {risk.confidence}% confidence</Typography>
-                  </Box>
-                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>{risk.justification}</Typography>
-                  {risk.riskFactors.length > 0 && (
-                    <Box sx={{ mt: 0.75 }}>
-                      <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>Risk Factors</Typography>
-                      {risk.riskFactors.slice(0, 3).map((f, i) => (
-                        <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 0.25 }}>
-                          <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: RISK_COLOR[risk.level], flexShrink: 0, mt: '5px' }} />
-                          <Typography sx={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.45 }}>{f}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                  <Divider sx={{ my: 1.25 }} />
-                  <Typography sx={{ fontSize: '0.86rem', color: '#475569', fontStyle: 'italic', lineHeight: 1.5 }}>{risk.recommendation}</Typography>
+              {risk?.assessment && (
+                <Box sx={{ mb: 2.5, textAlign: 'left' }}>
+                  <RiskAssessmentResult
+                    assessment={risk.assessment}
+                    score={risk.score}
+                    confidence={risk.confidence}
+                    highRiskZone={risk.highRiskZone}
+                  />
                 </Box>
               )}
 
@@ -171,7 +169,7 @@ export default function ReportCasePage() {
                   sx={{ borderColor: ACCENT, color: ACCENT, fontWeight: 600 }}>
                   View My Cases
                 </Button>
-                <Button variant="contained" onClick={() => setSubmitted(null)}
+                <Button variant="contained" onClick={() => { setSubmitted(null); setProcessing('idle'); }}
                   sx={{ bgcolor: ACCENT, fontWeight: 600, '&:hover': { bgcolor: '#0d9488' } }}>
                   File Another
                 </Button>
@@ -206,6 +204,12 @@ export default function ReportCasePage() {
                 <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2, bgcolor: '#f5f3ff', color: '#5b21b6', '& .MuiAlert-icon': { color: '#7c3aed' } }}>
                   This case type is handled by the VAWC desk. Your report will be routed confidentially to a VAWC officer.
                 </Alert>
+              )}
+
+              {processing !== 'idle' && (
+                <Box sx={{ mb: 2.5 }}>
+                  <RiskProcessing key={runId} state={processing} error={apiError} accent={ACCENT} />
+                </Box>
               )}
 
               <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>

@@ -1,3 +1,4 @@
+import { analyseReport, type GbvAnalysis } from './gbvAnalysis';
 export interface FactorScore {
   factor: string;
   weight: number;
@@ -15,6 +16,12 @@ export interface RiskResult {
   recommendation: string;
   confidence: number;
   highRiskZone: boolean;
+  /**
+   * The contextual reading of the report itself: which behaviours were found,
+   * how often, whether it is escalating, and whether anyone is in danger now.
+   * This is what drives the level; the numeric score above stays informational.
+   */
+  assessment: GbvAnalysis;
 }
 
 export interface ScoringInput {
@@ -27,6 +34,12 @@ export interface ScoringInput {
   barangayCaseCount: number;
   residentPriorCases: number;
   // Explicit context — provided by resident report form; derived from keywords when absent
+  /**
+   * Prior cases of the SAME case type for this reporter. Recurrence means the
+   * same incident happening again; counting every report the person has ever
+   * filed would mark an active reporter's unrelated noise complaint as High.
+   */
+  residentPriorSameType?: number;
   minorsInvolved?: boolean;
   physicalHarm?: boolean;
   recurring?: boolean;
@@ -112,46 +125,7 @@ function detectMinorsInDescription(desc: string): boolean {
   return ['minor', 'child', 'bata', 'anak', 'underage', 'juvenile', 'teen', 'teenager', 'baby', 'infant', 'toddler'].some(kw => lower.includes(kw));
 }
 
-/**
- * Physical harm read out of the description.
- *
- * The reporting form used to ask "Physical harm occurred?" as a Yes/No, which
- * put the classification in the reporter's hands and defaulted to No - so a
- * report describing an injury was scored as though none had happened. The words
- * people actually use are matched here instead, in English and Tagalog.
- */
-function detectPhysicalHarmInDescription(desc: string): boolean {
-  const lower = desc.toLowerCase();
-  return [
-    // English
-    'hit', 'hitting', 'punch', 'punched', 'slap', 'slapped', 'beat', 'beaten',
-    'kick', 'kicked', 'choke', 'choked', 'strangl', 'stab', 'stabbed', 'shot',
-    'injur', 'wound', 'bruise', 'bleeding', 'blood', 'broken bone', 'fracture',
-    'burn', 'burned', 'assault', 'attacked', 'hurt', 'hospital', 'unconscious',
-    'pushed', 'dragged', 'threw',
-    // Tagalog
-    'sinaktan', 'saktan', 'binugbog', 'bugbog', 'sinuntok', 'suntok',
-    'sinampal', 'sampal', 'sinipa', 'sipa', 'sinaksak', 'saksak',
-    'sugat', 'pasa', 'dumudugo', 'nagdudugo', 'binaril', 'tinulak',
-  ].some(kw => lower.includes(kw));
-}
 
-/**
- * Recurrence read out of the description, for the first report of a pattern -
- * case history alone cannot see an incident that has been happening for months
- * but is only now being reported.
- */
-function detectRecurrenceInDescription(desc: string): boolean {
-  const lower = desc.toLowerCase();
-  return [
-    'again', 'always', 'every night', 'every day', 'every week', 'repeatedly',
-    'keeps happening', 'keeps doing', 'multiple times', 'several times',
-    'many times', 'second time', 'third time', 'not the first',
-    'has happened before', 'happened before', 'ongoing for',
-    'paulit-ulit', 'paulit ulit', 'lagi', 'palagi', 'madalas',
-    'dati pa', 'noon pa', 'ilang beses', 'ulit na naman', 'araw-araw',
-  ].some(kw => lower.includes(kw));
-}
 
 // Detect active/pending legal case keywords
 function detectLegalCaseInDescription(desc: string): boolean {
@@ -254,30 +228,35 @@ export function computeRisk(input: ScoringInput): RiskResult {
   // Each falls back to reading the report when the caller does not assert it.
   // The resident form no longer asks; the officer walk-in form may still pass
   // what the complainant stated at the desk.
-  const harmInText      = detectPhysicalHarmInDescription(input.description ?? '');
-  const recurrenceInText = detectRecurrenceInDescription(input.description ?? '');
-  const hasPhysicalHarm = input.physicalHarm ?? (harmInText || descSev >= 80);
+  // Reading harm and recurrence out of the text is the contextual analysis's
+  // job now: it grades them, so a single push lands Medium while strangulation
+  // or a weapon lands High. A flat text match here would push both to High.
+  const hasPhysicalHarm = input.physicalHarm ?? false;
   const hasMinors       = input.minorsInvolved ?? detectMinorsInDescription(input.description ?? '');
-  const isRecurring     = input.recurring ?? (priorN >= 2 || recurrenceInText);
+  const sameTypeN = Math.max(0, input.residentPriorSameType ?? 0);
+  const isRecurring     = input.recurring ?? (sameTypeN >= 2);
   const hasLegalCase    = detectLegalCaseInDescription(input.description ?? '');
   const hrAreaCount     = Math.max(0, input.highRiskAreaCaseCount ?? 0);
   const isHighRiskZone  = hrAreaCount >= 3;
 
-  // Evaluate High-Risk triggers (any single trigger → High)
+  // The report's own content, read in context rather than by single keyword.
+  const gbv = analyseReport(input.description ?? '');
+
+  // Evaluate High-Risk triggers
   const highTriggers: string[] = [];
-  if (hasPhysicalHarm) {
-    highTriggers.push(harmInText
-      ? 'Physical harm described in the report'
-      : 'Physical harm occurred or is imminent');
+  if (gbv.level === 'High') {
+    // Name the behaviours found rather than a generic phrase, so an officer can
+    // see what the classification rests on.
+    highTriggers.push(...gbv.detectedFactors
+      .filter(f => f.tier === 'severe' || f.tier === 'moderate')
+      .map(f => f.label));
   }
+  if (hasPhysicalHarm)   highTriggers.push('Physical harm reported by the complainant');
   if (hasMinors)         highTriggers.push('Minors or highly vulnerable individuals involved');
-  if (isRecurring) {
-    highTriggers.push(priorN >= 2
-      ? `Recurring incident — ${priorN} prior cases on record`
-      : 'Recurring incident described in the report');
-  }
+  if (isRecurring)       highTriggers.push(`Recurring incident — ${sameTypeN} prior ${input.caseType} cases on record`);
   if (hasLegalCase)      highTriggers.push('Active or pending legal case referenced');
-  if (descSev >= 96)     highTriggers.push('Life-threatening or weapon-related language in report');
+  // descSev is not a trigger on its own: one severe-sounding word is exactly
+  // the single-keyword classification the contextual reading above replaces.
   if (isHighRiskZone)    highTriggers.push(`High-Risk Zone: ${hrAreaCount} similar High-Risk cases already filed in ${input.barangay}`);
 
   // Evaluate Medium-Risk indicators
@@ -285,14 +264,15 @@ export function computeRisk(input: ScoringInput): RiskResult {
   if (priorN === 1)      mediumIndicators.push('Limited prior case history');
   if (descSev >= 45 && descSev < 80) mediumIndicators.push('Verbal or emotional abuse indicators in description');
   if (cnt >= 2)          mediumIndicators.push(`${cnt} cases reported in area recently`);
-  const moderateCaseTypes = ['domestic', 'harassment', 'dispute', 'noise', 'nuisance', 'vandal'];
-  if (moderateCaseTypes.some(kw => input.caseType.toLowerCase().includes(kw))) {
-    mediumIndicators.push(`Case type "${input.caseType}" involves potential interpersonal conflict`);
+  if (gbv.level === 'Medium') {
+    mediumIndicators.push(...gbv.detectedFactors.map(f => f.label));
   }
-  if (typeSev >= 45) mediumIndicators.push(`Incident type carries moderate to high inherent severity`);
 
   const isHigh   = highTriggers.length > 0;
-  const isMedium = !isHigh && (mediumIndicators.length > 0 || priorN >= 1 || descSev >= 45 || typeSev >= 45);
+  // Deliberately NOT keyed off the case type or its severity: a category such
+  // as "Theft" or "VAWC" says nothing about how dangerous this report is. The
+  // level comes from what the report describes, plus history and area density.
+  const isMedium = !isHigh && (gbv.level === 'Medium' || priorN >= 1 || cnt >= 2);
   const level: 'High' | 'Medium' | 'Low' = isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
 
   const riskFactors = isHigh
@@ -303,11 +283,15 @@ export function computeRisk(input: ScoringInput): RiskResult {
       : ['Moderate severity with limited aggravating factors']
     : ['Isolated incident — no physical harm, prior history, vulnerable individuals, or recurrence detected'];
 
-  const justification = isHigh
-    ? `Classified as High Risk — ${highTriggers[0].toLowerCase()}. Immediate priority response required.`
-    : isMedium
-    ? `Classified as Medium Risk — moderate severity indicators present with no major escalation factors detected.`
-    : `Classified as Low Risk — isolated incident with no physical harm, no prior records, no vulnerable individuals, and no recurrence.`;
+  // Prefer the reading of the report; fall back to the contextual triggers when
+  // the level was raised by history or area density rather than the text.
+  const justification = gbv.detectedFactors.length
+    ? gbv.reason
+    : isHigh
+      ? `Classified as High Risk — ${highTriggers[0].toLowerCase()}.`
+      : isMedium
+        ? 'Classified as Medium Risk — prior case history or recent incidents in the area.'
+        : 'Classified as Low Risk — no risk indicators identified in the report.';
 
   // Confidence: converging factors → higher confidence
   const factorLevels = factors.map(f => (f.score >= 70 ? 2 : f.score >= 40 ? 1 : 0));
@@ -329,5 +313,18 @@ export function computeRisk(input: ScoringInput): RiskResult {
     recommendation: recommendations[level],
     confidence,
     highRiskZone: isHighRiskZone,
+    // The level the engine returns can be raised above the text-only reading by
+    // history or area density, so report the final one rather than gbv.level.
+    // The level can be raised above the text-only reading by history or area
+    // density; the recommended review has to move with it, or the card would
+    // show "High" next to "Routine Review".
+    assessment: {
+      ...gbv,
+      level,
+      recommendedReview:
+        level === 'High' ? 'Urgent Human Review'
+          : level === 'Medium' && gbv.recommendedReview === 'Routine Review' ? 'Priority Review'
+            : gbv.recommendedReview,
+    },
   };
 }

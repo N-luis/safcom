@@ -84,9 +84,12 @@ export async function POST(req: NextRequest) {
     const { additionalNotes } = parsed.data;
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [barangayCaseCount, residentCaseCount, highRiskAreaCaseCount] = await Promise.all([
+    const [barangayCaseCount, residentCaseCount, residentSameTypeCount, highRiskAreaCaseCount] = await Promise.all([
       prisma.case.count({ where: { barangay, filedAt: { gte: thirtyDaysAgo } } }),
       prisma.case.count({ where: { residentId: auth.resident.residentId } }),
+      prisma.case.count({
+        where: { residentId: auth.resident.residentId, caseType: parsed.data.caseType },
+      }),
       prisma.case.count({
         where: {
           barangay,
@@ -106,6 +109,7 @@ export async function POST(req: NextRequest) {
       status: 'Open',
       barangayCaseCount,
       residentPriorCases: Math.max(0, residentCaseCount),
+      residentPriorSameType: Math.max(0, residentSameTypeCount),
       // Physical harm, minors and recurrence are deliberately not passed: the
       // form no longer asks the resident to classify their own incident, so the
       // engine reads them out of the description and the case history instead.
