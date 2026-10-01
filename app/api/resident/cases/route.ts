@@ -5,6 +5,7 @@ import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { computeRisk } from '@/lib/riskEngine';
 import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
 import { createWithCaseNumber } from '@/lib/caseNumber';
+import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
 
 const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     const resident = await prisma.resident.findUnique({
       where: { id: auth.resident.residentId },
-      select: { firstName: true, lastName: true, barangay: true },
+      select: { firstName: true, lastName: true, barangay: true, gender: true },
     });
     if (!resident) return rError('Resident not found', 404);
 
@@ -130,6 +131,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Multi-factor triage. The priority comes from what the report describes
+    // plus this reporter's own history of the same kind of incident - never
+    // from the case type, and never from anything about the person.
+    const assessment = assessCase(parsed.data.description, {
+      priorSameType: residentSameTypeCount,
+      areaRecentSameType: highRiskAreaCaseCount,
+      gender: resident.gender ?? null,
+    });
+    const riskLevel = priorityToRiskLevel(assessment.priority);
+
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
     const newCase = await createWithCaseNumber('SC', caseNumber =>
@@ -141,7 +152,7 @@ export async function POST(req: NextRequest) {
           description: parsed.data.description,
           barangay,
           status: 'Open',
-          riskLevel: aiRisk.level,
+          riskLevel,
           filedAt,
           residentId: auth.resident.residentId,
           ...(notesValue && { notes: notesValue }),
@@ -150,13 +161,36 @@ export async function POST(req: NextRequest) {
     );
     const caseNumber = newCase.caseNumber;
 
+    await prisma.caseAssessment.create({
+      data: {
+        caseId: newCase.id,
+        priority: assessment.priority,
+        immediateThreat: assessment.factors.immediateThreat,
+        incidentSeverity: assessment.factors.incidentSeverity,
+        recurrence: assessment.factors.recurrence,
+        vulnerability: assessment.factors.vulnerability,
+        escalationPotential: assessment.factors.escalationPotential,
+        urgency: assessment.factors.urgency,
+        summary: assessment.summary,
+        reason: assessment.reason,
+        detail: JSON.parse(JSON.stringify({
+          detectedFactors: assessment.analysis.detectedFactors,
+          recommendations: assessment.recommendations,
+          safetyReminders: assessment.safetyReminders,
+          missingInformation: assessment.missingInformation,
+          frequency: assessment.analysis.frequency,
+          escalation: assessment.analysis.escalation,
+        })),
+      },
+    });
+
     if (photos.length) {
       await prisma.caseAttachment.createMany({
         data: photos.map(p => ({ ...p, caseId: newCase.id })),
       });
     }
 
-    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — AI risk: ${aiRisk.level}${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
+    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — priority: ${assessment.priority}${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
 
     await prisma.activity.create({
       data: {
@@ -169,7 +203,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return rSuccess({ ...newCase, aiRiskAssessment: aiRisk }, 201);
+    return rSuccess({ ...newCase, aiRiskAssessment: aiRisk, assessment }, 201);
   } catch (err) {
     // Logged: a silent 500 here hid an attachment failure that looked identical
     // to any other server fault.

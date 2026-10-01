@@ -7,11 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Box, Typography, Card, CardContent, Grid, TextField,
-  MenuItem, ListSubheader, Button, CircularProgress, Alert, Chip,
+  MenuItem, ListSubheader, Button, CircularProgress, Alert,
   Divider,
 } from '@mui/material';
 import {
-  CheckCircle, Send, ArrowBack, AutoAwesome,
+  CheckCircle, Send, ArrowBack,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -20,8 +20,8 @@ import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 import RiskProcessing, { type ProcessingState } from '@/components/ai/RiskProcessing';
-import RiskAssessmentResult from '@/components/ai/RiskAssessmentResult';
-import type { GbvAnalysis } from '@/lib/gbvAnalysis';
+import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
+import type { CaseAssessment } from '@/lib/caseAssessment';
 
 const ACCENT = '#14b8a6';
 
@@ -32,8 +32,6 @@ const CASE_TYPES = [
   'Sanitation Concern', 'Illegal Construction', 'Animal Bite/Concern', 'Other',
 ];
 
-const RISK_COLOR: Record<string, string> = { Low: '#22c55e', Medium: '#f97316', High: '#ef4444' };
-const RISK_BG:    Record<string, string> = { Low: '#f0fdf4', Medium: '#fff7ed', High: '#fef2f2' };
 
 const schema = z.object({
   caseType:        z.string().min(1, 'Please select a case type'),
@@ -52,21 +50,10 @@ const schema = z.object({
 );
 type FormData = z.infer<typeof schema>;
 
-interface AiRisk {
-  level: string;
-  score: number;
-  riskFactors: string[];
-  justification: string;
-  recommendation: string;
-  confidence: number;
-  highRiskZone: boolean;
-  assessment?: GbvAnalysis;
-}
-
 
 export default function ReportCasePage() {
   const router = useRouter();
-  const [submitted, setSubmitted] = useState<{ caseNumber: string; aiRisk: AiRisk | null } | null>(null);
+  const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
   const [apiError, setApiError] = useState('');
 
   const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -120,7 +107,7 @@ export default function ReportCasePage() {
       setProcessing('done');
       setSubmitted({
         caseNumber: json.data.caseNumber,
-        aiRisk: json.data.aiRiskAssessment ?? null,
+        assessment: json.data.assessment ?? null,
       });
       toast.success('Report submitted successfully!');
     } catch {
@@ -130,11 +117,11 @@ export default function ReportCasePage() {
   };
 
   if (submitted) {
-    const risk = submitted.aiRisk;
+    const assessment = submitted.assessment;
     return (
       <Box sx={{ p: { xs: 2, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-          <Card sx={{ maxWidth: 600, p: 1 }}>
+          <Card sx={{ maxWidth: 680, p: 1 }}>
             <CardContent sx={{ p: 3.5 }}>
               <Box sx={{ width: 68, height: 68, borderRadius: '50%', bgcolor: '#f0fdf4', mx: 'auto', mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CheckCircle sx={{ fontSize: 38, color: '#22c55e' }} />
@@ -146,21 +133,16 @@ export default function ReportCasePage() {
                 Your case has been filed and an officer will review it shortly.
               </Typography>
 
-              <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: risk ? 2 : 2.5, textAlign: 'center' }}>
+              <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: assessment ? 2 : 2.5, textAlign: 'center' }}>
                 <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', mb: 0.5, textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}>Case Number</Typography>
                 <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: ACCENT, letterSpacing: '0.06em' }}>
                   #{submitted.caseNumber}
                 </Typography>
               </Box>
 
-              {risk?.assessment && (
-                <Box sx={{ mb: 2.5, textAlign: 'left' }}>
-                  <RiskAssessmentResult
-                    assessment={risk.assessment}
-                    score={risk.score}
-                    confidence={risk.confidence}
-                    highRiskZone={risk.highRiskZone}
-                  />
+              {assessment && (
+                <Box sx={{ mb: 2.5 }}>
+                  <CaseAssessmentPanel assessment={assessment} caseNumber={submitted.caseNumber} />
                 </Box>
               )}
 

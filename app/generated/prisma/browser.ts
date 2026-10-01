@@ -28,6 +28,15 @@ export type User = Prisma.UserModel
  */
 export type Case = Prisma.CaseModel
 /**
+ * Model CaseAssessment
+ * *
+ *  * The AI-assisted triage stored with the case, so an officer sees what the
+ *  * assessment was based on rather than only its conclusion. An officer may
+ *  * override the priority; the original is kept alongside the override so the
+ *  * audit trail shows both.
+ */
+export type CaseAssessment = Prisma.CaseAssessmentModel
+/**
  * Model CaseAttachment
  * *
  *  * A photo filed with a report. The bytes live here rather than on disk because

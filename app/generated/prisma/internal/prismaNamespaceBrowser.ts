@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseAssessment: 'CaseAssessment',
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
   Resident: 'Resident',
@@ -116,6 +117,29 @@ export const CaseScalarFieldEnum = {
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CaseAssessmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  priority: 'priority',
+  immediateThreat: 'immediateThreat',
+  incidentSeverity: 'incidentSeverity',
+  recurrence: 'recurrence',
+  vulnerability: 'vulnerability',
+  escalationPotential: 'escalationPotential',
+  urgency: 'urgency',
+  summary: 'summary',
+  reason: 'reason',
+  detail: 'detail',
+  assessedAt: 'assessedAt',
+  overridePriority: 'overridePriority',
+  overrideReason: 'overrideReason',
+  overriddenById: 'overriddenById',
+  overriddenAt: 'overriddenAt'
+} as const
+
+export type CaseAssessmentScalarFieldEnum = (typeof CaseAssessmentScalarFieldEnum)[keyof typeof CaseAssessmentScalarFieldEnum]
 
 
 export const CaseAttachmentScalarFieldEnum = {
@@ -269,6 +293,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -283,4 +314,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

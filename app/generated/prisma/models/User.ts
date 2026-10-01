@@ -239,6 +239,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignedCases?: Prisma.CaseListRelationFilter
+  overriddenAssessments?: Prisma.CaseAssessmentListRelationFilter
   createdReports?: Prisma.ReportListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
   sentMessages?: Prisma.MessageListRelationFilter
@@ -260,6 +261,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assignedCases?: Prisma.CaseOrderByRelationAggregateInput
+  overriddenAssessments?: Prisma.CaseAssessmentOrderByRelationAggregateInput
   createdReports?: Prisma.ReportOrderByRelationAggregateInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
   sentMessages?: Prisma.MessageOrderByRelationAggregateInput
@@ -284,6 +286,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignedCases?: Prisma.CaseListRelationFilter
+  overriddenAssessments?: Prisma.CaseAssessmentListRelationFilter
   createdReports?: Prisma.ReportListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
   sentMessages?: Prisma.MessageListRelationFilter
@@ -341,6 +344,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
@@ -362,6 +366,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
@@ -383,6 +388,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
@@ -404,6 +410,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -543,6 +550,22 @@ export type UserUpdateOneWithoutAssignedCasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedCasesInput, Prisma.UserUpdateWithoutAssignedCasesInput>, Prisma.UserUncheckedUpdateWithoutAssignedCasesInput>
 }
 
+export type UserCreateNestedOneWithoutOverriddenAssessmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedCreateWithoutOverriddenAssessmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOverriddenAssessmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutOverriddenAssessmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedCreateWithoutOverriddenAssessmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOverriddenAssessmentsInput
+  upsert?: Prisma.UserUpsertWithoutOverriddenAssessmentsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOverriddenAssessmentsInput, Prisma.UserUpdateWithoutOverriddenAssessmentsInput>, Prisma.UserUncheckedUpdateWithoutOverriddenAssessmentsInput>
+}
+
 export type UserCreateNestedOneWithoutCreatedReportsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedReportsInput, Prisma.UserUncheckedCreateWithoutCreatedReportsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedReportsInput
@@ -632,6 +655,7 @@ export type UserCreateWithoutAssignedCasesInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
@@ -652,6 +676,7 @@ export type UserUncheckedCreateWithoutAssignedCasesInput = {
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
@@ -688,6 +713,7 @@ export type UserUpdateWithoutAssignedCasesInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
@@ -708,6 +734,107 @@ export type UserUncheckedUpdateWithoutAssignedCasesInput = {
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutOverriddenAssessmentsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutOverriddenAssessmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedCreateWithoutOverriddenAssessmentsInput>
+}
+
+export type UserUpsertWithoutOverriddenAssessmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedUpdateWithoutOverriddenAssessmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedCreateWithoutOverriddenAssessmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOverriddenAssessmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOverriddenAssessmentsInput, Prisma.UserUncheckedUpdateWithoutOverriddenAssessmentsInput>
+}
+
+export type UserUpdateWithoutOverriddenAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -729,6 +856,7 @@ export type UserCreateWithoutCreatedReportsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
@@ -749,6 +877,7 @@ export type UserUncheckedCreateWithoutCreatedReportsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
@@ -785,6 +914,7 @@ export type UserUpdateWithoutCreatedReportsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
@@ -805,6 +935,7 @@ export type UserUncheckedUpdateWithoutCreatedReportsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
@@ -825,6 +956,7 @@ export type UserCreateWithoutActivitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
@@ -845,6 +977,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
@@ -881,6 +1014,7 @@ export type UserUpdateWithoutActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
@@ -901,6 +1035,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
@@ -921,6 +1056,7 @@ export type UserCreateWithoutCaseFollowUpsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
@@ -941,6 +1077,7 @@ export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
@@ -977,6 +1114,7 @@ export type UserUpdateWithoutCaseFollowUpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
@@ -997,6 +1135,7 @@ export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -1017,6 +1156,7 @@ export type UserCreateWithoutSentMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
@@ -1037,6 +1177,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
@@ -1062,6 +1203,7 @@ export type UserCreateWithoutReceivedMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
@@ -1082,6 +1224,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
   createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
@@ -1118,6 +1261,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
@@ -1138,6 +1282,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
@@ -1169,6 +1314,7 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
@@ -1189,6 +1335,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
   createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -1202,6 +1349,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
 
 export type UserCountOutputType = {
   assignedCases: number
+  overriddenAssessments: number
   createdReports: number
   activities: number
   sentMessages: number
@@ -1211,6 +1359,7 @@ export type UserCountOutputType = {
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedCases?: boolean | UserCountOutputTypeCountAssignedCasesArgs
+  overriddenAssessments?: boolean | UserCountOutputTypeCountOverriddenAssessmentsArgs
   createdReports?: boolean | UserCountOutputTypeCountCreatedReportsArgs
   activities?: boolean | UserCountOutputTypeCountActivitiesArgs
   sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
@@ -1233,6 +1382,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountAssignedCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CaseWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOverriddenAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseAssessmentWhereInput
 }
 
 /**
@@ -1285,6 +1441,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   assignedCases?: boolean | Prisma.User$assignedCasesArgs<ExtArgs>
+  overriddenAssessments?: boolean | Prisma.User$overriddenAssessmentsArgs<ExtArgs>
   createdReports?: boolean | Prisma.User$createdReportsArgs<ExtArgs>
   activities?: boolean | Prisma.User$activitiesArgs<ExtArgs>
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
@@ -1341,6 +1498,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "username" | "name" | "password" | "role" | "barangay" | "phone" | "avatar" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedCases?: boolean | Prisma.User$assignedCasesArgs<ExtArgs>
+  overriddenAssessments?: boolean | Prisma.User$overriddenAssessmentsArgs<ExtArgs>
   createdReports?: boolean | Prisma.User$createdReportsArgs<ExtArgs>
   activities?: boolean | Prisma.User$activitiesArgs<ExtArgs>
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
@@ -1355,6 +1513,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     assignedCases: Prisma.$CasePayload<ExtArgs>[]
+    overriddenAssessments: Prisma.$CaseAssessmentPayload<ExtArgs>[]
     createdReports: Prisma.$ReportPayload<ExtArgs>[]
     activities: Prisma.$ActivityPayload<ExtArgs>[]
     sentMessages: Prisma.$MessagePayload<ExtArgs>[]
@@ -1769,6 +1928,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   assignedCases<T extends Prisma.User$assignedCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  overriddenAssessments<T extends Prisma.User$overriddenAssessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$overriddenAssessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdReports<T extends Prisma.User$createdReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activities<T extends Prisma.User$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sentMessages<T extends Prisma.User$sentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2229,6 +2389,30 @@ export type User$assignedCasesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.CaseScalarFieldEnum | Prisma.CaseScalarFieldEnum[]
+}
+
+/**
+ * User.overriddenAssessments
+ */
+export type User$overriddenAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseAssessment
+   */
+  select?: Prisma.CaseAssessmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseAssessment
+   */
+  omit?: Prisma.CaseAssessmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseAssessmentInclude<ExtArgs> | null
+  where?: Prisma.CaseAssessmentWhereInput
+  orderBy?: Prisma.CaseAssessmentOrderByWithRelationInput | Prisma.CaseAssessmentOrderByWithRelationInput[]
+  cursor?: Prisma.CaseAssessmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseAssessmentScalarFieldEnum | Prisma.CaseAssessmentScalarFieldEnum[]
 }
 
 /**

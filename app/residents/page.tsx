@@ -20,10 +20,11 @@ import { getRiskColor, getRiskBgColor } from '@/utils/helpers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import { GENDER_OPTIONS } from '@/lib/safecommConfig';
 
 const BARANGAYS = ['Biñang 2nd'];
 const RISK_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
-const GENDERS = ['Male', 'Female', 'Other'];
+const GENDERS = GENDER_OPTIONS;
 const CASE_TYPES = ['Domestic Violence', 'Child Neglect', 'Elder Abuse', 'Substance Abuse', 'Mental Health', 'Community Conflict', 'Economic Crisis', 'Child Abuse', 'Senior Welfare', 'Other'];
 const CASE_STATUSES = ['Open', 'In Progress', 'Resolved', 'Closed'];
 

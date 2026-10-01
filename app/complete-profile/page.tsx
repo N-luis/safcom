@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { GENDER_OPTIONS } from '@/lib/safecommConfig';
 import { useUser } from '@clerk/nextjs';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,7 +47,9 @@ const schema = z.object({
   birthDate: z.string()
     .min(1, 'Select your date of birth')
     .refine(v => calculateAge(v) >= 1 && calculateAge(v) <= 120, 'Enter a valid date of birth'),
-  gender: z.enum(['Male', 'Female', 'Other'], { error: 'Select a gender' }),
+  // Voluntary. "Prefer not to say" is a real answer, so this is not required
+  // beyond being one of the offered options, and it never affects triage.
+  gender: z.enum(GENDER_OPTIONS, { error: 'Choose one of the options' }),
   username: z.string()
     .min(3, 'At least 3 characters').max(20, 'At most 20 characters')
     .regex(/^[a-zA-Z0-9._-]+$/, 'Only letters, numbers, dot, dash and underscore'),
@@ -86,7 +89,7 @@ export default function CompleteProfilePage() {
     resolver: zodResolver(schema),
     defaultValues: {
       firstName: '', lastName: '', birthDate: '',
-      gender: '' as 'Male' | 'Female' | 'Other',
+      gender: '' as (typeof GENDER_OPTIONS)[number],
       username: '', contactNumber: '',
       streetAddress: '', barangay: '', city: '', zipCode: '',
     },
@@ -233,11 +236,13 @@ export default function CompleteProfilePage() {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller name="gender" control={control} render={({ field }) => (
                   <FormControl fullWidth error={!!errors.gender} sx={tf}>
-                    <InputLabel>Gender *</InputLabel>
-                    <Select {...field} value={field.value ?? ''} label="Gender *" sx={{ borderRadius: 2.5 }}>
-                      {['Male', 'Female', 'Other'].map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
+                    <InputLabel>Gender</InputLabel>
+                    <Select {...field} value={field.value ?? ''} label="Gender" sx={{ borderRadius: 2.5 }}>
+                      {GENDER_OPTIONS.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
                     </Select>
-                    {errors.gender && <FormHelperText>{errors.gender.message}</FormHelperText>}
+                    <FormHelperText>
+                      {errors.gender?.message ?? 'Optional. Never used to decide how your case is prioritised.'}
+                    </FormHelperText>
                   </FormControl>
                 )} />
               </Grid>

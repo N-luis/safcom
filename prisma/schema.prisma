@@ -21,6 +21,7 @@ model User {
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   assignedCases    Case[]         @relation("AssignedOfficer")
+  overriddenAssessments CaseAssessment[] @relation("AssessmentOverride")
   createdReports   Report[]
   activities       Activity[]
   sentMessages     Message[]      @relation("SentMessages")
@@ -48,6 +49,42 @@ model Case {
   activities   Activity[]
   followUps    CaseFollowUp[]
   attachments  CaseAttachment[]
+  assessment   CaseAssessment?
+}
+
+/**
+ * The AI-assisted triage stored with the case, so an officer sees what the
+ * assessment was based on rather than only its conclusion. An officer may
+ * override the priority; the original is kept alongside the override so the
+ * audit trail shows both.
+ */
+model CaseAssessment {
+  id       String @id @default(cuid())
+  caseId   String @unique
+  case     Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  priority            String
+  immediateThreat     String
+  incidentSeverity    String
+  recurrence          String
+  vulnerability       String
+  escalationPotential String
+  urgency             String
+
+  summary         String
+  reason          String
+  /** Detected factors and generated recommendations, as produced. */
+  detail          Json
+  assessedAt      DateTime @default(now())
+
+  // Officer override. Null until someone changes it.
+  overridePriority String?
+  overrideReason   String?
+  overriddenById   String?
+  overriddenBy     User?    @relation("AssessmentOverride", fields: [overriddenById], references: [id])
+  overriddenAt     DateTime?
+
+  @@index([priority])
 }
 
 /**

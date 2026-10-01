@@ -18,12 +18,10 @@ import { CheckCircle, RadioButtonUnchecked, ErrorOutlined, AutoAwesome } from '@
  */
 
 const STAGES = [
-  'Reading incident report',
-  'Analyzing reported circumstances',
-  'Identifying potential risk factors',
-  'Evaluating severity and frequency',
-  'Checking for escalation and immediate danger',
-  'Generating initial risk assessment',
+  'Reviewing report information',
+  'Identifying relevant case factors',
+  'Assessing severity and urgency',
+  'Generating personalized recommendations',
 ];
 
 /** Pace of the visible stages. The request usually outruns them. */
@@ -77,7 +75,7 @@ export default function RiskProcessing({ state, error, accent = '#14b8a6' }: {
           fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.07em',
           textTransform: 'uppercase', color: failed ? '#991b1b' : '#0c1e46',
         }}>
-          {failed ? 'AI Risk Assessment unavailable' : done ? 'AI Risk Assessment complete' : 'AI Risk Assessment'}
+          {failed ? 'Assessment unavailable' : done ? 'Assessment complete' : 'Analyzing report…'}
         </Typography>
       </Box>
 

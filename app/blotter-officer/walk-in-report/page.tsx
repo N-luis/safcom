@@ -14,12 +14,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import { GENDER_OPTIONS } from '@/lib/safecommConfig';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import { ageOn, birthDateBounds } from '@/lib/age';
 
 const INCIDENT_TYPES = ['Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault', 'Cybercrime', 'Vandalism', 'Drug-Related', 'Trespassing', 'Other'];
-const GENDERS = ['Male', 'Female', 'Other'];
+const GENDERS = GENDER_OPTIONS;
 
 // Philippine mobile numbers are 11 digits and always start 09.
 const PH_MOBILE = /^09\d{9}$/;

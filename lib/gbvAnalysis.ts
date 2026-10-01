@@ -306,7 +306,8 @@ const FACTORS: FactorDef[] = [
   {
     id: 'vulnerable-person', label: 'Minor or dependent person involved', tier: 'context',
     terms: [
-      'anak ko', 'mga anak ko', 'bata', 'menor de edad', 'buntis', 'matanda', 'may kapansanan',
+      'anak ko', 'mga anak ko', 'may anak', 'anak ako', 'anak namin', 'bata',
+      'menor de edad', 'buntis', 'matanda', 'may kapansanan',
       'my child', 'my children', 'minor', 'elderly', 'pregnant',
     ],
   },
