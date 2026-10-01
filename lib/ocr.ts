@@ -1,7 +1,7 @@
 'use client';
 
 import type { Transcription, FieldConfidence } from './transcription';
-import { unreadable } from './transcription';
+import { unreadable, UNREADABLE_UNCLEAR_RATIO} from './transcription';
 
 /**
  * Reads a photographed document in the browser.
@@ -123,6 +123,16 @@ export async function readDocumentImage(
         ? words.reduce((s, w) => s + (w.confidence ?? 0), 0) / words.length
         : overall;
       const { text, unclear } = markUnclear(words);
+
+      // Most of the page unreadable is a real answer too. Half-reading a
+      // blurry blotter entry and classifying the risk from whichever words
+      // happened to come through is worse than admitting it needs an officer.
+      if (words.length && unclear.length / words.length > UNREADABLE_UNCLEAR_RATIO) {
+        return unreadable(
+          'Most of the writing in this photo could not be made out, so a barangay officer will read it. '
+          + 'You can retake it in better light, or send the report as it is.',
+        );
+      }
 
       return {
         // Without per-word data there are no markers, so fall back to the raw

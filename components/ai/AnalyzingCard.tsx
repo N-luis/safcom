@@ -83,23 +83,55 @@ export default function AnalyzingCard({
   const total = stages.length;
   const pct = total ? Math.round((completed / total) * 100) : 0;
 
-  /** Anchored bottom-right on a desktop, a bottom sheet on a phone. */
-  const shell = {
+  /**
+   * Centred over the form while it runs.
+   *
+   * It sat in the bottom-right corner, where a resident filling in the fields
+   * above never looked at it and had no reason to believe anything was
+   * happening. The analysis is the step they are waiting on, so it is put
+   * where they are already looking, and the form behind it is dimmed to say
+   * the wait is the point rather than something to work around.
+   */
+  const overlay = {
     position: 'fixed' as const,
+    inset: 0,
     zIndex: 1300,
-    right: { xs: 8, sm: 16 },
-    left: { xs: 8, sm: 'auto' },
-    bottom: { xs: 8, sm: 16 },
-    width: { xs: 'auto', sm: 380 },
-    maxWidth: { sm: 380 },
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    px: 2,
+    bgcolor: 'rgba(12,30,70,0.42)',
+    backdropFilter: 'blur(3px)',
+    animation: 'safecommFade .2s ease-out',
+    '@keyframes safecommFade': { from: { opacity: 0 }, to: { opacity: 1 } },
+    '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+  };
+
+  const card = {
+    width: '100%',
+    maxWidth: 420,
+    // Never taller than the phone it is on; a long stage list scrolls inside
+    // the card rather than pushing its buttons off the screen.
+    maxHeight: { xs: '86dvh', sm: '88dvh' },
+    overflowY: 'auto' as const,
     borderRadius: 3,
-    boxShadow: '0 12px 40px rgba(12,30,70,0.22)',
+    boxShadow: '0 24px 60px rgba(12,30,70,0.34)',
     animation: 'safecommRise .28s ease-out',
     '@keyframes safecommRise': {
-      from: { opacity: 0, transform: 'translateY(14px)' },
+      from: { opacity: 0, transform: 'translateY(14px) scale(.97)' },
       to: { opacity: 1, transform: 'none' },
     },
     '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+  };
+
+  /** The minimised chip stays out of the way, in the corner. */
+  const chip = {
+    position: 'fixed' as const,
+    zIndex: 1300,
+    right: { xs: 12, sm: 16 },
+    bottom: { xs: 12, sm: 16 },
+    borderRadius: 3,
+    boxShadow: '0 12px 40px rgba(12,30,70,0.22)',
   };
 
   if (minimized) {
@@ -109,9 +141,7 @@ export default function AnalyzingCard({
         aria-live="polite"
         onClick={onExpand}
         sx={{
-          ...shell,
-          width: 'auto',
-          left: { xs: 'auto', sm: 'auto' },
+          ...chip,
           cursor: 'pointer',
           bgcolor: '#fff',
           border: `1px solid ${accent}44`,
@@ -136,14 +166,19 @@ export default function AnalyzingCard({
 
   return (
     <Box
+      sx={overlay}
+      // Tapping the dimmed area puts it back in the corner rather than
+      // cancelling: the analysis is still running underneath.
+      onClick={e => { if (e.target === e.currentTarget) onMinimize(); }}
+    >
+    <Box
       role="status"
       aria-live="polite"
       sx={{
-        ...shell,
-        bgcolor: failed ? '#fef2f2' : `${accent}0f`,
+        ...card,
+        bgcolor: failed ? '#fef2f2' : '#fff',
         border: `1px solid ${failed ? '#fecaca' : `${accent}44`}`,
-        backdropFilter: 'blur(6px)',
-        p: 2,
+        p: { xs: 2, sm: 2.5 },
       }}
     >
       {/* ── Header ── */}
@@ -257,6 +292,7 @@ export default function AnalyzingCard({
           </Button>
         )}
       </Box>
+    </Box>
     </Box>
   );
 }

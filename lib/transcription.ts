@@ -23,6 +23,22 @@ export interface TranscriptionField {
   confidence: FieldConfidence;
 }
 
+/**
+ * How many unclear words are worth sending with a report.
+ *
+ * The list is advisory - it tells the guard which words cannot support a
+ * factor - so a longer one is never a reason to reject a report. A blurry
+ * handwritten page can put every word on it, and the resident who photographed
+ * that page has no way to act on a validation error about array length.
+ */
+export const MAX_UNCLEAR_WORDS = 100;
+
+/**
+ * Above this share of the page, the reading is not a reading. Classifying from
+ * what is left would mean guessing at a document nobody could make out.
+ */
+export const UNREADABLE_UNCLEAR_RATIO = 0.6;
+
 export interface Transcription {
   /** What the document appears to say. Never invented: empty if unreadable. */
   text: string;

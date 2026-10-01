@@ -24,6 +24,7 @@ import { useLanguage, LANGUAGES } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
+import { MAX_UNCLEAR_WORDS } from '@/lib/transcription';
 
 const ACCENT = '#14b8a6';
 
@@ -147,7 +148,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           ],
           documentText: document?.confirmedText || undefined,
           documentConfidence: document?.transcription?.confidence,
-          documentUnclearWords: document?.transcription?.unclearWords,
+          // Bounded here too, so the request stays small on a phone connection.
+          documentUnclearWords: document?.transcription?.unclearWords?.slice(0, MAX_UNCLEAR_WORDS),
           documentReadFailed: document?.transcription?.failed ?? undefined,
         }),
       });

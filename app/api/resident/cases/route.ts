@@ -8,7 +8,7 @@ import { createWithCaseNumber } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
-import type { Transcription } from '@/lib/transcription';
+import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
 
 const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
@@ -25,7 +25,11 @@ const createSchema = z.object({
   // parts the reader was sure of - see lib/reportEvidence.
   documentText: z.string().max(4000).optional(),
   documentConfidence: z.enum(['high', 'medium', 'low']).optional(),
-  documentUnclearWords: z.array(z.string().max(80)).max(100).optional(),
+  // Trimmed, never refused. This list only ever makes the assessment more
+  // careful, so an over-long one must not cost the resident their report -
+  // the overflow is handled by flagging the case for a person instead.
+  documentUnclearWords: z.array(z.string()).optional()
+    .transform(list => (list ?? []).slice(0, MAX_UNCLEAR_WORDS).map(w => w.slice(0, 80))),
   documentReadFailed: z.boolean().optional(),
 });
 
@@ -144,13 +148,22 @@ export async function POST(req: NextRequest) {
     // A photographed document is evidence, but an unclear reading is not: the
     // guard drops any factor that rests on a word the reader was unsure of and
     // marks the case for a person to read the photo.
+    // More unclear words than the report carries means the rest were dropped,
+    // and a factor could be resting on one of them. The case is still filed;
+    // it is marked so a person reads the photo.
+    const unclearOverflowed =
+      Array.isArray(body?.documentUnclearWords) && body.documentUnclearWords.length > MAX_UNCLEAR_WORDS;
+
     const transcription: Transcription | null = parsed.data.documentText || parsed.data.documentReadFailed
       ? {
           text: parsed.data.documentText ?? '',
-          confidence: parsed.data.documentConfidence ?? 'medium',
+          confidence: unclearOverflowed ? 'low' : (parsed.data.documentConfidence ?? 'medium'),
           fields: [],
-          unclearWords: parsed.data.documentUnclearWords ?? [],
+          unclearWords: parsed.data.documentUnclearWords,
           failed: parsed.data.documentReadFailed ?? false,
+          ...(unclearOverflowed && {
+            message: 'Too much of the attached photo was unclear to rely on, so it needs an officer to read it.',
+          }),
         }
       : null;
     const evidence = buildEvidence(parsed.data.description, transcription);
