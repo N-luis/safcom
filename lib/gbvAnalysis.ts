@@ -23,6 +23,8 @@
 /** Shown only on High, per the configured workflow. Never sent anywhere. */
 export const PNP_CONTACT_NUMBER = '0998-598-5376';
 
+import { explainLevel } from './riskLevel';
+
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 export type Frequency = 'One-time' | 'Occasional' | 'Repeated' | 'Frequent' | 'Ongoing' | 'Unknown';
 export type Escalation = 'None reported' | 'Possible' | 'Present' | 'Unknown';
@@ -77,7 +79,13 @@ export interface GbvAnalysis {
   frequency: Frequency;
   escalation: Escalation;
   immediateDanger: ImmediateDanger;
+  /**
+   * The full sentence, composed from THIS module's level. A caller that can
+   * raise the level must rebuild it from `reasonDetail` instead of reusing it.
+   */
   reason: string;
+  /** The "because ..." clause on its own. Never contains a level name. */
+  reasonDetail: string;
   recommendedReview: ReviewLevel;
   missingInformation: string[];
   severeTrigger: boolean;
@@ -523,7 +531,8 @@ export function analyseReport(report: string): GbvAnalysis {
     return {
       level: 'Low', detectedFactors: [], severityIndicators: [],
       frequency: 'Unknown', escalation: 'Unknown', immediateDanger: 'Unclear',
-      reason: 'No description was provided, so no risk indicators could be read from the report.',
+      reason: 'Classified Low because no description was provided.',
+      reasonDetail: 'no description was provided, so no risk indicators could be read from the report',
       recommendedReview: 'Routine Review',
       missingInformation: ['A description of what happened'],
       severeTrigger: false,
@@ -615,9 +624,12 @@ export function analyseReport(report: string): GbvAnalysis {
   const otherContext = context.filter(c => c.id !== 'victim-fear');
   if (otherContext.length) parts.push(otherContext.map(d => d.label.toLowerCase()).join(', '));
 
-  const reason = parts.length
-    ? `Classified ${level} because ${parts.join('; ')}.`
-    : 'No specific risk indicators were identified in the description. Classified Low pending officer review.';
+  // Level-free on purpose: the sentence is composed from the final level by
+  // whoever owns it, which may not be this module.
+  const reasonDetail = parts.length
+    ? parts.join('; ')
+    : 'no specific risk indicators were identified in the description';
+  const reason = explainLevel(level, reasonDetail);
 
   // ── Missing information ─────────────────────────────────────────────────
   const missingInformation: string[] = [];
@@ -632,7 +644,7 @@ export function analyseReport(report: string): GbvAnalysis {
 
   return {
     level, detectedFactors: detected, severityIndicators, frequency, escalation,
-    immediateDanger, reason, recommendedReview,
+    immediateDanger, reason, reasonDetail, recommendedReview,
     missingInformation: missingInformation.slice(0, 5),
     severeTrigger: severe.length > 0,
     recommendedActions: buildActions(level, detected, dangerNow, escalating),

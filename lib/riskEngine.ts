@@ -1,4 +1,5 @@
 import { analyseReport, type GbvAnalysis } from './gbvAnalysis';
+import { explainLevel, levelForScore, reconcileScore, higherLevel } from './riskLevel';
 export interface FactorScore {
   factor: string;
   weight: number;
@@ -221,7 +222,7 @@ export function computeRisk(input: ScoringInput): RiskResult {
   });
 
   // Composite score (informational — not used for level assignment)
-  const score = Math.min(100, factors.reduce((s, f) => s + f.contribution, 0));
+  const rawScore = Math.min(100, factors.reduce((s, f) => s + f.contribution, 0));
 
   // ── Rule-based classification (framework) ────────────────────────────────────
   // Derive implicit values from description/history when not explicitly provided
@@ -273,7 +274,16 @@ export function computeRisk(input: ScoringInput): RiskResult {
   // as "Theft" or "VAWC" says nothing about how dangerous this report is. The
   // level comes from what the report describes, plus history and area density.
   const isMedium = !isHigh && (gbv.level === 'Medium' || priorN >= 1 || cnt >= 2);
-  const level: 'High' | 'Medium' | 'Low' = isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+  const ruleLevel: 'High' | 'Medium' | 'Low' = isHigh ? 'High' : isMedium ? 'Medium' : 'Low';
+  // The composite score is evidence too: if it lands in a higher band than the
+  // rules reached, the level follows it. Capped at High because this engine
+  // does not assign Critical - the scale's top band belongs to case triage.
+  const scoreLevel = levelForScore(rawScore);
+  const level: 'High' | 'Medium' | 'Low' =
+    scoreLevel === 'Critical' ? 'High' : higherLevel(ruleLevel, scoreLevel) as 'High' | 'Medium' | 'Low';
+  // One number, one level, always in the same band. A rule that raises the
+  // level raises the score to that band's floor.
+  const score = reconcileScore(rawScore, level);
 
   const riskFactors = isHigh
     ? highTriggers
@@ -285,13 +295,17 @@ export function computeRisk(input: ScoringInput): RiskResult {
 
   // Prefer the reading of the report; fall back to the contextual triggers when
   // the level was raised by history or area density rather than the text.
-  const justification = gbv.detectedFactors.length
-    ? gbv.reason
+  // Built from the FINAL level, never reused from the text analysis: that
+  // reason was written before the rules below could raise the level, and
+  // reusing it is what made the badge and the sentence disagree.
+  const reasonDetail = gbv.detectedFactors.length
+    ? gbv.reasonDetail
     : isHigh
-      ? `Classified as High Risk — ${highTriggers[0].toLowerCase()}.`
+      ? highTriggers[0].toLowerCase()
       : isMedium
-        ? 'Classified as Medium Risk — prior case history or recent incidents in the area.'
-        : 'Classified as Low Risk — no risk indicators identified in the report.';
+        ? 'prior case history or recent incidents in the area'
+        : 'no risk indicators were identified in the report';
+  const justification = explainLevel(level, reasonDetail);
 
   // Confidence: converging factors → higher confidence
   const factorLevels = factors.map(f => (f.score >= 70 ? 2 : f.score >= 40 ? 1 : 0));
@@ -321,6 +335,9 @@ export function computeRisk(input: ScoringInput): RiskResult {
     assessment: {
       ...gbv,
       level,
+      // Same sentence as the badge, from the same level.
+      reason: justification,
+      reasonDetail,
       recommendedReview:
         level === 'High' ? 'Urgent Human Review'
           : level === 'Medium' && gbv.recommendedReview === 'Routine Review' ? 'Priority Review'
