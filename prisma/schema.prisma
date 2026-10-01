@@ -50,6 +50,17 @@ model Case {
   followUps    CaseFollowUp[]
   attachments  CaseAttachment[]
   assessment   CaseAssessment?
+
+  /// Where the case is heading, from the latest follow-up unless an officer
+  /// overrides it: improving | no_change | worsening | resolved.
+  progressState        String    @default("no_change")
+  lastResidentUpdateAt DateTime?
+  lastOfficerActionAt  DateTime?
+  /// Stamped when a "you have not updated this" reminder is sent, so the sweep
+  /// is idempotent and a resident is never reminded twice for the same silence.
+  reminderSentAt       DateTime?
+
+  @@index([progressState])
 }
 
 /**
@@ -97,6 +108,9 @@ model CaseAttachment {
   id        String   @id @default(cuid())
   caseId    String
   case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// Set when the photo came with a follow-up rather than the original report.
+  followUpId String?
+  followUp   CaseFollowUp? @relation(fields: [followUpId], references: [id], onDelete: Cascade)
   filename  String
   mimeType  String
   size      Int
@@ -145,6 +159,7 @@ model Resident {
   updatedAt      DateTime  @updatedAt
   cases                   Case[]
   verificationTokens      EmailVerificationToken[]
+  followUps      CaseFollowUp[]
 }
 
 model EmailVerificationToken {
@@ -205,19 +220,48 @@ model Alert {
   audienceModule String?
 }
 
+/// One entry on a case's timeline. Written by the resident who filed it, by an
+/// officer, or by the system when a re-assessment changes the risk level.
+/// Entries are never deleted - an officer may hide one, with a reason, and the
+/// row stays for the audit trail.
 model CaseFollowUp {
   id         String   @id @default(cuid())
   caseId     String
   case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  /// Exactly one of these is set, except for system entries where neither is.
   userId     String?
   user       User?    @relation(fields: [userId], references: [id])
+  residentId String?
+  resident   Resident? @relation(fields: [residentId], references: [id])
+  /// resident | officer | system
+  authorRole String   @default("officer")
+
+  /// follow_up | officer_action | status_change | risk_change
+  updateType String   @default("officer_action")
+  /// Only on a resident follow-up: still_happening | improving | worsening | resolved
+  progress   String?
+
   type       String   @default("note")
   content    String
   statusFrom String?
   statusTo   String?
   outcome    String?
+
+  /// Officer notes are internal by default; a resident's own update is always
+  /// visible to them.
+  visibleToReporter Boolean @default(false)
+
+  hiddenAt     DateTime?
+  hiddenById   String?
+  hiddenReason String?
+
+  attachments CaseAttachment[]
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([caseId, createdAt])
 }
 
 model Message {

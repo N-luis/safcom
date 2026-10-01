@@ -14,7 +14,10 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model CaseFollowUp
- * 
+ * One entry on a case's timeline. Written by the resident who filed it, by an
+ * officer, or by the system when a re-assessment changes the risk level.
+ * Entries are never deleted - an officer may hide one, with a reason, and the
+ * row stays for the audit trail.
  */
 export type CaseFollowUpModel = runtime.Types.Result.DefaultSelection<Prisma.$CaseFollowUpPayload>
 
@@ -28,11 +31,19 @@ export type CaseFollowUpMinAggregateOutputType = {
   id: string | null
   caseId: string | null
   userId: string | null
+  residentId: string | null
+  authorRole: string | null
+  updateType: string | null
+  progress: string | null
   type: string | null
   content: string | null
   statusFrom: string | null
   statusTo: string | null
   outcome: string | null
+  visibleToReporter: boolean | null
+  hiddenAt: Date | null
+  hiddenById: string | null
+  hiddenReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -41,11 +52,19 @@ export type CaseFollowUpMaxAggregateOutputType = {
   id: string | null
   caseId: string | null
   userId: string | null
+  residentId: string | null
+  authorRole: string | null
+  updateType: string | null
+  progress: string | null
   type: string | null
   content: string | null
   statusFrom: string | null
   statusTo: string | null
   outcome: string | null
+  visibleToReporter: boolean | null
+  hiddenAt: Date | null
+  hiddenById: string | null
+  hiddenReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,11 +73,19 @@ export type CaseFollowUpCountAggregateOutputType = {
   id: number
   caseId: number
   userId: number
+  residentId: number
+  authorRole: number
+  updateType: number
+  progress: number
   type: number
   content: number
   statusFrom: number
   statusTo: number
   outcome: number
+  visibleToReporter: number
+  hiddenAt: number
+  hiddenById: number
+  hiddenReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,11 +96,19 @@ export type CaseFollowUpMinAggregateInputType = {
   id?: true
   caseId?: true
   userId?: true
+  residentId?: true
+  authorRole?: true
+  updateType?: true
+  progress?: true
   type?: true
   content?: true
   statusFrom?: true
   statusTo?: true
   outcome?: true
+  visibleToReporter?: true
+  hiddenAt?: true
+  hiddenById?: true
+  hiddenReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,11 +117,19 @@ export type CaseFollowUpMaxAggregateInputType = {
   id?: true
   caseId?: true
   userId?: true
+  residentId?: true
+  authorRole?: true
+  updateType?: true
+  progress?: true
   type?: true
   content?: true
   statusFrom?: true
   statusTo?: true
   outcome?: true
+  visibleToReporter?: true
+  hiddenAt?: true
+  hiddenById?: true
+  hiddenReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -95,11 +138,19 @@ export type CaseFollowUpCountAggregateInputType = {
   id?: true
   caseId?: true
   userId?: true
+  residentId?: true
+  authorRole?: true
+  updateType?: true
+  progress?: true
   type?: true
   content?: true
   statusFrom?: true
   statusTo?: true
   outcome?: true
+  visibleToReporter?: true
+  hiddenAt?: true
+  hiddenById?: true
+  hiddenReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -181,11 +232,19 @@ export type CaseFollowUpGroupByOutputType = {
   id: string
   caseId: string
   userId: string | null
+  residentId: string | null
+  authorRole: string
+  updateType: string
+  progress: string | null
   type: string
   content: string
   statusFrom: string | null
   statusTo: string | null
   outcome: string | null
+  visibleToReporter: boolean
+  hiddenAt: Date | null
+  hiddenById: string | null
+  hiddenReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: CaseFollowUpCountAggregateOutputType | null
@@ -215,30 +274,50 @@ export type CaseFollowUpWhereInput = {
   id?: Prisma.StringFilter<"CaseFollowUp"> | string
   caseId?: Prisma.StringFilter<"CaseFollowUp"> | string
   userId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  residentId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  authorRole?: Prisma.StringFilter<"CaseFollowUp"> | string
+  updateType?: Prisma.StringFilter<"CaseFollowUp"> | string
+  progress?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   type?: Prisma.StringFilter<"CaseFollowUp"> | string
   content?: Prisma.StringFilter<"CaseFollowUp"> | string
   statusFrom?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   statusTo?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   outcome?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  visibleToReporter?: Prisma.BoolFilter<"CaseFollowUp"> | boolean
+  hiddenAt?: Prisma.DateTimeNullableFilter<"CaseFollowUp"> | Date | string | null
+  hiddenById?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  hiddenReason?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
+  attachments?: Prisma.CaseAttachmentListRelationFilter
 }
 
 export type CaseFollowUpOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
+  updateType?: Prisma.SortOrder
+  progress?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
   statusFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   statusTo?: Prisma.SortOrderInput | Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleToReporter?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenById?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
+  resident?: Prisma.ResidentOrderByWithRelationInput
+  attachments?: Prisma.CaseAttachmentOrderByRelationAggregateInput
 }
 
 export type CaseFollowUpWhereUniqueInput = Prisma.AtLeast<{
@@ -248,26 +327,44 @@ export type CaseFollowUpWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CaseFollowUpWhereInput | Prisma.CaseFollowUpWhereInput[]
   caseId?: Prisma.StringFilter<"CaseFollowUp"> | string
   userId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  residentId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  authorRole?: Prisma.StringFilter<"CaseFollowUp"> | string
+  updateType?: Prisma.StringFilter<"CaseFollowUp"> | string
+  progress?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   type?: Prisma.StringFilter<"CaseFollowUp"> | string
   content?: Prisma.StringFilter<"CaseFollowUp"> | string
   statusFrom?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   statusTo?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   outcome?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  visibleToReporter?: Prisma.BoolFilter<"CaseFollowUp"> | boolean
+  hiddenAt?: Prisma.DateTimeNullableFilter<"CaseFollowUp"> | Date | string | null
+  hiddenById?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  hiddenReason?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
+  attachments?: Prisma.CaseAttachmentListRelationFilter
 }, "id">
 
 export type CaseFollowUpOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
+  updateType?: Prisma.SortOrder
+  progress?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
   statusFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   statusTo?: Prisma.SortOrderInput | Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleToReporter?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenById?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CaseFollowUpCountOrderByAggregateInput
@@ -282,87 +379,146 @@ export type CaseFollowUpScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
   caseId?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
   userId?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
+  residentId?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
+  authorRole?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
+  updateType?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
+  progress?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
   type?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
   content?: Prisma.StringWithAggregatesFilter<"CaseFollowUp"> | string
   statusFrom?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
   statusTo?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
   outcome?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
+  visibleToReporter?: Prisma.BoolWithAggregatesFilter<"CaseFollowUp"> | boolean
+  hiddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseFollowUp"> | Date | string | null
+  hiddenById?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
+  hiddenReason?: Prisma.StringNullableWithAggregatesFilter<"CaseFollowUp"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseFollowUp"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CaseFollowUp"> | Date | string
 }
 
 export type CaseFollowUpCreateInput = {
   id?: string
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutFollowUpsInput
   user?: Prisma.UserCreateNestedOneWithoutCaseFollowUpsInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutFollowUpsInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpUncheckedCreateInput = {
   id?: string
   caseId: string
   userId?: string | null
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutFollowUpsNestedInput
   user?: Prisma.UserUpdateOneWithoutCaseFollowUpsNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutFollowUpsNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpCreateManyInput = {
   id?: string
   caseId: string
   userId?: string | null
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type CaseFollowUpUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -371,11 +527,19 @@ export type CaseFollowUpUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -390,15 +554,28 @@ export type CaseFollowUpOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CaseFollowUpNullableScalarRelationFilter = {
+  is?: Prisma.CaseFollowUpWhereInput | null
+  isNot?: Prisma.CaseFollowUpWhereInput | null
+}
+
 export type CaseFollowUpCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
+  updateType?: Prisma.SortOrder
+  progress?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
   statusFrom?: Prisma.SortOrder
   statusTo?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  visibleToReporter?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenById?: Prisma.SortOrder
+  hiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -407,11 +584,19 @@ export type CaseFollowUpMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
+  updateType?: Prisma.SortOrder
+  progress?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
   statusFrom?: Prisma.SortOrder
   statusTo?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  visibleToReporter?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenById?: Prisma.SortOrder
+  hiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -420,11 +605,19 @@ export type CaseFollowUpMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
+  updateType?: Prisma.SortOrder
+  progress?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
   statusFrom?: Prisma.SortOrder
   statusTo?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  visibleToReporter?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenById?: Prisma.SortOrder
+  hiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -513,28 +706,104 @@ export type CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.CaseFollowUpScalarWhereInput | Prisma.CaseFollowUpScalarWhereInput[]
 }
 
+export type CaseFollowUpCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.CaseFollowUpWhereUniqueInput
+}
+
+export type CaseFollowUpUpdateOneWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.CaseFollowUpUpsertWithoutAttachmentsInput
+  disconnect?: Prisma.CaseFollowUpWhereInput | boolean
+  delete?: Prisma.CaseFollowUpWhereInput | boolean
+  connect?: Prisma.CaseFollowUpWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseFollowUpUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.CaseFollowUpUpdateWithoutAttachmentsInput>, Prisma.CaseFollowUpUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type CaseFollowUpCreateNestedManyWithoutResidentInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput> | Prisma.CaseFollowUpCreateWithoutResidentInput[] | Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput[]
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput | Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput[]
+  createMany?: Prisma.CaseFollowUpCreateManyResidentInputEnvelope
+  connect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+}
+
+export type CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput> | Prisma.CaseFollowUpCreateWithoutResidentInput[] | Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput[]
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput | Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput[]
+  createMany?: Prisma.CaseFollowUpCreateManyResidentInputEnvelope
+  connect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+}
+
+export type CaseFollowUpUpdateManyWithoutResidentNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput> | Prisma.CaseFollowUpCreateWithoutResidentInput[] | Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput[]
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput | Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput[]
+  upsert?: Prisma.CaseFollowUpUpsertWithWhereUniqueWithoutResidentInput | Prisma.CaseFollowUpUpsertWithWhereUniqueWithoutResidentInput[]
+  createMany?: Prisma.CaseFollowUpCreateManyResidentInputEnvelope
+  set?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  disconnect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  delete?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  connect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  update?: Prisma.CaseFollowUpUpdateWithWhereUniqueWithoutResidentInput | Prisma.CaseFollowUpUpdateWithWhereUniqueWithoutResidentInput[]
+  updateMany?: Prisma.CaseFollowUpUpdateManyWithWhereWithoutResidentInput | Prisma.CaseFollowUpUpdateManyWithWhereWithoutResidentInput[]
+  deleteMany?: Prisma.CaseFollowUpScalarWhereInput | Prisma.CaseFollowUpScalarWhereInput[]
+}
+
+export type CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput> | Prisma.CaseFollowUpCreateWithoutResidentInput[] | Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput[]
+  connectOrCreate?: Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput | Prisma.CaseFollowUpCreateOrConnectWithoutResidentInput[]
+  upsert?: Prisma.CaseFollowUpUpsertWithWhereUniqueWithoutResidentInput | Prisma.CaseFollowUpUpsertWithWhereUniqueWithoutResidentInput[]
+  createMany?: Prisma.CaseFollowUpCreateManyResidentInputEnvelope
+  set?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  disconnect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  delete?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  connect?: Prisma.CaseFollowUpWhereUniqueInput | Prisma.CaseFollowUpWhereUniqueInput[]
+  update?: Prisma.CaseFollowUpUpdateWithWhereUniqueWithoutResidentInput | Prisma.CaseFollowUpUpdateWithWhereUniqueWithoutResidentInput[]
+  updateMany?: Prisma.CaseFollowUpUpdateManyWithWhereWithoutResidentInput | Prisma.CaseFollowUpUpdateManyWithWhereWithoutResidentInput[]
+  deleteMany?: Prisma.CaseFollowUpScalarWhereInput | Prisma.CaseFollowUpScalarWhereInput[]
+}
+
 export type CaseFollowUpCreateWithoutUserInput = {
   id?: string
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutFollowUpsInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutFollowUpsInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpUncheckedCreateWithoutUserInput = {
   id?: string
   caseId: string
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpCreateOrConnectWithoutUserInput = {
@@ -570,37 +839,63 @@ export type CaseFollowUpScalarWhereInput = {
   id?: Prisma.StringFilter<"CaseFollowUp"> | string
   caseId?: Prisma.StringFilter<"CaseFollowUp"> | string
   userId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  residentId?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  authorRole?: Prisma.StringFilter<"CaseFollowUp"> | string
+  updateType?: Prisma.StringFilter<"CaseFollowUp"> | string
+  progress?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   type?: Prisma.StringFilter<"CaseFollowUp"> | string
   content?: Prisma.StringFilter<"CaseFollowUp"> | string
   statusFrom?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   statusTo?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   outcome?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  visibleToReporter?: Prisma.BoolFilter<"CaseFollowUp"> | boolean
+  hiddenAt?: Prisma.DateTimeNullableFilter<"CaseFollowUp"> | Date | string | null
+  hiddenById?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
+  hiddenReason?: Prisma.StringNullableFilter<"CaseFollowUp"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseFollowUp"> | Date | string
 }
 
 export type CaseFollowUpCreateWithoutCaseInput = {
   id?: string
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutCaseFollowUpsInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutFollowUpsInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpUncheckedCreateWithoutCaseInput = {
   id?: string
   userId?: string | null
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type CaseFollowUpCreateOrConnectWithoutCaseInput = {
@@ -629,50 +924,252 @@ export type CaseFollowUpUpdateManyWithWhereWithoutCaseInput = {
   data: Prisma.XOR<Prisma.CaseFollowUpUpdateManyMutationInput, Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseInput>
 }
 
-export type CaseFollowUpCreateManyUserInput = {
+export type CaseFollowUpCreateWithoutAttachmentsInput = {
   id?: string
-  caseId: string
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutFollowUpsInput
+  user?: Prisma.UserCreateNestedOneWithoutCaseFollowUpsInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutFollowUpsInput
+}
+
+export type CaseFollowUpUncheckedCreateWithoutAttachmentsInput = {
+  id?: string
+  caseId: string
+  userId?: string | null
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
+  type?: string
+  content: string
+  statusFrom?: string | null
+  statusTo?: string | null
+  outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CaseFollowUpCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.CaseFollowUpWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type CaseFollowUpUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.CaseFollowUpUpdateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.CaseFollowUpWhereInput
+}
+
+export type CaseFollowUpUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.CaseFollowUpWhereInput
+  data: Prisma.XOR<Prisma.CaseFollowUpUpdateWithoutAttachmentsInput, Prisma.CaseFollowUpUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type CaseFollowUpUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutFollowUpsNestedInput
+  user?: Prisma.UserUpdateOneWithoutCaseFollowUpsNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutFollowUpsNestedInput
+}
+
+export type CaseFollowUpUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CaseFollowUpCreateWithoutResidentInput = {
+  id?: string
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
+  type?: string
+  content: string
+  statusFrom?: string | null
+  statusTo?: string | null
+  outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutFollowUpsInput
+  user?: Prisma.UserCreateNestedOneWithoutCaseFollowUpsInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutFollowUpInput
+}
+
+export type CaseFollowUpUncheckedCreateWithoutResidentInput = {
+  id?: string
+  caseId: string
+  userId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
+  type?: string
+  content: string
+  statusFrom?: string | null
+  statusTo?: string | null
+  outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutFollowUpInput
+}
+
+export type CaseFollowUpCreateOrConnectWithoutResidentInput = {
+  where: Prisma.CaseFollowUpWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput>
+}
+
+export type CaseFollowUpCreateManyResidentInputEnvelope = {
+  data: Prisma.CaseFollowUpCreateManyResidentInput | Prisma.CaseFollowUpCreateManyResidentInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseFollowUpUpsertWithWhereUniqueWithoutResidentInput = {
+  where: Prisma.CaseFollowUpWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseFollowUpUpdateWithoutResidentInput, Prisma.CaseFollowUpUncheckedUpdateWithoutResidentInput>
+  create: Prisma.XOR<Prisma.CaseFollowUpCreateWithoutResidentInput, Prisma.CaseFollowUpUncheckedCreateWithoutResidentInput>
+}
+
+export type CaseFollowUpUpdateWithWhereUniqueWithoutResidentInput = {
+  where: Prisma.CaseFollowUpWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseFollowUpUpdateWithoutResidentInput, Prisma.CaseFollowUpUncheckedUpdateWithoutResidentInput>
+}
+
+export type CaseFollowUpUpdateManyWithWhereWithoutResidentInput = {
+  where: Prisma.CaseFollowUpScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseFollowUpUpdateManyMutationInput, Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentInput>
+}
+
+export type CaseFollowUpCreateManyUserInput = {
+  id?: string
+  caseId: string
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
+  type?: string
+  content: string
+  statusFrom?: string | null
+  statusTo?: string | null
+  outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type CaseFollowUpUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutFollowUpsNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutFollowUpsNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -680,123 +1177,310 @@ export type CaseFollowUpUncheckedUpdateManyWithoutUserInput = {
 export type CaseFollowUpCreateManyCaseInput = {
   id?: string
   userId?: string | null
+  residentId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
   type?: string
   content: string
   statusFrom?: string | null
   statusTo?: string | null
   outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type CaseFollowUpUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutCaseFollowUpsNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutFollowUpsNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type CaseFollowUpUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type CaseFollowUpCreateManyResidentInput = {
+  id?: string
+  caseId: string
+  userId?: string | null
+  authorRole?: string
+  updateType?: string
+  progress?: string | null
+  type?: string
+  content: string
+  statusFrom?: string | null
+  statusTo?: string | null
+  outcome?: string | null
+  visibleToReporter?: boolean
+  hiddenAt?: Date | string | null
+  hiddenById?: string | null
+  hiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CaseFollowUpUpdateWithoutResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutFollowUpsNestedInput
+  user?: Prisma.UserUpdateOneWithoutCaseFollowUpsNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutFollowUpNestedInput
+}
+
+export type CaseFollowUpUncheckedUpdateWithoutResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutFollowUpNestedInput
+}
+
+export type CaseFollowUpUncheckedUpdateManyWithoutResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorRole?: Prisma.StringFieldUpdateOperationsInput | string
+  updateType?: Prisma.StringFieldUpdateOperationsInput | string
+  progress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  statusFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibleToReporter?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type CaseFollowUpCountOutputType
+ */
+
+export type CaseFollowUpCountOutputType = {
+  attachments: number
+}
+
+export type CaseFollowUpCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  attachments?: boolean | CaseFollowUpCountOutputTypeCountAttachmentsArgs
+}
+
+/**
+ * CaseFollowUpCountOutputType without action
+ */
+export type CaseFollowUpCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseFollowUpCountOutputType
+   */
+  select?: Prisma.CaseFollowUpCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CaseFollowUpCountOutputType without action
+ */
+export type CaseFollowUpCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseAttachmentWhereInput
+}
 
 
 export type CaseFollowUpSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
   userId?: boolean
+  residentId?: boolean
+  authorRole?: boolean
+  updateType?: boolean
+  progress?: boolean
   type?: boolean
   content?: boolean
   statusFrom?: boolean
   statusTo?: boolean
   outcome?: boolean
+  visibleToReporter?: boolean
+  hiddenAt?: boolean
+  hiddenById?: boolean
+  hiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
+  attachments?: boolean | Prisma.CaseFollowUp$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.CaseFollowUpCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseFollowUp"]>
 
 export type CaseFollowUpSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
   userId?: boolean
+  residentId?: boolean
+  authorRole?: boolean
+  updateType?: boolean
+  progress?: boolean
   type?: boolean
   content?: boolean
   statusFrom?: boolean
   statusTo?: boolean
   outcome?: boolean
+  visibleToReporter?: boolean
+  hiddenAt?: boolean
+  hiddenById?: boolean
+  hiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
 }, ExtArgs["result"]["caseFollowUp"]>
 
 export type CaseFollowUpSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
   userId?: boolean
+  residentId?: boolean
+  authorRole?: boolean
+  updateType?: boolean
+  progress?: boolean
   type?: boolean
   content?: boolean
   statusFrom?: boolean
   statusTo?: boolean
   outcome?: boolean
+  visibleToReporter?: boolean
+  hiddenAt?: boolean
+  hiddenById?: boolean
+  hiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
 }, ExtArgs["result"]["caseFollowUp"]>
 
 export type CaseFollowUpSelectScalar = {
   id?: boolean
   caseId?: boolean
   userId?: boolean
+  residentId?: boolean
+  authorRole?: boolean
+  updateType?: boolean
+  progress?: boolean
   type?: boolean
   content?: boolean
   statusFrom?: boolean
   statusTo?: boolean
   outcome?: boolean
+  visibleToReporter?: boolean
+  hiddenAt?: boolean
+  hiddenById?: boolean
+  hiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CaseFollowUpOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "userId" | "type" | "content" | "statusFrom" | "statusTo" | "outcome" | "createdAt" | "updatedAt", ExtArgs["result"]["caseFollowUp"]>
+export type CaseFollowUpOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "userId" | "residentId" | "authorRole" | "updateType" | "progress" | "type" | "content" | "statusFrom" | "statusTo" | "outcome" | "visibleToReporter" | "hiddenAt" | "hiddenById" | "hiddenReason" | "createdAt" | "updatedAt", ExtArgs["result"]["caseFollowUp"]>
 export type CaseFollowUpInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
+  attachments?: boolean | Prisma.CaseFollowUp$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.CaseFollowUpCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CaseFollowUpIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
 }
 export type CaseFollowUpIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CaseFollowUp$userArgs<ExtArgs>
+  resident?: boolean | Prisma.CaseFollowUp$residentArgs<ExtArgs>
 }
 
 export type $CaseFollowUpPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -804,16 +1488,42 @@ export type $CaseFollowUpPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     case: Prisma.$CasePayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
+    resident: Prisma.$ResidentPayload<ExtArgs> | null
+    attachments: Prisma.$CaseAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     caseId: string
+    /**
+     * Exactly one of these is set, except for system entries where neither is.
+     */
     userId: string | null
+    residentId: string | null
+    /**
+     * resident | officer | system
+     */
+    authorRole: string
+    /**
+     * follow_up | officer_action | status_change | risk_change
+     */
+    updateType: string
+    /**
+     * Only on a resident follow-up: still_happening | improving | worsening | resolved
+     */
+    progress: string | null
     type: string
     content: string
     statusFrom: string | null
     statusTo: string | null
     outcome: string | null
+    /**
+     * Officer notes are internal by default; a resident's own update is always
+     * visible to them.
+     */
+    visibleToReporter: boolean
+    hiddenAt: Date | null
+    hiddenById: string | null
+    hiddenReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["caseFollowUp"]>
@@ -1212,6 +1922,8 @@ export interface Prisma__CaseFollowUpClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   case<T extends Prisma.CaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.CaseFollowUp$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseFollowUp$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  resident<T extends Prisma.CaseFollowUp$residentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseFollowUp$residentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  attachments<T extends Prisma.CaseFollowUp$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseFollowUp$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1244,11 +1956,19 @@ export interface CaseFollowUpFieldRefs {
   readonly id: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly caseId: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly userId: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly residentId: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly authorRole: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly updateType: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly progress: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly type: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly content: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly statusFrom: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly statusTo: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly outcome: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly visibleToReporter: Prisma.FieldRef<"CaseFollowUp", 'Boolean'>
+  readonly hiddenAt: Prisma.FieldRef<"CaseFollowUp", 'DateTime'>
+  readonly hiddenById: Prisma.FieldRef<"CaseFollowUp", 'String'>
+  readonly hiddenReason: Prisma.FieldRef<"CaseFollowUp", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseFollowUp", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CaseFollowUp", 'DateTime'>
 }
@@ -1668,6 +2388,49 @@ export type CaseFollowUp$userArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * CaseFollowUp.resident
+ */
+export type CaseFollowUp$residentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Resident
+   */
+  select?: Prisma.ResidentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Resident
+   */
+  omit?: Prisma.ResidentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResidentInclude<ExtArgs> | null
+  where?: Prisma.ResidentWhereInput
+}
+
+/**
+ * CaseFollowUp.attachments
+ */
+export type CaseFollowUp$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseAttachment
+   */
+  select?: Prisma.CaseAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseAttachment
+   */
+  omit?: Prisma.CaseAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseAttachmentInclude<ExtArgs> | null
+  where?: Prisma.CaseAttachmentWhereInput
+  orderBy?: Prisma.CaseAttachmentOrderByWithRelationInput | Prisma.CaseAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.CaseAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseAttachmentScalarFieldEnum | Prisma.CaseAttachmentScalarFieldEnum[]
 }
 
 /**

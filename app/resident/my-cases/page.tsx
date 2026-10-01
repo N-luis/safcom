@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import CaseTimeline from '@/components/cases/CaseTimeline';
 import {
   Box, Typography, Card, CardContent, Grid, Chip, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -50,7 +51,9 @@ function timeAgo(d: string) {
 function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
   const color = STATUS_COLOR[c.status] ?? '#64748b';
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth
+      sx={{ '& .MuiDialog-paper': { m: { xs: 1, sm: 4 }, width: { xs: 'calc(100% - 16px)', sm: 'auto' } } }}
+      slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
       <DialogTitle sx={{ fontWeight: 800, color: '#0c1e46', pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Assessment sx={{ color: '#14b8a6' }} />
@@ -86,9 +89,10 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
             </Typography>
           </Box>
         )}
+        <CaseTimeline caseId={c.id} caseStatus={c.status} />
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, borderRadius: 2 }}>Close</Button>
+        <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, borderRadius: 2, minHeight: 44 }}>Close</Button>
       </DialogActions>
     </Dialog>
   );

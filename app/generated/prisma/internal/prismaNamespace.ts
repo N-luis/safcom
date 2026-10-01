@@ -1374,7 +1374,11 @@ export const CaseScalarFieldEnum = {
   residentId: 'residentId',
   filedAt: 'filedAt',
   resolvedAt: 'resolvedAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  progressState: 'progressState',
+  lastResidentUpdateAt: 'lastResidentUpdateAt',
+  lastOfficerActionAt: 'lastOfficerActionAt',
+  reminderSentAt: 'reminderSentAt'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -1406,6 +1410,7 @@ export type CaseAssessmentScalarFieldEnum = (typeof CaseAssessmentScalarFieldEnu
 export const CaseAttachmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
+  followUpId: 'followUpId',
   filename: 'filename',
   mimeType: 'mimeType',
   size: 'size',
@@ -1520,11 +1525,19 @@ export const CaseFollowUpScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
   userId: 'userId',
+  residentId: 'residentId',
+  authorRole: 'authorRole',
+  updateType: 'updateType',
+  progress: 'progress',
   type: 'type',
   content: 'content',
   statusFrom: 'statusFrom',
   statusTo: 'statusTo',
   outcome: 'outcome',
+  visibleToReporter: 'visibleToReporter',
+  hiddenAt: 'hiddenAt',
+  hiddenById: 'hiddenById',
+  hiddenReason: 'hiddenReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

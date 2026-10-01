@@ -39,6 +39,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
+/**
+ * Hiding replaces deleting. The row stays so the audit trail is complete; an
+ * officer records why it is hidden and that is logged as an activity.
+ */
 export async function DELETE(req: NextRequest, { params }: Params) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
@@ -53,8 +57,30 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     const isAdmin = auth.user.role === 'admin' || auth.user.role === 'system_admin';
     if (!isOwn && !isAdmin) return errorResponse('Forbidden', 403);
 
-    await prisma.caseFollowUp.delete({ where: { id: fid } });
-    return successResponse({ deleted: true });
+    // A reason is required because hiding removes something from a resident's
+    // view of their own case, and the audit trail has to say why.
+    const reason = (new URL(req.url).searchParams.get('reason') ?? '').trim();
+    if (reason.length < 5) {
+      return errorResponse('Give a short reason for hiding this entry', 400);
+    }
+
+    const hidden = await prisma.caseFollowUp.update({
+      where: { id: fid },
+      data: { hiddenAt: new Date(), hiddenById: auth.user.userId, hiddenReason: reason },
+    });
+
+    await prisma.activity.create({
+      data: {
+        type: 'follow_up_hidden',
+        message: `Timeline entry hidden on case ${id} — ${reason}`,
+        entityId: id,
+        entityType: 'Case',
+        userId: auth.user.userId,
+        color: '#64748b',
+      },
+    });
+
+    return successResponse({ hidden: true, id: hidden.id });
   } catch {
     return errorResponse('Server error', 500);
   }

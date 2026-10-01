@@ -101,7 +101,10 @@ export type Notification = Prisma.NotificationModel
 export type Alert = Prisma.AlertModel
 /**
  * Model CaseFollowUp
- * 
+ * One entry on a case's timeline. Written by the resident who filed it, by an
+ * officer, or by the system when a re-assessment changes the risk level.
+ * Entries are never deleted - an officer may hide one, with a reason, and the
+ * row stays for the audit trail.
  */
 export type CaseFollowUp = Prisma.CaseFollowUpModel
 /**

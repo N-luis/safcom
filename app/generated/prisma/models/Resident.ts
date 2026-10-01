@@ -338,6 +338,7 @@ export type ResidentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   cases?: Prisma.CaseListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
+  followUps?: Prisma.CaseFollowUpListRelationFilter
 }
 
 export type ResidentOrderByWithRelationInput = {
@@ -363,6 +364,7 @@ export type ResidentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   cases?: Prisma.CaseOrderByRelationAggregateInput
   verificationTokens?: Prisma.EmailVerificationTokenOrderByRelationAggregateInput
+  followUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
 }
 
 export type ResidentWhereUniqueInput = Prisma.AtLeast<{
@@ -391,6 +393,7 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   cases?: Prisma.CaseListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
+  followUps?: Prisma.CaseFollowUpListRelationFilter
 }, "id" | "residentNumber" | "username" | "clerkId">
 
 export type ResidentOrderByWithAggregationInput = {
@@ -470,6 +473,7 @@ export type ResidentCreateInput = {
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateInput = {
@@ -495,6 +499,7 @@ export type ResidentUncheckedCreateInput = {
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUpdateInput = {
@@ -520,6 +525,7 @@ export type ResidentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateInput = {
@@ -545,6 +551,7 @@ export type ResidentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateManyInput = {
@@ -733,6 +740,22 @@ export type ResidentUpdateOneRequiredWithoutVerificationTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutVerificationTokensInput, Prisma.ResidentUpdateWithoutVerificationTokensInput>, Prisma.ResidentUncheckedUpdateWithoutVerificationTokensInput>
 }
 
+export type ResidentCreateNestedOneWithoutFollowUpsInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutFollowUpsInput, Prisma.ResidentUncheckedCreateWithoutFollowUpsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutFollowUpsInput
+  connect?: Prisma.ResidentWhereUniqueInput
+}
+
+export type ResidentUpdateOneWithoutFollowUpsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutFollowUpsInput, Prisma.ResidentUncheckedCreateWithoutFollowUpsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutFollowUpsInput
+  upsert?: Prisma.ResidentUpsertWithoutFollowUpsInput
+  disconnect?: Prisma.ResidentWhereInput | boolean
+  delete?: Prisma.ResidentWhereInput | boolean
+  connect?: Prisma.ResidentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutFollowUpsInput, Prisma.ResidentUpdateWithoutFollowUpsInput>, Prisma.ResidentUncheckedUpdateWithoutFollowUpsInput>
+}
+
 export type ResidentCreateWithoutCasesInput = {
   id?: string
   residentNumber: string
@@ -755,6 +778,7 @@ export type ResidentCreateWithoutCasesInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutCasesInput = {
@@ -779,6 +803,7 @@ export type ResidentUncheckedCreateWithoutCasesInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutCasesInput = {
@@ -819,6 +844,7 @@ export type ResidentUpdateWithoutCasesInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutCasesInput = {
@@ -843,6 +869,7 @@ export type ResidentUncheckedUpdateWithoutCasesInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateWithoutVerificationTokensInput = {
@@ -867,6 +894,7 @@ export type ResidentCreateWithoutVerificationTokensInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
@@ -891,6 +919,7 @@ export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutVerificationTokensInput = {
@@ -931,6 +960,7 @@ export type ResidentUpdateWithoutVerificationTokensInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
@@ -955,6 +985,123 @@ export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentCreateWithoutFollowUpsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  idDocument?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentUncheckedCreateWithoutFollowUpsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  idDocument?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentCreateOrConnectWithoutFollowUpsInput = {
+  where: Prisma.ResidentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutFollowUpsInput, Prisma.ResidentUncheckedCreateWithoutFollowUpsInput>
+}
+
+export type ResidentUpsertWithoutFollowUpsInput = {
+  update: Prisma.XOR<Prisma.ResidentUpdateWithoutFollowUpsInput, Prisma.ResidentUncheckedUpdateWithoutFollowUpsInput>
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutFollowUpsInput, Prisma.ResidentUncheckedCreateWithoutFollowUpsInput>
+  where?: Prisma.ResidentWhereInput
+}
+
+export type ResidentUpdateToOneWithWhereWithoutFollowUpsInput = {
+  where?: Prisma.ResidentWhereInput
+  data: Prisma.XOR<Prisma.ResidentUpdateWithoutFollowUpsInput, Prisma.ResidentUncheckedUpdateWithoutFollowUpsInput>
+}
+
+export type ResidentUpdateWithoutFollowUpsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idDocument?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentUncheckedUpdateWithoutFollowUpsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idDocument?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 
@@ -965,11 +1112,13 @@ export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
 export type ResidentCountOutputType = {
   cases: number
   verificationTokens: number
+  followUps: number
 }
 
 export type ResidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | ResidentCountOutputTypeCountCasesArgs
   verificationTokens?: boolean | ResidentCountOutputTypeCountVerificationTokensArgs
+  followUps?: boolean | ResidentCountOutputTypeCountFollowUpsArgs
 }
 
 /**
@@ -996,6 +1145,13 @@ export type ResidentCountOutputTypeCountVerificationTokensArgs<ExtArgs extends r
   where?: Prisma.EmailVerificationTokenWhereInput
 }
 
+/**
+ * ResidentCountOutputType without action
+ */
+export type ResidentCountOutputTypeCountFollowUpsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseFollowUpWhereInput
+}
+
 
 export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1020,6 +1176,7 @@ export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
+  followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
   _count?: boolean | Prisma.ResidentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resident"]>
 
@@ -1096,6 +1253,7 @@ export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ResidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
+  followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
   _count?: boolean | Prisma.ResidentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResidentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1106,6 +1264,7 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     cases: Prisma.$CasePayload<ExtArgs>[]
     verificationTokens: Prisma.$EmailVerificationTokenPayload<ExtArgs>[]
+    followUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1524,6 +1683,7 @@ export interface Prisma__ResidentClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   cases<T extends Prisma.Resident$casesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$casesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   verificationTokens<T extends Prisma.Resident$verificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$verificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  followUps<T extends Prisma.Resident$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2011,6 +2171,30 @@ export type Resident$verificationTokensArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.EmailVerificationTokenScalarFieldEnum | Prisma.EmailVerificationTokenScalarFieldEnum[]
+}
+
+/**
+ * Resident.followUps
+ */
+export type Resident$followUpsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseFollowUp
+   */
+  select?: Prisma.CaseFollowUpSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseFollowUp
+   */
+  omit?: Prisma.CaseFollowUpOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseFollowUpInclude<ExtArgs> | null
+  where?: Prisma.CaseFollowUpWhereInput
+  orderBy?: Prisma.CaseFollowUpOrderByWithRelationInput | Prisma.CaseFollowUpOrderByWithRelationInput[]
+  cursor?: Prisma.CaseFollowUpWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseFollowUpScalarFieldEnum | Prisma.CaseFollowUpScalarFieldEnum[]
 }
 
 /**

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
+import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 
 const createSchema = z.object({
@@ -39,6 +40,24 @@ export async function GET(req: NextRequest) {
     ];
   }
   if (status) where.status = status;
+
+  // Progress filters for triage. "Overdue" is about the barangay's own response
+  // time, not the resident's, so it keys off the last officer action.
+  const progressFilter = searchParams.get('progress') || '';
+  const overdueCutoff = new Date(Date.now() - OVERDUE_AFTER_DAYS * 24 * 60 * 60 * 1000);
+  const newFollowUpCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  if (progressFilter === 'worsening') {
+    where.progressState = 'worsening';
+  } else if (progressFilter === 'overdue') {
+    where.status = { notIn: ['Resolved', 'Closed'] };
+    where.OR = [
+      { lastOfficerActionAt: { lt: overdueCutoff } },
+      { lastOfficerActionAt: null, filedAt: { lt: overdueCutoff } },
+    ];
+  } else if (progressFilter === 'new_follow_up') {
+    where.lastResidentUpdateAt = { gte: newFollowUpCutoff };
+  }
   if (riskLevel) where.riskLevel = riskLevel;
 
   const RISK_PRIORITY: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
