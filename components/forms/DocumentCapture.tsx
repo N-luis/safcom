@@ -8,6 +8,7 @@ import {
   PhotoCamera, PhotoLibrary, Close, Replay, CheckCircle, ErrorOutlined, Description,
 } from '@mui/icons-material';
 import { useLanguage } from '@/lib/i18n';
+import { readDocumentImage } from '@/lib/ocr';
 import {
   ACCEPTED_IMAGE_TYPES, describeRejection, UNCLEAR_MARKER, type Transcription,
 } from '@/lib/transcription';
@@ -127,18 +128,17 @@ export default function DocumentCapture({ value, onChange, disabled, accent = '#
       const ocrDataUrl = toJpeg(raiseContrast(await toCanvas(file, OCR_EDGE)), 0.85);
       setProgress(55);
 
-      setStage('uploading');
-      const res = await fetch('/api/transcribe', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dataUrl: ocrDataUrl, mimeType: 'image/jpeg', size: file.size }),
-      });
-      setProgress(80);
+      // Read on the device: the photo never leaves the phone, there is no key
+      // to configure, and it works offline once the language data is cached.
       setStage('reading');
-
-      const json = await res.json().catch(() => null);
-      const transcription: Transcription | null = res.ok ? json?.data ?? null : null;
-      if (!res.ok) setError(json?.error ?? t('readFailed'));
+      const transcription: Transcription | null = await readDocumentImage(
+        ocrDataUrl,
+        ({ ratio, stage: s }) => {
+          // The first run downloads the language data, which is the slow part;
+          // showing it as progress stops the screen looking stuck.
+          setProgress(s === 'loading' ? 55 + Math.round(ratio * 20) : 75 + Math.round(ratio * 25));
+        },
+      );
 
       setProgress(100);
       setStage('done');
@@ -283,7 +283,10 @@ export default function DocumentCapture({ value, onChange, disabled, accent = '#
       )}
 
       {/* The reading, for the resident to confirm or correct. */}
-      {value && stage === 'done' && (
+      {/* Gated on having a document rather than on this component's own
+          stage: a value restored by the parent has no stage, and the box
+          would never appear. */}
+      {value && !busy && (
         <Box sx={{ mt: 1.75 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75, flexWrap: 'wrap' }}>
             <Typography sx={{ fontSize: '0.84rem', fontWeight: 700, color: '#334155' }}>
@@ -310,7 +313,7 @@ export default function DocumentCapture({ value, onChange, disabled, accent = '#
 
           {tr?.failed && (
             <Typography sx={{ fontSize: '0.82rem', color: '#854d0e', bgcolor: '#fef9c3', p: 1, borderRadius: 1.5, mb: 1 }}>
-              {tr.message ?? t('readFailed')} {t('needsReview')}
+              {tr.message ?? t('readFailed')}
             </Typography>
           )}
 

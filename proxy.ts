@@ -24,6 +24,9 @@ const PUBLIC_PATHS = [
 const SELF_AUTHORISED_PATHS = [
   // Report photos: barangay staff see any case's, a resident sees only theirs.
   '/api/attachments',
+  // A scheduler has no session; this one checks a shared secret itself and
+  // refuses outright when none is configured.
+  '/api/cron',
 ];
 
 // paths that require resident_token instead of safcom_token

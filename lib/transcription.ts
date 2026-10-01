@@ -108,9 +108,7 @@ export async function transcribeImage(
   // defines the seam a provider implements; the stub has nothing to send it to.
   image: { base64: string; mimeType: string },
 ): Promise<Transcription> {
-  return unreadable(
-    'Document reading is not enabled on this deployment yet, so a barangay officer will read the photo.',
-  );
+  return unreadable();
 }
 
 /** Runs a promise with a deadline, so a hung provider cannot hold the request. */
