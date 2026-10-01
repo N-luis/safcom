@@ -6,6 +6,7 @@ import { computeRisk } from '@/lib/riskEngine';
 import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
 import { createWithCaseNumber } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
+import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
 import type { Transcription } from '@/lib/transcription';
 
@@ -162,7 +163,19 @@ export async function POST(req: NextRequest) {
       areaRecentSameType: highRiskAreaCaseCount,
       gender: resident.gender ?? null,
     });
-    const riskLevel = priorityToRiskLevel(assessment.priority);
+    // The hard rules are the floor under the weighted factors. A report that
+    // names a child being hurt, a weapon alongside a threat, or someone still
+    // there now cannot come out Low because the averages landed there. The
+    // grounded parameters behind the decision are kept with the case.
+    const { level: riskLevel, classification } = enforceHardRules(
+      priorityToRiskLevel(assessment.priority),
+      {
+        report: evidence.classifiedText,
+        unclearWords: parsed.data.documentUnclearWords ?? [],
+        priorCases: residentSameTypeCount,
+        attachments: { photos: photos.length, documents: parsed.data.documentText ? 1 : 0 },
+      },
+    );
 
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
@@ -203,8 +216,24 @@ export async function POST(req: NextRequest) {
           missingInformation: assessment.missingInformation,
           frequency: assessment.analysis.frequency,
           escalation: assessment.analysis.escalation,
-          needsHumanReview: evidence.needsHumanReview,
-          reviewReasons: evidence.reviewReasons,
+          needsHumanReview: evidence.needsHumanReview || classification.needs_human_review,
+          reviewReasons: [
+            ...evidence.reviewReasons,
+            ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
+          ],
+          // Kept so an officer can see what the decision rested on, and which
+          // rules raised it, rather than being handed a level to trust.
+          classification: {
+            category: classification.case_category,
+            categoryConfidence: classification.category_confidence,
+            parameters: classification.parameters,
+            evidenceFromReport: classification.evidence_from_report,
+            routingHints: classification.routing_hints,
+            hardRulesApplied: classification.hard_rules_applied,
+            classificationScore: classification.score,
+            classificationLevel: classification.risk_level,
+            classificationExplanation: classification.explanation,
+          },
           withheldFactors: evidence.withheldFactors,
           documentText: parsed.data.documentText ?? null,
           documentConfidence: parsed.data.documentConfidence ?? null,
@@ -218,7 +247,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — priority: ${assessment.priority}${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
+    // The level the case was actually stored at, not the one the weighted
+    // factors reached on their own: an officer reading the feed has to see the
+    // same answer the case carries, and which rules put it there.
+    const raised = classification.hard_rules_applied.filter(r => r !== 'H6');
+    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — ${riskLevel} risk, priority: ${assessment.priority}`
+      + `${raised.length ? ` (rule ${raised.join(', ')})` : ''}`
+      + `${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
 
     await prisma.activity.create({
       data: {
@@ -227,7 +262,9 @@ export async function POST(req: NextRequest) {
         entityId: newCase.id,
         entityType: 'Case',
         caseId: newCase.id,
-        color: aiRisk.level === 'High' ? '#ef4444' : aiRisk.level === 'Medium' ? '#f97316' : '#14b8a6',
+        color: riskLevel === 'Critical' ? '#8b5cf6'
+          : riskLevel === 'High' ? '#ef4444'
+            : riskLevel === 'Medium' ? '#f97316' : '#14b8a6',
       },
     });
 
@@ -235,8 +272,12 @@ export async function POST(req: NextRequest) {
       ...newCase,
       aiRiskAssessment: aiRisk,
       assessment,
-      needsHumanReview: evidence.needsHumanReview,
-      reviewReasons: evidence.reviewReasons,
+      needsHumanReview: evidence.needsHumanReview || classification.needs_human_review,
+      reviewReasons: [
+        ...evidence.reviewReasons,
+        ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
+      ],
+      classification,
     }, 201);
   } catch (err) {
     // Logged: a silent 500 here hid an attachment failure that looked identical

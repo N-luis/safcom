@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
 import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
+import { enforceHardRules } from '@/lib/caseClassification';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -128,14 +129,19 @@ export async function POST(req: NextRequest) {
       barangayCaseCount, residentPriorCases,
     });
 
+    // The same floor the resident path uses. A walk-in report describing a
+    // child being hurt has to land where the identical report typed at home
+    // lands; the rules may raise the engine's level, never lower it.
+    const { level: riskLevel } = enforceHardRules(aiRisk.level, { report: description });
+
     const newCase = await prisma.case.create({
-      data: { ...parsed.data, status: status || 'Open', riskLevel: aiRisk.level },
+      data: { ...parsed.data, status: status || 'Open', riskLevel },
     });
 
     await prisma.activity.create({
       data: {
         type: 'case',
-        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — AI flagged risk: ${aiRisk.level} (${aiRisk.score}/100)`,
+        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — AI flagged risk: ${riskLevel} (${aiRisk.score}/100)`,
         entityId: newCase.id,
         entityType: 'Case',
         userId: auth.user.userId,

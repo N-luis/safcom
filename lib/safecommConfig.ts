@@ -44,6 +44,17 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] =
 export const EMERGENCY_PRIORITY_THRESHOLD =
   process.env.NEXT_PUBLIC_EMERGENCY_THRESHOLD ?? 'Urgent Attention';
 
+/**
+ * Barangay context handed to the classifier. These are local facts, not
+ * judgements: a noise complaint at 1am means something different where the
+ * ordinance sets quiet hours at 10pm.
+ */
+export const BARANGAY_CONTEXT = {
+  name: process.env.NEXT_PUBLIC_BARANGAY_NAME ?? 'Biñang 2nd',
+  quietHours: process.env.NEXT_PUBLIC_QUIET_HOURS ?? '10:00 PM – 5:00 AM',
+  localNotes: process.env.NEXT_PUBLIC_LOCAL_NOTES ?? '',
+};
+
 /** Gender options a resident may choose. Never inferred, never scored. */
 export const GENDER_OPTIONS = [
   'Female',

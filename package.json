@@ -13,7 +13,8 @@
     "db:studio": "npx prisma studio",
     "test:risk": "npx tsx tests/riskLevel.test.ts",
     "test:evidence": "npx tsx tests/evidence.test.ts",
-    "test:ocr": "npx tsx tests/ocr.test.ts"
+    "test:ocr": "npx tsx tests/ocr.test.ts",
+    "test:classify": "npx tsx tests/classification.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
