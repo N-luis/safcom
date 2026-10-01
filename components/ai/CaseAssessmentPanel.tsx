@@ -211,7 +211,10 @@ export default function CaseAssessmentPanel({ assessment, caseNumber }: {
                   display: 'inline-flex', alignItems: 'center', gap: 0.75,
                   bgcolor: '#ef4444', color: '#fff', textDecoration: 'none',
                   px: 1.75, py: 0.9, borderRadius: 2, fontWeight: 800, fontSize: '0.9rem',
+                  // A thumb target, and full width on a phone so it cannot be missed.
+                  minHeight: 44, width: { xs: '100%', sm: 'auto' }, justifyContent: 'center',
                   '&:hover': { bgcolor: '#dc2626' },
+                  '&:focus-visible': { outline: '3px solid #fecaca', outlineOffset: 2 },
                 }}
               >
                 <LocalPhone sx={{ fontSize: 17 }} />

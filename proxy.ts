@@ -27,7 +27,12 @@ const SELF_AUTHORISED_PATHS = [
 ];
 
 // paths that require resident_token instead of safcom_token
-const RESIDENT_PATHS = ['/resident/', '/api/resident/', '/api/auth/resident-me', '/api/auth/resident-logout'];
+// Reading a photographed document is part of filing a report, so it is gated by
+// the resident token like the rest of that flow.
+const RESIDENT_PATHS = [
+  '/resident/', '/api/resident/', '/api/auth/resident-me', '/api/auth/resident-logout',
+  '/api/transcribe',
+];
 
 function isResidentPath(pathname: string): boolean {
   return pathname === '/resident' || pathname === '/api/resident' || RESIDENT_PATHS.some(p => pathname.startsWith(p));

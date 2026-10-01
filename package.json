@@ -11,7 +11,8 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npx tsx prisma/seed.ts",
     "db:studio": "npx prisma studio",
-    "test:risk": "npx tsx tests/riskLevel.test.ts"
+    "test:risk": "npx tsx tests/riskLevel.test.ts",
+    "test:evidence": "npx tsx tests/evidence.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

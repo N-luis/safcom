@@ -6,6 +6,8 @@ import { computeRisk } from '@/lib/riskEngine';
 import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
 import { createWithCaseNumber } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
+import { buildEvidence } from '@/lib/reportEvidence';
+import type { Transcription } from '@/lib/transcription';
 
 const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
@@ -17,6 +19,13 @@ const createSchema = z.object({
     name: z.string().min(1).max(200),
     dataUrl: z.string().min(1),
   })).max(MAX_ATTACHMENTS, `You can attach up to ${MAX_ATTACHMENTS} photos`).optional(),
+  // What a photographed document was read as, after the resident confirmed or
+  // corrected it. Classified alongside the typed description, but only the
+  // parts the reader was sure of - see lib/reportEvidence.
+  documentText: z.string().max(4000).optional(),
+  documentConfidence: z.enum(['high', 'medium', 'low']).optional(),
+  documentUnclearWords: z.array(z.string().max(80)).max(100).optional(),
+  documentReadFailed: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -131,10 +140,24 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // A photographed document is evidence, but an unclear reading is not: the
+    // guard drops any factor that rests on a word the reader was unsure of and
+    // marks the case for a person to read the photo.
+    const transcription: Transcription | null = parsed.data.documentText || parsed.data.documentReadFailed
+      ? {
+          text: parsed.data.documentText ?? '',
+          confidence: parsed.data.documentConfidence ?? 'medium',
+          fields: [],
+          unclearWords: parsed.data.documentUnclearWords ?? [],
+          failed: parsed.data.documentReadFailed ?? false,
+        }
+      : null;
+    const evidence = buildEvidence(parsed.data.description, transcription);
+
     // Multi-factor triage. The priority comes from what the report describes
     // plus this reporter's own history of the same kind of incident - never
     // from the case type, and never from anything about the person.
-    const assessment = assessCase(parsed.data.description, {
+    const assessment = assessCase(evidence.classifiedText, {
       priorSameType: residentSameTypeCount,
       areaRecentSameType: highRiskAreaCaseCount,
       gender: resident.gender ?? null,
@@ -180,6 +203,11 @@ export async function POST(req: NextRequest) {
           missingInformation: assessment.missingInformation,
           frequency: assessment.analysis.frequency,
           escalation: assessment.analysis.escalation,
+          needsHumanReview: evidence.needsHumanReview,
+          reviewReasons: evidence.reviewReasons,
+          withheldFactors: evidence.withheldFactors,
+          documentText: parsed.data.documentText ?? null,
+          documentConfidence: parsed.data.documentConfidence ?? null,
         })),
       },
     });
@@ -203,7 +231,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return rSuccess({ ...newCase, aiRiskAssessment: aiRisk, assessment }, 201);
+    return rSuccess({
+      ...newCase,
+      aiRiskAssessment: aiRisk,
+      assessment,
+      needsHumanReview: evidence.needsHumanReview,
+      reviewReasons: evidence.reviewReasons,
+    }, 201);
   } catch (err) {
     // Logged: a silent 500 here hid an attachment failure that looked identical
     // to any other server fault.

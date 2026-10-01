@@ -19,6 +19,8 @@ import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
+import DocumentCapture, { type CapturedDocument } from '@/components/forms/DocumentCapture';
+import { useLanguage, LANGUAGES } from '@/lib/i18n';
 import RiskProcessing, { type ProcessingState } from '@/components/ai/RiskProcessing';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
@@ -69,6 +71,8 @@ export default function ReportCasePage() {
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  const [document, setDocument] = useState<CapturedDocument | null>(null);
+  const { lang, setLanguage } = useLanguage();
   // Mirrors the request lifecycle, so the stages shown are never ahead of
   // the work and a failure never leaves a fabricated classification behind.
   const [processing, setProcessing] = useState<ProcessingState>('idle');
@@ -95,7 +99,16 @@ export default function ReportCasePage() {
             data.otherType ?? '',
           ),
           additionalNotes: data.additionalNotes,
-          attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
+          attachments: [
+            ...photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
+            // The document photo is stored with the case like any other, so the
+            // officer sees what was read rather than only the transcription.
+            ...(document ? [{ name: document.fileName, dataUrl: document.storedDataUrl }] : []),
+          ],
+          documentText: document?.confirmedText || undefined,
+          documentConfidence: document?.transcription?.confidence,
+          documentUnclearWords: document?.transcription?.unclearWords,
+          documentReadFailed: document?.transcription?.failed ?? undefined,
         }),
       });
       const json = await res.json();
@@ -119,9 +132,9 @@ export default function ReportCasePage() {
   if (submitted) {
     const assessment = submitted.assessment;
     return (
-      <Box sx={{ p: { xs: 2, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+      <Box sx={{ p: { xs: 1.5, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', width: '100%' }}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-          <Card sx={{ maxWidth: 680, p: 1 }}>
+          <Card sx={{ width: '100%', maxWidth: 680, p: { xs: 0.5, sm: 1 } }}>
             <CardContent sx={{ p: 3.5 }}>
               <Box sx={{ width: 68, height: 68, borderRadius: '50%', bgcolor: '#f0fdf4', mx: 'auto', mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CheckCircle sx={{ fontSize: 38, color: '#22c55e' }} />
@@ -146,13 +159,18 @@ export default function ReportCasePage() {
                 </Box>
               )}
 
-              <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* Stacked on a phone, side by side from 600px. 44px minimum so
+                  they are usable with a thumb. */}
+              <Box sx={{
+                display: 'flex', gap: 1.25, justifyContent: 'center',
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}>
                 <Button variant="outlined" onClick={() => router.push('/resident/my-cases')}
-                  sx={{ borderColor: ACCENT, color: ACCENT, fontWeight: 600 }}>
+                  sx={{ borderColor: ACCENT, color: ACCENT, fontWeight: 600, minHeight: 44, width: { xs: '100%', sm: 'auto' } }}>
                   View My Cases
                 </Button>
                 <Button variant="contained" onClick={() => { setSubmitted(null); setProcessing('idle'); }}
-                  sx={{ bgcolor: ACCENT, fontWeight: 600, '&:hover': { bgcolor: '#0d9488' } }}>
+                  sx={{ bgcolor: ACCENT, fontWeight: 600, minHeight: 44, width: { xs: '100%', sm: 'auto' }, '&:hover': { bgcolor: '#0d9488' } }}>
                   File Another
                 </Button>
               </Box>
@@ -164,19 +182,37 @@ export default function ReportCasePage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-        <Button size="small" startIcon={<ArrowBack />} onClick={() => router.push('/resident')} sx={{ color: '#64748b' }}>
+    <Box sx={{ p: { xs: 1.5, sm: 3 }, maxWidth: '100%', overflowX: 'hidden' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
+        <Button size="small" startIcon={<ArrowBack />} onClick={() => router.push('/resident')} sx={{ color: '#64748b', minHeight: 44 }}>
           Back
         </Button>
         <Divider orientation="vertical" flexItem />
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 0.5 }}>
+          {LANGUAGES.map(l => (
+            <Button
+              key={l.code}
+              size="small"
+              onClick={() => setLanguage(l.code)}
+              aria-pressed={lang === l.code}
+              sx={{
+                minHeight: 44, minWidth: 44, px: 1.25, textTransform: 'none', fontWeight: 700,
+                fontSize: '0.8rem', borderRadius: 2,
+                color: lang === l.code ? ACCENT : '#94a3b8',
+                bgcolor: lang === l.code ? `${ACCENT}14` : 'transparent',
+              }}
+            >
+              {l.label}
+            </Button>
+          ))}
+        </Box>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>File a Report</Typography>
           <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Submit an incident or concern to your barangay</Typography>
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ maxWidth: 940 }}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ maxWidth: 940 }}>
         <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
@@ -276,6 +312,13 @@ export default function ReportCasePage() {
                   fullWidth multiline rows={2}
                 />
 
+                <DocumentCapture
+                  value={document}
+                  onChange={setDocument}
+                  disabled={isSubmitting}
+                  accent={ACCENT}
+                />
+
                 {/* Photo evidence — shrunk in the browser before upload */}
                 <PhotoAttachments
                   photos={photos}
@@ -284,19 +327,19 @@ export default function ReportCasePage() {
                   accent={ACCENT}
                 />
 
-                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', gap: 1.25, flexDirection: { xs: 'column', sm: 'row' } }}>
                   <Button
                     type="submit"
                     variant="contained"
                     size="large"
                     disabled={isSubmitting}
                     startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : <Send />}
-                    sx={{ bgcolor: ACCENT, fontWeight: 700, '&:hover': { bgcolor: '#0d9488' }, boxShadow: '0 4px 14px rgba(20,184,166,0.35)', flex: 1 }}
+                    sx={{ bgcolor: ACCENT, fontWeight: 700, minHeight: 48, '&:hover': { bgcolor: '#0d9488' }, boxShadow: '0 4px 14px rgba(20,184,166,0.35)', flex: 1 }}
                   >
                     {isSubmitting ? 'Submitting…' : 'Submit Report'}
                   </Button>
                   <Button variant="outlined" size="large" onClick={() => router.push('/resident')}
-                    sx={{ borderColor: '#e2e8f0', color: '#64748b' }}>
+                    sx={{ borderColor: '#e2e8f0', color: '#64748b', minHeight: 48 }}>
                     Cancel
                   </Button>
                 </Box>
