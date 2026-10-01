@@ -44,3 +44,6 @@ next-env.d.ts
 # Tesseract language data, cached by the Node OCR test. The browser loads
 # these from the CDN; they are not source.
 *.traineddata
+
+# Rollback record from the Biñan -> Biñang rename. Local only.
+.binang-backup.json
