@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CaseTimeline from '@/components/cases/CaseTimeline';
+import CaseGuidance from '@/components/cases/CaseGuidance';
 import {
   Box, Typography, Card, CardContent, Grid, Chip, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -50,6 +51,9 @@ function timeAgo(d: string) {
 
 function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
   const color = STATUS_COLOR[c.status] ?? '#64748b';
+  // Bumped when a one-tap check-in is filed, so the progress pill and the
+  // timeline below re-read rather than showing the case as it was on open.
+  const [timelineKey, setTimelineKey] = useState(0);
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth
       sx={{ '& .MuiDialog-paper': { m: { xs: 1, sm: 4 }, width: { xs: 'calc(100% - 16px)', sm: 'auto' } } }}
@@ -89,7 +93,20 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
             </Typography>
           </Box>
         )}
-        <CaseTimeline caseId={c.id} caseStatus={c.status} />
+        {/* SafeComm AI guidance: between what the resident reported and what
+            has happened since. A check-in here writes to the same follow-up
+            endpoint the timeline reads, so the key refreshes both. */}
+        <Box sx={{ mt: 2 }}>
+          <CaseGuidance
+            caseId={c.id}
+            caseType={c.caseType}
+            riskLevel={c.riskLevel}
+            caseStatus={c.status}
+            onPosted={() => setTimelineKey(k => k + 1)}
+          />
+        </Box>
+
+        <CaseTimeline key={timelineKey} caseId={c.id} caseStatus={c.status} />
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
         <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, borderRadius: 2, minHeight: 44 }}>Close</Button>
