@@ -4,10 +4,12 @@ import { useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Chip, Button,
   Skeleton, Divider,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
-import { Notifications, Assessment, Shield, Refresh, Update, Warning, Info } from '@mui/icons-material';
+import { Notifications, Assessment, Shield, Refresh, Update, Warning, Info, ArrowForward, ChevronRight } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
+import { useRouter } from 'next/navigation';
 import { RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY } from '@/lib/notifications';
 
 const fetcher = (url: string) =>
@@ -16,7 +18,24 @@ const fetcher = (url: string) =>
 interface UpdateItem {
   id: string; source: 'case' | 'alert'; title: string; message: string;
   color: string; createdAt: string; caseType?: string;
+  /** Present on case updates, and what makes the notification navigable. */
+  caseId?: string | null;
+  caseNumber?: string | null;
+  caseStatus?: string | null;
+  caseRiskLevel?: string | null;
+  /** Urgency of a barangay announcement. */
+  level?: string | null;
 }
+
+const ACCENT = '#14b8a6';
+
+const LEVEL_LABEL: Record<string, string> = {
+  info: 'General notice', warning: 'Advisory', critical: 'Emergency',
+};
+
+const RISK_COLOR: Record<string, string> = {
+  Low: '#22c55e', Medium: '#f97316', High: '#ef4444', Critical: '#8b5cf6',
+};
 
 const SOURCE_ICON: Record<string, typeof Shield> = {
   case: Assessment,
@@ -39,6 +58,126 @@ function timeAgo(d: string) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/**
+ * The full notification, and a way out of it.
+ *
+ * The list has to truncate; this does not. For a case update it also carries
+ * the case itself - number, type, status and current risk - and a button that
+ * opens that case, because a notification about a case that cannot reach the
+ * case is a dead end.
+ */
+function NotificationDialog({ u, onClose, onOpenCase }: {
+  u: UpdateItem;
+  onClose: () => void;
+  onOpenCase: (caseId: string) => void;
+}) {
+  const IconComp = SOURCE_ICON[u.source] ?? Info;
+  const isCase = u.source === 'case';
+  const facts: [string, string][] = isCase
+    ? [
+        ...(u.caseNumber ? [['Case number', `#${u.caseNumber}`] as [string, string]] : []),
+        ...(u.caseType ? [['Case type', u.caseType] as [string, string]] : []),
+        ...(u.caseStatus ? [['Status', u.caseStatus] as [string, string]] : []),
+      ]
+    : [...(u.level ? [['Urgency', LEVEL_LABEL[u.level] ?? u.level] as [string, string]] : [])];
+
+  return (
+    <Dialog
+      open onClose={onClose} maxWidth="xs" fullWidth
+      aria-labelledby="notification-title"
+      sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}
+    >
+      <DialogTitle id="notification-title" sx={{ pb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+          <Box sx={{
+            width: 38, height: 38, borderRadius: 2.5, bgcolor: `${u.color}14`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <IconComp sx={{ fontSize: 19, color: u.color }} />
+          </Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3 }}>
+              {u.title}
+            </Typography>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+              {new Date(u.createdAt).toLocaleString('en-PH', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+              })}
+            </Typography>
+          </Box>
+        </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Chip
+          label={SOURCE_LABEL[u.source]}
+          size="small"
+          sx={{ bgcolor: `${u.color}14`, color: u.color, fontWeight: 700, fontSize: '0.72rem', mb: 1.5 }}
+        />
+        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>
+          {u.message}
+        </Typography>
+
+        {facts.length > 0 && (
+          <>
+            <Divider sx={{ my: 1.75 }} />
+            {facts.map(([label, value]) => (
+              <Box key={label} sx={{ display: 'flex', gap: 1, mb: 0.6, flexWrap: 'wrap' }}>
+                <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>{label}</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 700 }}>{value}</Typography>
+              </Box>
+            ))}
+            {isCase && u.caseRiskLevel && (
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>Risk level</Typography>
+                <Chip
+                  label={u.caseRiskLevel}
+                  size="small"
+                  sx={{
+                    bgcolor: `${RISK_COLOR[u.caseRiskLevel] ?? '#64748b'}18`,
+                    color: RISK_COLOR[u.caseRiskLevel] ?? '#64748b',
+                    fontWeight: 800, fontSize: '0.74rem', height: 22,
+                  }}
+                />
+              </Box>
+            )}
+          </>
+        )}
+
+        {isCase && !u.caseId && (
+          <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mt: 1.75 }}>
+            This case is no longer available to open.
+          </Typography>
+        )}
+      </DialogContent>
+
+      {/* Stacked on a phone so both stay reachable with a thumb. */}
+      <DialogActions sx={{ px: 3, pb: 2.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+        <Button
+          onClick={onClose}
+          sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, color: '#64748b', textTransform: 'none' }}
+        >
+          Close
+        </Button>
+        {isCase && u.caseId && (
+          <Button
+            variant="contained"
+            onClick={() => onOpenCase(u.caseId as string)}
+            endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
+            sx={{
+              minHeight: 44, width: { xs: '100%', sm: 'auto' }, borderRadius: 2,
+              bgcolor: ACCENT, fontWeight: 700, textTransform: 'none',
+              '&:hover': { bgcolor: '#0d9488' },
+            }}
+          >
+            View this case
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export default function ResidentNotificationsPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'case' | 'alert'>('all');
 
@@ -46,6 +185,9 @@ export default function ResidentNotificationsPage() {
   // so items newer than it can be highlighted as new.
   const [lastSeen] = useState(() =>
     typeof window === 'undefined' ? 0 : Number(localStorage.getItem(RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY) ?? 0));
+
+  const router = useRouter();
+  const [opened, setOpened] = useState<UpdateItem | null>(null);
 
   const { data: updates, isLoading, mutate } = useSWR<UpdateItem[]>('/api/resident/updates?limit=20', fetcher, { refreshInterval: 30000 });
 
@@ -132,12 +274,23 @@ export default function ResidentNotificationsPage() {
                     exit={{ opacity: 0, x: -16 }}
                     transition={{ delay: i * 0.04 }}
                   >
-                    <Box sx={{
-                      display: 'flex', gap: 1.75, px: 2.5, py: 2,
-                      borderBottom: i < displayed.length - 1 ? '1px solid #f1f5f9' : 'none',
-                      '&:hover': { bgcolor: '#fafbfc' }, transition: 'background 0.15s',
-                      alignItems: 'flex-start',
-                    }}>
+                    {/* A button, not a div with a click handler: it is reachable
+                        by keyboard and announced as actionable. */}
+                    <Box
+                      component="button"
+                      type="button"
+                      onClick={() => setOpened(u)}
+                      aria-label={`Open notification: ${u.title}`}
+                      sx={{
+                        display: 'flex', gap: 1.75, px: { xs: 1.75, sm: 2.5 }, py: 2,
+                        borderBottom: i < displayed.length - 1 ? '1px solid #f1f5f9' : 'none',
+                        borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                        bgcolor: 'transparent', width: '100%', textAlign: 'left',
+                        font: 'inherit', color: 'inherit', cursor: 'pointer', minHeight: 44,
+                        '&:hover': { bgcolor: '#fafbfc' }, transition: 'background 0.15s',
+                        '&:focus-visible': { outline: `3px solid ${ACCENT}55`, outlineOffset: -3 },
+                        alignItems: 'flex-start',
+                      }}>
                       <Box sx={{
                         width: 40, height: 40, borderRadius: 2.5,
                         bgcolor: `${u.color}14`,
@@ -161,13 +314,17 @@ export default function ResidentNotificationsPage() {
                             sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.72rem', height: 22, flexShrink: 0 }}
                           />
                         </Box>
-                        <Typography sx={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5 }}>
+                        <Typography sx={{
+                          fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5,
+                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                        }}>
                           {u.message}
                         </Typography>
                         <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.5 }}>
                           {timeAgo(u.createdAt)}
                         </Typography>
                       </Box>
+                      <ChevronRight sx={{ fontSize: 18, color: '#cbd5e1', alignSelf: 'center', flexShrink: 0 }} />
                     </Box>
                   </motion.div>
                 );
@@ -176,6 +333,17 @@ export default function ResidentNotificationsPage() {
           </Box>
         )}
       </Card>
+
+      {opened && (
+        <NotificationDialog
+          u={opened}
+          onClose={() => setOpened(null)}
+          onOpenCase={id => {
+            setOpened(null);
+            router.push(`/resident/my-cases?case=${id}`);
+          }}
+        />
+      )}
     </Box>
   );
 }

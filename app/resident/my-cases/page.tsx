@@ -110,10 +110,25 @@ function MyCasesPage() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<CaseRow | null>(null);
 
+  // A notification links straight to one case. The id arrives before the list
+  // does, so it is held until the matching row loads and then opened once -
+  // clearing it afterwards so closing the dialog does not immediately reopen it.
+  const [pendingCaseId, setPendingCaseId] = useState(() => searchParams.get('case') ?? '');
+
   const query = new URLSearchParams({ limit: '10', page: String(page), ...(statusFilter && { status: statusFilter }), ...(search && { search }) }).toString();
   const { data, isLoading } = useSWR<CasesData>(`/api/resident/cases?${query}`, fetcher, { keepPreviousData: true });
 
   const cases = data?.cases ?? [];
+
+  if (pendingCaseId && cases.length) {
+    const match = cases.find((c: CaseRow) => c.id === pendingCaseId);
+    if (match) {
+      // Set during render on purpose: React applies both before painting, so
+      // the list never flashes without the dialog the link asked for.
+      setSelected(match);
+      setPendingCaseId('');
+    }
+  }
   const totalPages = data?.totalPages ?? 1;
 
   const statusCounts = { All: data?.total ?? 0 };

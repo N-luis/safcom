@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
             take: limit,
             select: {
               id: true, type: true, message: true, color: true, createdAt: true,
-              case: { select: { caseNumber: true, caseType: true } },
+              case: { select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true } },
             },
           })
         : Promise.resolve([]),
@@ -64,6 +64,11 @@ export async function GET(req: NextRequest) {
         color: a.color,
         createdAt: a.createdAt,
         caseType: a.case?.caseType,
+        caseId: a.case?.id ?? null,
+        caseNumber: a.case?.caseNumber ?? null,
+        caseStatus: a.case?.status ?? null,
+        caseRiskLevel: a.case?.riskLevel ?? null,
+        level: null as string | null,
       })),
       ...alerts.map(a => ({
         id: a.id,
@@ -73,6 +78,13 @@ export async function GET(req: NextRequest) {
         color: a.level === 'critical' ? '#ef4444' : a.level === 'warning' ? '#f97316' : '#3b82f6',
         createdAt: a.createdAt,
         caseType: undefined,
+        caseId: null,
+        caseNumber: null,
+        caseStatus: null,
+        caseRiskLevel: null,
+        // Urgency of the announcement, so the detail view can show it rather
+        // than only a colour.
+        level: a.level,
       })),
     ]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
