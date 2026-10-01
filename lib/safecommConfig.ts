@@ -34,6 +34,10 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] =
   parseContacts(process.env.NEXT_PUBLIC_EMERGENCY_CONTACTS) ?? [
     { label: 'PNP Contact', number: '0998-598-5376' },
     { label: 'Station', number: '(044) 309-3314' },
+    // The barangay's own line, listed separately from the station: the
+    // guidance card points people here first, and the two are not the same
+    // office to ring.
+    { label: 'Barangay Hall', number: '0922-709-0700' },
   ];
 
 /**

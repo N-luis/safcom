@@ -254,7 +254,11 @@ export function guidanceFor(
  * for without printing a number nobody can ring.
  */
 export function barangayHotline(): string | null {
-  const hall = EMERGENCY_CONTACTS.find(c => /station|hall|barangay/i.test(c.label))
+  // A label that actually names the barangay wins over a generic "Station",
+  // which may be the police. The button says "Barangay hall", so the number
+  // beside it has to be the barangay's.
+  const hall = EMERGENCY_CONTACTS.find(c => /hall|barangay/i.test(c.label))
+    ?? EMERGENCY_CONTACTS.find(c => /station/i.test(c.label))
     ?? EMERGENCY_CONTACTS[0];
   return hall?.number?.trim() || null;
 }
