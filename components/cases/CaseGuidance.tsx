@@ -27,14 +27,24 @@ const MUTED = '#5F6F86';
 const TEAL = '#0D8A7D';
 const DIVIDER = '#E3E8EF';
 
-export default function CaseGuidance({ caseId, caseType, riskLevel, caseStatus, onPosted }: {
+export default function CaseGuidance({
+  caseId, caseType, riskLevel, caseStatus, onPosted, variant = 'resident',
+}: {
   caseId: string;
   caseType: string;
   riskLevel: string;
   caseStatus: string;
   /** Lets the timeline and the progress pill refresh after a check-in. */
   onPosted?: () => void;
+  /**
+   * Who is reading. An officer sees the same advice so they know what the
+   * resident was told, but none of the controls: those write a follow-up as
+   * the resident, through an endpoint that only a resident may call, and an
+   * officer tapping "I'm safe now" would be putting words in their mouth.
+   */
+  variant?: 'resident' | 'officer';
 }) {
+  const readOnly = variant === 'officer';
   const { risk, copy } = guidanceFor(riskLevel, caseType);
   const hotline = barangayHotline();
   const closed = ['Resolved', 'Closed'].includes(caseStatus);
@@ -89,7 +99,9 @@ export default function CaseGuidance({ caseId, caseType, riskLevel, caseStatus, 
             SafeComm AI
           </Typography>
           <Typography sx={{ fontSize: '0.81rem', color: MUTED }}>
-            {`Guidance for you, based on this report's ${risk.toLowerCase()} risk`}
+            {readOnly
+              ? `What the resident was shown, based on this report's ${risk.toLowerCase()} risk`
+              : `Guidance for you, based on this report's ${risk.toLowerCase()} risk`}
           </Typography>
         </Box>
         <Chip
@@ -198,7 +210,7 @@ export default function CaseGuidance({ caseId, caseType, riskLevel, caseStatus, 
             >
               {copy.planB.action.label}
             </Button>
-          ) : (
+          ) : readOnly ? null : (
             <Button
               onClick={() => runAction(copy.planB.action)}
               disabled={closed || busy !== null}
@@ -234,7 +246,9 @@ export default function CaseGuidance({ caseId, caseType, riskLevel, caseStatus, 
         </Box>
       </Box>
 
-      {/* ── e. One-tap check-in ── */}
+      {/* ── e. One-tap check-in. The resident's own voice, so it is theirs
+             to use; an officer sees the case's timeline instead. ── */}
+      {!readOnly && (
       <Box>
         <Typography component="h4" sx={{ ...label, mb: 1 }}>
           How are you now? Update us in one tap
@@ -273,14 +287,16 @@ export default function CaseGuidance({ caseId, caseType, riskLevel, caseStatus, 
           </Typography>
         )}
       </Box>
+      )}
 
       {/* ── f. What this is, and what it is not ── */}
       <Typography sx={{
         borderTop: `1px solid ${DIVIDER}`, pt: 1.5, fontSize: '0.781rem',
         color: MUTED, lineHeight: 1.55,
       }}>
-        This is general guidance written by AI. It does not replace emergency services or a
-        barangay officer&apos;s decision.
+        {readOnly
+          ? 'This is the general guidance SafeComm showed the resident. It is not a barangay instruction and does not replace an officer\u2019s decision.'
+          : 'This is general guidance written by AI. It does not replace emergency services or a barangay officer\u2019s decision.'}
       </Typography>
     </Box>
   );

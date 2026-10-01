@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import CaseGuidance from '@/components/cases/CaseGuidance';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -107,6 +108,18 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
         <Divider sx={{ mb: 2 }} />
         <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
         <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 1.75, borderRadius: 2, mb: 2 }}>{c.description}</Typography>
+
+        {/* What SafeComm told the resident to do, so an officer picking the
+            case up knows what they were already advised. Read-only here. */}
+        <Box sx={{ mb: 2 }}>
+          <CaseGuidance
+            caseId={c.id}
+            caseType={c.caseType}
+            riskLevel={c.riskLevel}
+            caseStatus={c.status}
+            variant="officer"
+          />
+        </Box>
 
         {editing ? (
           <Grid container spacing={2}>
