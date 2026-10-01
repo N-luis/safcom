@@ -1,8 +1,8 @@
 'use client';
 
 import { Box, Typography, Chip, Divider } from '@mui/material';
-import { WarningAmber, LocalPhone, AutoAwesome } from '@mui/icons-material';
-import { PNP_CONTACT_NUMBER, type GbvAnalysis } from '@/lib/gbvAnalysis';
+import { WarningAmber, LocalPhone, AutoAwesome, Person, Shield, Campaign } from '@mui/icons-material';
+import { PNP_CONTACT_NUMBER, type GbvAnalysis, type ActionAudience } from '@/lib/gbvAnalysis';
 
 /**
  * The initial risk assessment as shown to the person who filed the report.
@@ -41,6 +41,60 @@ function Bullets({ title, items, color }: { title: string; items: string[]; colo
           <Typography sx={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.5 }}>{t}</Typography>
         </Box>
       ))}
+    </Box>
+  );
+}
+
+
+/** Who the step is for, so an officer's task is never read as the reporter's. */
+const AUDIENCE: Record<ActionAudience, { label: string; icon: React.ElementType; color: string }> = {
+  emergency: { label: 'If you need help now', icon: Campaign, color: '#ef4444' },
+  reporter: { label: 'What you can do', icon: Person, color: '#0ea5e9' },
+  officer: { label: 'For the barangay officer', icon: Shield, color: '#64748b' },
+};
+
+function NextActions({ actions }: { actions: GbvAnalysis['recommendedActions'] }) {
+  if (!actions.length) return null;
+  // Numbered across the whole list, but grouped so the audience is unmistakable.
+  let n = 0;
+  const order: ActionAudience[] = ['emergency', 'reporter', 'officer'];
+  return (
+    <Box sx={{ mt: 1.5, border: '1px solid #e8edf2', borderRadius: 2.5, p: 2, bgcolor: '#fff' }}>
+      <Typography sx={{
+        fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700,
+        textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1,
+      }}>
+        Recommended next actions
+      </Typography>
+      {order.map(aud => {
+        const group = actions.filter(a => a.audience === aud);
+        if (!group.length) return null;
+        const meta = AUDIENCE[aud];
+        const Icon = meta.icon;
+        return (
+          <Box key={aud} sx={{ mb: 1.25, '&:last-of-type': { mb: 0 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mb: 0.5 }}>
+              <Icon sx={{ fontSize: 14, color: meta.color }} />
+              <Typography sx={{ fontSize: '0.76rem', fontWeight: 800, color: meta.color, letterSpacing: '0.02em' }}>
+                {meta.label}
+              </Typography>
+            </Box>
+            {group.map(a => {
+              n += 1;
+              return (
+                <Box key={a.text} sx={{ display: 'flex', gap: 0.9, mb: 0.45, pl: 0.25 }}>
+                  <Typography sx={{ fontSize: '0.82rem', color: meta.color, fontWeight: 800, minWidth: 16 }}>
+                    {n}.
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.55 }}>
+                    {a.text}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        );
+      })}
     </Box>
   );
 }
@@ -101,6 +155,25 @@ export default function RiskAssessmentResult({ assessment, score, confidence, hi
 
         <Bullets title="Missing information" items={assessment.missingInformation} color="#cbd5e1" />
       </Box>
+
+      {assessment.emergencyAssistance && (
+        <Box sx={{
+          mt: 1.5, borderRadius: 2.5, p: 2,
+          bgcolor: '#fef2f2', border: '2px solid #ef4444',
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+            <Campaign sx={{ fontSize: 18, color: '#ef4444' }} />
+            <Typography sx={{ fontWeight: 800, fontSize: '0.9rem', color: '#991b1b' }}>
+              Emergency assistance
+            </Typography>
+          </Box>
+          <Typography sx={{ fontSize: '0.86rem', color: '#7f1d1d', lineHeight: 1.6 }}>
+            {assessment.emergencyAssistance}
+          </Typography>
+        </Box>
+      )}
+
+      <NextActions actions={assessment.recommendedActions} />
 
       {isHigh && (
         <Box sx={{

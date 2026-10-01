@@ -20,6 +20,9 @@
  * did not say.
  */
 
+/** Shown only on High, per the configured workflow. Never sent anywhere. */
+export const PNP_CONTACT_NUMBER = '0998-598-5376';
+
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 export type Frequency = 'One-time' | 'Occasional' | 'Repeated' | 'Frequent' | 'Ongoing' | 'Unknown';
 export type Escalation = 'None reported' | 'Possible' | 'Present' | 'Unknown';
@@ -55,6 +58,18 @@ export interface DetectedFactor {
   evidence: string[];
 }
 
+/**
+ * Who an action is addressed to. Keeping these apart matters: a reporter must
+ * not be handed an officer's task, and an officer must not read a safety step
+ * as something already done for the reporter.
+ */
+export type ActionAudience = 'emergency' | 'reporter' | 'officer';
+
+export interface RecommendedAction {
+  audience: ActionAudience;
+  text: string;
+}
+
 export interface GbvAnalysis {
   level: RiskLevel;
   detectedFactors: DetectedFactor[];
@@ -66,6 +81,13 @@ export interface GbvAnalysis {
   recommendedReview: ReviewLevel;
   missingInformation: string[];
   severeTrigger: boolean;
+  /** Practical next steps, drawn from the level and what the report describes. */
+  recommendedActions: RecommendedAction[];
+  /**
+   * Shown only when the report indicates danger at the time of writing. Null
+   * otherwise, so the emergency block never appears on a calm report.
+   */
+  emergencyAssistance: string | null;
 }
 
 const FACTORS: FactorDef[] = [
@@ -392,6 +414,106 @@ function isRepeated(f: Frequency): boolean {
   return f === 'Repeated' || f === 'Frequent' || f === 'Ongoing';
 }
 
+/**
+ * Next steps for the report in hand.
+ *
+ * Two rules shape this. Nothing here may state that anything has already been
+ * done - no officer has been assigned and nobody has been contacted at the
+ * moment this is produced. And when the report says the danger is present now,
+ * the advice must not be to wait for case processing.
+ *
+ * Circumstance-specific lines are emitted only when the matching factor was
+ * actually detected, so a calm report never collects advice about weapons.
+ */
+function buildActions(
+  level: RiskLevel,
+  detected: DetectedFactor[],
+  dangerNow: boolean,
+  escalating: boolean,
+): RecommendedAction[] {
+  const has = (id: string) => detected.some(d => d.id === id);
+  const actions: RecommendedAction[] = [];
+
+  // Immediate danger comes first and displaces anything about waiting.
+  if (dangerNow) {
+    actions.push({
+      audience: 'emergency',
+      text: `If you are in danger right now, call the PNP at ${PNP_CONTACT_NUMBER} or your barangay hotline before anything else. Do not wait for this case to be reviewed.`,
+    });
+  }
+
+  if (level === 'High') {
+    if (!dangerNow) {
+      actions.push({
+        audience: 'emergency',
+        text: `If the situation becomes dangerous, call the PNP at ${PNP_CONTACT_NUMBER} rather than waiting for case processing.`,
+      });
+    }
+    actions.push({ audience: 'reporter', text: 'Move somewhere safer if you can do so safely.' });
+    actions.push({ audience: 'reporter', text: 'Tell someone you trust where you are and what has happened.' });
+  }
+
+  if (level === 'Medium') {
+    actions.push({ audience: 'reporter', text: 'Reach a trusted person or your barangay officials if you feel unsafe at any point.' });
+    actions.push({ audience: 'reporter', text: 'Tell the assigned officer if this happens again or gets worse.' });
+    actions.push({
+      audience: 'emergency',
+      text: `If it becomes immediately dangerous, seek emergency assistance instead of waiting for this case to be processed. PNP: ${PNP_CONTACT_NUMBER}.`,
+    });
+  }
+
+  if (level === 'Low') {
+    actions.push({ audience: 'reporter', text: 'Tell the barangay if the situation changes or becomes more serious.' });
+  }
+
+  // ── Specific to what was reported ──
+  if (has('weapon')) {
+    actions.push({ audience: 'reporter', text: 'A weapon was described. Avoid being alone with the respondent and keep a way out in mind.' });
+    actions.push({ audience: 'officer', text: 'Weapon involvement is described in the report - take it into account before any face-to-face contact.' });
+  }
+  if (has('severe-injury') || has('injury')) {
+    actions.push({ audience: 'reporter', text: 'Have the injury seen to and keep the medical record. It supports the case.' });
+  }
+  if (has('knows-location') || has('stalking')) {
+    actions.push({ audience: 'reporter', text: 'The report says the respondent follows you or knows where you stay. Consider staying somewhere they do not for now.' });
+  }
+  if (has('prevented-help') || has('restriction')) {
+    actions.push({ audience: 'reporter', text: 'Keep a charged phone within reach, and tell a neighbour who can call for help.' });
+  }
+  if (has('retaliation')) {
+    actions.push({ audience: 'officer', text: 'The report describes a threat of reprisal for reporting - handle the reporter\u2019s details with that in mind.' });
+  }
+  if (has('vulnerable-person')) {
+    actions.push({ audience: 'officer', text: 'A minor or dependent person is described - consider a VAWC or child-protection referral.' });
+  }
+  if (has('control')) {
+    actions.push({ audience: 'reporter', text: 'List the money or documents being withheld so the officer has it on record.' });
+  }
+  if (escalating || has('previous-incident')) {
+    actions.push({ audience: 'reporter', text: 'Give the officer the dates of the earlier incidents if you have them.' });
+  }
+
+  // ── Case handling. Omitted while danger is present, since the instruction
+  //    there is to seek help rather than to monitor a case. ──
+  if (!dangerNow) {
+    actions.push({ audience: 'reporter', text: 'Keep your SafeComm case number and follow the case under My Cases.' });
+    actions.push({ audience: 'reporter', text: 'Add any further detail if an officer asks for it.' });
+  } else {
+    actions.push({ audience: 'reporter', text: 'Keep your SafeComm case number for reference.' });
+  }
+
+  actions.push({
+    audience: 'officer',
+    text: level === 'High'
+      ? 'Urgent human review - this classification has not been reviewed by anyone yet.'
+      : level === 'Medium'
+        ? 'Priority review by an assigned officer.'
+        : 'Routine review in the normal queue.',
+  });
+
+  return actions.slice(0, 9);
+}
+
 export function analyseReport(report: string): GbvAnalysis {
   const original = report ?? '';
   const clauses = toClauses(original);
@@ -404,6 +526,11 @@ export function analyseReport(report: string): GbvAnalysis {
       recommendedReview: 'Routine Review',
       missingInformation: ['A description of what happened'],
       severeTrigger: false,
+      recommendedActions: [
+        { audience: 'reporter', text: 'Add a description of what happened so the report can be assessed.' },
+        { audience: 'officer', text: 'Routine review in the normal queue.' },
+      ],
+      emergencyAssistance: null,
     };
   }
 
@@ -507,8 +634,9 @@ export function analyseReport(report: string): GbvAnalysis {
     immediateDanger, reason, recommendedReview,
     missingInformation: missingInformation.slice(0, 5),
     severeTrigger: severe.length > 0,
+    recommendedActions: buildActions(level, detected, dangerNow, escalating),
+    emergencyAssistance: dangerNow
+      ? `The report indicates danger at the time of writing. Call the PNP at ${PNP_CONTACT_NUMBER} or your barangay hotline now. SafeComm has not contacted them for you.`
+      : null,
   };
 }
-
-/** Shown only on High, per the configured workflow. Never sent anywhere. */
-export const PNP_CONTACT_NUMBER = '0998-598-5376';
