@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import {
-  Box, Typography, Button, LinearProgress, CircularProgress, IconButton, Tooltip,
+  Box, Typography, Button, LinearProgress, CircularProgress, IconButton, Tooltip, Portal,
 } from '@mui/material';
 import {
   CheckCircle, RadioButtonUnchecked, ErrorOutlined, AutoAwesome,
@@ -93,6 +93,11 @@ export default function AnalyzingCard({
    * the wait is the point rather than something to work around.
    */
   const overlay = {
+    // Fixed to the viewport - but only because this renders through a portal.
+    // An ancestor with a transform becomes the containing block for a fixed
+    // child, and the resident layout animates every page in on a motion.div,
+    // which is exactly that. Inside the tree the card would be centred on the
+    // scrolling content box instead of the screen.
     position: 'fixed' as const,
     inset: 0,
     zIndex: 1300,
@@ -136,6 +141,7 @@ export default function AnalyzingCard({
 
   if (minimized) {
     return (
+      <Portal>
       <Box
         role="status"
         aria-live="polite"
@@ -161,10 +167,12 @@ export default function AnalyzingCard({
         </Typography>
         <OpenInFull sx={{ fontSize: 15, color: '#94a3b8' }} />
       </Box>
+      </Portal>
     );
   }
 
   return (
+    <Portal>
     <Box
       sx={overlay}
       // Tapping the dimmed area puts it back in the corner rather than
@@ -294,5 +302,6 @@ export default function AnalyzingCard({
       </Box>
     </Box>
     </Box>
+    </Portal>
   );
 }
