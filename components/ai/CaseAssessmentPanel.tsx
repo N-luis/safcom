@@ -6,6 +6,7 @@ import {
   Insights, HelpOutlined, TaskAlt,
 } from '@mui/icons-material';
 import type { CaseAssessment, CasePriority, CaseRecommendation } from '@/lib/caseAssessment';
+import { LANGUAGE_LABEL } from '@/lib/recommendationLanguage';
 
 /**
  * What the resident sees once their report has been assessed.
@@ -162,7 +163,23 @@ export default function CaseAssessmentPanel({ assessment, caseNumber }: {
 
       {/* 6. Personalized Recommendations */}
       <Card>
-        <SectionTitle icon={TaskAlt}>Recommended next actions</SectionTitle>
+        {/* The badge says which language the lines below are in, so an officer
+            reading Tagalog on an English dashboard knows it was deliberate. */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+          <Box sx={{ flex: '1 1 auto', minWidth: 0, '& > *': { mb: 0 } }}>
+            <SectionTitle icon={TaskAlt}>Recommended next actions</SectionTitle>
+          </Box>
+          {assessment.language && (
+            <Chip
+              label={LANGUAGE_LABEL[assessment.language]}
+              size="small"
+              sx={{
+                height: 20, fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.04em',
+                bgcolor: '#eef2ff', color: '#4338ca', flexShrink: 0,
+              }}
+            />
+          )}
+        </Box>
         {order.map(aud => {
           const group = assessment.recommendations.filter(r => r.audience === aud);
           if (!group.length) return null;
@@ -186,6 +203,17 @@ export default function CaseAssessmentPanel({ assessment, caseNumber }: {
             </Box>
           );
         })}
+        {assessment.barangayMessage && (
+          <>
+            <Divider sx={{ my: 1.25 }} />
+            <Typography sx={{
+              fontSize: '0.84rem', color: '#0f766e', lineHeight: 1.6,
+              bgcolor: '#f0fdfa', borderRadius: 1.5, p: 1.25,
+            }}>
+              {assessment.barangayMessage}
+            </Typography>
+          </>
+        )}
       </Card>
 
       {/* 7. Important Safety Notice — only above the configured threshold */}

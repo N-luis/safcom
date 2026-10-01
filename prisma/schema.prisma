@@ -39,6 +39,10 @@ model Case {
   barangay     String
   description  String
   notes        String?
+  /// The language the resident wrote this report in: tagalog | taglish |
+  /// english. Read from the text, never from the interface toggle, and used to
+  /// decide which language the recommendation comes back in.
+  language     String?
   assignedToId String?
   assignedTo   User?          @relation("AssignedOfficer", fields: [assignedToId], references: [id])
   residentId   String?

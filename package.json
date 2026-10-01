@@ -14,7 +14,8 @@
     "test:risk": "npx tsx tests/riskLevel.test.ts",
     "test:evidence": "npx tsx tests/evidence.test.ts",
     "test:ocr": "npx tsx tests/ocr.test.ts",
-    "test:classify": "npx tsx tests/classification.test.ts"
+    "test:classify": "npx tsx tests/classification.test.ts",
+    "test:language": "npx tsx tests/detectLanguage.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

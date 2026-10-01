@@ -1370,6 +1370,7 @@ export const CaseScalarFieldEnum = {
   barangay: 'barangay',
   description: 'description',
   notes: 'notes',
+  language: 'language',
   assignedToId: 'assignedToId',
   residentId: 'residentId',
   filedAt: 'filedAt',

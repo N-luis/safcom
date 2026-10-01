@@ -5,6 +5,7 @@ import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/l
 import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 import { enforceHardRules } from '@/lib/caseClassification';
+import { detectLanguageSafe } from '@/lib/detectLanguage';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -134,8 +135,12 @@ export async function POST(req: NextRequest) {
     // lands; the rules may raise the engine's level, never lower it.
     const { level: riskLevel } = enforceHardRules(aiRisk.level, { report: description });
 
+    // Recorded here too: a walk-in is typed by an officer but dictated by the
+    // resident, and the reply they are handed should be in their own words.
+    const language = detectLanguageSafe(description).language;
+
     const newCase = await prisma.case.create({
-      data: { ...parsed.data, status: status || 'Open', riskLevel },
+      data: { ...parsed.data, status: status || 'Open', riskLevel, language },
     });
 
     await prisma.activity.create({

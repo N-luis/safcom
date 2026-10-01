@@ -34,6 +34,7 @@ export type CaseMinAggregateOutputType = {
   barangay: string | null
   description: string | null
   notes: string | null
+  language: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -55,6 +56,7 @@ export type CaseMaxAggregateOutputType = {
   barangay: string | null
   description: string | null
   notes: string | null
+  language: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -76,6 +78,7 @@ export type CaseCountAggregateOutputType = {
   barangay: number
   description: number
   notes: number
+  language: number
   assignedToId: number
   residentId: number
   filedAt: number
@@ -99,6 +102,7 @@ export type CaseMinAggregateInputType = {
   barangay?: true
   description?: true
   notes?: true
+  language?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -120,6 +124,7 @@ export type CaseMaxAggregateInputType = {
   barangay?: true
   description?: true
   notes?: true
+  language?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -141,6 +146,7 @@ export type CaseCountAggregateInputType = {
   barangay?: true
   description?: true
   notes?: true
+  language?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -235,6 +241,7 @@ export type CaseGroupByOutputType = {
   barangay: string
   description: string
   notes: string | null
+  language: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date
@@ -277,6 +284,7 @@ export type CaseWhereInput = {
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
+  language?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -304,6 +312,7 @@ export type CaseOrderByWithRelationInput = {
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  language?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -334,6 +343,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
+  language?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -361,6 +371,7 @@ export type CaseOrderByWithAggregationInput = {
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  language?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -388,6 +399,7 @@ export type CaseScalarWhereWithAggregatesInput = {
   barangay?: Prisma.StringWithAggregatesFilter<"Case"> | string
   description?: Prisma.StringWithAggregatesFilter<"Case"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  language?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
@@ -409,6 +421,7 @@ export type CaseCreateInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -434,6 +447,7 @@ export type CaseUncheckedCreateInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -459,6 +473,7 @@ export type CaseUpdateInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -484,6 +499,7 @@ export type CaseUncheckedUpdateInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -509,6 +525,7 @@ export type CaseCreateManyInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -530,6 +547,7 @@ export type CaseUpdateManyMutationInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -549,6 +567,7 @@ export type CaseUncheckedUpdateManyInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -580,6 +599,7 @@ export type CaseCountOrderByAggregateInput = {
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  language?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -601,6 +621,7 @@ export type CaseMaxOrderByAggregateInput = {
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  language?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -622,6 +643,7 @@ export type CaseMinOrderByAggregateInput = {
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  language?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -799,6 +821,7 @@ export type CaseCreateWithoutAssignedToInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -823,6 +846,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -876,6 +900,7 @@ export type CaseScalarWhereInput = {
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
+  language?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -897,6 +922,7 @@ export type CaseCreateWithoutAssessmentInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -921,6 +947,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -961,6 +988,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -985,6 +1013,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1009,6 +1038,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1033,6 +1063,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1073,6 +1104,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1097,6 +1129,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1121,6 +1154,7 @@ export type CaseCreateWithoutResidentInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1145,6 +1179,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1195,6 +1230,7 @@ export type CaseCreateWithoutActivitiesInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1219,6 +1255,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1259,6 +1296,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1283,6 +1321,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1307,6 +1346,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1331,6 +1371,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1371,6 +1412,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1395,6 +1437,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1419,6 +1462,7 @@ export type CaseCreateManyAssignedToInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1439,6 +1483,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1463,6 +1508,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1487,6 +1533,7 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1507,6 +1554,7 @@ export type CaseCreateManyResidentInput = {
   barangay: string
   description: string
   notes?: string | null
+  language?: string | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1527,6 +1575,7 @@ export type CaseUpdateWithoutResidentInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1551,6 +1600,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1575,6 +1625,7 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1644,6 +1695,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   barangay?: boolean
   description?: boolean
   notes?: boolean
+  language?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1672,6 +1724,7 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   barangay?: boolean
   description?: boolean
   notes?: boolean
+  language?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1695,6 +1748,7 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   barangay?: boolean
   description?: boolean
   notes?: boolean
+  language?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1718,6 +1772,7 @@ export type CaseSelectScalar = {
   barangay?: boolean
   description?: boolean
   notes?: boolean
+  language?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1729,7 +1784,7 @@ export type CaseSelectScalar = {
   reminderSentAt?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -1768,6 +1823,12 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     barangay: string
     description: string
     notes: string | null
+    /**
+     * The language the resident wrote this report in: tagalog | taglish |
+     * english. Read from the text, never from the interface toggle, and used to
+     * decide which language the recommendation comes back in.
+     */
+    language: string | null
     assignedToId: string | null
     residentId: string | null
     filedAt: Date
@@ -2223,6 +2284,7 @@ export interface CaseFieldRefs {
   readonly barangay: Prisma.FieldRef<"Case", 'String'>
   readonly description: Prisma.FieldRef<"Case", 'String'>
   readonly notes: Prisma.FieldRef<"Case", 'String'>
+  readonly language: Prisma.FieldRef<"Case", 'String'>
   readonly assignedToId: Prisma.FieldRef<"Case", 'String'>
   readonly residentId: Prisma.FieldRef<"Case", 'String'>
   readonly filedAt: Prisma.FieldRef<"Case", 'DateTime'>

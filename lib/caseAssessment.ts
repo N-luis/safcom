@@ -1,5 +1,9 @@
 import { analyseReport, type GbvAnalysis } from './gbvAnalysis';
 import { EMERGENCY_CONTACTS, EMERGENCY_PRIORITY_THRESHOLD } from './safecommConfig';
+import { detectLanguageSafe, type ReportLanguage } from './detectLanguage';
+import {
+  say, officerRepeated, officerEscalation, officerPriority, BARANGAY_MESSAGE,
+} from './recommendationLanguage';
 
 /**
  * Multi-factor case triage.
@@ -59,6 +63,10 @@ export interface CaseAssessment {
   reason: string;
   recommendations: CaseRecommendation[];
   safetyReminders: string[];
+  /** The language the recommendation and reminders above are written in. */
+  language: ReportLanguage;
+  /** The barangay's own message to the resident, in that language. */
+  barangayMessage: string;
   /** Shown only when the configured threshold is reached. */
   emergencyContacts: { label: string; number: string }[];
   showEmergencyNotice: boolean;
@@ -79,6 +87,11 @@ export interface AssessmentContext {
    * Nothing infers it.
    */
   gender?: string | null;
+  /**
+   * The language to answer in. Read from the report text when not supplied, so
+   * a caller that has already detected it does not pay for it twice.
+   */
+  language?: ReportLanguage;
 }
 
 const rank = <T extends readonly string[]>(scale: T, v: T[number]) => scale.indexOf(v);
@@ -228,7 +241,9 @@ function buildReason(f: AssessmentFactors, priority: CasePriority): string {
     + 'The assessment reads only what the report itself says, and an authorized officer makes the final decision.';
 }
 
-function buildRecommendations(a: GbvAnalysis, f: AssessmentFactors, showEmergency: boolean): CaseRecommendation[] {
+function buildRecommendations(
+  a: GbvAnalysis, f: AssessmentFactors, showEmergency: boolean, lang: ReportLanguage,
+): CaseRecommendation[] {
   const has = (id: string) => a.detectedFactors.some(d => d.id === id);
   const out: CaseRecommendation[] = [];
   const urgentNow = f.immediateThreat === 'Present' || f.immediateThreat === 'Critical';
@@ -236,12 +251,12 @@ function buildRecommendations(a: GbvAnalysis, f: AssessmentFactors, showEmergenc
   if (urgentNow) {
     out.push({
       audience: 'emergency',
-      text: 'If you are in danger right now, contact the emergency numbers below before anything else. Do not wait for this case to be reviewed.',
+      text: say('emergencyNow', lang),
     });
   } else if (showEmergency) {
     out.push({
       audience: 'emergency',
-      text: 'If the situation becomes dangerous, contact the emergency numbers below rather than waiting for case processing.',
+      text: say('emergencyLater', lang),
     });
   }
 
@@ -249,68 +264,65 @@ function buildRecommendations(a: GbvAnalysis, f: AssessmentFactors, showEmergenc
   // it is as true of a minor case as a serious one.
   out.push({
     audience: 'resident',
-    text: 'Keep anything that records what happened - messages, screenshots, photographs, receipts, medical or barangay documents.',
+    text: say('keepEvidence', lang),
   });
 
   if (f.incidentSeverity !== 'Minor' || urgentNow) {
     out.push({
       audience: 'resident',
-      text: 'Avoid confronting the person involved directly if that could make the situation worse.',
+      text: say('avoidConfrontation', lang),
     });
   }
   if (urgentNow) {
-    out.push({ audience: 'resident', text: 'Move somewhere safer if you can do so safely, and tell someone you trust where you are.' });
+    out.push({ audience: 'resident', text: say('moveSafer', lang) });
   }
   if (has('severe-injury') || has('injury')) {
-    out.push({ audience: 'resident', text: 'Have any injury seen to, and keep the record of that visit.' });
+    out.push({ audience: 'resident', text: say('injurySeen', lang) });
   }
   if (has('knows-location') || has('stalking')) {
-    out.push({ audience: 'resident', text: 'The report mentions being followed or the person knowing where you stay. Consider staying somewhere they do not for now.' });
+    out.push({ audience: 'resident', text: say('stalkingStayElsewhere', lang) });
   }
   if (has('prevented-help') || has('restriction')) {
-    out.push({ audience: 'resident', text: 'Keep a charged phone within reach, and let a neighbour know they may need to call for help.' });
+    out.push({ audience: 'resident', text: say('keepPhoneReachable', lang) });
   }
   if (has('control')) {
-    out.push({ audience: 'resident', text: 'Write down which documents or money are being withheld so the officer has it on record.' });
+    out.push({ audience: 'resident', text: say('writeWithheld', lang) });
   }
 
   if (f.recurrence === 'Repeated Incident' || f.recurrence === 'Ongoing Pattern') {
-    out.push({ audience: 'resident', text: 'Write down the earlier incidents with dates if you can remember them, and add them to this case.' });
-    out.push({ audience: 'officer', text: `Repeated incidents identified - recurrence assessed as ${f.recurrence}.` });
+    out.push({ audience: 'resident', text: say('writeEarlierIncidents', lang) });
+    out.push({ audience: 'officer', text: officerRepeated(lang, f.recurrence) });
   }
   if (f.escalationPotential === 'Elevated' || f.escalationPotential === 'Urgent') {
-    out.push({ audience: 'officer', text: `Escalation potential assessed as ${f.escalationPotential} - coordinate with the reporter promptly.` });
+    out.push({ audience: 'officer', text: officerEscalation(lang, f.escalationPotential) });
   }
   if (has('retaliation')) {
-    out.push({ audience: 'officer', text: 'A threat of reprisal for reporting is described - handle the reporter’s details accordingly.' });
+    out.push({ audience: 'officer', text: say('officerRetaliation', lang) });
   }
   if (has('vulnerable-person')) {
-    out.push({ audience: 'officer', text: 'A minor or dependent person is described - consider a VAWC or child-protection referral.' });
+    out.push({ audience: 'officer', text: say('officerVulnerable', lang) });
   }
 
   out.push({
     audience: 'resident',
-    text: urgentNow
-      ? 'Keep your case number for reference.'
-      : 'Keep your case number and follow the case under My Cases. Add anything further if an officer asks.',
+    text: say(urgentNow ? 'keepCaseNumberUrgent' : 'keepCaseNumber', lang),
   });
   out.push({
     audience: 'officer',
-    text: `Case priority assessed as ${f.urgency === 'Immediate Response' ? 'Immediate Response' : f.urgency}. This has not been reviewed by anyone yet.`,
+    text: officerPriority(lang, f.urgency),
   });
 
   return out.slice(0, 10);
 }
 
-function buildSafetyReminders(f: AssessmentFactors, urgentNow: boolean): string[] {
-  const reminders = [
-    'This assessment is produced from the words in your report. It assists triage only and does not replace a review by an authorized officer.',
-    'It does not decide who is at fault, and it is not legal or medical advice.',
-  ];
+function buildSafetyReminders(
+  f: AssessmentFactors, urgentNow: boolean, lang: ReportLanguage,
+): string[] {
+  const reminders = [say('triageOnly', lang), say('notFault', lang)];
   if (urgentNow) {
-    reminders.unshift('Your safety comes before this case. If you are in danger, get help first.');
+    reminders.unshift(say('safetyFirst', lang));
   } else if (f.recurrence !== 'No Indication') {
-    reminders.push('If the situation happens again or changes, update the case so the officer sees the pattern.');
+    reminders.push(say('updateIfAgain', lang));
   }
   return reminders;
 }
@@ -319,6 +331,11 @@ function buildSafetyReminders(f: AssessmentFactors, urgentNow: boolean): string[
 
 export function assessCase(description: string, ctx: AssessmentContext = {}): CaseAssessment {
   const analysis = analyseReport(description);
+
+  // The language the resident wrote in, not the one the interface was set to.
+  // Someone can have the app in English and still report in Tagalog, and the
+  // answer should come back in the words they used.
+  const language = ctx.language ?? detectLanguageSafe(description).language;
 
   const immediateThreat = scoreImmediateThreat(analysis);
   const incidentSeverity = scoreSeverity(analysis);
@@ -341,8 +358,10 @@ export function assessCase(description: string, ctx: AssessmentContext = {}): Ca
     factors,
     summary: buildSummary(analysis, factors),
     reason: buildReason(factors, priority),
-    recommendations: buildRecommendations(analysis, factors, showEmergencyNotice),
-    safetyReminders: buildSafetyReminders(factors, urgentNow),
+    recommendations: buildRecommendations(analysis, factors, showEmergencyNotice, language),
+    safetyReminders: buildSafetyReminders(factors, urgentNow, language),
+    language,
+    barangayMessage: BARANGAY_MESSAGE[language],
     emergencyContacts: showEmergencyNotice ? EMERGENCY_CONTACTS : [],
     showEmergencyNotice,
     missingInformation: analysis.missingInformation,

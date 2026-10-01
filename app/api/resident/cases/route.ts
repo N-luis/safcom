@@ -6,6 +6,7 @@ import { computeRisk } from '@/lib/riskEngine';
 import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
 import { createWithCaseNumber } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
+import { detectLanguageSafe } from '@/lib/detectLanguage';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
 import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
@@ -168,6 +169,12 @@ export async function POST(req: NextRequest) {
       : null;
     const evidence = buildEvidence(parsed.data.description, transcription);
 
+    // Which language to answer in, read from what the resident actually typed.
+    // The document text is left out of this on purpose: a photographed blotter
+    // entry is often written by an officer in English while the resident wrote
+    // their own account in Tagalog, and it is the resident who reads the reply.
+    const detected = detectLanguageSafe(parsed.data.description);
+
     // Multi-factor triage. The priority comes from what the report describes
     // plus this reporter's own history of the same kind of incident - never
     // from the case type, and never from anything about the person.
@@ -175,6 +182,7 @@ export async function POST(req: NextRequest) {
       priorSameType: residentSameTypeCount,
       areaRecentSameType: highRiskAreaCaseCount,
       gender: resident.gender ?? null,
+      language: detected.language,
     });
     // The hard rules are the floor under the weighted factors. A report that
     // names a child being hurt, a weapon alongside a threat, or someone still
@@ -202,6 +210,7 @@ export async function POST(req: NextRequest) {
           barangay,
           status: 'Open',
           riskLevel,
+          language: detected.language,
           filedAt,
           residentId: auth.resident.residentId,
           ...(notesValue && { notes: notesValue }),
@@ -227,6 +236,10 @@ export async function POST(req: NextRequest) {
           recommendations: assessment.recommendations,
           safetyReminders: assessment.safetyReminders,
           missingInformation: assessment.missingInformation,
+          language: detected.language,
+          languageConfidence: detected.confidence,
+          languageCounts: { tagalog: detected.tagalogCount, english: detected.englishCount },
+          barangayMessage: assessment.barangayMessage,
           frequency: assessment.analysis.frequency,
           escalation: assessment.analysis.escalation,
           needsHumanReview: evidence.needsHumanReview || classification.needs_human_review,
