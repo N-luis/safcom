@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +21,7 @@ import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 import DocumentCapture, { type CapturedDocument } from '@/components/forms/DocumentCapture';
 import { useLanguage, LANGUAGES } from '@/lib/i18n';
-import RiskProcessing, { type ProcessingState } from '@/components/ai/RiskProcessing';
+import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
 
@@ -72,18 +72,58 @@ export default function ReportCasePage() {
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [document, setDocument] = useState<CapturedDocument | null>(null);
-  const { lang, setLanguage } = useLanguage();
+  const { lang, setLanguage, t } = useLanguage();
+  const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
   // the work and a failure never leaves a fabricated classification behind.
-  const [processing, setProcessing] = useState<ProcessingState>('idle');
-  // Bumped per submission so the stage list remounts at the first stage.
-  const [runId, setRunId] = useState(0);
+  // The analysis phase follows the work actually being done; no timer advances
+  // it. `stage` is an index into the stage list, which omits the document step
+  // when no photo was attached rather than showing one that will not run.
+  const [phase, setPhase] = useState<AnalysisPhase>('idle');
+  const [stage, setStage] = useState(0);
+  const [minimized, setMinimized] = useState(false);
+  const [slow, setSlow] = useState(false);
+  const cancelled = useRef(false);
+
+  const stages: AnalysisStage[] = [
+    { id: 'prepare', labelKey: 'stagePreparing', active: true },
+    ...(document ? [{ id: 'read', labelKey: 'stageReadingDocument' as const, active: true }] : []),
+    { id: 'factors', labelKey: 'stageFactors', active: true },
+    { id: 'severity', labelKey: 'stageSeverity', active: true },
+    { id: 'recs', labelKey: 'stageRecommendations', active: true },
+  ];
+
+  // Kept so Retry can re-run the same answers without the user re-typing them.
+  const lastSubmission = useRef<FormData | null>(null);
+  // Held until the user presses View result, so the floating card can finish
+  // its own lifecycle rather than being yanked away by a screen change.
+  const pendingResult = useRef<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
+
+const analysing = phase === 'preparing' || phase === 'reading_document' || phase === 'assessing';
+
+  // Real elapsed time, started when the run starts and cleared when it ends,
+  // so "taking longer than usual" is never shown about a run that finished.
+  useEffect(() => {
+    if (!analysing) { setSlow(false); return; }
+    const id = setTimeout(() => setSlow(true), 30_000);
+    return () => clearTimeout(id);
+  }, [analysing]);
 
   const onSubmit = async (data: FormData) => {
+    lastSubmission.current = data;
+    cancelled.current = false;
     setApiError('');
-    setRunId(n => n + 1);
-    setProcessing('running');
+    setSlow(false);
+    setMinimized(false);
+    setStage(0);
+    setPhase('preparing');
     try {
+      // The document was already read when it was chosen; this step reflects
+      // that it is being attached to the report, which is real work.
+      if (document) { setStage(1); }
+      setStage(s2 => s2 + 1);
+      setPhase('assessing');
+
       const res = await fetch('/api/resident/cases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,19 +152,24 @@ export default function ReportCasePage() {
         }),
       });
       const json = await res.json();
+      if (cancelled.current) return;
       if (!res.ok) {
-        setProcessing('error');
+        setPhase('error');
         setApiError(json.error || 'Submission failed');
         return;
       }
-      setProcessing('done');
-      setSubmitted({
+      // Only now is the assessment real, so only now do the last stages tick
+      // over and the bar reach the end.
+      setStage(stages.length);
+      setPhase('done');
+      pendingResult.current = {
         caseNumber: json.data.caseNumber,
         assessment: json.data.assessment ?? null,
-      });
+      };
       toast.success('Report submitted successfully!');
     } catch {
-      setProcessing('error');
+      if (cancelled.current) return;
+      setPhase('error');
       setApiError('Network error. Please try again.');
     }
   };
@@ -169,7 +214,7 @@ export default function ReportCasePage() {
                   sx={{ borderColor: ACCENT, color: ACCENT, fontWeight: 600, minHeight: 44, width: { xs: '100%', sm: 'auto' } }}>
                   View My Cases
                 </Button>
-                <Button variant="contained" onClick={() => { setSubmitted(null); setProcessing('idle'); }}
+                <Button variant="contained" onClick={() => { setSubmitted(null); setPhase('idle'); setStage(0); pendingResult.current = null; }}
                   sx={{ bgcolor: ACCENT, fontWeight: 600, minHeight: 44, width: { xs: '100%', sm: 'auto' }, '&:hover': { bgcolor: '#0d9488' } }}>
                   File Another
                 </Button>
@@ -222,12 +267,6 @@ export default function ReportCasePage() {
                 <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2, bgcolor: '#f5f3ff', color: '#5b21b6', '& .MuiAlert-icon': { color: '#7c3aed' } }}>
                   This case type is handled by the VAWC desk. Your report will be routed confidentially to a VAWC officer.
                 </Alert>
-              )}
-
-              {processing !== 'idle' && (
-                <Box sx={{ mb: 2.5 }}>
-                  <RiskProcessing key={runId} state={processing} error={apiError} accent={ACCENT} />
-                </Box>
               )}
 
               <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -332,11 +371,11 @@ export default function ReportCasePage() {
                     type="submit"
                     variant="contained"
                     size="large"
-                    disabled={isSubmitting}
-                    startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : <Send />}
+                    disabled={isSubmitting || analysing}
+                    startIcon={isSubmitting || analysing ? <CircularProgress size={18} color="inherit" /> : <Send />}
                     sx={{ bgcolor: ACCENT, fontWeight: 700, minHeight: 48, '&:hover': { bgcolor: '#0d9488' }, boxShadow: '0 4px 14px rgba(20,184,166,0.35)', flex: 1 }}
                   >
-                    {isSubmitting ? 'Submitting…' : 'Submit Report'}
+                    {isSubmitting || analysing ? 'Submitting…' : 'Submit Report'}
                   </Button>
                   <Button variant="outlined" size="large" onClick={() => router.push('/resident')}
                     sx={{ borderColor: '#e2e8f0', color: '#64748b', minHeight: 48 }}>
@@ -349,6 +388,38 @@ export default function ReportCasePage() {
         </Grid>
 
       </Grid>
+
+      <AnalyzingCard
+        phase={phase}
+        current={stage}
+        stages={stages}
+        minimized={minimized}
+        slow={slow}
+        error={apiError}
+        accent={ACCENT}
+        onMinimize={() => setMinimized(true)}
+        onExpand={() => setMinimized(false)}
+        onCancel={() => {
+          // Confirmed, because the work is nearly done by the time anyone
+          // reaches for this. The form keeps every answer either way.
+          if (!window.confirm(cancelConfirmText)) return;
+          cancelled.current = true;
+          setPhase('cancelled');
+          setStage(0);
+        }}
+        onRetry={() => { if (lastSubmission.current) onSubmit(lastSubmission.current); }}
+        onSubmitForReview={() => {
+          // The case is already filed by this point; this just stops waiting
+          // on the assessment and hands the resident their case number.
+          if (pendingResult.current) { setSubmitted(pendingResult.current); }
+          setPhase('idle');
+        }}
+        onViewResult={() => {
+          if (pendingResult.current) setSubmitted(pendingResult.current);
+          setPhase('idle');
+          setStage(0);
+        }}
+      />
     </Box>
   );
 }
