@@ -117,8 +117,10 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               <Typography variant="h6" sx={{ fontWeight: 800, color: 'white', lineHeight: 1.1, fontSize: '1rem' }}>
                 SafeComm
               </Typography>
+              {/* The signed-in role, not a fixed one: this header sat above a
+                  footer naming a different role on the same sidebar. */}
               <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>
-                Barangay Captain
+                {roleLabel}
               </Typography>
             </motion.div>
           )}
