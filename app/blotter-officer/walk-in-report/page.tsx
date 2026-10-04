@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
-import { GENDER_OPTIONS } from '@/lib/safecommConfig';
+import { GENDER_OPTIONS, GENDER_UNDISCLOSED } from '@/lib/safecommConfig';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import { ageOn, birthDateBounds } from '@/lib/age';
@@ -48,7 +48,7 @@ interface FormData {
 interface AiRisk { level: string; score: number; recommendation: string; confidence: number }
 
 const EMPTY: FormData = {
-  reporterName: '', contactNumber: '', address: '', birthDate: '', gender: 'Male',
+  reporterName: '', contactNumber: '', address: '', birthDate: '', gender: GENDER_UNDISCLOSED,
   incidentType: 'Theft & Robbery', otherType: '', incidentDate: new Date().toISOString().split('T')[0],
   incidentTime: new Date().toTimeString().slice(0, 5), barangay: '',
   description: '', witnesses: '',

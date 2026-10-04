@@ -7,12 +7,16 @@ import { successResponse, errorResponse } from '@/lib/auth';
 import { issueVerificationToken } from '@/lib/verification';
 import { sendVerificationEmail } from '@/lib/email';
 import { missingRequired, checkDatabase } from '@/lib/configCheck';
+import { GENDER_OPTIONS, GENDER_UNDISCLOSED } from '@/lib/safecommConfig';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   age: z.coerce.number().int().min(1, 'Age must be at least 1').max(120, 'Invalid age'),
-  gender: z.enum(['Male', 'Female', 'Other'], { error: 'Please select a gender' }),
+  // The same list the form offers, and optional because the form says it is.
+  // This accepted only Male, Female and Other, so a resident who picked
+  // "Prefer not to say" was told to select a gender they had just selected.
+  gender: z.enum(GENDER_OPTIONS).optional().or(z.literal('')),
   barangay: z.string().min(2, 'Please enter your barangay'),
   address: z.string().min(5, 'Please enter your full address'),
   contactNumber: z.string().regex(/^09\d{9}$/, 'Contact number must be 11 digits starting with 09'),
@@ -96,7 +100,7 @@ export async function POST(req: NextRequest) {
             firstName,
             lastName,
             age,
-            gender,
+            gender: gender || GENDER_UNDISCLOSED,
             barangay,
             address,
             contactNumber,

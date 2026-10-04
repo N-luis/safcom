@@ -49,7 +49,9 @@ const schema = z.object({
     .refine(v => calculateAge(v) >= 1 && calculateAge(v) <= 120, 'Enter a valid date of birth'),
   // Voluntary. "Prefer not to say" is a real answer, so this is not required
   // beyond being one of the offered options, and it never affects triage.
-  gender: z.enum(GENDER_OPTIONS, { error: 'Choose one of the options' }),
+  // Optional in the label, so optional here: leaving it alone is an answer,
+  // and it is stored as "Prefer not to say".
+  gender: z.enum(GENDER_OPTIONS).or(z.literal('')),
   username: z.string()
     .min(3, 'At least 3 characters').max(20, 'At most 20 characters')
     .regex(/^[a-zA-Z0-9._-]+$/, 'Only letters, numbers, dot, dash and underscore'),

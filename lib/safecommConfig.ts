@@ -59,18 +59,31 @@ export const BARANGAY_CONTEXT = {
   localNotes: process.env.NEXT_PUBLIC_LOCAL_NOTES ?? '',
 };
 
-/** Gender options a resident may choose. Never inferred, never scored. */
+/**
+ * Gender options a resident may choose. Never inferred, never scored.
+ *
+ * "Prefer not to say" is the one way to decline, and it is also what a blank
+ * field is stored as. There used to be a second, "Not specified", which read
+ * as the same thing and left people choosing between two identical answers.
+ */
 export const GENDER_OPTIONS = [
   'Female',
   'Male',
   'Non-binary / Other',
   'Prefer not to say',
-  'Not specified',
 ] as const;
+
+/** What a blank field is recorded as, so the column never holds an empty string. */
+export const GENDER_UNDISCLOSED = 'Prefer not to say';
 
 export type GenderOption = (typeof GENDER_OPTIONS)[number];
 
-/** True when the resident chose not to disclose, so feedback stays neutral. */
+/**
+ * True when the resident chose not to disclose, so feedback stays neutral.
+ *
+ * Still answers for "not specified": that option is gone from the list, but
+ * rows recorded under it are still in the database and mean the same thing.
+ */
 export function isUndisclosedGender(value: string | null | undefined): boolean {
   const v = (value ?? '').trim().toLowerCase();
   return v === '' || v === 'prefer not to say' || v === 'not specified';

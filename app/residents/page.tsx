@@ -20,7 +20,7 @@ import { getRiskColor, getRiskBgColor } from '@/utils/helpers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
-import { GENDER_OPTIONS } from '@/lib/safecommConfig';
+import { GENDER_OPTIONS, GENDER_UNDISCLOSED } from '@/lib/safecommConfig';
 
 const BARANGAYS = ['Biñang 2nd'];
 const RISK_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
@@ -61,7 +61,7 @@ interface ResidentFormData {
 }
 
 const emptyForm: ResidentFormData = {
-  firstName: '', lastName: '', age: '', gender: 'Male',
+  firstName: '', lastName: '', age: '', gender: GENDER_UNDISCLOSED,
   barangay: '', address: '', contactNumber: '', email: '',
   status: 'Active', riskLevel: 'Low', notes: '',
 };
