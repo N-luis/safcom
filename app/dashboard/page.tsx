@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Box, Card, CardContent, Typography, Chip, Button, Avatar, Skeleton,
@@ -243,6 +243,35 @@ export default function KapitanDashboardPage() {
     refreshInterval: 30000,
   });
 
+  /**
+   * Refresh, held open long enough to be seen.
+   *
+   * The query answers in about a quarter of a second, which is long enough to
+   * be a wait and too short to read as one, so the plain version of this
+   * button looked broken: nothing moved, and the figures were usually
+   * identical because nothing had changed in the meantime. The wait is not
+   * padding the request - it finishes first, and the spin is held afterwards
+   * so the person can tell the press registered.
+   */
+  const [refreshing, setRefreshing] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => () => { alive.current = false; }, []);
+
+  const MIN_SPIN_MS = 1200;
+
+  const refresh = useCallback(async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    const startedAt = Date.now();
+    try {
+      await mutate();
+    } finally {
+      const left = MIN_SPIN_MS - (Date.now() - startedAt);
+      if (left > 0) await new Promise(r => setTimeout(r, left));
+      if (alive.current) setRefreshing(false);
+    }
+  }, [mutate, refreshing]);
+
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then(r => { if (!r.ok) { router.push('/login'); return null; } return r.json(); })
@@ -301,10 +330,35 @@ export default function KapitanDashboardPage() {
               <ToggleButton value="VAWC" sx={{ textTransform: 'none', fontSize: '0.82rem', px: 1.5 }}>VAWC</ToggleButton>
             </ToggleButtonGroup>
             <AnnounceButton accent={ACCENT} />
-            <Tooltip title="Refresh">
-              <IconButton size="small" onClick={() => mutate()} sx={{ border: '1px solid #e2e8f0', borderRadius: 2 }}>
-                <Refresh sx={{ fontSize: 17 }} />
-              </IconButton>
+            <Tooltip title={refreshing ? 'Refreshing…' : 'Refresh'}>
+              {/* Wrapped: a disabled button fires no events, so the tooltip
+                  would have nothing to hang off while the refresh runs. */}
+              <Box component="span" sx={{ display: 'inline-flex' }}>
+                <IconButton
+                  size="small"
+                  onClick={refresh}
+                  disabled={refreshing}
+                  aria-label={refreshing ? 'Refreshing' : 'Refresh'}
+                  aria-busy={refreshing}
+                  sx={{
+                    border: '1px solid #e2e8f0', borderRadius: 2,
+                    // The press has to read without motion too, for anyone who
+                    // has asked their system not to animate.
+                    ...(refreshing && { bgcolor: `${ACCENT}0f`, borderColor: `${ACCENT}55` }),
+                  }}
+                >
+                  <Refresh sx={{
+                    fontSize: 17,
+                    color: refreshing ? ACCENT : 'inherit',
+                    animation: refreshing ? 'safecommSpin 0.8s linear infinite' : 'none',
+                    '@keyframes safecommSpin': {
+                      from: { transform: 'rotate(0deg)' },
+                      to: { transform: 'rotate(360deg)' },
+                    },
+                    '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+                  }} />
+                </IconButton>
+              </Box>
             </Tooltip>
           </Box>
         </Box>
@@ -325,7 +379,16 @@ export default function KapitanDashboardPage() {
                     : 'The server did not respond. Check your connection and try again.'}
                 </Typography>
               </Box>
-              <Button size="small" onClick={() => mutate()} startIcon={<Refresh sx={{ fontSize: 15 }} />}
+              <Button size="small" onClick={refresh} disabled={refreshing}
+                startIcon={<Refresh sx={{
+                  fontSize: 15,
+                  animation: refreshing ? 'safecommSpin 0.8s linear infinite' : 'none',
+                  '@keyframes safecommSpin': {
+                    from: { transform: 'rotate(0deg)' },
+                    to: { transform: 'rotate(360deg)' },
+                  },
+                  '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+                }} />}
                 sx={{ textTransform: 'none', fontWeight: 700, color: '#991b1b' }}>
                 Retry
               </Button>
