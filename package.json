@@ -15,7 +15,8 @@
     "test:evidence": "npx tsx tests/evidence.test.ts",
     "test:ocr": "npx tsx tests/ocr.test.ts",
     "test:classify": "npx tsx tests/classification.test.ts",
-    "test:language": "npx tsx tests/detectLanguage.test.ts"
+    "test:language": "npx tsx tests/detectLanguage.test.ts",
+    "test:geo": "npx tsx tests/geo.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

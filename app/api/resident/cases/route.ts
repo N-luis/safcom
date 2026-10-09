@@ -7,6 +7,7 @@ import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
 import { createWithCaseNumber } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
+import { isValidCoordinate } from '@/lib/geo';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
 import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
@@ -16,6 +17,13 @@ const createSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   barangay: z.string().optional(),
   additionalNotes: z.string().optional(),
+  // Where it happened, from the map picker. Optional: a report filed without
+  // a pin is still a report, and the street field carries the location.
+  latitude: z.number().min(-90).max(90).optional().nullable(),
+  longitude: z.number().min(-180).max(180).optional().nullable(),
+  locationLabel: z.string().max(300).optional().nullable(),
+  municipality: z.string().max(120).optional().nullable(),
+  province: z.string().max(120).optional().nullable(),
   // Photos arrive as data URLs; the bytes are decoded and stored separately.
   attachments: z.array(z.object({
     name: z.string().min(1).max(200),
@@ -95,6 +103,19 @@ export async function POST(req: NextRequest) {
     if (!resident) return rError('Resident not found', 404);
 
     const barangay = parsed.data.barangay || resident.barangay;
+
+    // A pin only counts when both halves are present and in range. Zod has
+    // already bounded each one; this is the pairing, so a half-sent location
+    // is stored as no location rather than as a point on the equator.
+    const pin = isValidCoordinate(parsed.data.latitude, parsed.data.longitude)
+      ? {
+          latitude: parsed.data.latitude as number,
+          longitude: parsed.data.longitude as number,
+          locationLabel: parsed.data.locationLabel ?? null,
+          municipality: parsed.data.municipality ?? null,
+          province: parsed.data.province ?? null,
+        }
+      : {};
     const filedAt = new Date();
 
     const { additionalNotes } = parsed.data;
@@ -211,6 +232,7 @@ export async function POST(req: NextRequest) {
           status: 'Open',
           riskLevel,
           language: detected.language,
+          ...pin,
           filedAt,
           residentId: auth.resident.residentId,
           ...(notesValue && { notes: notesValue }),

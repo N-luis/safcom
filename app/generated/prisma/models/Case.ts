@@ -20,8 +20,20 @@ export type CaseModel = runtime.Types.Result.DefaultSelection<Prisma.$CasePayloa
 
 export type AggregateCase = {
   _count: CaseCountAggregateOutputType | null
+  _avg: CaseAvgAggregateOutputType | null
+  _sum: CaseSumAggregateOutputType | null
   _min: CaseMinAggregateOutputType | null
   _max: CaseMaxAggregateOutputType | null
+}
+
+export type CaseAvgAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
+}
+
+export type CaseSumAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
 }
 
 export type CaseMinAggregateOutputType = {
@@ -35,6 +47,11 @@ export type CaseMinAggregateOutputType = {
   description: string | null
   notes: string | null
   language: string | null
+  latitude: number | null
+  longitude: number | null
+  locationLabel: string | null
+  municipality: string | null
+  province: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -57,6 +74,11 @@ export type CaseMaxAggregateOutputType = {
   description: string | null
   notes: string | null
   language: string | null
+  latitude: number | null
+  longitude: number | null
+  locationLabel: string | null
+  municipality: string | null
+  province: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -79,6 +101,11 @@ export type CaseCountAggregateOutputType = {
   description: number
   notes: number
   language: number
+  latitude: number
+  longitude: number
+  locationLabel: number
+  municipality: number
+  province: number
   assignedToId: number
   residentId: number
   filedAt: number
@@ -92,6 +119,16 @@ export type CaseCountAggregateOutputType = {
 }
 
 
+export type CaseAvgAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
+
+export type CaseSumAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
+
 export type CaseMinAggregateInputType = {
   id?: true
   caseNumber?: true
@@ -103,6 +140,11 @@ export type CaseMinAggregateInputType = {
   description?: true
   notes?: true
   language?: true
+  latitude?: true
+  longitude?: true
+  locationLabel?: true
+  municipality?: true
+  province?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -125,6 +167,11 @@ export type CaseMaxAggregateInputType = {
   description?: true
   notes?: true
   language?: true
+  latitude?: true
+  longitude?: true
+  locationLabel?: true
+  municipality?: true
+  province?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -147,6 +194,11 @@ export type CaseCountAggregateInputType = {
   description?: true
   notes?: true
   language?: true
+  latitude?: true
+  longitude?: true
+  locationLabel?: true
+  municipality?: true
+  province?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -197,6 +249,18 @@ export type CaseAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseMinAggregateInputType
@@ -227,6 +291,8 @@ export type CaseGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: CaseCountAggregateInputType | true
+  _avg?: CaseAvgAggregateInputType
+  _sum?: CaseSumAggregateInputType
   _min?: CaseMinAggregateInputType
   _max?: CaseMaxAggregateInputType
 }
@@ -242,6 +308,11 @@ export type CaseGroupByOutputType = {
   description: string
   notes: string | null
   language: string | null
+  latitude: number | null
+  longitude: number | null
+  locationLabel: string | null
+  municipality: string | null
+  province: string | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date
@@ -252,6 +323,8 @@ export type CaseGroupByOutputType = {
   lastOfficerActionAt: Date | null
   reminderSentAt: Date | null
   _count: CaseCountAggregateOutputType | null
+  _avg: CaseAvgAggregateOutputType | null
+  _sum: CaseSumAggregateOutputType | null
   _min: CaseMinAggregateOutputType | null
   _max: CaseMaxAggregateOutputType | null
 }
@@ -285,6 +358,11 @@ export type CaseWhereInput = {
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
+  municipality?: Prisma.StringNullableFilter<"Case"> | string | null
+  province?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -313,6 +391,11 @@ export type CaseOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  municipality?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -344,6 +427,11 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
+  municipality?: Prisma.StringNullableFilter<"Case"> | string | null
+  province?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -372,6 +460,11 @@ export type CaseOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  municipality?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -382,8 +475,10 @@ export type CaseOrderByWithAggregationInput = {
   lastOfficerActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseCountOrderByAggregateInput
+  _avg?: Prisma.CaseAvgOrderByAggregateInput
   _max?: Prisma.CaseMaxOrderByAggregateInput
   _min?: Prisma.CaseMinOrderByAggregateInput
+  _sum?: Prisma.CaseSumOrderByAggregateInput
 }
 
 export type CaseScalarWhereWithAggregatesInput = {
@@ -400,6 +495,11 @@ export type CaseScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"Case"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   language?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"Case"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"Case"> | number | null
+  locationLabel?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  municipality?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  province?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
@@ -422,6 +522,11 @@ export type CaseCreateInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -448,6 +553,11 @@ export type CaseUncheckedCreateInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -474,6 +584,11 @@ export type CaseUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -500,6 +615,11 @@ export type CaseUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -526,6 +646,11 @@ export type CaseCreateManyInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -548,6 +673,11 @@ export type CaseUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +698,11 @@ export type CaseUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -600,6 +735,11 @@ export type CaseCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  province?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -609,6 +749,11 @@ export type CaseCountOrderByAggregateInput = {
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
+}
+
+export type CaseAvgOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type CaseMaxOrderByAggregateInput = {
@@ -622,6 +767,11 @@ export type CaseMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  province?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -644,6 +794,11 @@ export type CaseMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  province?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -653,6 +808,11 @@ export type CaseMinOrderByAggregateInput = {
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
+}
+
+export type CaseSumOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type CaseScalarRelationFilter = {
@@ -705,6 +865,14 @@ export type CaseUncheckedUpdateManyWithoutAssignedToNestedInput = {
   update?: Prisma.CaseUpdateWithWhereUniqueWithoutAssignedToInput | Prisma.CaseUpdateWithWhereUniqueWithoutAssignedToInput[]
   updateMany?: Prisma.CaseUpdateManyWithWhereWithoutAssignedToInput | Prisma.CaseUpdateManyWithWhereWithoutAssignedToInput[]
   deleteMany?: Prisma.CaseScalarWhereInput | Prisma.CaseScalarWhereInput[]
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -822,6 +990,11 @@ export type CaseCreateWithoutAssignedToInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -847,6 +1020,11 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -901,6 +1079,11 @@ export type CaseScalarWhereInput = {
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Case"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
+  municipality?: Prisma.StringNullableFilter<"Case"> | string | null
+  province?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -923,6 +1106,11 @@ export type CaseCreateWithoutAssessmentInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -948,6 +1136,11 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -989,6 +1182,11 @@ export type CaseUpdateWithoutAssessmentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1014,6 +1212,11 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1039,6 +1242,11 @@ export type CaseCreateWithoutAttachmentsInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1064,6 +1272,11 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1105,6 +1318,11 @@ export type CaseUpdateWithoutAttachmentsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1130,6 +1348,11 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1155,6 +1378,11 @@ export type CaseCreateWithoutResidentInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1180,6 +1408,11 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1231,6 +1464,11 @@ export type CaseCreateWithoutActivitiesInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1256,6 +1494,11 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1297,6 +1540,11 @@ export type CaseUpdateWithoutActivitiesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1322,6 +1570,11 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1347,6 +1600,11 @@ export type CaseCreateWithoutFollowUpsInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -1372,6 +1630,11 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1413,6 +1676,11 @@ export type CaseUpdateWithoutFollowUpsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1438,6 +1706,11 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1463,6 +1736,11 @@ export type CaseCreateManyAssignedToInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1484,6 +1762,11 @@ export type CaseUpdateWithoutAssignedToInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1509,6 +1792,11 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1534,6 +1822,11 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1555,6 +1848,11 @@ export type CaseCreateManyResidentInput = {
   description: string
   notes?: string | null
   language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -1576,6 +1874,11 @@ export type CaseUpdateWithoutResidentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1601,6 +1904,11 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1626,6 +1934,11 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1696,6 +2009,11 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   description?: boolean
   notes?: boolean
   language?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationLabel?: boolean
+  municipality?: boolean
+  province?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1725,6 +2043,11 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   notes?: boolean
   language?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationLabel?: boolean
+  municipality?: boolean
+  province?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1749,6 +2072,11 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   notes?: boolean
   language?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationLabel?: boolean
+  municipality?: boolean
+  province?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1773,6 +2101,11 @@ export type CaseSelectScalar = {
   description?: boolean
   notes?: boolean
   language?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationLabel?: boolean
+  municipality?: boolean
+  province?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -1784,7 +2117,7 @@ export type CaseSelectScalar = {
   reminderSentAt?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -1829,6 +2162,20 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * decide which language the recommendation comes back in.
      */
     language: string | null
+    /**
+     * Where the incident happened, as picked on the map. Nullable because every
+     * case filed before the picker existed has none, and because a report must
+     * never be blocked on the address lookup being reachable.
+     * `barangay` above still holds the street, which is what cases group by.
+     */
+    latitude: number | null
+    longitude: number | null
+    /**
+     * The geocoder's full one-line address for the point, kept verbatim.
+     */
+    locationLabel: string | null
+    municipality: string | null
+    province: string | null
     assignedToId: string | null
     residentId: string | null
     filedAt: Date
@@ -2285,6 +2632,11 @@ export interface CaseFieldRefs {
   readonly description: Prisma.FieldRef<"Case", 'String'>
   readonly notes: Prisma.FieldRef<"Case", 'String'>
   readonly language: Prisma.FieldRef<"Case", 'String'>
+  readonly latitude: Prisma.FieldRef<"Case", 'Float'>
+  readonly longitude: Prisma.FieldRef<"Case", 'Float'>
+  readonly locationLabel: Prisma.FieldRef<"Case", 'String'>
+  readonly municipality: Prisma.FieldRef<"Case", 'String'>
+  readonly province: Prisma.FieldRef<"Case", 'String'>
   readonly assignedToId: Prisma.FieldRef<"Case", 'String'>
   readonly residentId: Prisma.FieldRef<"Case", 'String'>
   readonly filedAt: Prisma.FieldRef<"Case", 'DateTime'>

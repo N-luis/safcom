@@ -43,6 +43,17 @@ model Case {
   /// english. Read from the text, never from the interface toggle, and used to
   /// decide which language the recommendation comes back in.
   language     String?
+
+  /// Where the incident happened, as picked on the map. Nullable because every
+  /// case filed before the picker existed has none, and because a report must
+  /// never be blocked on the address lookup being reachable.
+  /// `barangay` above still holds the street, which is what cases group by.
+  latitude      Float?
+  longitude     Float?
+  /// The geocoder's full one-line address for the point, kept verbatim.
+  locationLabel String?
+  municipality  String?
+  province      String?
   assignedToId String?
   assignedTo   User?          @relation("AssignedOfficer", fields: [assignedToId], references: [id])
   residentId   String?

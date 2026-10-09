@@ -25,6 +25,30 @@ import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/compone
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
 import { MAX_UNCLEAR_WORDS } from '@/lib/transcription';
+import dynamicImport from 'next/dynamic';
+import { BARANGAY_STREETS } from '@/lib/streets';
+import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
+
+/**
+ * Leaflet reaches for window as it loads, so the picker is never rendered on
+ * the server. The placeholder holds the same height to stop the form jumping
+ * when it arrives.
+ */
+const IncidentLocationMap = dynamicImport(
+  () => import('@/components/forms/IncidentLocationMap'),
+  {
+    ssr: false,
+    loading: () => (
+      <Box sx={{
+        height: { xs: 260, sm: 320 }, border: '1px solid #e2e8f0', borderRadius: 2,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1,
+      }}>
+        <CircularProgress size={18} sx={{ color: ACCENT }} />
+        <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>Loading the map\u2026</Typography>
+      </Box>
+    ),
+  },
+);
 
 const ACCENT = '#14b8a6';
 
@@ -59,7 +83,7 @@ export default function ReportCasePage() {
   const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
   const [apiError, setApiError] = useState('');
 
-  const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       caseType: '', otherType: '', description: '', street: '', location: '',
@@ -68,6 +92,29 @@ export default function ReportCasePage() {
   });
 
   const descLen = watch('description')?.length ?? 0;
+
+  // The pin. The street field stays the value the case is filed under; this
+  // carries the coordinates alongside it.
+  const [place, setPlace] = useState<PickedLocation | null>(null);
+
+  /**
+   * A pin moved, so the street follows it.
+   *
+   * A road the barangay already lists is set to that exact label, because the
+   * reports and the heatmap group by this string and "J.P. Rizal St." and
+   * "JP Rizal Street" would otherwise be two places. Anything else is kept as
+   * the geocoder wrote it, which StreetSelect holds under its "Other" option.
+   * Clearing the pin does not clear the street: the resident may have typed it
+   * themselves, and taking it back would be rude.
+   */
+  const onPlaceChange = (next: PickedLocation | null) => {
+    setPlace(next);
+    if (!next?.street) return;
+    const known = BARANGAY_STREETS.find(
+      sx => sx.toLowerCase() === next.street!.toLowerCase(),
+    );
+    setValue('street', known ?? next.street, { shouldValidate: true, shouldDirty: true });
+  };
   const selectedCaseType = watch('caseType');
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
@@ -134,6 +181,13 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
+          // Only sent once a pin is actually down. Nothing about the
+          // resident's own position is recorded unless they placed it.
+          latitude: place?.chosen ? place.latitude : undefined,
+          longitude: place?.chosen ? place.longitude : undefined,
+          locationLabel: place?.chosen ? place.label ?? undefined : undefined,
+          municipality: place?.chosen ? place.municipality ?? undefined : undefined,
+          province: place?.chosen ? place.province ?? undefined : undefined,
           description: withOtherDetail(
             `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
             data.caseType,
@@ -311,6 +365,23 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 )}
 
                 {/* Where it happened — street is structured, landmark is free text */}
+                {/* Where it happened. The map fills the street field below;
+                    that field stays editable, because a point with no road in
+                    the map data still has a name the resident knows. */}
+                <Box>
+                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.5 }}>
+                    Click the map to select where the incident occurred.
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
+                    Optional, but it helps the barangay find the place. You can drag the pin to move it.
+                  </Typography>
+                  <IncidentLocationMap
+                    value={place}
+                    onChange={onPlaceChange}
+                    disabled={isSubmitting || analysing}
+                  />
+                </Box>
+
                 <Controller
                   name="street"
                   control={control}
@@ -321,7 +392,12 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                       required
                       size="medium"
                       error={!!errors.street}
-                      helperText={errors.street?.message ?? 'Where did this happen?'}
+                      helperText={
+                        errors.street?.message
+                        ?? (place?.chosen && place.street
+                          ? 'Filled in from the map. You can change it if it is wrong.'
+                          : 'Where did this happen?')
+                      }
                     />
                   )}
                 />
