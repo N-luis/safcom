@@ -16,6 +16,7 @@ import {
 } from '@/lib/geo';
 import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
 import { nearestRoad } from '@/lib/barangayRoads';
+import { hintForStreet } from '@/lib/streetHints';
 
 /**
  * Where the incident happened, picked off a street map.
@@ -185,7 +186,12 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
           setView({ lat: first.latitude, lng: first.longitude, zoom: 17 });
           pick(first.latitude, first.longitude, street);
         } else {
-          setProblem(`We do not have a map point for ${street} yet. Please tap the spot on the map.`);
+          // The hazard map knows where this is even though the map data does
+          // not, so the resident gets directions rather than a dead end.
+          const hint = hintForStreet(street);
+          setProblem(hint
+            ? `${street} is not on the map data. ${hint} Please tap the spot on the map.`
+            : `We do not have a map point for ${street} yet. Please tap the spot on the map.`);
         }
       } catch {
         if (!cancelled) setProblem(`Could not look up ${street}. Please tap the spot on the map.`);

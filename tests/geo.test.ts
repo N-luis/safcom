@@ -8,6 +8,9 @@ import {
   DEFAULT_MUNICIPALITY, DEFAULT_PROVINCE,
 } from '../lib/geo';
 import { pointForStreet, expandStreetName, STREET_POINTS } from '../lib/streetPoints';
+import { hintForStreet } from '../lib/streetHints';
+import { BARANGAY_STREETS, isKnownStreet, canonicalStreet } from '../lib/streets';
+import { matchStreet } from '../lib/streetRisk';
 import { nearestRoad, BARANGAY_ROADS } from '../lib/barangayRoads';
 
 let pass = 0; const fails: string[] = [];
@@ -150,6 +153,37 @@ ok('a point on a road reads as nearly zero away',
   (nearestRoad(14.797403, 120.928349)?.metres ?? 999) < 20);
 ok('somewhere far away names nothing', nearestRoad(14.2, 120.2) === null);
 ok('the range limit is respected', nearestRoad(14.799319, 120.928024, 10) === null);
+
+
+console.log('\n12. the street list matches the barangay hazard map');
+// Every street drawn on the office wall, spelled as the map spells it.
+([
+  'Ortega Compound', 'Eugenio Compound', 'Violeta Metroville Subd.', 'J.P. Rizal St.',
+  'Gov. F. Halili Ext.', 'J. Benedicto St.', 'A. Mendoza St.', 'P. Lazaro St.',
+  'Gov. F. Halili Ave.', 'Ayukit', 'Granville Subd.', 'MacArthur Highway',
+] as const).forEach(st =>
+  ok(`"${st}" is on the list`, (BARANGAY_STREETS as readonly string[]).includes(st)));
+
+console.log('\n13. the old spellings still work');
+// Two cases were filed under "Eudenio Compound" before the map was consulted.
+ok('"Eudenio Compound" is still a known street', isKnownStreet('Eudenio Compound'));
+ok('it resolves to the map spelling', canonicalStreet('Eudenio Compound') === 'Eugenio Compound');
+ok('and still lands on the heatmap', matchStreet('Eudenio Compound') === 'Eugenio Compound',
+  String(matchStreet('Eudenio Compound')));
+ok('the hazard map spelling of the highway resolves',
+  matchStreet('Mc Arthur Hi-way') === 'MacArthur Highway', String(matchStreet('Mc Arthur Hi-way')));
+ok('a current label is left alone', canonicalStreet('Ayukit') === 'Ayukit');
+
+console.log('\n14. every street can be found, by point or by directions');
+(BARANGAY_STREETS as readonly string[]).forEach(st => {
+  const has = !!pointForStreet(st) || !!hintForStreet(st);
+  ok(`"${st}" has a point or directions`, has);
+});
+ok('the directions name a landmark a resident would know',
+  (hintForStreet('Ortega Compound') ?? '').toLowerCase().includes('macarthur'),
+  String(hintForStreet('Ortega Compound')));
+ok('a street with a point needs no directions',
+  !!pointForStreet('J.P. Rizal St.') && !hintForStreet('J.P. Rizal St.'));
 
 console.log(`\n${fails.length === 0 ? 'ALL PASS' : 'FAILURES'}  (${pass} passed, ${fails.length} failed)`);
 fails.forEach(f => console.log('  - ' + f));

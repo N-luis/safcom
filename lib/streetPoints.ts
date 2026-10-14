@@ -60,6 +60,10 @@ export const STREET_POINTS: Partial<Record<BarangayStreet, StreetPoint>> = {
     lat: 14.797899, lng: 120.931853,
     source: 'Violeta Avenue, Violeta Metroville, Biñang 1st, Bocaue, Bulacan',
   },
+  'MacArthur Highway': {
+    lat: 14.790123, lng: 120.932042,
+    source: 'MacArthur Highway, Azicate Homes, Bunlo, Bocaue, Bulacan',
+  },
 };
 
 /** The written-down point for a street, if there is one. */

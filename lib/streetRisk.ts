@@ -1,4 +1,4 @@
-import { BARANGAY_STREETS, type BarangayStreet } from './streets';
+import { BARANGAY_STREETS, STREET_ALIASES, type BarangayStreet } from './streets';
 
 /**
  * Ties a reported incident location to a place on the street risk heatmap.
@@ -16,7 +16,7 @@ export type RiskLevel = 'High' | 'Medium' | 'Low' | 'None';
  *  lights both, so the whole stretch reads as risky rather than one dot. */
 export const STREET_NODES: Record<BarangayStreet, string[]> = {
   'Ortega Compound':          ['ortega-mac'],
-  'Eudenio Compound':         ['eugenio-mac'],
+  'Eugenio Compound':         ['eugenio-mac'],
   'Violeta Metroville Subd.': ['violeta-mac', 'violeta-fork'],
   'J.P. Rizal St.':           ['rizal-mac'],
   'Gov. F. Halili Ext.':      ['flyover'],
@@ -26,12 +26,13 @@ export const STREET_NODES: Record<BarangayStreet, string[]> = {
   'Gov. F. Halili Ave.':      ['halili-mid', 'halili-pnr'],
   'Ayukit':                   ['ayukit-pnr'],
   'Granville Subd.':          ['granville-mid'],
+  'MacArthur Highway':        ['ortega-mac', 'eugenio-mac', 'violeta-mac', 'rizal-mac'],
 };
 
 /** Which shaded district a street sits in, so the block shades too. */
 export const STREET_AREAS: Record<BarangayStreet, string[]> = {
   'Ortega Compound':          ['mcarthur'],
-  'Eudenio Compound':         ['mcarthur'],
+  'Eugenio Compound':         ['mcarthur'],
   'Violeta Metroville Subd.': ['mcarthur', 'metroville'],
   'J.P. Rizal St.':           ['civic'],
   'Gov. F. Halili Ext.':      ['civic'],
@@ -41,6 +42,7 @@ export const STREET_AREAS: Record<BarangayStreet, string[]> = {
   'Gov. F. Halili Ave.':      ['halili'],
   'Ayukit':                   ['granville'],
   'Granville Subd.':          ['granville'],
+  'MacArthur Highway':        ['mcarthur'],
 };
 
 /** The barangay's own name is a location, but it is not a street - a case
@@ -65,9 +67,20 @@ export function normaliseLocation(value: string): string {
     .trim();
 }
 
-const NORMALISED: [BarangayStreet, string][] = BARANGAY_STREETS.map(
-  s => [s, normaliseLocation(s)] as [BarangayStreet, string],
-);
+/**
+ * Every spelling that resolves to a street, including the retired ones.
+ *
+ * Normalising cannot bridge "Eudenio" to "Eugenio" - one letter apart, and the
+ * rules here flatten punctuation, not misspellings - so the cases filed under
+ * the old label would have dropped off the heatmap when the list was
+ * corrected. They are the same place, and they still count.
+ */
+const NORMALISED: [BarangayStreet, string][] = [
+  ...BARANGAY_STREETS.map(s => [s, normaliseLocation(s)] as [BarangayStreet, string]),
+  ...Object.entries(STREET_ALIASES).map(
+    ([old_, current]) => [current, normaliseLocation(old_)] as [BarangayStreet, string],
+  ),
+];
 
 /**
  * Finds the street a stored location refers to, or null when it is not one.
