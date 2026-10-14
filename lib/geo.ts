@@ -1,3 +1,5 @@
+import { BARANGAY_CONTEXT } from './safecommConfig';
+
 /**
  * Where an incident happened, as coordinates rather than a dropdown choice.
  *
@@ -35,12 +37,31 @@ export const BARANGAY_BOUNDS = {
 export const DEFAULT_MUNICIPALITY = process.env.NEXT_PUBLIC_MUNICIPALITY ?? 'Bocaue';
 export const DEFAULT_PROVINCE = process.env.NEXT_PUBLIC_PROVINCE ?? 'Bulacan';
 
+/**
+ * The barangay a report filed here belongs to.
+ *
+ * Not taken from the map data, which is wrong about this particular boundary.
+ * Checked against OpenStreetMap's own administrative polygons: the building
+ * tagged "Bi\u00f1ang 2nd Barangay Hall" falls inside the polygon named
+ * "Bi\u00f1ang 1st", and the marker named "Bi\u00f1ang 1st" falls inside the polygon
+ * named "Bi\u00f1ang 2nd" - the two landmarks sit on the wrong side in opposite
+ * directions, which is what a swapped pair of names looks like.
+ *
+ * So the panel reports the barangay this system serves, which is the barangay
+ * the report is filed under and is true whatever the boundary data says. The
+ * area name the map uses is kept beside it rather than hidden.
+ */
+export const BARANGAY_OF_RECORD = BARANGAY_CONTEXT.name;
+
 export interface ResolvedLocation {
   latitude: number;
   longitude: number;
   /** The road the point sits on, when the provider could name one. */
   street: string | null;
+  /** The barangay the report is filed under - see BARANGAY_OF_RECORD. */
   barangay: string | null;
+  /** What the map data calls this area, when it calls it something else. */
+  mapArea: string | null;
   municipality: string | null;
   province: string | null;
   /** The provider's full one-line address, kept for the officer's record. */
@@ -106,7 +127,8 @@ export function toResolvedLocation(
     latitude: roundCoord(isValidLatitude(lat) ? lat : fallback.lat),
     longitude: roundCoord(isValidLongitude(lng) ? lng : fallback.lng),
     street: firstOf(a.road, a.pedestrian, a.residential, a.footway),
-    barangay: firstOf(a.quarter, a.neighbourhood, a.village, a.suburb),
+    barangay: BARANGAY_OF_RECORD,
+    mapArea: firstOf(a.quarter, a.neighbourhood, a.village, a.suburb),
     municipality: firstOf(a.town, a.city, a.municipality) ?? DEFAULT_MUNICIPALITY,
     province: firstOf(a.state, a.province) ?? DEFAULT_PROVINCE,
     label: firstOf(place.display_name, place.name),

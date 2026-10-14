@@ -6,6 +6,7 @@ import {
   isValidLatitude, isValidLongitude, isValidCoordinate, isWithinBarangay,
   roundCoord, toResolvedLocation, BARANGAY_CENTER,
   DEFAULT_MUNICIPALITY, DEFAULT_PROVINCE,
+  BARANGAY_OF_RECORD,
 } from '../lib/geo';
 import { pointForStreet, expandStreetName, STREET_POINTS } from '../lib/streetPoints';
 import { hintForStreet } from '../lib/streetHints';
@@ -184,6 +185,41 @@ ok('the directions name a landmark a resident would know',
   String(hintForStreet('Ortega Compound')));
 ok('a street with a point needs no directions',
   !!pointForStreet('J.P. Rizal St.') && !hintForStreet('J.P. Rizal St.'));
+
+
+console.log('\n15. the barangay shown is the one the report is filed under');
+// The exact reply for the pin beside the Biñang 2nd Barangay Hall. OSM's
+// polygons are swapped here: the hall sits inside the "Biñang 1st" area and
+// the "Biñang 1st" marker sits inside the "Biñang 2nd" one.
+const atTheHall = toResolvedLocation({
+  lat: '14.795956', lon: '120.929767',
+  display_name: 'Biñang 2nd Barangay Hall, MacArthur Highway, Biñang 1st, Bocaue, Bulacan',
+  address: {
+    road: 'MacArthur Highway', quarter: 'Biñang 1st',
+    town: 'Bocaue', state: 'Bulacan',
+  },
+}, { lat: 14.795956, lng: 120.929767 });
+
+ok('the barangay is the one this system serves',
+  atTheHall.barangay === BARANGAY_OF_RECORD, String(atTheHall.barangay));
+ok('it is not the area the map data names',
+  atTheHall.barangay !== 'Biñang 1st', String(atTheHall.barangay));
+ok('the map wording is kept, not discarded',
+  atTheHall.mapArea === 'Biñang 1st', String(atTheHall.mapArea));
+ok('the street is still the geocoder’s',
+  atTheHall.street === 'MacArthur Highway', String(atTheHall.street));
+ok('so are the municipality and province',
+  atTheHall.municipality === 'Bocaue' && atTheHall.province === 'Bulacan');
+
+// Every reading reports the same barangay of record, whatever the map says.
+([
+  { quarter: 'Biñang 1st' }, { village: 'Turo' }, { suburb: 'Sulucan' }, {},
+] as Record<string, string>[]).forEach((addr, i) => {
+  const r = toResolvedLocation({ lat: '14.79', lon: '120.93', address: addr }, { lat: 14.79, lng: 120.93 });
+  ok(`reading ${i} reports the barangay of record`, r.barangay === BARANGAY_OF_RECORD, String(r.barangay));
+});
+ok('an unnamed area leaves mapArea null',
+  toResolvedLocation({ lat: '14.79', lon: '120.93', address: {} }, { lat: 14.79, lng: 120.93 }).mapArea === null);
 
 console.log(`\n${fails.length === 0 ? 'ALL PASS' : 'FAILURES'}  (${pass} passed, ${fails.length} failed)`);
 fails.forEach(f => console.log('  - ' + f));

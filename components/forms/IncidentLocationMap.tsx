@@ -11,8 +11,8 @@ import {
   Search, MyLocation, RestartAlt, Place, CheckCircle, Close,
 } from '@mui/icons-material';
 import {
-  BARANGAY_CENTER, DEFAULT_ZOOM, isValidCoordinate, isWithinBarangay, roundCoord,
-  type ResolvedLocation,
+  BARANGAY_CENTER, BARANGAY_OF_RECORD, DEFAULT_ZOOM, isValidCoordinate,
+  isWithinBarangay, roundCoord, type ResolvedLocation,
 } from '@/lib/geo';
 import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
 import { nearestRoad } from '@/lib/barangayRoads';
@@ -99,7 +99,8 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
     const base: PickedLocation = {
       chosen: true, fromStreet,
       latitude: roundCoord(lat), longitude: roundCoord(lng),
-      street: null, barangay: null, municipality: null, province: null, label: null,
+      street: null, barangay: BARANGAY_OF_RECORD, mapArea: null,
+      municipality: null, province: null, label: null,
     };
     onChange(base);
     setProblem(''); setNotice(''); setResolving(true);
@@ -428,7 +429,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
             </Box>
             {([
               ['Street', value.street ?? 'Not identified — type it below'],
-              ['Barangay', value.barangay ?? '—'],
+              ['Barangay', value.barangay ?? BARANGAY_OF_RECORD],
               ['Municipality', value.municipality ?? '—'],
               ['Province', value.province ?? '—'],
               ['Latitude', value.latitude.toFixed(6)],
@@ -441,6 +442,12 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
                 </Typography>
               </Box>
             ))}
+            {value.mapArea && value.mapArea !== value.barangay && (
+              <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8', mt: 0.75, lineHeight: 1.5 }}>
+                Map data labels this area {value.mapArea}. Reports filed here belong to
+                {' '}{value.barangay ?? BARANGAY_OF_RECORD}.
+              </Typography>
+            )}
           </Box>
         )}
       </Box>
