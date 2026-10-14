@@ -19,12 +19,10 @@ import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
 import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
-import DocumentCapture, { type CapturedDocument } from '@/components/forms/DocumentCapture';
-import { useLanguage, LANGUAGES } from '@/lib/i18n';
+import { useLanguage } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
-import { MAX_UNCLEAR_WORDS } from '@/lib/transcription';
 import dynamicImport from 'next/dynamic';
 import { BARANGAY_STREETS } from '@/lib/streets';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
@@ -135,14 +133,12 @@ export default function ReportCasePage() {
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
-  const [document, setDocument] = useState<CapturedDocument | null>(null);
-  const { lang, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
   // the work and a failure never leaves a fabricated classification behind.
   // The analysis phase follows the work actually being done; no timer advances
-  // it. `stage` is an index into the stage list, which omits the document step
-  // when no photo was attached rather than showing one that will not run.
+  // it, and `stage` is an index into the stage list below.
   const [phase, setPhase] = useState<AnalysisPhase>('idle');
   const [stage, setStage] = useState(0);
   const [minimized, setMinimized] = useState(false);
@@ -151,7 +147,6 @@ export default function ReportCasePage() {
 
   const stages: AnalysisStage[] = [
     { id: 'prepare', labelKey: 'stagePreparing', active: true },
-    ...(document ? [{ id: 'read', labelKey: 'stageReadingDocument' as const, active: true }] : []),
     { id: 'factors', labelKey: 'stageFactors', active: true },
     { id: 'severity', labelKey: 'stageSeverity', active: true },
     { id: 'recs', labelKey: 'stageRecommendations', active: true },
@@ -182,9 +177,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
     setStage(0);
     setPhase('preparing');
     try {
-      // The document was already read when it was chosen; this step reflects
-      // that it is being attached to the report, which is real work.
-      if (document) { setStage(1); }
       setStage(s2 => s2 + 1);
       setPhase('assessing');
 
@@ -210,17 +202,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
             data.otherType ?? '',
           ),
           additionalNotes: data.additionalNotes,
-          attachments: [
-            ...photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
-            // The document photo is stored with the case like any other, so the
-            // officer sees what was read rather than only the transcription.
-            ...(document ? [{ name: document.fileName, dataUrl: document.storedDataUrl }] : []),
-          ],
-          documentText: document?.confirmedText || undefined,
-          documentConfidence: document?.transcription?.confidence,
-          // Bounded here too, so the request stays small on a phone connection.
-          documentUnclearWords: document?.transcription?.unclearWords?.slice(0, MAX_UNCLEAR_WORDS),
-          documentReadFailed: document?.transcription?.failed ?? undefined,
+          attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
         }),
       });
       const json = await res.json();
@@ -305,24 +287,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           Back
         </Button>
         <Divider orientation="vertical" flexItem />
-        <Box sx={{ ml: 'auto', display: 'flex', gap: 0.5 }}>
-          {LANGUAGES.map(l => (
-            <Button
-              key={l.code}
-              size="small"
-              onClick={() => setLanguage(l.code)}
-              aria-pressed={lang === l.code}
-              sx={{
-                minHeight: 44, minWidth: 44, px: 1.25, textTransform: 'none', fontWeight: 700,
-                fontSize: '0.8rem', borderRadius: 2,
-                color: lang === l.code ? ACCENT : '#94a3b8',
-                bgcolor: lang === l.code ? `${ACCENT}14` : 'transparent',
-              }}
-            >
-              {l.label}
-            </Button>
-          ))}
-        </Box>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>File a Report</Typography>
           <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Submit an incident or concern to your barangay</Typography>
@@ -444,13 +408,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   placeholder="Any other information that might help the officer — witnesses, suspects, prior reports filed, etc."
                   {...register('additionalNotes')}
                   fullWidth multiline rows={2}
-                />
-
-                <DocumentCapture
-                  value={document}
-                  onChange={setDocument}
-                  disabled={isSubmitting}
-                  accent={ACCENT}
                 />
 
                 {/* Photo evidence — shrunk in the browser before upload */}
