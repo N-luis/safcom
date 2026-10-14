@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 import { useCaseDetail } from '@/hooks/useApi';
+import AssessmentReview from '@/components/cases/AssessmentReview';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -540,7 +541,12 @@ function EditFollowUpModal({ caseId, fid, initialContent, initialOutcome, onDone
 
 // ─── AI Assessment Mini-Card ──────────────────────────────────────────────────
 
-function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string }) {
+function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed }: {
+  ai?: AIRisk;
+  riskLevel: string;
+  caseId: string;
+  onReviewed: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const col = RISK_COLOR[ai?.level ?? riskLevel] ?? '#94a3b8';
   const score = ai?.score ?? 0;
@@ -627,6 +633,9 @@ function AIAssessmentCard({ ai, riskLevel }: { ai?: AIRisk; riskLevel: string })
             </Box>
           </Box>
         )}
+
+        {/* The reading above is a recommendation until an officer says so. */}
+        <AssessmentReview caseId={caseId} onChanged={onReviewed} />
       </CardContent>
     </Card>
   );
@@ -869,7 +878,12 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           {/* AI Assessment */}
-          <AIAssessmentCard ai={caseData.aiRiskAssessment} riskLevel={caseData.riskLevel} />
+          <AIAssessmentCard
+            ai={caseData.aiRiskAssessment}
+            riskLevel={caseData.riskLevel}
+            caseId={id}
+            onReviewed={() => revalidate()}
+          />
 
           {/* Original Description */}
           <Card>
