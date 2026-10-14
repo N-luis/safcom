@@ -107,14 +107,30 @@ export default function ReportCasePage() {
    * Clearing the pin does not clear the street: the resident may have typed it
    * themselves, and taking it back would be rude.
    */
+  // What the map last wrote into the street field. Without this the two chase
+  // each other: the map fills the street, the street sends the map back to it,
+  // and the resident's pin jumps off the spot they chose.
+  const streetFromMap = useRef('');
+
   const onPlaceChange = (next: PickedLocation | null) => {
     setPlace(next);
+    // The pin came from the street the resident picked, so the street field is
+    // already right. Overwriting it with the road the geocoder names would
+    // throw away the barangay's own label - "Violeta Metroville Subd." would
+    // silently become "Violeta Avenue", which is not on the list at all.
+    if (next?.fromStreet) return;
     if (!next?.street) return;
     const known = BARANGAY_STREETS.find(
       sx => sx.toLowerCase() === next.street!.toLowerCase(),
     );
-    setValue('street', known ?? next.street, { shouldValidate: true, shouldDirty: true });
+    const chosen = known ?? next.street;
+    streetFromMap.current = chosen;
+    setValue('street', chosen, { shouldValidate: true, shouldDirty: true });
   };
+
+  // Only a street the resident picked themselves moves the map.
+  const streetValue = watch('street');
+  const focusStreet = streetValue && streetValue !== streetFromMap.current ? streetValue : undefined;
   const selectedCaseType = watch('caseType');
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
@@ -378,6 +394,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   <IncidentLocationMap
                     value={place}
                     onChange={onPlaceChange}
+                    focusStreet={focusStreet}
                     disabled={isSubmitting || analysing}
                   />
                 </Box>

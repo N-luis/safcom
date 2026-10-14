@@ -7,6 +7,7 @@ import {
   roundCoord, toResolvedLocation, BARANGAY_CENTER,
   DEFAULT_MUNICIPALITY, DEFAULT_PROVINCE,
 } from '../lib/geo';
+import { pointForStreet, expandStreetName, STREET_POINTS } from '../lib/streetPoints';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -83,6 +84,35 @@ const alt = toResolvedLocation(
 ok('a pedestrian way counts as a street', alt.street === 'Violeta Walk', String(alt.street));
 ok('a village counts as a barangay', alt.barangay === 'Biñang 2nd', String(alt.barangay));
 ok('a city counts as a municipality', alt.municipality === 'Bocaue', String(alt.municipality));
+
+
+console.log('\n9. the barangay’s own street points');
+ok('a verified street has a point', !!pointForStreet('J.P. Rizal St.'));
+ok('its point is a real coordinate', (() => {
+  const pt = pointForStreet('J.P. Rizal St.')!;
+  return isValidCoordinate(pt.lat, pt.lng) && isWithinBarangay(pt.lat, pt.lng);
+})());
+ok('every written-down point is valid and nearby', Object.values(STREET_POINTS).every(
+  pt => !!pt && isValidCoordinate(pt.lat, pt.lng) && isWithinBarangay(pt.lat, pt.lng)));
+ok('every point records where it came from',
+  Object.values(STREET_POINTS).every(pt => (pt?.source ?? '').length > 10));
+// The ones that are not in the map data must stay absent rather than guessed.
+(['Ortega Compound', 'Eudenio Compound', 'Ayukit', 'J. Benedicto St.',
+  'P. Lazaro St.', 'Gov. F. Halili Ext.', 'Granville Subd.'] as const).forEach(s2 =>
+  ok(`"${s2}" has no invented point`, pointForStreet(s2) === null));
+ok('an unknown street returns null', pointForStreet('Nowhere Street') === null);
+
+console.log('\n10. abbreviations are expanded the way map data spells them');
+([
+  ['J.P. Rizal St.', 'J. P. Rizal Street'],
+  ['A. Mendoza St.', 'A. Mendoza Street'],
+  ['Gov. F. Halili Ave.', 'Governor F. Halili Avenue'],
+  ['Gov. F. Halili Ext.', 'Governor F. Halili Extension'],
+  ['Violeta Metroville Subd.', 'Violeta Metroville Subdivision'],
+  ['Ayukit', 'Ayukit'],
+] as [string, string][]).forEach(([from, to]) =>
+  ok(`"${from}" -> "${to}"`, expandStreetName(from) === to, expandStreetName(from)));
+ok('empty input is safe', expandStreetName('') === '');
 
 console.log(`\n${fails.length === 0 ? 'ALL PASS' : 'FAILURES'}  (${pass} passed, ${fails.length} failed)`);
 fails.forEach(f => console.log('  - ' + f));

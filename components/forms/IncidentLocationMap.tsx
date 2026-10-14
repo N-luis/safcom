@@ -14,6 +14,7 @@ import {
   BARANGAY_CENTER, DEFAULT_ZOOM, isValidCoordinate, isWithinBarangay, roundCoord,
   type ResolvedLocation,
 } from '@/lib/geo';
+import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
 
 /**
  * Where the incident happened, picked off a street map.
@@ -28,6 +29,13 @@ import {
 export interface PickedLocation extends ResolvedLocation {
   /** True once the resident has put a pin down; false while it is empty. */
   chosen: boolean;
+  /**
+   * Set when the pin came from the street dropdown rather than a tap. The form
+   * uses it to leave the street field alone: the resident already named the
+   * place, and replacing their choice with whatever road the geocoder calls it
+   * loses the barangay's own label.
+   */
+  fromStreet?: string;
 }
 
 const ACCENT = '#14b8a6';
@@ -57,10 +65,16 @@ function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number 
   return null;
 }
 
-export default function IncidentLocationMap({ value, onChange, disabled }: {
+export default function IncidentLocationMap({ value, onChange, disabled, focusStreet }: {
   value: PickedLocation | null;
   onChange: (next: PickedLocation | null) => void;
   disabled?: boolean;
+  /**
+   * A street chosen in the form's dropdown. The map moves to it and drops a
+   * pin, so picking "J.P. Rizal St." shows J.P. Rizal St. rather than leaving
+   * the resident to find it.
+   */
+  focusStreet?: string;
 }) {
   const [resolving, setResolving] = useState(false);
   const [notice, setNotice] = useState<string>('');
@@ -77,11 +91,11 @@ export default function IncidentLocationMap({ value, onChange, disabled }: {
    * The pin moved. The point is kept whatever the provider says - a report
    * must never be blocked because a road has no name in the map data.
    */
-  const pick = useCallback(async (lat: number, lng: number) => {
+  const pick = useCallback(async (lat: number, lng: number, fromStreet?: string) => {
     if (disabled) return;
     const id = ++requestId.current;
     const base: PickedLocation = {
-      chosen: true,
+      chosen: true, fromStreet,
       latitude: roundCoord(lat), longitude: roundCoord(lng),
       street: null, barangay: null, municipality: null, province: null, label: null,
     };
@@ -97,10 +111,15 @@ export default function IncidentLocationMap({ value, onChange, disabled }: {
       const found: ResolvedLocation | null = json?.data?.location ?? null;
 
       if (found?.street) {
-        onChange({ ...found, chosen: true });
-        setNotice('Location selected successfully.');
+        onChange({ ...found, chosen: true, fromStreet });
+        // A pin placed from the street list sits somewhere on that road, not
+        // where the incident was, so it asks to be moved rather than claiming
+        // to be right.
+        setNotice(fromStreet
+          ? `Map moved to ${fromStreet.replace(/\.$/, '')}. Drag the pin to the exact spot.`
+          : 'Location selected successfully.');
       } else if (found) {
-        onChange({ ...found, chosen: true });
+        onChange({ ...found, chosen: true, fromStreet });
         setProblem('We could not find a street name for that spot. Please check the pin, or type the street below.');
       } else {
         setProblem('The address lookup is unavailable right now. Your pin is saved - please type the street below.');
@@ -113,6 +132,56 @@ export default function IncidentLocationMap({ value, onChange, disabled }: {
       if (id === requestId.current) setResolving(false);
     }
   }, [disabled, onChange]);
+
+  /**
+   * A street was chosen in the form, so the map goes there.
+   *
+   * The barangay's own list of points comes first: it is the only thing that
+   * knows where "Ortega Compound" is, because the public map data does not.
+   * A street with no written-down point is looked up live, with the
+   * abbreviations expanded the way map data spells them. When neither finds
+   * it, the map says so and leaves the pin alone - moving it somewhere
+   * plausible would be worse than not moving it.
+   */
+  const lastFocused = useRef<string>('');
+  useEffect(() => {
+    const street = (focusStreet ?? '').trim();
+    if (!street || street === lastFocused.current) return;
+    lastFocused.current = street;
+
+    let cancelled = false;
+    // Scheduled rather than run here: moving the map and dropping the pin are
+    // state changes, and making them while the effect is running re-renders on
+    // the spot.
+    const scheduled = setTimeout(async () => {
+      const known = pointForStreet(street);
+      if (known) {
+        setView({ lat: known.lat, lng: known.lng, zoom: 17 });
+        pick(known.lat, known.lng, street);
+        return;
+      }
+
+      setResolving(true);
+      try {
+        const q = `${expandStreetName(street)}, Bocaue, Bulacan`;
+        const res = await fetch(`/api/resident/geo/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+        const json = await res.json().catch(() => null);
+        const first = json?.data?.results?.[0];
+        if (cancelled) return;
+        if (first && isValidCoordinate(first.latitude, first.longitude)) {
+          setView({ lat: first.latitude, lng: first.longitude, zoom: 17 });
+          pick(first.latitude, first.longitude, street);
+        } else {
+          setProblem(`We do not have a map point for ${street} yet. Please tap the spot on the map.`);
+        }
+      } catch {
+        if (!cancelled) setProblem(`Could not look up ${street}. Please tap the spot on the map.`);
+      } finally {
+        if (!cancelled) setResolving(false);
+      }
+    }, 0);
+    return () => { cancelled = true; clearTimeout(scheduled); };
+  }, [focusStreet, pick]);
 
   /**
    * Search runs on a pause in typing, not on every keystroke, which is also
