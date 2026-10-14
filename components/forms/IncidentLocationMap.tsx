@@ -15,6 +15,7 @@ import {
   type ResolvedLocation,
 } from '@/lib/geo';
 import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
+import { nearestRoad } from '@/lib/barangayRoads';
 
 /**
  * Where the incident happened, picked off a street map.
@@ -110,6 +111,12 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       const json = await res.json().catch(() => null);
       const found: ResolvedLocation | null = json?.data?.location ?? null;
 
+      // A point that sits between roads - an open lot, the middle of a yard -
+      // has no road of its own, and the geocoder is right to say so. The road
+      // beside it is still the useful answer, and the local index has the
+      // geometry to find it without another request.
+      const near = found?.street ? null : nearestRoad(base.latitude, base.longitude);
+
       if (found?.street) {
         onChange({ ...found, chosen: true, fromStreet });
         // A pin placed from the street list sits somewhere on that road, not
@@ -118,9 +125,15 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
         setNotice(fromStreet
           ? `Map moved to ${fromStreet.replace(/\.$/, '')}. Drag the pin to the exact spot.`
           : 'Location selected successfully.');
+      } else if (found && near) {
+        onChange({ ...found, street: near.name, chosen: true, fromStreet });
+        setNotice(`Nearest street: ${near.name}, about ${near.metres}m away. Change it below if that is wrong.`);
       } else if (found) {
         onChange({ ...found, chosen: true, fromStreet });
         setProblem('We could not find a street name for that spot. Please check the pin, or type the street below.');
+      } else if (near) {
+        onChange({ ...base, street: near.name });
+        setNotice(`The address lookup is unavailable. Nearest street: ${near.name}, about ${near.metres}m away.`);
       } else {
         setProblem('The address lookup is unavailable right now. Your pin is saved - please type the street below.');
       }

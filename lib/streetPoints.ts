@@ -2,19 +2,22 @@
  * Map points for the barangay's own street list.
  *
  * Choosing a street in the form moves the map to it. That cannot rely on a
- * geocoder alone: of the eleven labels the Public Safety Office uses, only
- * four are in OpenStreetMap at all. Compounds, puroks and subdivision names
+ * geocoder alone: of the eleven labels the Public Safety Office uses, four are
+ * in OpenStreetMap and seven are not. Compounds, puroks and subdivision names
  * that everyone here navigates by - Ortega Compound, Ayukit - are simply not
  * in the map data, and no amount of query rewriting conjures them up.
  *
- * So the ones that could be verified are written down, and the rest are left
- * empty on purpose. An incident pinned to a guessed coordinate is worse than
- * one with no pin at all: it sends an officer to the wrong street while
- * looking exactly as trustworthy as a real one. A street with no entry here
- * asks the resident to tap the spot instead.
+ * The four that exist are written down as coordinates that were checked by
+ * reading them back. Picking a point by rule did not work: roads here run
+ * alongside each other, and the nearest stretch of Governor F. Halili Avenue
+ * to the barangay is a node it shares with the Ciudad de Victoria Bypass Road,
+ * which is the name that came back. Each point below is the closest one to the
+ * barangay that the geocoder confirms as that road.
  *
- * To add one: open the resident form, tap the street on the map, and copy the
- * latitude and longitude out of the selected-location panel.
+ * The other seven are left unmapped on purpose. An incident pinned to a
+ * guessed coordinate is worse than one with no pin: it sends an officer to the
+ * wrong street while looking exactly as trustworthy as a real one. A street
+ * with no entry asks the resident to tap the spot instead.
  */
 
 import type { BarangayStreet } from './streets';
@@ -22,40 +25,41 @@ import type { BarangayStreet } from './streets';
 export interface StreetPoint {
   lat: number;
   lng: number;
-  /** Where the coordinate came from, so a wrong one can be traced. */
+  /** The address the geocoder returned for this exact point. */
   source: string;
 }
 
 /**
- * Verified against Nominatim on 2026-10-14. The `source` is the full address
- * it returned, which is also the evidence that the match is the right road:
- * several of these streets run through neighbouring barangays, which is
- * expected - a road does not stop at a boundary.
+ * Verified on 2026-10-14 by reverse-geocoding each candidate point along the
+ * road, nearest the barangay first, and keeping the first that answered with
+ * the road itself.
+ *
+ * Absent, having been searched for in both the place index and the raw road
+ * data and not found: Ortega Compound, Eudenio Compound, Gov. F. Halili Ext.,
+ * J. Benedicto St., P. Lazaro St., Ayukit, Granville Subd.
+ *
+ * To add one once the barangay knows the spot: open the resident form, tap the
+ * street on the map, and read the coordinates off the selected-location panel.
  */
 export const STREET_POINTS: Partial<Record<BarangayStreet, StreetPoint>> = {
   'J.P. Rizal St.': {
-    lat: 14.795271, lng: 120.926539,
-    source: 'J. P. Rizal Street, Sulucan, Bocaue, Bulacan',
+    lat: 14.795832, lng: 120.929938,
+    source: 'J. P. Rizal Street, Biñang 1st, Bocaue, Bulacan',
   },
   'A. Mendoza St.': {
-    lat: 14.797485, lng: 120.928336,
+    lat: 14.797403, lng: 120.928349,
     source: 'A. Mendoza Street, Biñang 1st, Bocaue, Bulacan',
   },
   'Gov. F. Halili Ave.': {
-    lat: 14.807230, lng: 120.939901,
-    source: 'Governor F. Halili Avenue, Greenview Subdivision, Turo, Bocaue, Bulacan',
+    lat: 14.799496, lng: 120.930732,
+    source: 'Governor F. Halili Avenue, Biñang 1st, Bocaue, Bulacan',
   },
+  // The subdivision is not a road; the avenue running through it is, and the
+  // address returned there names Violeta Metroville.
   'Violeta Metroville Subd.': {
-    lat: 14.797752, lng: 120.931551,
+    lat: 14.797899, lng: 120.931853,
     source: 'Violeta Avenue, Violeta Metroville, Biñang 1st, Bocaue, Bulacan',
   },
-
-  // Deliberately absent, having been looked for and not found:
-  //   Ortega Compound, Eudenio Compound, Gov. F. Halili Ext.,
-  //   J. Benedicto St., P. Lazaro St., Ayukit
-  // "Granville Subd." is absent for a different reason: the only match was
-  // "AFP/PNP Granville Homes" in Tambubong, a different barangay, which may
-  // well be somewhere else entirely. A wrong pin is not worth the convenience.
 };
 
 /** The written-down point for a street, if there is one. */

@@ -8,6 +8,7 @@ import {
   DEFAULT_MUNICIPALITY, DEFAULT_PROVINCE,
 } from '../lib/geo';
 import { pointForStreet, expandStreetName, STREET_POINTS } from '../lib/streetPoints';
+import { nearestRoad, BARANGAY_ROADS } from '../lib/barangayRoads';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -94,8 +95,27 @@ ok('its point is a real coordinate', (() => {
 })());
 ok('every written-down point is valid and nearby', Object.values(STREET_POINTS).every(
   pt => !!pt && isValidCoordinate(pt.lat, pt.lng) && isWithinBarangay(pt.lat, pt.lng)));
-ok('every point records where it came from',
+ok('every point records the address it was checked against',
   Object.values(STREET_POINTS).every(pt => (pt?.source ?? '').length > 10));
+// Each point was kept only because the geocoder read it back as that road, so
+// the name it records has to be the road the label maps to.
+([
+  ['J.P. Rizal St.', 'J. P. Rizal Street'],
+  ['A. Mendoza St.', 'A. Mendoza Street'],
+  ['Gov. F. Halili Ave.', 'Governor F. Halili Avenue'],
+  ['Violeta Metroville Subd.', 'Violeta Avenue'],
+] as [string, string][]).forEach(([label, road]) =>
+  ok(`"${label}" sits on ${road}`, (pointForStreet(label)?.source ?? '').startsWith(road),
+    pointForStreet(label)?.source));
+// The avenue runs for kilometres; the point has to be the stretch by the
+// barangay, not whichever end the data happened to list first.
+ok('Gov. F. Halili Ave. pins near the barangay, not 1.4km north',
+  (pointForStreet('Gov. F. Halili Ave.')?.lat ?? 99) < 14.805,
+  JSON.stringify(pointForStreet('Gov. F. Halili Ave.')));
+// The local road index is what names a pin that lands between roads.
+ok('every mapped street also exists in the road index',
+  ['J. P. Rizal Street', 'A. Mendoza Street', 'Governor F. Halili Avenue', 'Violeta Avenue']
+    .every(road => !!BARANGAY_ROADS[road]));
 // The ones that are not in the map data must stay absent rather than guessed.
 (['Ortega Compound', 'Eudenio Compound', 'Ayukit', 'J. Benedicto St.',
   'P. Lazaro St.', 'Gov. F. Halili Ext.', 'Granville Subd.'] as const).forEach(s2 =>
@@ -113,6 +133,23 @@ console.log('\n10. abbreviations are expanded the way map data spells them');
 ] as [string, string][]).forEach(([from, to]) =>
   ok(`"${from}" -> "${to}"`, expandStreetName(from) === to, expandStreetName(from)));
 ok('empty input is safe', expandStreetName('') === '');
+
+
+console.log('\n11. a pin between roads is named from the road data');
+ok('the road index is loaded', Object.keys(BARANGAY_ROADS).length > 40,
+  String(Object.keys(BARANGAY_ROADS).length));
+ok('every road has at least one point',
+  Object.values(BARANGAY_ROADS).every(pts => pts.length > 0));
+ok('every point in the index is a valid coordinate',
+  Object.values(BARANGAY_ROADS).every(pts => pts.every(([a, b]) => isValidCoordinate(a, b))));
+// The exact pin a resident reported as "Not identified".
+const screenshotPin = nearestRoad(14.799319, 120.928024);
+ok('the reported pin now names a street', !!screenshotPin, JSON.stringify(screenshotPin));
+ok('and it is a close one', (screenshotPin?.metres ?? 999) < 200, String(screenshotPin?.metres));
+ok('a point on a road reads as nearly zero away',
+  (nearestRoad(14.797403, 120.928349)?.metres ?? 999) < 20);
+ok('somewhere far away names nothing', nearestRoad(14.2, 120.2) === null);
+ok('the range limit is respected', nearestRoad(14.799319, 120.928024, 10) === null);
 
 console.log(`\n${fails.length === 0 ? 'ALL PASS' : 'FAILURES'}  (${pass} passed, ${fails.length} failed)`);
 fails.forEach(f => console.log('  - ' + f));
