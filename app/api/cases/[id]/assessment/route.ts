@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { CASE_PRIORITY, priorityToRiskLevel, type CasePriority } from '@/lib/caseAssessment';
+import { isVawcCaseHidden } from '@/lib/caseAccess';
 
 /**
  * The AI-assisted assessment for a case, and the officer's ability to overrule
@@ -18,6 +19,12 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   if ('status' in auth) return auth;
 
   const { id } = await ctx.params;
+  // The summary and reason are drawn from the report's own words, so the
+  // assessment is as confidential as the case it belongs to.
+  const owner = await prisma.case.findUnique({ where: { id }, select: { caseType: true } });
+  if (!owner) return errorResponse('Case not found', 404);
+  if (isVawcCaseHidden(auth.user.role, owner.caseType)) return errorResponse('Case not found', 404);
+
   const assessment = await prisma.caseAssessment.findUnique({
     where: { caseId: id },
     include: { overriddenBy: { select: { id: true, name: true, role: true } } },
@@ -41,6 +48,12 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   try { body = await req.json(); } catch { return errorResponse('Invalid JSON', 400); }
   const parsed = overrideSchema.safeParse(body);
   if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Validation error', 400);
+
+  // Overruling the assessment on a case you may not read is the same breach
+  // as reading it, so the same gate applies to the write.
+  const owner = await prisma.case.findUnique({ where: { id }, select: { caseType: true } });
+  if (!owner) return errorResponse('Case not found', 404);
+  if (isVawcCaseHidden(auth.user.role, owner.caseType)) return errorResponse('Case not found', 404);
 
   const existing = await prisma.caseAssessment.findUnique({ where: { caseId: id } });
   if (!existing) return errorResponse('No assessment recorded for this case', 404);

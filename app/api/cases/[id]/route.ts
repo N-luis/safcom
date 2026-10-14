@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { isVawcCaseHidden } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
 
 const updateSchema = z.object({
@@ -44,6 +45,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     });
     if (!c) return errorResponse('Case not found', 404);
+    // Not found, rather than forbidden: confirming a VAWC case exists at this
+    // id tells someone without access more than they should have.
+    if (isVawcCaseHidden(auth.user.role, c.caseType)) return errorResponse('Case not found', 404);
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const [barangayCaseCount, residentPriorCases] = await Promise.all([
@@ -76,6 +80,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const existing = await prisma.case.findUnique({ where: { id } });
     if (!existing) return errorResponse('Case not found', 404);
+    if (isVawcCaseHidden(auth.user.role, existing.caseType)) return errorResponse('Case not found', 404);
+    // A case may not be edited into or out of the VAWC desk's hands by someone
+    // who cannot see it there.
+    if (parsed.data.caseType && isVawcCaseHidden(auth.user.role, parsed.data.caseType)) {
+      return errorResponse('This case type is handled by the VAWC desk', 403);
+    }
 
     // Risk level is never set manually — SafComm AI re-analyzes it on every update,
     // factoring in the (possibly new) status/type/location/description, case age,

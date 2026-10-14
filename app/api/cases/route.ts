@@ -6,6 +6,7 @@ import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
+import { vawcFilter } from '@/lib/caseAccess';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -32,7 +33,9 @@ export async function GET(req: NextRequest) {
   const sortBy = searchParams.get('sortBy') || 'filedAt';
   const sortDir = searchParams.get('sortDir') === 'asc' ? 'asc' : 'desc';
 
-  const where: Record<string, unknown> = {};
+  // VAWC cases are the VAWC desk's to read. Applied to the query itself, so
+  // no later change to the response shape can let one through.
+  const where: Record<string, unknown> = { ...vawcFilter(auth.user.role) };
   if (search) {
     where.OR = [
       { caseNumber: { contains: search } },
