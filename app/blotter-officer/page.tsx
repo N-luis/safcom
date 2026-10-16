@@ -12,7 +12,7 @@ import {
   Search, Visibility, ArrowForward, LocationOn, AccessTime,
   PlayCircle, PendingActions, Close,
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import { useCaseStats, useCases } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
@@ -113,6 +113,17 @@ export default function BlotterDashboard() {
 
   const byCaseType: { caseType: string; count: number }[] = stats?.byCaseType ?? [];
   const typeTotal = byCaseType.reduce((sum, t) => sum + t.count, 0);
+  /**
+   * Which slice the cursor is over, or null.
+   *
+   * The figures used to arrive in a floating tooltip, which Recharts places
+   * under the cursor - and on a donut the cursor is next to the hole, so the
+   * card landed on top of the count in the middle. The hole is the one piece
+   * of space on this chart guaranteed to be empty, so the figures go there and
+   * nothing can overlap.
+   */
+  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
+
   const categories = byCaseType.slice(0, 5).map((t, i) => ({
     name: t.caseType,
     value: typeTotal > 0 ? Math.round((t.count / typeTotal) * 100) : 0,
@@ -236,26 +247,60 @@ export default function BlotterDashboard() {
                         paddingAngle={3}
                         dataKey="value"
                         stroke="none"
+                        isAnimationActive={false}
+                        onMouseEnter={(_: unknown, i: number) => setHoveredSlice(i)}
+                        onMouseLeave={() => setHoveredSlice(null)}
                       >
                         {categories.map((entry, i) => (
-                          <Cell key={i} fill={entry.color} />
+                          <Cell
+                            key={i}
+                            fill={entry.color}
+                            // The rest fade rather than the hovered one growing,
+                            // so the ring keeps its shape and nothing shifts.
+                            opacity={hoveredSlice === null || hoveredSlice === i ? 1 : 0.35}
+                            style={{ transition: 'opacity 0.15s', cursor: 'pointer' }}
+                          />
                         ))}
                       </Pie>
-                      <ChartTooltip
-                        formatter={(value: unknown, _name: unknown, item: { payload?: { count?: number } }) => [`${value}% (${item?.payload?.count ?? 0} cases)`, '']}
-                        contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: '0.9rem' }}
-                      />
                     </PieChart>
                   </ResponsiveContainer>
                   <Box sx={{
                     position: 'absolute', top: '50%', left: '50%',
-                    transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none',
+                    transform: 'translate(-50%, -50%)', textAlign: 'center',
+                    // Never intercepts the cursor, or hovering the middle would
+                    // read as leaving the slice and the figures would flicker.
+                    pointerEvents: 'none',
+                    // Inside the 144px hole, with room to spare.
+                    width: 126,
                   }}>
-                    <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>
-                      {categories.length}
-                    </Typography>
-                    <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', lineHeight: 1.4 }}>Categories</Typography>
-                    <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total Data</Typography>
+                    {hoveredSlice !== null && categories[hoveredSlice] ? (
+                      <>
+                        <Typography sx={{
+                          fontSize: '0.74rem', fontWeight: 700, color: '#64748b', lineHeight: 1.25,
+                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden', mb: 0.25,
+                        }}>
+                          {categories[hoveredSlice].name}
+                        </Typography>
+                        <Typography sx={{
+                          fontSize: '1.6rem', fontWeight: 800, lineHeight: 1,
+                          color: categories[hoveredSlice].color,
+                        }}>
+                          {categories[hoveredSlice].value}%
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8', mt: 0.25 }}>
+                          {categories[hoveredSlice].count} case{categories[hoveredSlice].count === 1 ? '' : 's'}
+                        </Typography>
+                      </>
+                    ) : (
+                      <>
+                        <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>
+                          {categories.length}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', lineHeight: 1.4 }}>Categories</Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total Data</Typography>
+                      </>
+                    )}
                   </Box>
                 </Box>
 
