@@ -33,6 +33,26 @@ export const BARANGAY_BOUNDS = {
   east: BARANGAY_CENTER.lng + 0.035,
 };
 
+/**
+ * How far the precise map lets the resident wander.
+ *
+ * The picker used to open on the world map centred here, which is the whole
+ * earth with the barangay somewhere in the middle of it - a resident could
+ * pan to Manila without noticing they had left. Roughly 1.7km each way: the
+ * barangay and the roads leading into it, and no further. This limits the
+ * view only. BARANGAY_BOUNDS above still decides what counts as inside, and
+ * a pin outside it is warned about, never refused.
+ */
+export const MAP_VIEW_BOUNDS = {
+  south: BARANGAY_CENTER.lat - 0.015,
+  north: BARANGAY_CENTER.lat + 0.015,
+  west: BARANGAY_CENTER.lng - 0.015,
+  east: BARANGAY_CENTER.lng + 0.015,
+};
+
+/** Zoomed out past this, the barangay stops being the subject of the map. */
+export const MIN_MAP_ZOOM = 15;
+
 /** Filled in when the provider does not name them, which it usually does. */
 export const DEFAULT_MUNICIPALITY = process.env.NEXT_PUBLIC_MUNICIPALITY ?? 'Bocaue';
 export const DEFAULT_PROVINCE = process.env.NEXT_PUBLIC_PROVINCE ?? 'Bulacan';

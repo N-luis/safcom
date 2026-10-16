@@ -12,7 +12,8 @@ import {
 } from '@mui/icons-material';
 import {
   BARANGAY_CENTER, BARANGAY_OF_RECORD, DEFAULT_ZOOM, isValidCoordinate,
-  isWithinBarangay, roundCoord, type ResolvedLocation,
+  isWithinBarangay, roundCoord, MAP_VIEW_BOUNDS, MIN_MAP_ZOOM,
+  type ResolvedLocation,
 } from '@/lib/geo';
 import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
 import { nearestRoad } from '@/lib/barangayRoads';
@@ -63,7 +64,9 @@ function ClickCapture({ onPick }: { onPick: (lat: number, lng: number) => void }
 /** Imperative recentre, since MapContainer only reads center on mount. */
 function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number }) {
   const map = useMap();
-  useEffect(() => { map.setView([lat, lng], zoom ?? map.getZoom()); }, [map, lat, lng, zoom]);
+  useEffect(() => {
+    map.setView([lat, lng], Math.max(zoom ?? map.getZoom(), MIN_MAP_ZOOM));
+  }, [map, lat, lng, zoom]);
   return null;
 }
 
@@ -159,20 +162,34 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
    * plausible would be worse than not moving it.
    */
   const lastFocused = useRef<string>('');
+  /**
+   * The current pick(), held where the effect below can reach it without
+   * depending on it.
+   *
+   * pick() is rebuilt whenever the parent re-renders, because onChange is
+   * written inline there. With it in the dependency list the effect re-ran on
+   * every render, and its cleanup cleared the timer it had scheduled a moment
+   * earlier - while lastFocused had already been set, so it never tried
+   * again. Choosing a street moved nothing, silently.
+   */
+  const pickRef = useRef(pick);
+  useEffect(() => { pickRef.current = pick; }, [pick]);
   useEffect(() => {
     const street = (focusStreet ?? '').trim();
     if (!street || street === lastFocused.current) return;
     lastFocused.current = street;
 
     let cancelled = false;
+    let started = false;
     // Scheduled rather than run here: moving the map and dropping the pin are
     // state changes, and making them while the effect is running re-renders on
     // the spot.
     const scheduled = setTimeout(async () => {
+      started = true;
       const known = pointForStreet(street);
       if (known) {
         setView({ lat: known.lat, lng: known.lng, zoom: 17 });
-        pick(known.lat, known.lng, street);
+        pickRef.current(known.lat, known.lng, street);
         return;
       }
 
@@ -185,7 +202,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
         if (cancelled) return;
         if (first && isValidCoordinate(first.latitude, first.longitude)) {
           setView({ lat: first.latitude, lng: first.longitude, zoom: 17 });
-          pick(first.latitude, first.longitude, street);
+          pickRef.current(first.latitude, first.longitude, street);
         } else {
           // The hazard map knows where this is even though the map data does
           // not, so the resident gets directions rather than a dead end.
@@ -200,8 +217,18 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
         if (!cancelled) setResolving(false);
       }
     }, 0);
-    return () => { cancelled = true; clearTimeout(scheduled); };
-  }, [focusStreet, pick]);
+    return () => {
+      cancelled = true;
+      clearTimeout(scheduled);
+      // The guard is set before the work runs, and this cleanup cancels that
+      // work. If it never began - React tearing the effect down and setting it
+      // up again, which it does on mount in development - the guard would say
+      // this street had been handled when nothing had happened, and choosing a
+      // street would move the map nowhere, silently and for good. Releasing it
+      // here lets the next run do the work.
+      if (!started) lastFocused.current = '';
+    };
+  }, [focusStreet]);
 
   /**
    * Search runs on a pause in typing, not on every keystroke, which is also
@@ -327,9 +354,17 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
 
       {/* ── Map ── */}
       <Box sx={{ position: 'relative', height: { xs: 260, sm: 320 } }}>
+        {/* Held to the barangay. Before this it was the world map opened at
+            the barangay, and panning off it was one flick of a thumb. */}
         <MapContainer
           center={[BARANGAY_CENTER.lat, BARANGAY_CENTER.lng]}
           zoom={DEFAULT_ZOOM}
+          minZoom={MIN_MAP_ZOOM}
+          maxBounds={[
+            [MAP_VIEW_BOUNDS.south, MAP_VIEW_BOUNDS.west],
+            [MAP_VIEW_BOUNDS.north, MAP_VIEW_BOUNDS.east],
+          ]}
+          maxBoundsViscosity={0.9}
           scrollWheelZoom
           style={{ height: '100%', width: '100%' }}
         >

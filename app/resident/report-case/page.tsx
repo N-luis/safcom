@@ -8,7 +8,7 @@ import { z } from 'zod';
 import {
   Box, Typography, Card, CardContent, Grid, TextField,
   MenuItem, ListSubheader, Button, CircularProgress, Alert,
-  Divider,
+  Divider, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import {
   CheckCircle, Send, ArrowBack,
@@ -24,7 +24,8 @@ import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/compone
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
 import dynamicImport from 'next/dynamic';
-import { BARANGAY_STREETS } from '@/lib/streets';
+import { BARANGAY_STREETS, type BarangayStreet } from '@/lib/streets';
+import BarangayStreetMap from '@/components/forms/BarangayStreetMap';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 
 /**
@@ -109,6 +110,29 @@ export default function ReportCasePage() {
   // each other: the map fills the street, the street sends the map back to it,
   // and the resident's pin jumps off the spot they chose.
   const streetFromMap = useRef('');
+
+  /**
+   * The barangay's own map opens first.
+   *
+   * It is the drawing from the wall of the hall, so a resident recognises
+   * their street on it at a glance. The real map is a tap away for anyone who
+   * wants to mark the exact spot - more precise, far less familiar, which is
+   * the right way round for the one that is optional.
+   */
+  const [locView, setLocView] = useState<'barangay' | 'exact'>('barangay');
+
+  /**
+   * A street was tapped on the barangay map.
+   *
+   * It sets the street field and nothing else. The drawing cannot say where
+   * that is in latitude and longitude - it is a diagram, not a survey - so
+   * the coordinate is left to the precise map, which fills it in from a
+   * checked point when there is one for that street.
+   */
+  const onPickStreet = (street: BarangayStreet) => {
+    streetFromMap.current = '';
+    setValue('street', street, { shouldValidate: true, shouldDirty: true });
+  };
 
   const onPlaceChange = (next: PickedLocation | null) => {
     setPlace(next);
@@ -350,17 +374,47 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     the map data still has a name the resident knows. */}
                 <Box>
                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.5 }}>
-                    Click the map to select where the incident occurred.
+                    Where did this happen?
                   </Typography>
                   <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
-                    Optional, but it helps the barangay find the place. You can drag the pin to move it.
+                    Tap your street on the barangay map. If you can show the exact spot, switch to
+                    Exact spot &mdash; it helps the barangay get there faster.
                   </Typography>
-                  <IncidentLocationMap
-                    value={place}
-                    onChange={onPlaceChange}
-                    focusStreet={focusStreet}
+
+                  <ToggleButtonGroup
+                    value={locView}
+                    exclusive
+                    size="small"
+                    aria-label="How to give the location"
+                    onChange={(_, v) => { if (v) setLocView(v); }}
                     disabled={isSubmitting || analysing}
-                  />
+                    sx={{
+                      mb: 1.25,
+                      '& .MuiToggleButton-root': {
+                        minHeight: 40, px: 1.75, textTransform: 'none',
+                        fontWeight: 700, fontSize: '0.82rem',
+                        '&.Mui-selected': { bgcolor: '#14b8a618', color: '#0f766e' },
+                      },
+                    }}
+                  >
+                    <ToggleButton value="barangay">Barangay map</ToggleButton>
+                    <ToggleButton value="exact">Exact spot</ToggleButton>
+                  </ToggleButtonGroup>
+
+                  {locView === 'barangay' ? (
+                    <BarangayStreetMap
+                      value={streetValue}
+                      onPick={onPickStreet}
+                      disabled={isSubmitting || analysing}
+                    />
+                  ) : (
+                    <IncidentLocationMap
+                      value={place}
+                      onChange={onPlaceChange}
+                      focusStreet={focusStreet}
+                      disabled={isSubmitting || analysing}
+                    />
+                  )}
                 </Box>
 
                 <Controller
