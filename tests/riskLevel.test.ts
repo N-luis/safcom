@@ -14,8 +14,16 @@ function ok(label: string, cond: boolean, extra = '') {
   if (cond) pass++; else fails.push(`${label}${extra ? '  ->  ' + extra : ''}`);
 }
 
+/**
+ * A case filed a few hours ago, not on a fixed date.
+ *
+ * computeRisk scores how long a case has been open, so a pinned `filedAt`
+ * quietly ages: this read Low when it was written and started reading Medium
+ * two weeks later, as the same fixture crossed the overdue threshold. These
+ * cases are about what the words in a report say, so the age is held still.
+ */
 const base = {
-  barangay: 'Ayukit', filedAt: new Date('2026-10-01T14:00:00'),
+  barangay: 'Ayukit', filedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
   residentId: null, status: 'Open', barangayCaseCount: 1, residentPriorCases: 0,
 };
 const run = (description: string, caseType = 'Public Nuisance') =>
