@@ -522,7 +522,11 @@ export default function LoginPage() {
                 <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Community Safety Platform</Typography>
               </Box>
             </Box>
-            <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>© 2025 Barangay Biñang 2nd Public Safety Office. All rights reserved.</Typography>
+            {/* Read, not written down: the notice said 2025 into 2026, and a
+                fixed number only needs correcting again every January. */}
+            <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>
+              © {new Date().getFullYear()} Barangay Biñang 2nd Public Safety Office. All rights reserved.
+            </Typography>
           </Box>
         </Container>
       </Box>
