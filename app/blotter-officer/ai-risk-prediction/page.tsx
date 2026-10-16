@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent, Grid, Chip, LinearProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -748,6 +748,8 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
 export default function AIRiskPredictionPage() {
   const [modelInfoOpen, setModelInfoOpen] = useState(false);
   const [analysing, setAnalysing] = useState(false);
+  const [analysisError, setAnalysisError] = useState('');
+  const [justRan, setJustRan] = useState(false);
 
   const { data: stats, isLoading, mutate } = useAIStats() as {
     data: AIStatsData | undefined;
@@ -755,11 +757,46 @@ export default function AIRiskPredictionPage() {
     mutate: () => Promise<unknown>;
   };
 
+  /**
+   * Re-run the scoring, and show that it ran.
+   *
+   * The work is real - the endpoint takes between about one and three and a
+   * half seconds - but the only sign of it was a spinner inside the button
+   * while the rest of the page sat still, and the figures usually come back
+   * the same, so pressing it looked like pressing nothing. A bar across the
+   * page says the page is working, and a line afterwards says it finished.
+   *
+   * The hold is not padding the request: the request finishes first, and the
+   * state is held afterwards only if it was quicker than the eye.
+   */
+  const MIN_VISIBLE_MS = 900;
+
   const runAnalysis = async () => {
+    if (analysing) return;
     setAnalysing(true);
-    await mutate();
-    setAnalysing(false);
+    setAnalysisError('');
+    setJustRan(false);
+    const startedAt = Date.now();
+    try {
+      await mutate();
+      setJustRan(true);
+    } catch {
+      // Without this the old code left the button spinning for ever on a
+      // failed refresh, with no way back except reloading the page.
+      setAnalysisError('The analysis could not be refreshed. Please try again.');
+    } finally {
+      const left = MIN_VISIBLE_MS - (Date.now() - startedAt);
+      if (left > 0) await new Promise(r => setTimeout(r, left));
+      setAnalysing(false);
+    }
   };
+
+  // Clears itself, so the confirmation does not sit there looking like state.
+  useEffect(() => {
+    if (!justRan) return;
+    const t = setTimeout(() => setJustRan(false), 4000);
+    return () => clearTimeout(t);
+  }, [justRan]);
 
   const summary = stats?.summary ?? { critical: 0, high: 0, medium: 0, low: 0 };
   const totalAnalyzed = stats?.totalAnalyzed ?? 0;
@@ -788,11 +825,23 @@ export default function AIRiskPredictionPage() {
               sx={{ bgcolor: '#f1f5f9', color: '#0c1e46', fontWeight: 600, fontSize: '0.78rem', height: 24 }}
             />
           </Box>
-          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
-            {stats
-              ? `${totalAnalyzed} case${totalAnalyzed !== 1 ? 's' : ''} analyzed · Last run: ${new Date(stats.lastUpdated).toLocaleTimeString()}`
-              : '6-model ensemble scoring with actionable intervention recommendations from live case data'}
+          <Typography sx={{ fontSize: '0.9rem', color: analysing ? '#0c1e46' : 'text.secondary', fontWeight: analysing ? 600 : 400 }}>
+            {analysing
+              ? 'Scoring every open case…'
+              : stats
+                ? `${totalAnalyzed} case${totalAnalyzed !== 1 ? 's' : ''} analyzed · Last run: ${new Date(stats.lastUpdated).toLocaleTimeString()}`
+                : '6-model ensemble scoring with actionable intervention recommendations from live case data'}
           </Typography>
+          {justRan && !analysing && (
+            <Typography sx={{ fontSize: '0.86rem', color: '#0f766e', fontWeight: 600, mt: 0.25 }}>
+              Analysis complete — {totalAnalyzed} case{totalAnalyzed !== 1 ? 's' : ''} rescored just now.
+            </Typography>
+          )}
+          {analysisError && (
+            <Typography role="alert" sx={{ fontSize: '0.86rem', color: '#b42318', fontWeight: 600, mt: 0.25 }}>
+              {analysisError}
+            </Typography>
+          )}
         </Box>
         <Stack direction="row" spacing={1}>
           <Button
@@ -816,6 +865,17 @@ export default function AIRiskPredictionPage() {
           </Button>
         </Stack>
       </Box>
+
+      {/* Across the page rather than inside the button: the figures below are
+          what is being recomputed, so that is where the work should read. */}
+      {analysing && (
+        <LinearProgress
+          sx={{
+            mb: 2, height: 3, borderRadius: 2,
+            bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: '#0c1e46' },
+          }}
+        />
+      )}
 
       {/* ── Summary Cards ── */}
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
