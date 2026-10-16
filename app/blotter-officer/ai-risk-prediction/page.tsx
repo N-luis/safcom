@@ -80,7 +80,6 @@ interface AIStatsData {
   modelStats: ModelStat[];
   totalAnalyzed: number;
   lastUpdated: string;
-  modelEngine: string;
 }
 
 interface InterventionAction {
@@ -653,7 +652,7 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
       <DialogTitle sx={{ fontWeight: 800, color: '#0c1e46', pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Hub sx={{ color: '#7c3aed', fontSize: 26 }} />
-          Ensemble Engine v2.0
+          Model information
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -783,12 +782,6 @@ export default function AIRiskPredictionPage() {
               AI Risk Prediction
             </Typography>
             <Chip
-              label="Ensemble Engine v2.0"
-              size="small"
-              icon={<Hub sx={{ fontSize: '13px !important', color: '#7c3aed !important' }} />}
-              sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700, fontSize: '0.78rem', height: 24 }}
-            />
-            <Chip
               label="Decision Support"
               size="small"
               icon={<Shield sx={{ fontSize: '12px !important', color: '#0c1e46 !important' }} />}
@@ -797,7 +790,7 @@ export default function AIRiskPredictionPage() {
           </Box>
           <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
             {stats
-              ? `${totalAnalyzed} case${totalAnalyzed !== 1 ? 's' : ''} analyzed · Last run: ${new Date(stats.lastUpdated).toLocaleTimeString()} · ${stats.modelEngine}`
+              ? `${totalAnalyzed} case${totalAnalyzed !== 1 ? 's' : ''} analyzed · Last run: ${new Date(stats.lastUpdated).toLocaleTimeString()}`
               : '6-model ensemble scoring with actionable intervention recommendations from live case data'}
           </Typography>
         </Box>

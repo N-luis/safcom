@@ -42,7 +42,6 @@ export async function GET(req: NextRequest) {
         mapCases: [],
         totalAnalyzed: 0,
         lastUpdated: new Date().toISOString(),
-        modelEngine: 'SafComm Ensemble Engine v2.0',
       });
     }
 
@@ -224,7 +223,6 @@ export async function GET(req: NextRequest) {
       mapCases,
       totalAnalyzed: scored.length,
       lastUpdated: new Date().toISOString(),
-      modelEngine: 'SafComm Ensemble Engine v2.0',
     });
   } catch (err) {
     console.error('[AI Stats]', err);

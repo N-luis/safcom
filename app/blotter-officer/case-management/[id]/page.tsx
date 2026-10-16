@@ -558,7 +558,6 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed }: {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
           <Psychology sx={{ fontSize: 18, color: '#7c3aed' }} />
           <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>AI Risk Assessment</Typography>
-          <Chip label="Ensemble Engine v2.0" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontSize: '0.72rem', fontWeight: 700, height: 17, ml: 'auto' }} />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: ai ? 1.25 : 0 }}>
