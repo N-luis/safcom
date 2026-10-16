@@ -197,6 +197,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
           : `New follow-up on case ${own.caseNumber}`,
         message: `${note || 'No note added.'}${riskChange ? ` Risk raised to ${riskChange.to}.` : ''}`,
         type: worsening || riskChange ? 'warning' : 'info',
+        // So the officer can open the case straight from the notice.
+        caseId: id,
         userId: null,
       },
     });

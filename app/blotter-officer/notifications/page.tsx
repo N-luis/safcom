@@ -5,14 +5,16 @@ import {
   Box, Typography, Card, CardContent, Button, Chip, IconButton,
   List, ListItem, ListItemText, ListItemIcon, Skeleton,
   ToggleButton, ToggleButtonGroup, Tooltip,
+  Dialog, DialogTitle, DialogContent, DialogActions, Divider,
 } from '@mui/material';
 import {
   NotificationsActive, Warning, Info, CheckCircle, Error,
-  MarkEmailRead, Notifications,
+  MarkEmailRead, Notifications, ArrowForward,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications } from '@/hooks/useApi';
 import { mutate } from 'swr';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const TYPE_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ sx?: object }>; label: string }> = {
@@ -34,10 +36,121 @@ function timeAgo(d: string) {
 
 interface Notif {
   id: string; title: string; message: string; type: string; read: boolean; createdAt: string;
+  /** The case it is about, when it is about one. */
+  case?: {
+    id: string; caseNumber: string; caseType: string; status: string; riskLevel: string;
+  } | null;
+}
+
+const RISK_COLOR: Record<string, string> = {
+  Critical: '#8b5cf6', High: '#ef4444', Medium: '#f97316', Low: '#22c55e',
+};
+
+/**
+ * The whole notification, and a way into the case it is about.
+ *
+ * The list truncates and the row only marked itself read; a notice naming a
+ * case that cannot reach that case leaves the officer to go and find it by
+ * hand, which is the slowest moment in the queue.
+ */
+function NotificationDialog({ n, onClose, onOpenCase }: {
+  n: Notif;
+  onClose: () => void;
+  onOpenCase: (caseId: string) => void;
+}) {
+  const cfg = TYPE_CONFIG[n.type] ?? TYPE_CONFIG.info;
+  const Icon = cfg.icon;
+  const c = n.case;
+
+  return (
+    <Dialog
+      open onClose={onClose} maxWidth="xs" fullWidth
+      aria-labelledby="notification-title"
+      sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}
+    >
+      <DialogTitle id="notification-title" sx={{ pb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+          <Box sx={{
+            width: 38, height: 38, borderRadius: 2.5, bgcolor: `${cfg.color}18`, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon sx={{ fontSize: 19, color: cfg.color }} />
+          </Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3 }}>
+              {n.title}
+            </Typography>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+              {new Date(n.createdAt).toLocaleString('en-PH', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+              })}
+            </Typography>
+          </Box>
+        </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Chip label={cfg.label} size="small"
+          sx={{ bgcolor: `${cfg.color}18`, color: cfg.color, fontWeight: 700, fontSize: '0.72rem', mb: 1.5 }} />
+        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>
+          {n.message}
+        </Typography>
+
+        {c && (
+          <>
+            <Divider sx={{ my: 1.75 }} />
+            {([['Case number', `#${c.caseNumber}`], ['Case type', c.caseType], ['Status', c.status]] as [string, string][])
+              .map(([k, v]) => (
+                <Box key={k} sx={{ display: 'flex', gap: 1, mb: 0.6, flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>{k}</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 700 }}>{v}</Typography>
+                </Box>
+              ))}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>Risk level</Typography>
+              <Chip label={c.riskLevel} size="small" sx={{
+                bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}18`,
+                color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 800, fontSize: '0.74rem', height: 22,
+              }} />
+            </Box>
+          </>
+        )}
+
+        {!c && (
+          <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mt: 1.75 }}>
+            This notice is not about a particular case.
+          </Typography>
+        )}
+      </DialogContent>
+
+      {/* Stacked on a phone so both stay reachable with a thumb. */}
+      <DialogActions sx={{ px: 3, pb: 2.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+        <Button onClick={onClose}
+          sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, color: '#64748b', textTransform: 'none' }}>
+          Close
+        </Button>
+        {c && (
+          <Button
+            variant="contained"
+            onClick={() => onOpenCase(c.id)}
+            endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
+            sx={{
+              minHeight: 44, width: { xs: '100%', sm: 'auto' }, borderRadius: 2,
+              fontWeight: 700, textTransform: 'none',
+            }}
+          >
+            View this case
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 export default function NotificationsPage() {
   const { data, isLoading } = useNotifications(50);
+  const router = useRouter();
+  const [opened, setOpened] = useState<Notif | null>(null);
   const [filter, setFilter]     = useState<'all' | 'unread'>('all');
   const [typeFilter, setTypeFilter] = useState('');
 
@@ -182,14 +295,19 @@ export default function NotificationsPage() {
                     transition={{ delay: idx * 0.04 }}
                   >
                     <ListItem
-                      onClick={() => !n.read && markRead(n.id)}
+                      component="button"
+                      aria-label={`Open notification: ${n.title}`}
+                      onClick={() => { setOpened(n); if (!n.read) markRead(n.id); }}
                       sx={{
                         px: { xs: 1.75, sm: 2.5 }, py: { xs: 1.25, sm: 1.75 },
                         bgcolor: n.read ? 'transparent' : `${cfg.color}06`,
                         borderBottom: '1px solid #f1f5f9',
-                        cursor: n.read ? 'default' : 'pointer',
+                        borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                        width: '100%', textAlign: 'left', font: 'inherit',
+                        cursor: 'pointer', minHeight: 44,
                         transition: 'all 0.15s',
                         '&:hover': { bgcolor: '#f8fafc' },
+                        '&:focus-visible': { outline: `3px solid ${cfg.color}55`, outlineOffset: -3 },
                         alignItems: 'flex-start',
                       }}
                     >
@@ -204,6 +322,10 @@ export default function NotificationsPage() {
                       </ListItemIcon>
 
                       <ListItemText
+                        // MUI wraps these in <span> and <p>; a Chip renders a
+                        // <div>, and a <div> inside a <p> is invalid markup
+                        // that React reports as a hydration error.
+                        slotProps={{ primary: { component: 'div' }, secondary: { component: 'div' } }}
                         primary={
                           <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.2 }}>
                             <Typography component="span" sx={{
@@ -274,6 +396,17 @@ export default function NotificationsPage() {
           </Box>
         )}
       </Card>
+
+      {opened && (
+        <NotificationDialog
+          n={opened}
+          onClose={() => setOpened(null)}
+          onOpenCase={id => {
+            setOpened(null);
+            router.push(`/blotter-officer/case-management/${id}`);
+          }}
+        />
+      )}
     </Box>
   );
 }

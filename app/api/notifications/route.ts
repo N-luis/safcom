@@ -22,6 +22,14 @@ export async function GET(req: NextRequest) {
         where,
         orderBy: { createdAt: 'desc' },
         take: limit,
+        // The case it is about, so the notice can open it. Only the fields the
+        // list needs - not the description, which a blotter officer may not be
+        // entitled to read on a VAWC case.
+        include: {
+          case: {
+            select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true },
+          },
+        },
       }),
       prisma.notification.count({
         where: { OR: [{ userId: auth.user.userId }, { userId: null }], read: false },

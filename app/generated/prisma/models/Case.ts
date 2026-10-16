@@ -375,6 +375,7 @@ export type CaseWhereInput = {
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
   attachments?: Prisma.CaseAttachmentListRelationFilter
   assessment?: Prisma.XOR<Prisma.CaseAssessmentNullableScalarRelationFilter, Prisma.CaseAssessmentWhereInput> | null
@@ -408,6 +409,7 @@ export type CaseOrderByWithRelationInput = {
   assignedTo?: Prisma.UserOrderByWithRelationInput
   resident?: Prisma.ResidentOrderByWithRelationInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
   followUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
   attachments?: Prisma.CaseAttachmentOrderByRelationAggregateInput
   assessment?: Prisma.CaseAssessmentOrderByWithRelationInput
@@ -444,6 +446,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
   attachments?: Prisma.CaseAttachmentListRelationFilter
   assessment?: Prisma.XOR<Prisma.CaseAssessmentNullableScalarRelationFilter, Prisma.CaseAssessmentWhereInput> | null
@@ -537,6 +540,7 @@ export type CaseCreateInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
@@ -568,6 +572,7 @@ export type CaseUncheckedCreateInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
@@ -599,6 +604,7 @@ export type CaseUpdateInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
@@ -630,6 +636,7 @@ export type CaseUncheckedUpdateInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
@@ -965,6 +972,22 @@ export type CaseUpdateOneWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutActivitiesInput, Prisma.CaseUpdateWithoutActivitiesInput>, Prisma.CaseUncheckedUpdateWithoutActivitiesInput>
 }
 
+export type CaseCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutNotificationsInput, Prisma.CaseUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutNotificationsInput, Prisma.CaseUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.CaseUpsertWithoutNotificationsInput
+  disconnect?: Prisma.CaseWhereInput | boolean
+  delete?: Prisma.CaseWhereInput | boolean
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutNotificationsInput, Prisma.CaseUpdateWithoutNotificationsInput>, Prisma.CaseUncheckedUpdateWithoutNotificationsInput>
+}
+
 export type CaseCreateNestedOneWithoutFollowUpsInput = {
   create?: Prisma.XOR<Prisma.CaseCreateWithoutFollowUpsInput, Prisma.CaseUncheckedCreateWithoutFollowUpsInput>
   connectOrCreate?: Prisma.CaseCreateOrConnectWithoutFollowUpsInput
@@ -1004,6 +1027,7 @@ export type CaseCreateWithoutAssignedToInput = {
   reminderSentAt?: Date | string | null
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
@@ -1034,6 +1058,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
@@ -1121,6 +1146,7 @@ export type CaseCreateWithoutAssessmentInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
 }
@@ -1151,6 +1177,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
 }
@@ -1197,6 +1224,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
 }
@@ -1227,6 +1255,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
 }
@@ -1257,6 +1286,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
 }
@@ -1287,6 +1317,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
 }
@@ -1333,6 +1364,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
 }
@@ -1363,6 +1395,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
 }
@@ -1392,6 +1425,7 @@ export type CaseCreateWithoutResidentInput = {
   reminderSentAt?: Date | string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
@@ -1422,6 +1456,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
@@ -1478,6 +1513,7 @@ export type CaseCreateWithoutActivitiesInput = {
   reminderSentAt?: Date | string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
@@ -1508,6 +1544,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
@@ -1554,6 +1591,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
@@ -1584,6 +1622,147 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutNotificationsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutNotificationsInput, Prisma.CaseUncheckedCreateWithoutNotificationsInput>
+}
+
+export type CaseUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutNotificationsInput, Prisma.CaseUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutNotificationsInput, Prisma.CaseUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutNotificationsInput, Prisma.CaseUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type CaseUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
@@ -1615,6 +1794,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
 }
@@ -1645,6 +1825,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
   assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
 }
@@ -1691,6 +1872,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
 }
@@ -1721,6 +1903,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
 }
@@ -1776,6 +1959,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
@@ -1806,6 +1990,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
@@ -1888,6 +2073,7 @@ export type CaseUpdateWithoutResidentInput = {
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
@@ -1918,6 +2104,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
   assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
@@ -1956,12 +2143,14 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
 
 export type CaseCountOutputType = {
   activities: number
+  notifications: number
   followUps: number
   attachments: number
 }
 
 export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   activities?: boolean | CaseCountOutputTypeCountActivitiesArgs
+  notifications?: boolean | CaseCountOutputTypeCountNotificationsArgs
   followUps?: boolean | CaseCountOutputTypeCountFollowUpsArgs
   attachments?: boolean | CaseCountOutputTypeCountAttachmentsArgs
 }
@@ -1981,6 +2170,13 @@ export type CaseCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type CaseCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ActivityWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
 }
 
 /**
@@ -2026,6 +2222,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
+  notifications?: boolean | Prisma.Case$notificationsArgs<ExtArgs>
   followUps?: boolean | Prisma.Case$followUpsArgs<ExtArgs>
   attachments?: boolean | Prisma.Case$attachmentsArgs<ExtArgs>
   assessment?: boolean | Prisma.Case$assessmentArgs<ExtArgs>
@@ -2122,6 +2319,7 @@ export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
+  notifications?: boolean | Prisma.Case$notificationsArgs<ExtArgs>
   followUps?: boolean | Prisma.Case$followUpsArgs<ExtArgs>
   attachments?: boolean | Prisma.Case$attachmentsArgs<ExtArgs>
   assessment?: boolean | Prisma.Case$assessmentArgs<ExtArgs>
@@ -2142,6 +2340,7 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     assignedTo: Prisma.$UserPayload<ExtArgs> | null
     resident: Prisma.$ResidentPayload<ExtArgs> | null
     activities: Prisma.$ActivityPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
     followUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
     attachments: Prisma.$CaseAttachmentPayload<ExtArgs>[]
     assessment: Prisma.$CaseAssessmentPayload<ExtArgs> | null
@@ -2590,6 +2789,7 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   assignedTo<T extends Prisma.Case$assignedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$assignedToArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   resident<T extends Prisma.Case$residentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$residentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activities<T extends Prisma.Case$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.Case$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   followUps<T extends Prisma.Case$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attachments<T extends Prisma.Case$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessment<T extends Prisma.Case$assessmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$assessmentArgs<ExtArgs>>): Prisma.Prisma__CaseAssessmentClient<runtime.Types.Result.GetResult<Prisma.$CaseAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -3106,6 +3306,30 @@ export type Case$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ActivityScalarFieldEnum | Prisma.ActivityScalarFieldEnum[]
+}
+
+/**
+ * Case.notifications
+ */
+export type Case$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

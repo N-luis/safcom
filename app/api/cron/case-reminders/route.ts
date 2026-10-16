@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
     for (const c of stale) {
       await prisma.notification.create({
         data: {
+          caseId: c.id,
           title: `Any update on case ${c.caseNumber}?`,
           message: 'Let the barangay know whether this is still happening or has been resolved. Open the case to add a quick update.',
           type: 'info',
