@@ -23,8 +23,18 @@ export type CaseIntakeModel = runtime.Types.Result.DefaultSelection<Prisma.$Case
 
 export type AggregateCaseIntake = {
   _count: CaseIntakeCountAggregateOutputType | null
+  _avg: CaseIntakeAvgAggregateOutputType | null
+  _sum: CaseIntakeSumAggregateOutputType | null
   _min: CaseIntakeMinAggregateOutputType | null
   _max: CaseIntakeMaxAggregateOutputType | null
+}
+
+export type CaseIntakeAvgAggregateOutputType = {
+  matrixLevel: number | null
+}
+
+export type CaseIntakeSumAggregateOutputType = {
+  matrixLevel: number | null
 }
 
 export type CaseIntakeMinAggregateOutputType = {
@@ -42,6 +52,13 @@ export type CaseIntakeMinAggregateOutputType = {
   immediateSafetyConcern: boolean | null
   requiresOfficerReview: boolean | null
   engineVersion: string | null
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
+  assessmentStatus: string | null
+  sourceVerified: boolean | null
+  knowledgeBaseStatus: string | null
+  assessedBy: string | null
   createdAt: Date | null
 }
 
@@ -60,6 +77,13 @@ export type CaseIntakeMaxAggregateOutputType = {
   immediateSafetyConcern: boolean | null
   requiresOfficerReview: boolean | null
   engineVersion: string | null
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
+  assessmentStatus: string | null
+  sourceVerified: boolean | null
+  knowledgeBaseStatus: string | null
+  assessedBy: string | null
   createdAt: Date | null
 }
 
@@ -86,10 +110,29 @@ export type CaseIntakeCountAggregateOutputType = {
   requiresOfficerReview: number
   reviewReasons: number
   engineVersion: number
+  framework: number
+  matrixLevel: number
+  matrixLabel: number
+  matchedCriteria: number
+  assessmentStatus: number
+  alternativeCategories: number
+  levelCaveats: number
+  matrixReferences: number
+  sourceVerified: number
+  knowledgeBaseStatus: number
+  assessedBy: number
   createdAt: number
   _all: number
 }
 
+
+export type CaseIntakeAvgAggregateInputType = {
+  matrixLevel?: true
+}
+
+export type CaseIntakeSumAggregateInputType = {
+  matrixLevel?: true
+}
 
 export type CaseIntakeMinAggregateInputType = {
   id?: true
@@ -106,6 +149,13 @@ export type CaseIntakeMinAggregateInputType = {
   immediateSafetyConcern?: true
   requiresOfficerReview?: true
   engineVersion?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
+  assessmentStatus?: true
+  sourceVerified?: true
+  knowledgeBaseStatus?: true
+  assessedBy?: true
   createdAt?: true
 }
 
@@ -124,6 +174,13 @@ export type CaseIntakeMaxAggregateInputType = {
   immediateSafetyConcern?: true
   requiresOfficerReview?: true
   engineVersion?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
+  assessmentStatus?: true
+  sourceVerified?: true
+  knowledgeBaseStatus?: true
+  assessedBy?: true
   createdAt?: true
 }
 
@@ -150,6 +207,17 @@ export type CaseIntakeCountAggregateInputType = {
   requiresOfficerReview?: true
   reviewReasons?: true
   engineVersion?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
+  matchedCriteria?: true
+  assessmentStatus?: true
+  alternativeCategories?: true
+  levelCaveats?: true
+  matrixReferences?: true
+  sourceVerified?: true
+  knowledgeBaseStatus?: true
+  assessedBy?: true
   createdAt?: true
   _all?: true
 }
@@ -192,6 +260,18 @@ export type CaseIntakeAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseIntakeAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseIntakeSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseIntakeMinAggregateInputType
@@ -222,6 +302,8 @@ export type CaseIntakeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: CaseIntakeCountAggregateInputType | true
+  _avg?: CaseIntakeAvgAggregateInputType
+  _sum?: CaseIntakeSumAggregateInputType
   _min?: CaseIntakeMinAggregateInputType
   _max?: CaseIntakeMaxAggregateInputType
 }
@@ -249,8 +331,21 @@ export type CaseIntakeGroupByOutputType = {
   requiresOfficerReview: boolean
   reviewReasons: runtime.JsonValue
   engineVersion: string
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
+  matchedCriteria: runtime.JsonValue | null
+  assessmentStatus: string | null
+  alternativeCategories: runtime.JsonValue | null
+  levelCaveats: runtime.JsonValue | null
+  matrixReferences: runtime.JsonValue | null
+  sourceVerified: boolean | null
+  knowledgeBaseStatus: string | null
+  assessedBy: string | null
   createdAt: Date
   _count: CaseIntakeCountAggregateOutputType | null
+  _avg: CaseIntakeAvgAggregateOutputType | null
+  _sum: CaseIntakeSumAggregateOutputType | null
   _min: CaseIntakeMinAggregateOutputType | null
   _max: CaseIntakeMaxAggregateOutputType | null
 }
@@ -296,6 +391,17 @@ export type CaseIntakeWhereInput = {
   requiresOfficerReview?: Prisma.BoolFilter<"CaseIntake"> | boolean
   reviewReasons?: Prisma.JsonFilter<"CaseIntake">
   engineVersion?: Prisma.StringFilter<"CaseIntake"> | string
+  framework?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  matrixLevel?: Prisma.IntNullableFilter<"CaseIntake"> | number | null
+  matrixLabel?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  matchedCriteria?: Prisma.JsonNullableFilter<"CaseIntake">
+  assessmentStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  alternativeCategories?: Prisma.JsonNullableFilter<"CaseIntake">
+  levelCaveats?: Prisma.JsonNullableFilter<"CaseIntake">
+  matrixReferences?: Prisma.JsonNullableFilter<"CaseIntake">
+  sourceVerified?: Prisma.BoolNullableFilter<"CaseIntake"> | boolean | null
+  knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
@@ -323,6 +429,17 @@ export type CaseIntakeOrderByWithRelationInput = {
   requiresOfficerReview?: Prisma.SortOrder
   reviewReasons?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  framework?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matchedCriteria?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessmentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  alternativeCategories?: Prisma.SortOrderInput | Prisma.SortOrder
+  levelCaveats?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixReferences?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceVerified?: Prisma.SortOrderInput | Prisma.SortOrder
+  knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
@@ -353,6 +470,17 @@ export type CaseIntakeWhereUniqueInput = Prisma.AtLeast<{
   requiresOfficerReview?: Prisma.BoolFilter<"CaseIntake"> | boolean
   reviewReasons?: Prisma.JsonFilter<"CaseIntake">
   engineVersion?: Prisma.StringFilter<"CaseIntake"> | string
+  framework?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  matrixLevel?: Prisma.IntNullableFilter<"CaseIntake"> | number | null
+  matrixLabel?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  matchedCriteria?: Prisma.JsonNullableFilter<"CaseIntake">
+  assessmentStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  alternativeCategories?: Prisma.JsonNullableFilter<"CaseIntake">
+  levelCaveats?: Prisma.JsonNullableFilter<"CaseIntake">
+  matrixReferences?: Prisma.JsonNullableFilter<"CaseIntake">
+  sourceVerified?: Prisma.BoolNullableFilter<"CaseIntake"> | boolean | null
+  knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id" | "caseId">
@@ -380,10 +508,23 @@ export type CaseIntakeOrderByWithAggregationInput = {
   requiresOfficerReview?: Prisma.SortOrder
   reviewReasons?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  framework?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matchedCriteria?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessmentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  alternativeCategories?: Prisma.SortOrderInput | Prisma.SortOrder
+  levelCaveats?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixReferences?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceVerified?: Prisma.SortOrderInput | Prisma.SortOrder
+  knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CaseIntakeCountOrderByAggregateInput
+  _avg?: Prisma.CaseIntakeAvgOrderByAggregateInput
   _max?: Prisma.CaseIntakeMaxOrderByAggregateInput
   _min?: Prisma.CaseIntakeMinOrderByAggregateInput
+  _sum?: Prisma.CaseIntakeSumOrderByAggregateInput
 }
 
 export type CaseIntakeScalarWhereWithAggregatesInput = {
@@ -412,6 +553,17 @@ export type CaseIntakeScalarWhereWithAggregatesInput = {
   requiresOfficerReview?: Prisma.BoolWithAggregatesFilter<"CaseIntake"> | boolean
   reviewReasons?: Prisma.JsonWithAggregatesFilter<"CaseIntake">
   engineVersion?: Prisma.StringWithAggregatesFilter<"CaseIntake"> | string
+  framework?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  matrixLevel?: Prisma.IntNullableWithAggregatesFilter<"CaseIntake"> | number | null
+  matrixLabel?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  matchedCriteria?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  assessmentStatus?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  alternativeCategories?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  levelCaveats?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  matrixReferences?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  sourceVerified?: Prisma.BoolNullableWithAggregatesFilter<"CaseIntake"> | boolean | null
+  knowledgeBaseStatus?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  assessedBy?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseIntake"> | Date | string
 }
 
@@ -437,6 +589,17 @@ export type CaseIntakeCreateInput = {
   requiresOfficerReview?: boolean
   reviewReasons: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion: string
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: boolean | null
+  knowledgeBaseStatus?: string | null
+  assessedBy?: string | null
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutIntakeInput
 }
@@ -464,6 +627,17 @@ export type CaseIntakeUncheckedCreateInput = {
   requiresOfficerReview?: boolean
   reviewReasons: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion: string
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: boolean | null
+  knowledgeBaseStatus?: string | null
+  assessedBy?: string | null
   createdAt?: Date | string
 }
 
@@ -489,6 +663,17 @@ export type CaseIntakeUpdateInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutIntakeNestedInput
 }
@@ -516,6 +701,17 @@ export type CaseIntakeUncheckedUpdateInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -542,6 +738,17 @@ export type CaseIntakeCreateManyInput = {
   requiresOfficerReview?: boolean
   reviewReasons: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion: string
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: boolean | null
+  knowledgeBaseStatus?: string | null
+  assessedBy?: string | null
   createdAt?: Date | string
 }
 
@@ -567,6 +774,17 @@ export type CaseIntakeUpdateManyMutationInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -593,6 +811,17 @@ export type CaseIntakeUncheckedUpdateManyInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -624,7 +853,22 @@ export type CaseIntakeCountOrderByAggregateInput = {
   requiresOfficerReview?: Prisma.SortOrder
   reviewReasons?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
+  matchedCriteria?: Prisma.SortOrder
+  assessmentStatus?: Prisma.SortOrder
+  alternativeCategories?: Prisma.SortOrder
+  levelCaveats?: Prisma.SortOrder
+  matrixReferences?: Prisma.SortOrder
+  sourceVerified?: Prisma.SortOrder
+  knowledgeBaseStatus?: Prisma.SortOrder
+  assessedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type CaseIntakeAvgOrderByAggregateInput = {
+  matrixLevel?: Prisma.SortOrder
 }
 
 export type CaseIntakeMaxOrderByAggregateInput = {
@@ -642,6 +886,13 @@ export type CaseIntakeMaxOrderByAggregateInput = {
   immediateSafetyConcern?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
+  assessmentStatus?: Prisma.SortOrder
+  sourceVerified?: Prisma.SortOrder
+  knowledgeBaseStatus?: Prisma.SortOrder
+  assessedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -660,7 +911,18 @@ export type CaseIntakeMinOrderByAggregateInput = {
   immediateSafetyConcern?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
+  assessmentStatus?: Prisma.SortOrder
+  sourceVerified?: Prisma.SortOrder
+  knowledgeBaseStatus?: Prisma.SortOrder
+  assessedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type CaseIntakeSumOrderByAggregateInput = {
+  matrixLevel?: Prisma.SortOrder
 }
 
 export type CaseIntakeCreateNestedOneWithoutCaseInput = {
@@ -695,6 +957,18 @@ export type CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CaseIntakeUpdateToOneWithWhereWithoutCaseInput, Prisma.CaseIntakeUpdateWithoutCaseInput>, Prisma.CaseIntakeUncheckedUpdateWithoutCaseInput>
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
 export type CaseIntakeCreateWithoutCaseInput = {
   id?: string
   narrative: string
@@ -717,6 +991,17 @@ export type CaseIntakeCreateWithoutCaseInput = {
   requiresOfficerReview?: boolean
   reviewReasons: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion: string
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: boolean | null
+  knowledgeBaseStatus?: string | null
+  assessedBy?: string | null
   createdAt?: Date | string
 }
 
@@ -742,6 +1027,17 @@ export type CaseIntakeUncheckedCreateWithoutCaseInput = {
   requiresOfficerReview?: boolean
   reviewReasons: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion: string
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: boolean | null
+  knowledgeBaseStatus?: string | null
+  assessedBy?: string | null
   createdAt?: Date | string
 }
 
@@ -783,6 +1079,17 @@ export type CaseIntakeUpdateWithoutCaseInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -808,6 +1115,17 @@ export type CaseIntakeUncheckedUpdateWithoutCaseInput = {
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewReasons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   engineVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matchedCriteria?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  assessmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCategories?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  levelCaveats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixReferences?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -836,6 +1154,17 @@ export type CaseIntakeSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   requiresOfficerReview?: boolean
   reviewReasons?: boolean
   engineVersion?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
+  matchedCriteria?: boolean
+  assessmentStatus?: boolean
+  alternativeCategories?: boolean
+  levelCaveats?: boolean
+  matrixReferences?: boolean
+  sourceVerified?: boolean
+  knowledgeBaseStatus?: boolean
+  assessedBy?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -863,6 +1192,17 @@ export type CaseIntakeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   requiresOfficerReview?: boolean
   reviewReasons?: boolean
   engineVersion?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
+  matchedCriteria?: boolean
+  assessmentStatus?: boolean
+  alternativeCategories?: boolean
+  levelCaveats?: boolean
+  matrixReferences?: boolean
+  sourceVerified?: boolean
+  knowledgeBaseStatus?: boolean
+  assessedBy?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -890,6 +1230,17 @@ export type CaseIntakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   requiresOfficerReview?: boolean
   reviewReasons?: boolean
   engineVersion?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
+  matchedCriteria?: boolean
+  assessmentStatus?: boolean
+  alternativeCategories?: boolean
+  levelCaveats?: boolean
+  matrixReferences?: boolean
+  sourceVerified?: boolean
+  knowledgeBaseStatus?: boolean
+  assessedBy?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -917,10 +1268,21 @@ export type CaseIntakeSelectScalar = {
   requiresOfficerReview?: boolean
   reviewReasons?: boolean
   engineVersion?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
+  matchedCriteria?: boolean
+  assessmentStatus?: boolean
+  alternativeCategories?: boolean
+  levelCaveats?: boolean
+  matrixReferences?: boolean
+  sourceVerified?: boolean
+  knowledgeBaseStatus?: boolean
+  assessedBy?: boolean
   createdAt?: boolean
 }
 
-export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "createdAt", ExtArgs["result"]["caseIntake"]>
+export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "framework" | "matrixLevel" | "matrixLabel" | "matchedCriteria" | "assessmentStatus" | "alternativeCategories" | "levelCaveats" | "matrixReferences" | "sourceVerified" | "knowledgeBaseStatus" | "assessedBy" | "createdAt", ExtArgs["result"]["caseIntake"]>
 export type CaseIntakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -982,6 +1344,47 @@ export type $CaseIntakePayload<ExtArgs extends runtime.Types.Extensions.Internal
      * Which engine produced this, so an old result can be told from a new one.
      */
     engineVersion: string
+    /**
+     * BLOTTER | VAWC
+     */
+    framework: string | null
+    /**
+     * 1-5 on that matrix; null when no criterion was met.
+     */
+    matrixLevel: number | null
+    /**
+     * The level's label exactly as the source document gives it.
+     */
+    matrixLabel: string | null
+    /**
+     * Each criterion met, in the document's words, with the resident's words.
+     */
+    matchedCriteria: runtime.JsonValue | null
+    /**
+     * NEEDS_MORE_INFORMATION | PRELIMINARY | FOR_REVIEW
+     */
+    assessmentStatus: string | null
+    alternativeCategories: runtime.JsonValue | null
+    /**
+     * Unknowns that could move the level once answered.
+     */
+    levelCaveats: runtime.JsonValue | null
+    /**
+     * The source passages retrieved for this report, with their scores.
+     */
+    matrixReferences: runtime.JsonValue | null
+    /**
+     * Whether the matched criteria were found in the imported source text.
+     */
+    sourceVerified: boolean | null
+    /**
+     * ok | no_match | no_documents | unavailable | empty_query
+     */
+    knowledgeBaseStatus: string | null
+    /**
+     * What made the assessment. No external AI provider is called.
+     */
+    assessedBy: string | null
     createdAt: Date
   }, ExtArgs["result"]["caseIntake"]>
   composites: {}
@@ -1429,6 +1832,17 @@ export interface CaseIntakeFieldRefs {
   readonly requiresOfficerReview: Prisma.FieldRef<"CaseIntake", 'Boolean'>
   readonly reviewReasons: Prisma.FieldRef<"CaseIntake", 'Json'>
   readonly engineVersion: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly framework: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly matrixLevel: Prisma.FieldRef<"CaseIntake", 'Int'>
+  readonly matrixLabel: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly matchedCriteria: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly assessmentStatus: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly alternativeCategories: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly levelCaveats: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly matrixReferences: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly sourceVerified: Prisma.FieldRef<"CaseIntake", 'Boolean'>
+  readonly knowledgeBaseStatus: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly assessedBy: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseIntake", 'DateTime'>
 }
     

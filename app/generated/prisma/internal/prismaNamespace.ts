@@ -397,7 +397,8 @@ export const ModelName = {
   CaseFollowUp: 'CaseFollowUp',
   Message: 'Message',
   CaseIntake: 'CaseIntake',
-  AssessmentHistory: 'AssessmentHistory'
+  AssessmentHistory: 'AssessmentHistory',
+  RiskMatrixChunk: 'RiskMatrixChunk'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory"
+    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RiskMatrixChunk: {
+      payload: Prisma.$RiskMatrixChunkPayload<ExtArgs>
+      fields: Prisma.RiskMatrixChunkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RiskMatrixChunkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RiskMatrixChunkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        findFirst: {
+          args: Prisma.RiskMatrixChunkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RiskMatrixChunkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        findMany: {
+          args: Prisma.RiskMatrixChunkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>[]
+        }
+        create: {
+          args: Prisma.RiskMatrixChunkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        createMany: {
+          args: Prisma.RiskMatrixChunkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RiskMatrixChunkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>[]
+        }
+        delete: {
+          args: Prisma.RiskMatrixChunkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        update: {
+          args: Prisma.RiskMatrixChunkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        deleteMany: {
+          args: Prisma.RiskMatrixChunkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RiskMatrixChunkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RiskMatrixChunkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>[]
+        }
+        upsert: {
+          args: Prisma.RiskMatrixChunkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RiskMatrixChunkPayload>
+        }
+        aggregate: {
+          args: Prisma.RiskMatrixChunkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRiskMatrixChunk>
+        }
+        groupBy: {
+          args: Prisma.RiskMatrixChunkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RiskMatrixChunkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RiskMatrixChunkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RiskMatrixChunkCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1741,6 +1816,17 @@ export const CaseIntakeScalarFieldEnum = {
   requiresOfficerReview: 'requiresOfficerReview',
   reviewReasons: 'reviewReasons',
   engineVersion: 'engineVersion',
+  framework: 'framework',
+  matrixLevel: 'matrixLevel',
+  matrixLabel: 'matrixLabel',
+  matchedCriteria: 'matchedCriteria',
+  assessmentStatus: 'assessmentStatus',
+  alternativeCategories: 'alternativeCategories',
+  levelCaveats: 'levelCaveats',
+  matrixReferences: 'matrixReferences',
+  sourceVerified: 'sourceVerified',
+  knowledgeBaseStatus: 'knowledgeBaseStatus',
+  assessedBy: 'assessedBy',
   createdAt: 'createdAt'
 } as const
 
@@ -1754,6 +1840,9 @@ export const AssessmentHistoryScalarFieldEnum = {
   riskLevel: 'riskLevel',
   caseType: 'caseType',
   previousCaseType: 'previousCaseType',
+  framework: 'framework',
+  matrixLevel: 'matrixLevel',
+  matrixLabel: 'matrixLabel',
   informationCompleteness: 'informationCompleteness',
   rationale: 'rationale',
   actorId: 'actorId',
@@ -1763,6 +1852,28 @@ export const AssessmentHistoryScalarFieldEnum = {
 } as const
 
 export type AssessmentHistoryScalarFieldEnum = (typeof AssessmentHistoryScalarFieldEnum)[keyof typeof AssessmentHistoryScalarFieldEnum]
+
+
+export const RiskMatrixChunkScalarFieldEnum = {
+  id: 'id',
+  documentType: 'documentType',
+  documentName: 'documentName',
+  sourceFile: 'sourceFile',
+  sourceHash: 'sourceHash',
+  chunkIndex: 'chunkIndex',
+  sectionTitle: 'sectionTitle',
+  content: 'content',
+  pageNumber: 'pageNumber',
+  riskLevel: 'riskLevel',
+  riskLabel: 'riskLabel',
+  fields: 'fields',
+  frameworkStatus: 'frameworkStatus',
+  isCurrent: 'isCurrent',
+  importedAt: 'importedAt',
+  supersededAt: 'supersededAt'
+} as const
+
+export type RiskMatrixChunkScalarFieldEnum = (typeof RiskMatrixChunkScalarFieldEnum)[keyof typeof RiskMatrixChunkScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2033,6 +2144,7 @@ export type GlobalOmitConfig = {
   message?: Prisma.MessageOmit
   caseIntake?: Prisma.CaseIntakeOmit
   assessmentHistory?: Prisma.AssessmentHistoryOmit
+  riskMatrixChunk?: Prisma.RiskMatrixChunkOmit
 }
 
 /* Types for Logging */

@@ -20,7 +20,11 @@
     "test:access": "npx tsx tests/caseAccess.test.ts",
     "test:streets": "npx tsx tests/streetTargets.test.ts",
     "test:schema": "npx tsx tests/classificationSchema.test.ts",
-    "test:intake": "npx tsx tests/intake.test.ts"
+    "test:intake": "npx tsx tests/intake.test.ts",
+    "test:matrices": "npx tsx tests/riskMatrices.test.ts",
+    "test:kb": "npx tsx --env-file=.env --conditions=react-server tests/knowledgeBase.test.ts",
+    "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
+    "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
@@ -70,6 +74,7 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "pdfjs-dist": "^4.10.38",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
     "typescript": "^5"

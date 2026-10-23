@@ -103,3 +103,13 @@ export type CaseIntake = Prisma.CaseIntakeModel
  * replaced stays readable underneath it.
  */
 export type AssessmentHistory = Prisma.AssessmentHistoryModel
+/**
+ * Model RiskMatrixChunk
+ * The risk classification matrices, chunked for search.
+ * 
+ * Created by prisma/sql/001_risk_matrix_knowledge_base.sql (which also
+ * installs pg_trgm) and filled by scripts/ingest-risk-matrices.ts. Declared
+ * here so `prisma db push` keeps the table and its trigram index instead of
+ * dropping what it does not recognise. Searched in lib/knowledgeBase.ts.
+ */
+export type RiskMatrixChunk = Prisma.RiskMatrixChunkModel

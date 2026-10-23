@@ -248,7 +248,7 @@ const T = {
   injuryNone: ['walang nasaktan', 'walang nasugatan', 'wala naman nasaktan', 'no one was hurt', 'nobody was hurt'],
 
   neighbors: ['kapitbahay', 'katabi ng bahay', 'kapit-bahay', 'neighbour', 'neighbor', 'kalapit'],
-  family: ['kapatid', 'tatay', 'nanay', 'ama', 'ina', 'tiyo', 'tiya', 'pamilya', 'brother', 'sister', 'father', 'mother'],
+  family: ['kapatid', 'tatay', 'nanay', 'ama', 'ina', 'tiyo', 'tiya', 'tito', 'tita', 'pinsan', 'bayaw', 'hipag', 'biyenan', 'pamilya', 'brother', 'sister', 'father', 'mother', 'uncle', 'aunt', 'cousin', 'in-law'],
   partner: ['asawa', 'partner', 'kinakasama', 'live-in', 'nobyo', 'nobya', 'boyfriend', 'girlfriend', 'husband', 'wife'],
   strangers: ['hindi ko kilala', 'estranghero', 'stranger', 'unknown person'],
 
@@ -260,7 +260,9 @@ const T = {
   stable: ['ganun pa rin', 'ganoon pa rin', 'wala pa ring pagbabago', 'same as before', 'no change'],
 
   threatExplicit: ['papatayin', 'sasaktan', 'kill you', 'kill me', 'bugbugin kita', 'paparusahan'],
-  threatVerbal: ['nagbanta', 'binantaan', 'pinagbantaan', 'threatened', 'nananakot', 'tinakot'],
+  threatVerbal: ['nagbanta', 'binantaan', 'pinagbantaan', 'threatened', 'nananakot', 'tinakot',
+    // Veiled, but a threat all the same.
+    'pagsisisihan mo', 'pagsisisihan ko', 'magsisisi ka', 'humanda ka', "you'll regret", 'you will regret', 'watch your back'],
   threatNone: ['walang banta', 'hindi naman nagbanta', 'hindi nagbanta', 'hindi ako binantaan',
     'hindi ako tinakot', 'no threats', 'did not threaten', "didn't threaten", 'never threatened'],
 
@@ -345,6 +347,37 @@ const T = {
     'cyberbullying'],
   trespass: ['pumasok sa bakuran', 'pumasok nang walang paalam', 'trespass', 'entered without permission'],
   nuisance: ['tambay', 'nag-iinuman sa kalsada', 'nakaharang', 'loitering', 'blocking the road'],
+
+  // ── For the risk matrices (lib/riskMatrices.ts): each group is one of the
+  // matrices' own indicators, in the words residents use for it. ──
+  choking: ['sinakal', 'sinasakal', 'choked', 'choking', 'strangled', 'strangulation'],
+  severeBeating: ['binugbog', 'pinagbubugbog', 'bugbog sarado', 'beat me up', 'beaten up', 'severely beaten'],
+  killThreat: ['papatayin kita', 'papatayin ka', 'papatayin daw', 'papatayin niya ako', 'papatayin ako',
+    'kill you', 'kill me', 'threatened to kill'],
+  stabShoot: ['sinaksak', 'pinagsasaksak', 'binaril', 'pinagbabaril', 'stabbed', 'shot me', 'shooting', 'stabbing'],
+  hostage: ['hostage', 'binihag', 'bihag'],
+  confinement: ['ikinulong', 'kinulong', 'ayaw akong palabasin', 'hindi ako pinapalabas', 'locked me in',
+    'locked in the room', 'would not let me leave'],
+  pursuit: ['hinahabol ako', 'hinabol ako', 'hinahabol niya', 'chasing me', 'chased me'],
+  messages: ['text nang text', 'paulit-ulit na mensahe', 'paulit-ulit na nagme-message', 'tawag nang tawag',
+    'unwanted messages', 'keeps messaging', 'keeps texting', 'keeps calling'],
+  intimidation: ['tinatakot', 'nananakot', 'pananakot', 'intimidation', 'intimidating', 'intimidated'],
+  coercive: ['kinokontrol', 'bawal akong lumabas', 'hindi ako pinapayagang lumabas', 'binabantayan ang cellphone',
+    'controlling', 'controls everything', 'coercive'],
+  landDispute: ['titulo ng lupa', 'sukat ng lupa', 'hangganan ng lupa', 'property line', 'land title', 'lot boundary'],
+  debt: ['utang', 'hindi nagbabayad', 'pinautang', 'debt', 'owes me', 'unpaid loan'],
+  tenant: ['umuupa', 'inuupahan', 'bayad sa upa', 'renta', 'nangungupahan', 'may-ari ng bahay', 'pinapaalis kami', 'landlord', 'tenant', 'rent'],
+  slander: ['paninirang-puri', 'sinisiraan', 'chismis', 'tsismis', 'slander', 'defamation', 'spreading lies'],
+  accidentalDamage: ['hindi sinasadya', 'aksidenteng nasira', 'accidentally damaged', 'accidentally broke'],
+  attemptedKilling: ['tinangkang patayin', 'tangkang pagpatay', 'attempted to kill', 'tried to kill', 'attempted murder'],
+  death: ['namatay', 'binawian ng buhay', 'patay na', 'died', 'was killed', 'killed him', 'killed her'],
+  casualties: ['maraming sugatan', 'maraming nasaktan', 'multiple casualties', 'many injured', 'several injured'],
+  curfew: ['curfew', 'lampas na sa oras', 'hatinggabi', 'madaling araw', 'past midnight'],
+  // Something still going on as the report is written.
+  ongoing: ['nangyayari ngayon', 'nangyayari pa', 'hanggang ngayon', 'ngayon mismo', 'happening now',
+    'still happening', 'right now', 'ongoing'],
+  publicPlace: ['sa kalsada', 'sa kalye', 'sa harap ng tindahan', 'sa labas', 'sa plaza', 'in public', 'on the street'],
+  rude: ['bastos', 'walang galang', 'rude', 'disrespectful'],
   govt: ['barangay official', 'kagawad', 'kapitan', 'opisyal ng barangay', 'government office', 'city hall'],
 };
 

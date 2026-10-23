@@ -2,6 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { prisma } from './prisma';
 import { analyzeIntake, SLOT_ORDER, type IntakeAnalysis, type IntakeAnswer, type SlotId } from './intake';
+import { searchMatrix, levelChunk, type KbDb, type SearchStatus } from './knowledgeBase';
 
 /**
  * The intake, run on the server against this resident's own history.
@@ -22,7 +23,7 @@ export const answerSchema = z.object({
 
 export const answersSchema = z.array(answerSchema).max(SLOT_ORDER.length * 2).optional();
 
-export async function runIntake(params: {
+async function analyse(params: {
   residentId: string;
   narrative: string;
   answers?: IntakeAnswer[];
@@ -62,6 +63,119 @@ export async function runIntake(params: {
     gender: params.gender,
     priorSameType,
     areaRecentSameType,
+  });
+}
+
+/** A cited passage of a matrix, as stored with the case and shown to officers. */
+export interface MatrixReference {
+  sectionTitle: string;
+  riskLevel: number | null;
+  riskLabel: string | null;
+  pageNumber: number | null;
+  score: number;
+  strength: 'strong' | 'weak';
+  /** The document's own "Suggested Action" for that level, when it is a level row. */
+  suggestedAction: string | null;
+  links: string[];
+  excerpt: string;
+}
+
+/** What retrieval added: the cited source, and whether the decision checks out against it. */
+export interface Grounding {
+  knowledgeBaseStatus: SearchStatus;
+  references: MatrixReference[];
+  /**
+   * True when every criterion the decision rests on is found, word for word,
+   * in the stored source row for that level. False: it was not - the case is
+   * sent for review. Null: there was nothing to check, or the source could
+   * not be reached.
+   */
+  sourceVerified: boolean | null;
+  /** How the assessment was made. No external model is called. */
+  assessedBy: string;
+}
+
+export type GroundedAnalysis = IntakeAnalysis & { grounding: Grounding };
+
+function toReference(h: { sectionTitle: string; riskLevel: number | null; riskLabel: string | null; pageNumber: number | null;
+  score: number; strength: 'strong' | 'weak'; content: string; fields: Record<string, unknown> | null }): MatrixReference {
+  const f = (h.fields ?? {}) as Record<string, unknown>;
+  return {
+    sectionTitle: h.sectionTitle, riskLevel: h.riskLevel, riskLabel: h.riskLabel, pageNumber: h.pageNumber,
+    score: Math.round(h.score * 100) / 100, strength: h.strength,
+    suggestedAction: typeof f['Suggested Action'] === 'string' ? f['Suggested Action'] as string : null,
+    links: Array.isArray(f.links) ? (f.links as string[]) : [],
+    excerpt: h.content.length > 600 ? h.content.slice(0, 597) + '…' : h.content,
+  };
+}
+
+/**
+ * The intake, run on the server, with the matrix it applied cited from the
+ * knowledge base. Retrieval never changes the level: it supplies the source
+ * text and checks the decision against it. If the knowledge base is down,
+ * the assessment still completes - it just cannot be checked, and says so.
+ */
+export async function runIntake(
+  params: Parameters<typeof analyse>[0],
+  db?: KbDb,
+): Promise<GroundedAnalysis> {
+  const analysis = await analyse(params);
+  const r = analysis.result;
+
+  // The facts' names reach the search as the matrices' own English wording,
+  // so a Tagalog report finds the English source text.
+  const search = await searchMatrix(r.framework, params.narrative, { facts: analysis.facts, limit: 3 }, db);
+  const references = search.hits.map(toReference);
+
+  let sourceVerified: boolean | null = null;
+  if (r.matrixLevel && search.status !== 'unavailable') {
+    const row = await levelChunk(r.framework, r.matrixLevel, db);
+    if (row) {
+      const text = row.content.toLowerCase();
+      sourceVerified = r.matchedCriteria
+        .filter(m => m.level === r.matrixLevel)
+        .every(m => text.includes(m.indicator.toLowerCase()))
+        && (row.riskLabel ?? '') === r.matrixLabel;
+      if (!references.some(x => x.riskLevel === r.matrixLevel)) {
+        references.unshift(toReference(row));
+      }
+    } else {
+      sourceVerified = false;
+    }
+  }
+
+  if (sourceVerified === false) {
+    r.requiresOfficerReview = true;
+    r.reviewReasons.push('The decision could not be matched to the imported matrix text');
+    if (r.assessmentStatus === 'PRELIMINARY') r.assessmentStatus = 'FOR_REVIEW';
+  }
+  if (search.status === 'unavailable') {
+    r.requiresOfficerReview = true;
+    r.reviewReasons.push('The risk-matrix knowledge base could not be reached; the decision is unchecked');
+  }
+
+  return {
+    ...analysis,
+    grounding: {
+      knowledgeBaseStatus: search.status,
+      references,
+      sourceVerified,
+      assessedBy: `${r.engineVersion} (rule-based; no external AI provider)`,
+    },
+  };
+}
+
+/** A stored transcript, turned back into the answers it records. */
+export function answersFromTranscript(turns: unknown): IntakeAnswer[] {
+  if (!Array.isArray(turns)) return [];
+  return turns.flatMap((t: { slot?: string; outcome?: string; value?: string | null; text?: string | null }): IntakeAnswer[] => {
+    if (!t?.slot || !SLOT_ORDER.includes(t.slot as SlotId)) return [];
+    const slot = t.slot as SlotId;
+    if (t.outcome === 'skipped') return [{ slot, kind: 'skipped' as const }];
+    if (t.outcome === 'declined') return [{ slot, kind: 'declined' as const }];
+    if (t.outcome === 'not sure') return [{ slot, kind: 'option' as const, value: 'unsure' as const }];
+    if (t.value === 'yes' || t.value === 'no') return [{ slot, kind: 'option' as const, value: t.value, text: t.text ?? undefined }];
+    return t.text ? [{ slot, kind: 'text' as const, text: t.text }] : [];
   });
 }
 

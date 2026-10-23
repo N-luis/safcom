@@ -354,6 +354,29 @@ model CaseIntake {
   reviewReasons           Json
   /// Which engine produced this, so an old result can be told from a new one.
   engineVersion           String
+
+  // ── The risk matrix applied (lib/riskMatrices.ts, knowledge base) ──
+  /// BLOTTER | VAWC
+  framework               String?
+  /// 1-5 on that matrix; null when no criterion was met.
+  matrixLevel             Int?
+  /// The level's label exactly as the source document gives it.
+  matrixLabel             String?
+  /// Each criterion met, in the document's words, with the resident's words.
+  matchedCriteria         Json?
+  /// NEEDS_MORE_INFORMATION | PRELIMINARY | FOR_REVIEW
+  assessmentStatus        String?
+  alternativeCategories   Json?
+  /// Unknowns that could move the level once answered.
+  levelCaveats            Json?
+  /// The source passages retrieved for this report, with their scores.
+  matrixReferences        Json?
+  /// Whether the matched criteria were found in the imported source text.
+  sourceVerified          Boolean?
+  /// ok | no_match | no_documents | unavailable | empty_query
+  knowledgeBaseStatus     String?
+  /// What made the assessment. No external AI provider is called.
+  assessedBy              String?
   createdAt               DateTime @default(now())
 }
 
@@ -372,6 +395,10 @@ model AssessmentHistory {
   /// reclassification can be read back without reconstructing it.
   caseType         String?
   previousCaseType String?
+  /// The matrix and its level at this point, alongside the queue level.
+  framework        String?
+  matrixLevel      Int?
+  matrixLabel      String?
   informationCompleteness String?
   rationale Json
   /// Who did it. Null for the automated preliminary assessment.
@@ -382,4 +409,40 @@ model AssessmentHistory {
   createdAt DateTime @default(now())
 
   @@index([caseId, createdAt])
+}
+
+/// The risk classification matrices, chunked for search.
+///
+/// Created by prisma/sql/001_risk_matrix_knowledge_base.sql (which also
+/// installs pg_trgm) and filled by scripts/ingest-risk-matrices.ts. Declared
+/// here so `prisma db push` keeps the table and its trigram index instead of
+/// dropping what it does not recognise. Searched in lib/knowledgeBase.ts.
+model RiskMatrixChunk {
+  id              String    @id @default(cuid())
+  /// BLOTTER | VAWC | TEST
+  documentType    String
+  documentName    String
+  sourceFile      String
+  /// sha256 of the source file; one import per file version.
+  sourceHash      String
+  chunkIndex      Int
+  sectionTitle    String
+  content         String
+  pageNumber      Int?
+  /// 1..5 when the chunk is a risk-level row.
+  riskLevel       Int?
+  /// The label exactly as the document gives it.
+  riskLabel       String?
+  /// The row's columns, keyed by the document's own headings.
+  fields          Json?
+  frameworkStatus String
+  /// False once a newer version of the same document has been imported.
+  isCurrent       Boolean   @default(true)
+  importedAt      DateTime  @default(now())
+  supersededAt    DateTime?
+
+  @@unique([documentType, sourceHash, chunkIndex])
+  @@index([documentType, isCurrent])
+  @@index([riskLevel])
+  @@index([content(ops: raw("gin_trgm_ops"))], type: Gin)
 }

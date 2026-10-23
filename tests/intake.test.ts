@@ -32,8 +32,11 @@ const byCategory = ['Domestic Violence', 'Theft & Robbery', 'Noise Complaint', '
 ok('the same level whatever was selected',
   new Set(byCategory.map(r => r.riskLevel)).size === 1, byCategory.map(r => r.riskLevel).join(','));
 ok('it is not the old default "Medium"', byCategory[0].riskLevel !== 'Medium', byCategory[0].riskLevel);
-ok('the level is explained by a named rule, not a category',
-  byCategory[0].rulesApplied.includes('H3') && byCategory[0].riskRationale.some(r => /H3/.test(r)));
+ok('the level is explained by a criterion in the VAWC matrix, not a category',
+  byCategory[0].framework === 'VAWC' && byCategory[0].matrixLevel === 4
+  && byCategory[0].matchedCriteria.some(m => m.indicator === 'Physical assault')
+  && byCategory[0].riskRationale.some(r => /Physical assault/.test(r)),
+  `${byCategory[0].framework} L${byCategory[0].matrixLevel} ${byCategory[0].matchedCriteria.map(m => m.indicator).join(',')}`);
 ok('completeness is reported separately, as INSUFFICIENT',
   byCategory[0].informationCompleteness === 'INSUFFICIENT');
 ok('and it is sent for officer review', byCategory[0].requiresOfficerReview);

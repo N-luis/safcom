@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Box, Typography, Chip, Button, Collapse, Divider, Alert } from '@mui/material';
-import { FormatQuote, History, QuestionAnswer, ReportProblem } from '@mui/icons-material';
+import { FormatQuote, History, QuestionAnswer, ReportProblem, MenuBook } from '@mui/icons-material';
 
 /**
  * What the assisted intake recorded, laid out for the officer deciding on it.
@@ -30,6 +30,20 @@ export interface IntakeRecord {
   reviewReasons: string[];
   engineVersion: string;
   createdAt: string;
+  framework?: string | null;
+  matrixLevel?: number | null;
+  matrixLabel?: string | null;
+  matchedCriteria?: { level: number; levelLabel: string; indicator: string; evidence: string[] }[] | null;
+  assessmentStatus?: string | null;
+  alternativeCategories?: string[] | null;
+  levelCaveats?: string[] | null;
+  matrixReferences?: {
+    sectionTitle: string; riskLevel: number | null; pageNumber: number | null; score: number;
+    strength: 'strong' | 'weak'; suggestedAction: string | null; links: string[]; excerpt: string;
+  }[] | null;
+  sourceVerified?: boolean | null;
+  knowledgeBaseStatus?: string | null;
+  assessedBy?: string | null;
 }
 
 export interface HistoryRow {
@@ -39,6 +53,8 @@ export interface HistoryRow {
   informationCompleteness?: string | null;
   caseType?: string | null;
   previousCaseType?: string | null;
+  matrixLevel?: number | null;
+  matrixLabel?: string | null;
   reason?: string | null;
   createdAt: string;
   actor?: { name: string; role: string } | null;
@@ -48,6 +64,20 @@ const COMPLETENESS: Record<string, { label: string; color: string }> = {
   INSUFFICIENT: { label: 'Information insufficient', color: '#c2410c' },
   PARTIAL: { label: 'Information partial', color: '#a16207' },
   SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT: { label: 'Sufficient for preliminary assessment', color: '#15803d' },
+};
+
+const STATUS: Record<string, { label: string; color: string }> = {
+  PRELIMINARY: { label: 'Preliminary', color: '#0f766e' },
+  FOR_REVIEW: { label: 'For review', color: '#a16207' },
+  NEEDS_MORE_INFORMATION: { label: 'Needs more information', color: '#c2410c' },
+};
+
+const KB_STATUS: Record<string, string> = {
+  ok: 'Source text retrieved',
+  no_match: 'No sufficiently similar source text',
+  no_documents: 'Matrix not imported',
+  unavailable: 'Knowledge base unreachable — unchecked',
+  empty_query: 'Nothing to search',
 };
 
 const SUPPORT: Record<string, string> = {
@@ -84,6 +114,7 @@ export default function IntakeReviewPanel({ intake, history }: {
 }) {
   const [showTurns, setShowTurns] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRefs, setShowRefs] = useState(false);
   const label = { fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.05em', mb: 0.5 };
 
   return (
@@ -94,6 +125,79 @@ export default function IntakeReviewPanel({ intake, history }: {
             <Alert severity="error" icon={<ReportProblem />} sx={{ mb: 1.25, borderRadius: 2, fontSize: '0.84rem' }}>
               The resident reported an immediate safety concern.
             </Alert>
+          )}
+
+          {/* The risk matrix: the document's own level, criteria and guidance */}
+          {intake.framework && (
+            <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1.25, bgcolor: '#fcfcfd' }}>
+              <Typography sx={label}>
+                Risk matrix at filing — {intake.framework === 'VAWC' ? 'VAWC' : 'Blotter'}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center', flexWrap: 'wrap', my: 0.5 }}>
+                <Typography sx={{ fontSize: '0.88rem', fontWeight: 800, color: '#0c1e46' }}>
+                  {intake.matrixLevel ? `Level ${intake.matrixLevel} — ${intake.matrixLabel}` : 'No level — no criterion met'}
+                </Typography>
+                {intake.assessmentStatus && (
+                  <Chip size="small" label={STATUS[intake.assessmentStatus]?.label ?? intake.assessmentStatus}
+                    sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700,
+                      bgcolor: `${STATUS[intake.assessmentStatus]?.color ?? '#475569'}14`, color: STATUS[intake.assessmentStatus]?.color ?? '#475569' }} />
+                )}
+                {intake.sourceVerified === true && (
+                  <Chip size="small" label="Matches imported source" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#ecfdf5', color: '#047857' }} />
+                )}
+                {intake.sourceVerified === false && (
+                  <Chip size="small" label="Not matched to source" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#b91c1c' }} />
+                )}
+              </Box>
+              {(intake.matchedCriteria ?? []).map((m, i) => (
+                <Typography key={i} sx={{ fontSize: '0.8rem', color: '#334155' }}>
+                  • <b>L{m.level}</b> “{m.indicator}”
+                  {m.evidence[0] && <Box component="span" sx={{ color: '#64748b' }}> — reported as “{m.evidence[0]}”</Box>}
+                </Typography>
+              ))}
+              {(intake.levelCaveats ?? []).map(c => (
+                <Typography key={c} sx={{ fontSize: '0.78rem', color: '#a16207' }}>• {c}</Typography>
+              ))}
+              {(intake.alternativeCategories ?? []).length > 0 && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.5 }}>
+                  Could also fit: {(intake.alternativeCategories ?? []).join(', ')}
+                </Typography>
+              )}
+
+              {(intake.matrixReferences ?? []).length > 0 && (
+                <>
+                  <Button size="small" startIcon={<MenuBook sx={{ fontSize: 15 }} />} onClick={() => setShowRefs(v => !v)}
+                    sx={{ px: 0, mt: 0.5, color: '#475569', textTransform: 'none', fontWeight: 600 }}>
+                    {showRefs ? 'Hide' : 'Show'} source text ({(intake.matrixReferences ?? []).length})
+                  </Button>
+                  <Collapse in={showRefs}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 0.5 }}>
+                      {(intake.matrixReferences ?? []).map((r, i) => (
+                        <Box key={i} sx={{ borderLeft: `3px solid ${r.strength === 'strong' ? '#0f766e' : '#cbd5e1'}`, pl: 1 }}>
+                          <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: '#0c1e46' }}>{r.sectionTitle}</Typography>
+                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                            {r.pageNumber ? `Page ${r.pageNumber} · ` : ''}similarity {r.score.toFixed(2)}{r.strength === 'weak' ? ' (weak — not authoritative)' : ''}
+                          </Typography>
+                          {r.suggestedAction && (
+                            <Typography sx={{ fontSize: '0.78rem', color: '#334155', mt: 0.25 }}>
+                              <b>Suggested Action (from the document):</b> {r.suggestedAction}
+                            </Typography>
+                          )}
+                          {r.links.map(l => (
+                            <Typography key={l} component="a" href={l} target="_blank" rel="noopener noreferrer"
+                              sx={{ display: 'block', fontSize: '0.72rem', color: '#2563eb', wordBreak: 'break-all' }}>{l}</Typography>
+                          ))}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Collapse>
+                </>
+              )}
+              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
+                {intake.knowledgeBaseStatus ? `${KB_STATUS[intake.knowledgeBaseStatus] ?? intake.knowledgeBaseStatus}. ` : ''}
+                An operational triage framework, not a legal determination. {intake.assessedBy ?? ''}
+              </Typography>
+            </Box>
           )}
 
           {/* Category: what the words describe, beside what was chosen */}
@@ -200,7 +304,7 @@ export default function IntakeReviewPanel({ intake, history }: {
                   <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 600 }}>
                     {KIND[h.kind] ?? h.kind}: {h.kind.startsWith('category_')
                       ? (h.kind === 'category_change' ? `${h.previousCaseType} → ${h.caseType}` : h.caseType)
-                      : h.riskLevel}
+                      : h.matrixLabel ? `L${h.matrixLevel} ${h.matrixLabel}` : h.riskLevel}
                   </Typography>
                   <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8' }}>
                     {fmt(h.createdAt)}{h.actor ? ` · ${h.actor.name}` : ''}

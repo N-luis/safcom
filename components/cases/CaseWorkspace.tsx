@@ -590,7 +590,7 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
           )}
         </Box>
         <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8', mb: 1.25, lineHeight: 1.5 }}>
-          Set from what the report states and the documented hard rules, never from the case type.
+          Set from the risk-matrix criteria the report meets (Blotter or VAWC matrix), never from the case type alone.
           It is a starting point for review, not a finding.
         </Typography>
 

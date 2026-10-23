@@ -22,8 +22,18 @@ export type AssessmentHistoryModel = runtime.Types.Result.DefaultSelection<Prism
 
 export type AggregateAssessmentHistory = {
   _count: AssessmentHistoryCountAggregateOutputType | null
+  _avg: AssessmentHistoryAvgAggregateOutputType | null
+  _sum: AssessmentHistorySumAggregateOutputType | null
   _min: AssessmentHistoryMinAggregateOutputType | null
   _max: AssessmentHistoryMaxAggregateOutputType | null
+}
+
+export type AssessmentHistoryAvgAggregateOutputType = {
+  matrixLevel: number | null
+}
+
+export type AssessmentHistorySumAggregateOutputType = {
+  matrixLevel: number | null
 }
 
 export type AssessmentHistoryMinAggregateOutputType = {
@@ -33,6 +43,9 @@ export type AssessmentHistoryMinAggregateOutputType = {
   riskLevel: string | null
   caseType: string | null
   previousCaseType: string | null
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
   informationCompleteness: string | null
   actorId: string | null
   reason: string | null
@@ -47,6 +60,9 @@ export type AssessmentHistoryMaxAggregateOutputType = {
   riskLevel: string | null
   caseType: string | null
   previousCaseType: string | null
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
   informationCompleteness: string | null
   actorId: string | null
   reason: string | null
@@ -61,6 +77,9 @@ export type AssessmentHistoryCountAggregateOutputType = {
   riskLevel: number
   caseType: number
   previousCaseType: number
+  framework: number
+  matrixLevel: number
+  matrixLabel: number
   informationCompleteness: number
   rationale: number
   actorId: number
@@ -71,6 +90,14 @@ export type AssessmentHistoryCountAggregateOutputType = {
 }
 
 
+export type AssessmentHistoryAvgAggregateInputType = {
+  matrixLevel?: true
+}
+
+export type AssessmentHistorySumAggregateInputType = {
+  matrixLevel?: true
+}
+
 export type AssessmentHistoryMinAggregateInputType = {
   id?: true
   caseId?: true
@@ -78,6 +105,9 @@ export type AssessmentHistoryMinAggregateInputType = {
   riskLevel?: true
   caseType?: true
   previousCaseType?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
   informationCompleteness?: true
   actorId?: true
   reason?: true
@@ -92,6 +122,9 @@ export type AssessmentHistoryMaxAggregateInputType = {
   riskLevel?: true
   caseType?: true
   previousCaseType?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
   informationCompleteness?: true
   actorId?: true
   reason?: true
@@ -106,6 +139,9 @@ export type AssessmentHistoryCountAggregateInputType = {
   riskLevel?: true
   caseType?: true
   previousCaseType?: true
+  framework?: true
+  matrixLevel?: true
+  matrixLabel?: true
   informationCompleteness?: true
   rationale?: true
   actorId?: true
@@ -153,6 +189,18 @@ export type AssessmentHistoryAggregateArgs<ExtArgs extends runtime.Types.Extensi
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AssessmentHistoryAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AssessmentHistorySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AssessmentHistoryMinAggregateInputType
@@ -183,6 +231,8 @@ export type AssessmentHistoryGroupByArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   _count?: AssessmentHistoryCountAggregateInputType | true
+  _avg?: AssessmentHistoryAvgAggregateInputType
+  _sum?: AssessmentHistorySumAggregateInputType
   _min?: AssessmentHistoryMinAggregateInputType
   _max?: AssessmentHistoryMaxAggregateInputType
 }
@@ -194,6 +244,9 @@ export type AssessmentHistoryGroupByOutputType = {
   riskLevel: string
   caseType: string | null
   previousCaseType: string | null
+  framework: string | null
+  matrixLevel: number | null
+  matrixLabel: string | null
   informationCompleteness: string | null
   rationale: runtime.JsonValue
   actorId: string | null
@@ -201,6 +254,8 @@ export type AssessmentHistoryGroupByOutputType = {
   engineVersion: string | null
   createdAt: Date
   _count: AssessmentHistoryCountAggregateOutputType | null
+  _avg: AssessmentHistoryAvgAggregateOutputType | null
+  _sum: AssessmentHistorySumAggregateOutputType | null
   _min: AssessmentHistoryMinAggregateOutputType | null
   _max: AssessmentHistoryMaxAggregateOutputType | null
 }
@@ -230,6 +285,9 @@ export type AssessmentHistoryWhereInput = {
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
   caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  framework?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  matrixLevel?: Prisma.IntNullableFilter<"AssessmentHistory"> | number | null
+  matrixLabel?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -247,6 +305,9 @@ export type AssessmentHistoryOrderByWithRelationInput = {
   riskLevel?: Prisma.SortOrder
   caseType?: Prisma.SortOrderInput | Prisma.SortOrder
   previousCaseType?: Prisma.SortOrderInput | Prisma.SortOrder
+  framework?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -267,6 +328,9 @@ export type AssessmentHistoryWhereUniqueInput = Prisma.AtLeast<{
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
   caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  framework?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  matrixLevel?: Prisma.IntNullableFilter<"AssessmentHistory"> | number | null
+  matrixLabel?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -284,6 +348,9 @@ export type AssessmentHistoryOrderByWithAggregationInput = {
   riskLevel?: Prisma.SortOrder
   caseType?: Prisma.SortOrderInput | Prisma.SortOrder
   previousCaseType?: Prisma.SortOrderInput | Prisma.SortOrder
+  framework?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -291,8 +358,10 @@ export type AssessmentHistoryOrderByWithAggregationInput = {
   engineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AssessmentHistoryCountOrderByAggregateInput
+  _avg?: Prisma.AssessmentHistoryAvgOrderByAggregateInput
   _max?: Prisma.AssessmentHistoryMaxOrderByAggregateInput
   _min?: Prisma.AssessmentHistoryMinOrderByAggregateInput
+  _sum?: Prisma.AssessmentHistorySumOrderByAggregateInput
 }
 
 export type AssessmentHistoryScalarWhereWithAggregatesInput = {
@@ -305,6 +374,9 @@ export type AssessmentHistoryScalarWhereWithAggregatesInput = {
   riskLevel?: Prisma.StringWithAggregatesFilter<"AssessmentHistory"> | string
   caseType?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
   previousCaseType?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
+  framework?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
+  matrixLevel?: Prisma.IntNullableWithAggregatesFilter<"AssessmentHistory"> | number | null
+  matrixLabel?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonWithAggregatesFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
@@ -319,6 +391,9 @@ export type AssessmentHistoryCreateInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -335,6 +410,9 @@ export type AssessmentHistoryUncheckedCreateInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -349,6 +427,9 @@ export type AssessmentHistoryUpdateInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -365,6 +446,9 @@ export type AssessmentHistoryUncheckedUpdateInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -380,6 +464,9 @@ export type AssessmentHistoryCreateManyInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -394,6 +481,9 @@ export type AssessmentHistoryUpdateManyMutationInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -408,6 +498,9 @@ export type AssessmentHistoryUncheckedUpdateManyInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -433,12 +526,19 @@ export type AssessmentHistoryCountOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   caseType?: Prisma.SortOrder
   previousCaseType?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AssessmentHistoryAvgOrderByAggregateInput = {
+  matrixLevel?: Prisma.SortOrder
 }
 
 export type AssessmentHistoryMaxOrderByAggregateInput = {
@@ -448,6 +548,9 @@ export type AssessmentHistoryMaxOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   caseType?: Prisma.SortOrder
   previousCaseType?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
   reason?: Prisma.SortOrder
@@ -462,11 +565,18 @@ export type AssessmentHistoryMinOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   caseType?: Prisma.SortOrder
   previousCaseType?: Prisma.SortOrder
+  framework?: Prisma.SortOrder
+  matrixLevel?: Prisma.SortOrder
+  matrixLabel?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AssessmentHistorySumOrderByAggregateInput = {
+  matrixLevel?: Prisma.SortOrder
 }
 
 export type AssessmentHistoryCreateNestedManyWithoutActorInput = {
@@ -559,6 +669,9 @@ export type AssessmentHistoryCreateWithoutActorInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -574,6 +687,9 @@ export type AssessmentHistoryUncheckedCreateWithoutActorInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -617,6 +733,9 @@ export type AssessmentHistoryScalarWhereInput = {
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
   caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  framework?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  matrixLevel?: Prisma.IntNullableFilter<"AssessmentHistory"> | number | null
+  matrixLabel?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -631,6 +750,9 @@ export type AssessmentHistoryCreateWithoutCaseInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -645,6 +767,9 @@ export type AssessmentHistoryUncheckedCreateWithoutCaseInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -686,6 +811,9 @@ export type AssessmentHistoryCreateManyActorInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -699,6 +827,9 @@ export type AssessmentHistoryUpdateWithoutActorInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -714,6 +845,9 @@ export type AssessmentHistoryUncheckedUpdateWithoutActorInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -728,6 +862,9 @@ export type AssessmentHistoryUncheckedUpdateManyWithoutActorInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -741,6 +878,9 @@ export type AssessmentHistoryCreateManyCaseInput = {
   riskLevel: string
   caseType?: string | null
   previousCaseType?: string | null
+  framework?: string | null
+  matrixLevel?: number | null
+  matrixLabel?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -755,6 +895,9 @@ export type AssessmentHistoryUpdateWithoutCaseInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -769,6 +912,9 @@ export type AssessmentHistoryUncheckedUpdateWithoutCaseInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -783,6 +929,9 @@ export type AssessmentHistoryUncheckedUpdateManyWithoutCaseInput = {
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  framework?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matrixLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matrixLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -800,6 +949,9 @@ export type AssessmentHistorySelect<ExtArgs extends runtime.Types.Extensions.Int
   riskLevel?: boolean
   caseType?: boolean
   previousCaseType?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -817,6 +969,9 @@ export type AssessmentHistorySelectCreateManyAndReturn<ExtArgs extends runtime.T
   riskLevel?: boolean
   caseType?: boolean
   previousCaseType?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -834,6 +989,9 @@ export type AssessmentHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.T
   riskLevel?: boolean
   caseType?: boolean
   previousCaseType?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -851,6 +1009,9 @@ export type AssessmentHistorySelectScalar = {
   riskLevel?: boolean
   caseType?: boolean
   previousCaseType?: boolean
+  framework?: boolean
+  matrixLevel?: boolean
+  matrixLabel?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -859,7 +1020,7 @@ export type AssessmentHistorySelectScalar = {
   createdAt?: boolean
 }
 
-export type AssessmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "kind" | "riskLevel" | "caseType" | "previousCaseType" | "informationCompleteness" | "rationale" | "actorId" | "reason" | "engineVersion" | "createdAt", ExtArgs["result"]["assessmentHistory"]>
+export type AssessmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "kind" | "riskLevel" | "caseType" | "previousCaseType" | "framework" | "matrixLevel" | "matrixLabel" | "informationCompleteness" | "rationale" | "actorId" | "reason" | "engineVersion" | "createdAt", ExtArgs["result"]["assessmentHistory"]>
 export type AssessmentHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.AssessmentHistory$actorArgs<ExtArgs>
@@ -894,6 +1055,12 @@ export type $AssessmentHistoryPayload<ExtArgs extends runtime.Types.Extensions.I
      */
     caseType: string | null
     previousCaseType: string | null
+    /**
+     * The matrix and its level at this point, alongside the queue level.
+     */
+    framework: string | null
+    matrixLevel: number | null
+    matrixLabel: string | null
     informationCompleteness: string | null
     rationale: runtime.JsonValue
     /**
@@ -1334,6 +1501,9 @@ export interface AssessmentHistoryFieldRefs {
   readonly riskLevel: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly caseType: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly previousCaseType: Prisma.FieldRef<"AssessmentHistory", 'String'>
+  readonly framework: Prisma.FieldRef<"AssessmentHistory", 'String'>
+  readonly matrixLevel: Prisma.FieldRef<"AssessmentHistory", 'Int'>
+  readonly matrixLabel: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly informationCompleteness: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly rationale: Prisma.FieldRef<"AssessmentHistory", 'Json'>
   readonly actorId: Prisma.FieldRef<"AssessmentHistory", 'String'>

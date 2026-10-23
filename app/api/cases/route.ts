@@ -168,6 +168,9 @@ export async function POST(req: NextRequest) {
       data: {
         caseId: newCase.id,
         kind: 'walk_in',
+        framework: prelim.framework,
+        matrixLevel: prelim.matrixLevel,
+        matrixLabel: prelim.matrixLabel,
         riskLevel,
         informationCompleteness: prelim.informationCompleteness,
         rationale: JSON.parse(JSON.stringify({ basis: prelim.riskBasis, rules: prelim.rulesApplied, why: prelim.riskRationale })),

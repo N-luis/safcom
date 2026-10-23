@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { canSeeVawc, isVawcCaseHidden } from '@/lib/caseAccess';
 import { categoryByName } from '@/lib/classificationSchema';
+import { analyzeIntake } from '@/lib/intake';
+import { answersFromTranscript } from '@/lib/intakeServer';
 
 /**
  * An officer confirms or changes a case's category.
@@ -36,7 +38,10 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
   const current = await prisma.case.findUnique({
     where: { id },
-    select: { caseType: true, caseNumber: true, riskLevel: true, informationCompleteness: true },
+    select: {
+      caseType: true, caseNumber: true, riskLevel: true, informationCompleteness: true, description: true,
+      intake: { select: { narrative: true, turns: true } },
+    },
   });
   // Deciding about a case you may not read is the same breach as reading it.
   if (!current || isVawcCaseHidden(auth.user.role, current.caseType)) return errorResponse('Case not found', 404);
@@ -56,6 +61,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
   const referredAway = !confirming && isVawcCaseHidden(auth.user.role, target.category);
 
+  // The other desk works to the other matrix. What that matrix says about the
+  // same report is recorded with the change - the case's level is not
+  // altered here; setting it stays an explicit decision in the risk review.
+  const framework = target.desk === 'VAWC' ? 'VAWC' as const : 'BLOTTER' as const;
+  const under = analyzeIntake({
+    narrative: current.intake?.narrative ?? current.description,
+    answers: answersFromTranscript(current.intake?.turns),
+    framework,
+  }).result;
+
   try {
     await prisma.$transaction(async tx => {
       await tx.case.update({
@@ -70,7 +85,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
           informationCompleteness: current.informationCompleteness,
           caseType: target.category,
           previousCaseType: current.caseType,
-          rationale: { desk: target.desk },
+          framework,
+          matrixLevel: under.matrixLevel,
+          matrixLabel: under.matrixLabel,
+          rationale: JSON.parse(JSON.stringify({
+            desk: target.desk,
+            underMatrix: {
+              framework, level: under.matrixLevel, label: under.matrixLabel,
+              criteria: under.matchedCriteria.map(m => `L${m.level} ${m.indicator}`),
+              note: 'Recorded for the officer; the case risk level was not changed by reclassification.',
+            },
+          })),
           actorId: auth.user.userId,
           reason: reason || null,
         },

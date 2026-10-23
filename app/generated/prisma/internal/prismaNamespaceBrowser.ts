@@ -64,7 +64,8 @@ export const ModelName = {
   CaseFollowUp: 'CaseFollowUp',
   Message: 'Message',
   CaseIntake: 'CaseIntake',
-  AssessmentHistory: 'AssessmentHistory'
+  AssessmentHistory: 'AssessmentHistory',
+  RiskMatrixChunk: 'RiskMatrixChunk'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -332,6 +333,17 @@ export const CaseIntakeScalarFieldEnum = {
   requiresOfficerReview: 'requiresOfficerReview',
   reviewReasons: 'reviewReasons',
   engineVersion: 'engineVersion',
+  framework: 'framework',
+  matrixLevel: 'matrixLevel',
+  matrixLabel: 'matrixLabel',
+  matchedCriteria: 'matchedCriteria',
+  assessmentStatus: 'assessmentStatus',
+  alternativeCategories: 'alternativeCategories',
+  levelCaveats: 'levelCaveats',
+  matrixReferences: 'matrixReferences',
+  sourceVerified: 'sourceVerified',
+  knowledgeBaseStatus: 'knowledgeBaseStatus',
+  assessedBy: 'assessedBy',
   createdAt: 'createdAt'
 } as const
 
@@ -345,6 +357,9 @@ export const AssessmentHistoryScalarFieldEnum = {
   riskLevel: 'riskLevel',
   caseType: 'caseType',
   previousCaseType: 'previousCaseType',
+  framework: 'framework',
+  matrixLevel: 'matrixLevel',
+  matrixLabel: 'matrixLabel',
   informationCompleteness: 'informationCompleteness',
   rationale: 'rationale',
   actorId: 'actorId',
@@ -354,6 +369,28 @@ export const AssessmentHistoryScalarFieldEnum = {
 } as const
 
 export type AssessmentHistoryScalarFieldEnum = (typeof AssessmentHistoryScalarFieldEnum)[keyof typeof AssessmentHistoryScalarFieldEnum]
+
+
+export const RiskMatrixChunkScalarFieldEnum = {
+  id: 'id',
+  documentType: 'documentType',
+  documentName: 'documentName',
+  sourceFile: 'sourceFile',
+  sourceHash: 'sourceHash',
+  chunkIndex: 'chunkIndex',
+  sectionTitle: 'sectionTitle',
+  content: 'content',
+  pageNumber: 'pageNumber',
+  riskLevel: 'riskLevel',
+  riskLabel: 'riskLabel',
+  fields: 'fields',
+  frameworkStatus: 'frameworkStatus',
+  isCurrent: 'isCurrent',
+  importedAt: 'importedAt',
+  supersededAt: 'supersededAt'
+} as const
+
+export type RiskMatrixChunkScalarFieldEnum = (typeof RiskMatrixChunkScalarFieldEnum)[keyof typeof RiskMatrixChunkScalarFieldEnum]
 
 
 export const SortOrder = {

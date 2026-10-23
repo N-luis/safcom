@@ -52,6 +52,10 @@ const T: Record<Lang, Record<string, string>> = {
     why: 'Dahil',
     noCategory: 'Hindi pa malinaw kung anong uri ng kaso ito; titingnan ito ng opisyal.',
     prelimLevel: 'Paunang antas ng panganib',
+    matrixFrom: 'Batay sa',
+    NEEDS_MORE_INFORMATION: 'Kailangan pa ng impormasyon',
+    PRELIMINARY: 'Paunang pagtatasa',
+    FOR_REVIEW: 'Susuriin ng opisyal',
     notDetermined: 'Hindi pa matukoy',
     stillUnknown: 'Hindi pa alam',
     notAnswered: 'Hindi sinagot (pinili mo)',
@@ -84,6 +88,10 @@ const T: Record<Lang, Record<string, string>> = {
     why: 'Because',
     noCategory: 'It is not yet clear what kind of case this is; an officer will look at it.',
     prelimLevel: 'Preliminary risk level',
+    matrixFrom: 'Based on the',
+    NEEDS_MORE_INFORMATION: 'Needs more information',
+    PRELIMINARY: 'Preliminary',
+    FOR_REVIEW: 'For officer review',
     notDetermined: 'Not yet determined',
     stillUnknown: 'Still unknown',
     notAnswered: 'Not answered (your choice)',
@@ -360,17 +368,30 @@ export default function IntakeAssistant({
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>
               <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{t.prelimLevel}:</Typography>
-              {result.riskBasis === 'documented_indicators' ? (
-                <Chip size="small" label={result.riskLevel} sx={{
-                  height: 22, fontWeight: 800, fontSize: '0.74rem',
+              {/* The matrix's own level and label, as the document writes it. */}
+              {result.matrixLevel ? (
+                <Chip size="small" label={`Level ${result.matrixLevel} — ${result.matrixLabel}`} sx={{
+                  height: 'auto', py: 0.25, fontWeight: 800, fontSize: '0.74rem',
+                  '& .MuiChip-label': { whiteSpace: 'normal' },
                   bgcolor: `${RISK_COLOR[result.riskLevel]}1c`, color: RISK_COLOR[result.riskLevel],
                 }} />
               ) : (
                 <Chip size="small" label={t.notDetermined} sx={{ height: 22, fontWeight: 700, fontSize: '0.74rem', bgcolor: '#f1f5f9', color: '#475569' }} />
               )}
+              <Chip size="small" label={t[result.assessmentStatus] ?? result.assessmentStatus}
+                sx={{ height: 22, fontWeight: 700, fontSize: '0.7rem', bgcolor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0' }} />
             </Box>
-            {result.riskRationale.slice(0, 2).map(r => (
+            <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8', mb: 0.5 }}>
+              {t.matrixFrom} {result.frameworkDocument}
+            </Typography>
+            {result.riskRationale.slice(1, 3).map(r => (
               <Typography key={r} sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.55 }}>• {r}</Typography>
+            ))}
+            {!result.matrixLevel && (
+              <Typography sx={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.55 }}>• {result.riskRationale[0]}</Typography>
+            )}
+            {result.levelCaveats.map(c => (
+              <Typography key={c} sx={{ fontSize: '0.78rem', color: '#a16207', lineHeight: 1.55 }}>• {c}</Typography>
             ))}
 
             {result.missingInformation.length > 0 && (

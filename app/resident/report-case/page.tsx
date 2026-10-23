@@ -26,6 +26,7 @@ import dynamicImport from 'next/dynamic';
 import { BARANGAY_STREETS, type BarangayStreet } from '@/lib/streets';
 import BarangayStreetMap from '@/components/forms/BarangayStreetMap';
 import IntakeAssistant from '@/components/forms/IntakeAssistant';
+import SubmissionSummary from '@/components/forms/SubmissionSummary';
 import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 
@@ -71,7 +72,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function ReportCasePage() {
   const router = useRouter();
-  const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
+  const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null } | null>(null);
   const [apiError, setApiError] = useState('');
 
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -209,7 +210,7 @@ export default function ReportCasePage() {
   const lastSubmission = useRef<FormData | null>(null);
   // Held until the user presses View result, so the floating card can finish
   // its own lifecycle rather than being yanked away by a screen change.
-  const pendingResult = useRef<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
+  const pendingResult = useRef<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null } | null>(null);
 
 const analysing = phase === 'preparing' || phase === 'reading_document' || phase === 'assessing';
 
@@ -271,6 +272,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
       pendingResult.current = {
         caseNumber: json.data.caseNumber,
         assessment: json.data.assessment ?? null,
+        intake: json.data.intake ?? null,
       };
       try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
       toast.success('Report submitted successfully!');
@@ -307,7 +309,12 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
 
               {assessment && (
                 <Box sx={{ mb: 2.5 }}>
-                  <CaseAssessmentPanel assessment={assessment} caseNumber={submitted.caseNumber} />
+                  {/* The matrix result, in the resident's own language. The older
+                      priority panel is kept only for a response without one, as
+                      it reads an unknown danger as "None Identified". */}
+                  {submitted.intake
+                    ? <SubmissionSummary intake={submitted.intake} onOpenCases={() => router.push('/resident/my-cases')} />
+                    : <CaseAssessmentPanel assessment={assessment} caseNumber={submitted.caseNumber} />}
                 </Box>
               )}
 
