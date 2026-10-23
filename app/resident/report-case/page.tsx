@@ -381,20 +381,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   />
                 </Box>
 
-                <IntakeAssistant
-                  narrative={descriptionValue}
-                  selectedCategory=""
-                  street={streetValue}
-                  answers={intakeAnswers}
-                  onAnswersChange={setIntakeAnswers}
-                  onResult={setIntakeResult}
-                  disabled={isSubmitting || analysing}
-                  // Danger: file what there is now. Validation still runs (a
-                  // case needs a street and a description), but the review
-                  // step is skipped.
-                  onSubmitNow={() => { void handleSubmit(onSubmit)(); }}
-                />
-
                 {/* Where it happened — street is structured, landmark is free text */}
                 {/* Where it happened. The map fills the street field below;
                     that field stays editable, because a point with no road in
@@ -509,43 +495,52 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
 
       </Grid>
 
+      {/* Pressing Submit opens SafeComm Assist straight away: it reads the
+          report, asks what is missing, and the resident submits from here.
+          Nothing has to be answered - Submit report is always available. */}
       <Dialog open={Boolean(reviewing)} onClose={() => setReviewing(null)} maxWidth="sm" fullWidth
-        aria-labelledby="review-title"
-        sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}>
-        <DialogTitle id="review-title" sx={{ fontWeight: 800, color: '#0c1e46' }}>Review before submitting</DialogTitle>
-        <DialogContent>
+        scroll="paper" aria-labelledby="review-title"
+        sx={{ '& .MuiDialog-paper': { m: { xs: 1, sm: 4 }, width: { xs: 'calc(100% - 16px)', sm: 'auto' }, maxHeight: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 64px)' }, borderRadius: 3 } }}>
+        <DialogTitle id="review-title" sx={{ fontWeight: 800, color: '#0c1e46', pb: 0.5 }}>
+          Before you submit
+          <Typography component="span" sx={{ display: 'block', fontSize: '0.82rem', fontWeight: 400, color: '#64748b', mt: 0.25 }}>
+            SafeComm Assist is reading your report. Answer what you can &mdash; you can submit at any time.
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers sx={{ px: { xs: 1.5, sm: 3 } }}>
           {reviewing && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-              {([
-                ['Category', intakeResult
-                  ? intakeResult.classificationStatus === 'needs_review'
-                    ? 'An officer will classify it (the description does not clearly fit one category)'
-                    : `${intakeResult.suggestedCaseCategory} — suggested by SafeComm Assist; an officer confirms it`
-                  : 'Worked out from your description when you submit; an officer confirms it'],
-                ...(intakeResult ? [['Goes to', intakeResult.route === 'VAWC' ? 'The VAWC desk (confidential)' : 'The blotter desk']] : []),
-                ['Street', reviewing.street],
-                ['Questions answered', intakeAnswers.length
-                  ? `${intakeAnswers.filter(a => a.kind === 'option' || a.kind === 'text').length} answered, ${intakeAnswers.filter(a => a.kind === 'skipped' || a.kind === 'declined').length} skipped`
-                  : 'None — you can still submit'],
-                ...(intakeResult ? [['Information', intakeResult.informationCompleteness === 'SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT'
-                  ? 'Enough for a preliminary assessment' : intakeResult.informationCompleteness === 'PARTIAL' ? 'Partial' : 'Not enough yet — an officer will follow up']] : []),
-                ['Photos', String(photos.length)],
-              ] as [string, string][]).map(([k, v]) => (
-                <Box key={k} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography sx={{ fontSize: '0.84rem', color: '#94a3b8', minWidth: 150 }}>{k}</Typography>
-                  <Typography sx={{ fontSize: '0.84rem', color: '#0c1e46', fontWeight: 600, flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{v}</Typography>
-                </Box>
-              ))}
-              <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25 }}>
-                <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>Your description</Typography>
-                <Typography sx={{ fontSize: '0.86rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{reviewing.description}</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <IntakeAssistant
+                autoStart
+                narrative={reviewing.description}
+                selectedCategory=""
+                street={reviewing.street}
+                answers={intakeAnswers}
+                onAnswersChange={setIntakeAnswers}
+                onResult={setIntakeResult}
+                disabled={isSubmitting || analysing}
+                // Danger: file what there is now, with no further steps.
+                onSubmitNow={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
+              />
+              <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                {([
+                  ['Street', reviewing.street],
+                  ['Photos', String(photos.length)],
+                ] as [string, string][]).map(([k, v]) => (
+                  <Box key={k} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', minWidth: 80 }}>{k}</Typography>
+                    <Typography sx={{ fontSize: '0.8rem', color: '#0c1e46', fontWeight: 600, flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{v}</Typography>
+                  </Box>
+                ))}
+                <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', mt: 0.5 }}>Your description</Typography>
+                <Typography sx={{ fontSize: '0.84rem', color: '#334155', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{reviewing.description}</Typography>
               </Box>
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+        <DialogActions sx={{ px: 3, py: 1.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
           <Button onClick={() => setReviewing(null)} sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, color: '#64748b' }}>
-            Edit
+            Edit my report
           </Button>
           <Button variant="contained" startIcon={<Send />}
             onClick={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}

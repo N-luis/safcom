@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Typography, Button, TextField, Chip, Alert, CircularProgress, LinearProgress, Divider,
 } from '@mui/material';
@@ -35,6 +35,7 @@ const T: Record<Lang, Record<string, string>> = {
     start: 'Suriin ang aking report',
     startHint: 'Opsyonal. Magtatanong ng ilang bagay para maitala nang tama ang report. Maaari kang mag-submit kahit hindi ito gamitin.',
     reading: 'Binabasa ang iyong sagot…',
+    readingReport: 'Binabasa ang iyong report…',
     answer: 'Sagutin',
     skip: 'Laktawan',
     decline: 'Ayokong sagutin',
@@ -71,6 +72,7 @@ const T: Record<Lang, Record<string, string>> = {
     start: 'Review my report',
     startHint: 'Optional. Asks a few things so your report is recorded correctly. You can submit without using it.',
     reading: 'Reading your answer…',
+    readingReport: 'Reading your report…',
     answer: 'Answer',
     skip: 'Skip',
     decline: 'Prefer not to answer',
@@ -115,7 +117,7 @@ const RISK_COLOR: Record<string, string> = {
 };
 
 export default function IntakeAssistant({
-  narrative, selectedCategory, street, answers, onAnswersChange, onResult, onSubmitNow, disabled,
+  narrative, selectedCategory, street, answers, onAnswersChange, onResult, onSubmitNow, disabled, autoStart,
 }: {
   narrative: string;
   selectedCategory: string;
@@ -126,10 +128,17 @@ export default function IntakeAssistant({
   /** The emergency path: file what there is, now, skipping the final review. */
   onSubmitNow: () => void;
   disabled?: boolean;
+  /**
+   * Start reading as soon as it appears, with no "Review my report" button -
+   * used when it opens as the step before submitting.
+   */
+  autoStart?: boolean;
 }) {
   const { lang: uiLang } = useLanguage();
   const [result, setResult] = useState<IntakeResult | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts in the reading state when it starts itself, so there is no flash
+  // of a button the resident does not need to press.
+  const [loading, setLoading] = useState(Boolean(autoStart));
   const [error, setError] = useState('');
   const [typed, setTyped] = useState('');
   // The narrative the current result was computed from.
@@ -167,6 +176,17 @@ export default function IntakeAssistant({
     }
   };
 
+  // Begins on its own when asked to. Scheduled rather than run in the body
+  // of the effect, since asking sets state. Earlier answers carry over, so
+  // reopening continues where the resident left off.
+  useEffect(() => {
+    if (!autoStart) return;
+    const t = setTimeout(() => { void ask(answers); }, 0);
+    return () => clearTimeout(t);
+    // Once, when it appears; later questions are driven by the answers.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const respond = (a: Omit<IntakeAnswer, 'slot'>) => {
     if (!result?.nextQuestion) return;
     const slot = result.nextQuestion.slot;
@@ -192,7 +212,7 @@ export default function IntakeAssistant({
       </Box>
 
       {/* ── Not started ── */}
-      {!result && !loading && !error && (
+      {!result && !loading && !error && !autoStart && (
         <>
           <Typography sx={{ fontSize: '0.82rem', color: '#475569', mb: 1.25, lineHeight: 1.55 }}>{t.startHint}</Typography>
           <Button
@@ -210,7 +230,7 @@ export default function IntakeAssistant({
         <Box role="status" aria-live="polite" sx={{ my: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
             <CircularProgress size={15} sx={{ color: ACCENT }} />
-            <Typography sx={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f766e' }}>{t.reading}</Typography>
+            <Typography sx={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f766e' }}>{answers.length ? t.reading : t.readingReport}</Typography>
           </Box>
           <LinearProgress sx={{ height: 3, borderRadius: 2, bgcolor: '#ccfbf1', '& .MuiLinearProgress-bar': { bgcolor: ACCENT } }} />
         </Box>
