@@ -140,6 +140,31 @@ export async function canSeeDirectoryContacts(userId: string): Promise<boolean> 
   return Boolean(actor?.active && OVERSIGHT_ROLES.includes(actor.role));
 }
 
+/**
+ * Whether this official may change who a case is assigned to. Assignment is
+ * what opens a reporter's contact details to an officer, so it cannot be a
+ * way around the policy: an officer may only take an unassigned case on their
+ * own desk (as "Take this case" does); reassigning is for the captain and the
+ * system administrator, and only to someone who works that desk.
+ * Returns null when allowed, or the refusal.
+ */
+export async function checkAssignmentChange(actorId: string, kase: { caseType: string; assignedToId: string | null }, to: string | null):
+  Promise<{ status: number; message: string } | null> {
+  const actor = await loadActor(actorId);
+  if (!actor?.active) return { status: 401, message: 'Unauthorized' };
+  const vawc = isVawcType(kase.caseType);
+  if (to) {
+    const target = await loadActor(to);
+    const fits = target?.active && (OVERSIGHT_ROLES.includes(target.role)
+      || (vawc ? VAWC_DESK_ROLES.includes(target.role) : BLOTTER_ROLES.includes(target.role)));
+    if (!fits) return { status: 400, message: `That official cannot be assigned a ${vawc ? 'VAWC' : 'blotter'} case` };
+  }
+  if (OVERSIGHT_ROLES.includes(actor.role)) return null;
+  const ownDesk = vawc ? VAWC_DESK_ROLES.includes(actor.role) : BLOTTER_ROLES.includes(actor.role);
+  if (ownDesk && kase.assignedToId === null && to === actor.id) return null;
+  return { status: 403, message: 'Only the barangay captain can reassign a case. You can take an unassigned case on your own desk.' };
+}
+
 // ─── Masking ─────────────────────────────────────────────────────────────────
 
 /** "09171234567" -> "0917 ••• ••67". Never more than the first 4 and last 2 digits. */

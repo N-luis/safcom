@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { isVawcCaseHidden } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
+import { checkAssignmentChange } from '@/lib/reporterAccess';
 
 const updateSchema = z.object({
   residentName: z.string().optional(),
@@ -92,6 +93,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // who cannot see it there.
     if (parsed.data.caseType && isVawcCaseHidden(auth.user.role, parsed.data.caseType)) {
       return errorResponse('This case type is handled by the VAWC desk', 403);
+    }
+    // Assignment decides who may see the reporter's contact details, so it is
+    // checked like that access: on the server, against the official's account.
+    if (parsed.data.assignedToId !== undefined && parsed.data.assignedToId !== existing.assignedToId) {
+      const refused = await checkAssignmentChange(auth.user.userId,
+        { caseType: parsed.data.caseType ?? existing.caseType, assignedToId: existing.assignedToId }, parsed.data.assignedToId);
+      if (refused) return errorResponse(refused.message, refused.status);
     }
 
     // The stored level is NOT recomputed here. It used to be: every status or

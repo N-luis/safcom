@@ -241,6 +241,19 @@ async function live() {
     ok('[10] ...and with one is allowed, logged as oversight', c10b.status === 200 && (await lastLog(urgent.id, captain.id))?.code === 'oversight');
     ok('[10] captain on a non-urgent case another officer holds -> refused', (await reveal(mine.id, T.captain, REASON)).json.code === 'oversight_not_applicable');
 
+    // Reassigning through the case editor is not a way in
+    const put = async (id: string, cookie: string, body: unknown) => {
+      const res = await fetch(`${BASE}/api/cases/${id}`, { method: 'PUT', headers: { Cookie: cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      return res.status;
+    };
+    ok('[7] an officer cannot reassign another officer’s case to themselves', await put(others.id, T.blotter, { assignedToId: blotter.id }) === 403
+      && (await prisma.case.findUnique({ where: { id: others.id } }))?.assignedToId === blotter2.id);
+    ok('[7] ...so the reveal stays refused', (await reveal(others.id, T.blotter)).status === 403);
+    ok('[7] the captain cannot hand a VAWC case to a blotter officer', await put(vawcCase.id, T.captain, { assignedToId: blotter.id }) === 400);
+    ok('[7] the captain can reassign within the desk, and it is recorded', await put(others.id, T.captain, { assignedToId: blotter.id }) === 200
+      && Boolean(await prisma.activity.findFirst({ where: { caseId: others.id, type: 'assignment' } })));
+    ok('[7] an unchanged assignment in an ordinary edit still saves', await put(mine.id, T.blotter, { assignedToId: blotter.id, notes: 'probe note' }) === 200);
+
     // The resident directory
     const dirOfficer = await call('/api/residents?limit=100&search=PROBE-RA', T.blotter);
     const dirCaptain = await call('/api/residents?limit=100&search=PROBE-RA', T.captain);
