@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import {
-  Box, Typography, Card, CardContent, Chip, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions,
+  Box, Typography, Card, CardContent, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, CircularProgress, Skeleton, Checkbox, FormControlLabel,
 } from '@mui/material';
-import { Phone, Email, Visibility, VisibilityOff, Sms, ReportProblem, Lock, AssignmentInd } from '@mui/icons-material';
+import { Phone, Email, Visibility, VisibilityOff, Sms, Lock, AssignmentInd } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 
 /**
@@ -114,10 +114,6 @@ export default function ReporterInfoPanel({ caseId, onAssigned }: { caseId: stri
       <CardContent sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25, flexWrap: 'wrap' }}>
           <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>Reporter Information</Typography>
-          {urgency.urgent && (
-            <Chip size="small" icon={<ReportProblem sx={{ fontSize: 14 }} />} label="Prompt follow-up"
-              sx={{ height: 22, fontWeight: 700, fontSize: '0.72rem', bgcolor: '#fef2f2', color: '#b91c1c', '& .MuiChip-icon': { color: '#b91c1c' } }} />
-          )}
         </Box>
 
         {/* The case's own state, as it stands - not a substitute for access */}
