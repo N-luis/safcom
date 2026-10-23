@@ -1727,7 +1727,10 @@ export const CaseIntakeScalarFieldEnum = {
   turns: 'turns',
   informationCompleteness: 'informationCompleteness',
   suggestedCaseCategory: 'suggestedCaseCategory',
+  classificationStatus: 'classificationStatus',
   categoryConfidence: 'categoryConfidence',
+  officerToConfirm: 'officerToConfirm',
+  matrixVersion: 'matrixVersion',
   categoryRationale: 'categoryRationale',
   conflicts: 'conflicts',
   route: 'route',
@@ -1749,6 +1752,8 @@ export const AssessmentHistoryScalarFieldEnum = {
   caseId: 'caseId',
   kind: 'kind',
   riskLevel: 'riskLevel',
+  caseType: 'caseType',
+  previousCaseType: 'previousCaseType',
   informationCompleteness: 'informationCompleteness',
   rationale: 'rationale',
   actorId: 'actorId',
@@ -1773,6 +1778,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

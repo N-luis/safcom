@@ -22,16 +22,18 @@
  */
 
 import {
-  classifyCase, enforceHardRules, mentions, type Classification,
+  classifyCase, enforceHardRules, mentions, type Classification, type TermGroup,
 } from './caseClassification';
 import { assessCase, priorityToRiskLevel, type CaseAssessment } from './caseAssessment';
 import { detectLanguageSafe, type ReportLanguage } from './detectLanguage';
-import { VAWC_TYPES } from './vawcTypes';
+import {
+  matchCategories, needsReviewCategory, MATRIX_VERSION, type Signal,
+} from './classificationSchema';
 
 export const INTAKE_ENGINE_VERSION = 'safecomm-intake-rules/1.0';
 
 /** Questions are never repeated, so this is also the most that can be asked. */
-export const MAX_QUESTIONS = 9;
+export const MAX_QUESTIONS = 10;
 
 /**
  * A narrative this long is treated as describing the circumstances, so the
@@ -49,11 +51,11 @@ export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 
 export type SlotId =
   | 'safety' | 'act' | 'context' | 'injury' | 'injuryCare'
-  | 'weapon' | 'children' | 'recurrence' | 'priorReport';
+  | 'weapon' | 'children' | 'recurrence' | 'statements' | 'priorReport';
 
 /** Asked in this order; a slot is only asked while it is relevant and unknown. */
 export const SLOT_ORDER: SlotId[] = [
-  'safety', 'act', 'context', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'priorReport',
+  'safety', 'act', 'context', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'statements', 'priorReport',
 ];
 
 const ESSENTIAL: SlotId[] = ['safety', 'act', 'context'];
@@ -116,12 +118,27 @@ export interface IntakeResult {
   safetyReasons: string[];
 
   selectedCategory: string | null;
-  suggestedCaseCategory: string | null;
+  /**
+   * Always a category from the matrix. When nothing supports one, this is the
+   * needs-review entry ("Other", or "VAWC - Other" when the report involves a
+   * partner, family, a child or sexual conduct) and the status says so.
+   */
+  suggestedCaseCategory: string;
+  classificationStatus: 'suggested' | 'needs_review';
+  /**
+   * How much of the category's definition the report itself supports.
+   * Qualitative and NOT a calibrated probability: 'high' = two or more of the
+   * category's facts are stated and the essentials are known; 'medium' = it
+   * matched but on less; 'low' = needs review. Never shown as a percentage.
+   */
   categoryConfidence: 'high' | 'medium' | 'low';
   categoryRationale: string[];
+  /** Facts the report cannot settle, which an officer must confirm. */
+  officerToConfirm: string[];
+  matrixVersion: string;
   /** Things that do not agree with each other - both sides kept. */
   conflicts: string[];
-  route: 'VAWC' | 'Blotter' | 'Undetermined';
+  route: 'VAWC' | 'Blotter';
 
   riskLevel: RiskLevel;
   /** Whether the level rests on stated facts or there was too little to go on. */
@@ -151,6 +168,7 @@ const LABEL: Record<SlotId, Record<Lang, string>> = {
   weapon:      { tl: 'Kung may armas', en: 'Whether a weapon was present or used' },
   children:    { tl: 'Kung may batang naroon', en: 'Whether children were present' },
   recurrence:  { tl: 'Kung nangyari na ito dati', en: 'Whether this has happened before' },
+  statements:  { tl: 'Ang sinabi ng mga sangkot', en: 'What the people involved said' },
   priorReport: { tl: 'Kung naiulat na ito dati', en: 'Whether it was reported before' },
 };
 
@@ -172,10 +190,10 @@ const QUESTION: Record<SlotId, Record<Lang, {
       placeholder: 'Write only what you know', text_only: true },
   },
   context: {
-    tl: { text: 'Maaari mo bang ilarawan kung paano ito nangyari at kung ano ang nangyari bago nito?',
-      placeholder: 'Halimbawa: kailan, saan, at ano ang sinabi o ginawa bago ito', text_only: true },
-    en: { text: 'Could you describe how it happened and what happened just before?',
-      placeholder: 'For example: when, where, and what was said or done before', text_only: true },
+    tl: { text: 'Maaari mo bang ilarawan kung paano ito nangyari, at kung ano ang nangyari bago at pagkatapos nito?',
+      placeholder: 'Halimbawa: kailan, saan, ano ang nangyari bago, at ano ang ginawa pagkatapos', text_only: true },
+    en: { text: 'Could you describe how it happened, and what happened just before and after?',
+      placeholder: 'For example: when, where, what led up to it, and what happened afterwards', text_only: true },
   },
   injury: {
     tl: { text: 'May nasaktan ba? Kung mayroon, saan at gaano kalala?',
@@ -217,6 +235,15 @@ const QUESTION: Record<SlotId, Record<Lang, {
       yes: 'Yes, it has happened before', no: 'This is the first time', unsure: 'I am not sure',
       placeholder: 'If yes, how often?' },
   },
+  // What was said or done, as the resident heard or saw it - never a guess at
+  // why. Asking someone to explain another person's motive invites them to
+  // speculate, and a speculation would then sit on the record as a fact.
+  statements: {
+    tl: { text: 'May sinabi ba ang taong sangkot bago, habang, o pagkatapos itong mangyari? Isulat lamang ang narinig o nakita mo.',
+      placeholder: 'Halimbawa: ang eksaktong sinabi niya, kung naaalala mo', text_only: true },
+    en: { text: 'Did the person involved say anything before, during or after it happened? Write only what you heard or saw.',
+      placeholder: 'For example: what they said, as closely as you remember', text_only: true },
+  },
   priorReport: {
     tl: { text: 'Naipagbigay-alam na ba ito sa barangay, pulis, o ibang awtoridad?',
       yes: 'Oo, naiulat na', no: 'Hindi pa', unsure: 'Hindi ako sigurado',
@@ -252,77 +279,48 @@ const INTRO: Record<Lang, string> = {
 
 // ─── Category suggestion ────────────────────────────────────────────────────
 
-const VAWC_SET = new Set<string>(VAWC_TYPES);
-
-const WHY: Record<string, Record<Lang, (q?: string) => string>> = {
-  sexual:     { tl: q => `May inilarawang sekswal na karahasan: "${q}"`, en: q => `Describes sexual violence: "${q}"` },
-  partner:    { tl: () => 'Ang taong tinutukoy ay asawa o kapareha', en: () => 'The person named is a partner or spouse' },
-  family:     { tl: () => 'Ang taong tinutukoy ay kapamilya', en: () => 'The person named is a family member' },
-  force:      { tl: q => `May inilarawang pisikal na pananakit: "${q}"`, en: q => `Physical force is described: "${q}"` },
-  threat:     { tl: () => 'May inilarawang banta', en: () => 'A threat is described' },
-  injury:     { tl: () => 'May inilarawang pinsala', en: () => 'An injury is described' },
-  child:      { tl: () => 'May inilarawang pananakit sa bata', en: () => 'Harm to a child is described' },
-  stalking:   { tl: q => `May inilarawang paulit-ulit na pagsunod o pagmamanman: "${q}"`, en: q => `Repeated following or watching is described: "${q}"` },
-  harassment: { tl: q => `May inilarawang hindi kanais-nais na sekswal na asal: "${q}"`, en: q => `Unwanted sexual conduct is described: "${q}"` },
-  dispute:    { tl: () => 'Away sa loob ng tahanan, walang inilarawang pananakit', en: () => 'A household conflict is described with no abuse stated' },
-  threatOrInjury: { tl: () => 'May inilarawang banta o pinsala', en: () => 'A threat or injury is described' },
-  vandalism:  { tl: q => `May inilarawang pinsala sa ari-arian: "${q}"`, en: q => `Property damage is described: "${q}"` },
-  theft:      { tl: q => `May inilarawang ninakaw: "${q}"`, en: q => `Something taken is described: "${q}"` },
-  traffic:    { tl: q => `May inilarawang insidente sa kalsada: "${q}"`, en: q => `A road incident is described: "${q}"` },
-  noise:      { tl: q => `May inilarawang ingay: "${q}"`, en: q => `Noise is described: "${q}"` },
-  neighbour:  { tl: () => 'May inilarawang away sa kapitbahay o komunidad', en: () => 'A neighbour or community dispute is described' },
+/** How each fact reads when it is given as a reason. */
+const SIGNAL_LABEL: Record<Signal, Record<Lang, string>> = {
+  force: { tl: 'May inilarawang pisikal na pananakit', en: 'Physical force is described' },
+  threat: { tl: 'May inilarawang banta', en: 'A threat is described' },
+  injury: { tl: 'May nasaktan', en: 'Someone was hurt' },
+  weapon: { tl: 'May armas', en: 'A weapon was present or used' },
+  partner: { tl: 'Ang taong tinutukoy ay asawa o kapareha', en: 'The person named is a spouse or partner' },
+  family: { tl: 'Ang taong tinutukoy ay kapamilya', en: 'The person named is a family member' },
+  neighbors: { tl: 'Ang taong tinutukoy ay kapitbahay', en: 'The person named is a neighbour' },
+  minor: { tl: 'May batang binanggit', en: 'A child is mentioned' },
+  sexualViolence: { tl: 'May inilarawang sekswal na karahasan', en: 'Sexual violence is described' },
+  harassment: { tl: 'May inilarawang hindi kanais-nais na sekswal na asal', en: 'Unwanted sexual conduct is described' },
+  stalking: { tl: 'May inilarawang paulit-ulit na pagsunod o pagmamanman', en: 'Repeated following or watching is described' },
+  trafficking: { tl: 'May inilarawang pagbebenta o sapilitang pagtatrabaho', en: 'Sale or forced work is described' },
+  economicAbuse: { tl: 'May inilarawang pagkakait ng pera o sustento', en: 'Money or support being withheld is described' },
+  emotionalAbuse: { tl: 'May inilarawang pang-iinsulto o pagkontrol', en: 'Insults, humiliation or control are described' },
+  quarrel: { tl: 'May inilarawang pagtatalo', en: 'An argument is described' },
+  harmDenied: { tl: 'Sinabi mong walang nasaktan', en: 'You said no one was hurt' },
+  theft: { tl: 'May inilarawang ninakaw', en: 'Something taken is described' },
+  vandalism: { tl: 'May inilarawang pinsala sa ari-arian', en: 'Property damage is described' },
+  trespass: { tl: 'May pumasok nang walang pahintulot', en: 'Someone entered without permission' },
+  cyber: { tl: 'Nangyari online o sa telepono', en: 'It happened online or by phone' },
+  traffic: { tl: 'May inilarawang insidente sa kalsada', en: 'A road incident is described' },
+  drugs: { tl: 'May binanggit na droga', en: 'Drugs are mentioned' },
+  gambling: { tl: 'May binanggit na sugal', en: 'Gambling is mentioned' },
+  noise: { tl: 'May inilarawang ingay', en: 'Noise is described' },
+  nuisance: { tl: 'May inilarawang istorbo sa publiko', en: 'A public nuisance is described' },
+  boundary: { tl: 'May inilarawang usapin sa hangganan o lupa', en: 'A boundary or land matter is described' },
+  construction: { tl: 'May inilarawang pagtatayo', en: 'Construction is described' },
+  animalBite: { tl: 'May inilarawang kagat ng hayop', en: 'An animal bite is described' },
+  pets: { tl: 'May binanggit na hayop', en: 'An animal is mentioned' },
+  utility: { tl: 'May problema sa tubig o kuryente', en: 'A water or power problem is described' },
+  sanitation: { tl: 'May problema sa basura o kanal', en: 'A garbage or drainage problem is described' },
+  infrastructure: { tl: 'May sira sa kalsada o pasilidad', en: 'Damaged roads or facilities are described' },
 };
 
-function suggestCategory(c: Classification, text: string, lang: Lang): {
-  category: string | null; why: string[];
-} {
-  const w = (key: string, q?: string) => WHY[key][lang](q);
-  const p = c.parameters;
-  const force = mentions(text, 'physical');
-  const threat = p.threats === 'verbal' || p.threats === 'explicit';
-  const injured = p.injury !== 'none' && p.injury !== 'unknown';
-  const abuse = Boolean(force) || threat || injured;
-  const partner = p.relationship === 'intimate_partners';
-  const family = p.relationship === 'family';
-
-  const sexual = mentions(text, 'sexualViolence');
-  if (sexual) return { category: 'Sexual Violence', why: [w('sexual', sexual)] };
-  const stalking = mentions(text, 'stalking');
-
-  if ((partner || family) && abuse) {
-    return {
-      category: 'Domestic Violence',
-      why: [
-        w(partner ? 'partner' : 'family'),
-        force ? w('force', force) : threat ? w('threat') : w('injury'),
-      ],
-    };
-  }
-  if (c.case_category === 'child_related' || (p.vulnerable_person.includes('minor') && abuse)) {
-    return { category: 'Child Abuse', why: [w('child')] };
-  }
-  if (stalking) return { category: 'Stalking', why: [w('stalking', stalking)] };
-  const harass = mentions(text, 'harassment');
-  if (harass) return { category: 'Sexual Harassment', why: [w('harassment', harass)] };
-  if (partner || family) {
-    return { category: 'Domestic Dispute', why: [w('dispute')] };
-  }
-  if (abuse) return { category: 'Assault', why: [force ? w('force', force) : w('threatOrInjury')] };
-
-  const vand = mentions(text, 'vandalism');
-  if (vand) return { category: 'Vandalism', why: [w('vandalism', vand)] };
-  const theft = mentions(text, 'theft');
-  if (theft) return { category: 'Theft & Robbery', why: [w('theft', theft)] };
-  const traffic = mentions(text, 'traffic');
-  if (traffic) return { category: 'Traffic Violation', why: [w('traffic', traffic)] };
-  const noise = mentions(text, 'noise');
-  if (noise) return { category: 'Noise Complaint', why: [w('noise', noise)] };
-  if (c.case_category === 'neighbor_community_dispute') {
-    return { category: 'Public Nuisance', why: [w('neighbour')] };
-  }
-  // Nothing in the words supports a category. Saying so is the answer.
-  return { category: null, why: [] };
-}
+/** Text-only facts, read with the negation-aware matcher. */
+const TEXT_SIGNALS: (Signal & TermGroup)[] = [
+  'sexualViolence', 'harassment', 'stalking', 'trafficking', 'economicAbuse', 'emotionalAbuse', 'quarrel',
+  'theft', 'vandalism', 'trespass', 'cyber', 'traffic', 'drugs', 'gambling', 'noise', 'nuisance', 'boundary',
+  'construction', 'animalBite', 'pets', 'utility', 'sanitation', 'infrastructure',
+];
 
 // ─── Hard-rule explanations, in the order they are reported ──────────────────
 
@@ -404,6 +402,8 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   else if (p.vulnerable_person.includes('none')) fromReport.children = { value: 'no', quote: quoteFor('vulnerable_person') };
   if (PRIOR_REPORT_NO.test(combined)) fromReport.priorReport = { value: 'no', quote: combined.match(PRIOR_REPORT_NO)![0] };
   else if (PRIOR_REPORT_YES.test(combined)) fromReport.priorReport = { value: 'yes', quote: combined.match(PRIOR_REPORT_YES)![0] };
+  const said = combined.match(/\b(sinabi niya|sabi niya|sinabihan (?:niya )?ako|sumigaw siya|he said|she said|told me)\b[^.!?]{0,80}/i);
+  if (said) fromReport.statements = { value: 'yes', quote: said[0] };
   if (p.frequency !== 'unknown') fromReport.recurrence = { value: p.frequency === 'repeated' ? 'yes' : 'no', quote: quoteFor('frequency') };
 
   // ── Which questions matter for this report ──
@@ -427,6 +427,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     injuryCare: answeredYes('injury'),
     weapon: harmContext,
     children: household || classification.case_category === 'child_related',
+    statements: harmContext || household || p.relationship === 'neighbors',
     recurrence: household || p.relationship === 'neighbors'
       || ['domestic_family', 'gender_based_harassment', 'neighbor_community_dispute', 'child_related']
         .includes(classification.case_category),
@@ -456,7 +457,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     if (a?.kind === 'text' && a.text?.trim()) {
       // Free text for a descriptive question settles it; for a yes/no
       // question it settles it only if the classifier read it.
-      if (id === 'act' || id === 'context') return { ...base, value: 'yes', status: 'known', source: 'answer', quote: a.text.trim() };
+      if (id === 'act' || id === 'context' || id === 'statements') return { ...base, value: 'yes', status: 'known', source: 'answer', quote: a.text.trim() };
       if (r) return { ...base, value: r.value, status: 'known', source: 'answer', quote: r.quote ?? a.text.trim() };
       return { ...base, value: 'unknown', status: 'unsure', source: null, quote: a.text.trim() };
     }
@@ -544,20 +545,55 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     ...(indicatorCount === 0 ? [] : [assessment.reason]),
   ];
 
-  // ── Category, from the words ──
-  const suggestion = suggestCategory(classification, combined, lang);
-  const selected = input.selectedCategory?.trim() || null;
-  const categoryConfidence: IntakeResult['categoryConfidence'] =
-    !suggestion.category ? 'low'
-      : completeness === 'INSUFFICIENT' ? (classification.category_confidence === 'high' ? 'medium' : 'low')
-        : classification.category_confidence;
-  if (selected && suggestion.category && selected !== suggestion.category && !/^other/i.test(selected)) {
-    conflicts.push(lang === 'tl'
-      ? `Pinili ang "${selected}", pero ang inilarawan ay mas tugma sa "${suggestion.category}". Parehong itinala para sa opisyal.`
-      : `"${selected}" was selected, but the description fits "${suggestion.category}" better. Both are kept for the officer.`);
+  // ── Category: the matrix, applied to what was said ──
+  const sig = new Map<Signal, string | undefined>();
+  const addSig = (k: Signal, quote?: string | null) => { if (!sig.has(k)) sig.set(k, quote ?? undefined); };
+  if (force) addSig('force', force);
+  if (threat) addSig('threat', quoteFor('threats'));
+  if (slot('injury').value === 'yes') addSig('injury', slot('injury').quote);
+  if (slot('weapon').value === 'yes') addSig('weapon', slot('weapon').quote);
+  if (p.relationship === 'intimate_partners') addSig('partner', quoteFor('relationship'));
+  if (p.relationship === 'family') addSig('family', quoteFor('relationship'));
+  if (p.relationship === 'neighbors') addSig('neighbors', quoteFor('relationship'));
+  // A child the report itself mentions. Answering "yes, children were there"
+  // means they were present, not that they were the ones harmed - that is
+  // rule H2's business, not the category's.
+  if (p.vulnerable_person.includes('minor')) addSig('minor', quoteFor('vulnerable_person'));
+  for (const g of TEXT_SIGNALS) {
+    const q = mentions(combined, g);
+    if (q) addSig(g, q);
   }
-  const effective = suggestion.category ?? (selected && !/^other/i.test(selected) ? selected : null);
-  const route: IntakeResult['route'] = !effective ? 'Undetermined' : VAWC_SET.has(effective) ? 'VAWC' : 'Blotter';
+  if (slot('injury').value === 'no' && !force && !threat && slot('weapon').value !== 'yes') addSig('harmDenied');
+
+  const signals = new Set(sig.keys());
+  const best = matchCategories(signals)[0] ?? null;
+  const chosen = best?.meta ?? needsReviewCategory(signals);
+  const classificationStatus: IntakeResult['classificationStatus'] = best ? 'suggested' : 'needs_review';
+  const categoryConfidence: IntakeResult['categoryConfidence'] =
+    !best ? 'low' : best.matched.length >= 2 && completeness !== 'INSUFFICIENT' ? 'high' : 'medium';
+
+  const categoryRationale = best
+    ? best.matched.map(k => {
+      const q = sig.get(k);
+      return q ? `${SIGNAL_LABEL[k][lang]}: "${q}"` : SIGNAL_LABEL[k][lang];
+    })
+    : [lang === 'tl'
+      ? 'Walang kategoryang malinaw na sinusuportahan ng report; isang opisyal ang mag-uuri nito.'
+      : 'The report does not clearly support any category; an officer will classify it.',
+    ...(chosen.desk === 'VAWC'
+      ? [lang === 'tl'
+        ? 'Itinala sa VAWC desk habang sinusuri, dahil may binanggit na kapareha, kapamilya, bata, o sekswal na asal.'
+        : 'Kept on the VAWC desk while it is reviewed, because it mentions a partner, family, a child or sexual conduct.']
+      : [])];
+
+  const selected = input.selectedCategory?.trim() || null;
+  if (selected && selected !== chosen.category && !/^other/i.test(selected) && best) {
+    conflicts.push(lang === 'tl'
+      ? `Pinili ang "${selected}", pero ang inilarawan ay mas tugma sa "${chosen.category}". Parehong itinala para sa opisyal.`
+      : `"${selected}" was selected, but the description fits "${chosen.category}" better. Both are kept for the officer.`);
+  }
+  const route: IntakeResult['route'] = chosen.desk;
+  const suggestion = { category: chosen.category };
 
   // ── Indicators, in the resident's own words ──
   const supportingIndicators: SupportingIndicator[] = slots
@@ -586,7 +622,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   const reviewReasons: string[] = [];
   if (completeness !== 'SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT') reviewReasons.push('Information is incomplete');
   if (conflicts.length) reviewReasons.push('The report and the answers, or the selected category, disagree');
-  if (!suggestion.category) reviewReasons.push('No category is supported by the description');
+  if (classificationStatus === 'needs_review') reviewReasons.push('No category is supported by the description');
   if (route === 'VAWC') reviewReasons.push('Describes a VAWC concern; needs the VAWC desk');
   if (immediateSafetyConcern) reviewReasons.push('Immediate safety concern');
   if (ruled.needs_human_review && ruled.needs_human_review_reason) reviewReasons.push(ruled.needs_human_review_reason);
@@ -628,8 +664,11 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
       safetyReasons,
       selectedCategory: selected,
       suggestedCaseCategory: suggestion.category,
+      classificationStatus,
       categoryConfidence,
-      categoryRationale: suggestion.why,
+      categoryRationale,
+      officerToConfirm: chosen.confirm,
+      matrixVersion: MATRIX_VERSION,
       conflicts,
       route,
       riskLevel,

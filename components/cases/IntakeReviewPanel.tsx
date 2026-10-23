@@ -18,6 +18,7 @@ export interface IntakeRecord {
   turns: { slot: string; topic: string; outcome: string; value: string | null; text: string | null }[];
   informationCompleteness: string;
   suggestedCaseCategory?: string | null;
+  classificationStatus?: string | null;
   categoryConfidence: string;
   categoryRationale: string[];
   conflicts: string[];
@@ -36,6 +37,8 @@ export interface HistoryRow {
   kind: string;
   riskLevel: string;
   informationCompleteness?: string | null;
+  caseType?: string | null;
+  previousCaseType?: string | null;
   reason?: string | null;
   createdAt: string;
   actor?: { name: string; role: string } | null;
@@ -47,11 +50,19 @@ const COMPLETENESS: Record<string, { label: string; color: string }> = {
   SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT: { label: 'Sufficient for preliminary assessment', color: '#15803d' },
 };
 
+const SUPPORT: Record<string, string> = {
+  high: 'well supported by the report',
+  medium: 'partly supported by the report',
+  low: 'not supported — needs review',
+};
+
 const KIND: Record<string, string> = {
   preliminary: 'Preliminary assessment (automated)',
   walk_in: 'Walk-in, assessed at filing',
   officer_confirm: 'Confirmed by an officer',
   officer_override: 'Changed by an officer',
+  category_confirm: 'Category confirmed by an officer',
+  category_change: 'Category changed by an officer',
 };
 
 export function CompletenessChip({ value }: { value?: string | null }) {
@@ -89,11 +100,17 @@ export default function IntakeReviewPanel({ intake, history }: {
           <Typography sx={label}>Category</Typography>
           <Box sx={{ mb: 1.25 }}>
             <Typography sx={{ fontSize: '0.86rem', color: '#0c1e46' }}>
-              Description fits <b>{intake.suggestedCaseCategory ?? 'no clear category'}</b>
-              <Box component="span" sx={{ color: '#94a3b8' }}> ({intake.categoryConfidence} confidence)</Box>
+              {intake.classificationStatus === 'needs_review'
+                ? <>No category clearly supported — filed as <b>{intake.suggestedCaseCategory}</b> for an officer to classify</>
+                : <>Suggested from the description: <b>{intake.suggestedCaseCategory}</b></>}
+              {/* Qualitative, not a calibrated probability, so never a number. */}
+              <Box component="span" sx={{ color: '#94a3b8' }}>
+                {' '}({SUPPORT[intake.categoryConfidence] ?? intake.categoryConfidence})
+              </Box>
             </Typography>
             <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Resident chose: {intake.selectedCategory ?? '—'} · Route: {intake.route}
+              {intake.selectedCategory ? `A category was sent with the report: ${intake.selectedCategory} (context only) · ` : ''}
+              Route: {intake.route === 'VAWC' ? 'VAWC desk' : 'Blotter desk'}
             </Typography>
             {intake.categoryRationale.map(r => (
               <Typography key={r} sx={{ fontSize: '0.78rem', color: '#64748b' }}>• {r}</Typography>
@@ -181,7 +198,9 @@ export default function IntakeReviewPanel({ intake, history }: {
               {history.map(h => (
                 <Box key={h.id} sx={{ borderLeft: '3px solid #e2e8f0', pl: 1 }}>
                   <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 600 }}>
-                    {KIND[h.kind] ?? h.kind}: {h.riskLevel}
+                    {KIND[h.kind] ?? h.kind}: {h.kind.startsWith('category_')
+                      ? (h.kind === 'category_change' ? `${h.previousCaseType} → ${h.caseType}` : h.caseType)
+                      : h.riskLevel}
                   </Typography>
                   <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8' }}>
                     {fmt(h.createdAt)}{h.actor ? ` · ${h.actor.name}` : ''}

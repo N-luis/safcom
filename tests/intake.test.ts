@@ -147,12 +147,73 @@ const noise = run('Sobrang ingay ng videoke ng kapitbahay namin gabi-gabi hangga
 ok('a noise complaint filed as DV is suggested as a Noise Complaint',
   noise.suggestedCaseCategory === 'Noise Complaint', noise.suggestedCaseCategory ?? 'null');
 ok('and routed to the blotter', noise.route === 'Blotter');
-ok('a report with nothing to go on gets no forced category',
-  vague.suggestedCaseCategory === null && vague.categoryConfidence === 'low');
+ok('a report with nothing to go on is sent for review, not given a category',
+  vague.classificationStatus === 'needs_review' && vague.suggestedCaseCategory === 'Other'
+  && vague.categoryConfidence === 'low', `${vague.suggestedCaseCategory} / ${vague.classificationStatus}`);
 ok('a five-word report is not given high category confidence',
   run(SHORT).categoryConfidence !== 'high', run(SHORT).categoryConfidence);
 ok('the reasons for the suggestion quote the report',
   asTheft.categoryRationale.some(r => /tinulak/i.test(r)), asTheft.categoryRationale.join(' | '));
+
+console.log('\n8b. the classification matrix decides, from the words alone');
+const MATRIX_CASES: [string, string, 'VAWC' | 'Blotter'][] = [
+  ['Tinulak ako ng asawa ko.', 'Domestic Violence', 'VAWC'],
+  ['My husband pushed me.', 'Domestic Violence', 'VAWC'],
+  ['Tinulak ako ng asawa ko habang nakatingin ang anak namin.', 'Domestic Violence', 'VAWC'],
+  ['Sinaktan ng tito ko ang anak kong babae, may pasa siya sa braso.', 'Child Abuse', 'VAWC'],
+  ['Sinuntok ako ng kapitbahay namin kagabi.', 'Assault', 'Blotter'],
+  ['Sinuntok ako ng kapatid ko.', 'Physical Abuse', 'VAWC'],
+  ['Minumura at pinapahiya ako ng asawa ko araw-araw.', 'Emotional Abuse', 'VAWC'],
+  ['Hindi nagbibigay ng sustento ang asawa ko sa amin ng mga anak namin.', 'Economic Abuse', 'VAWC'],
+  ['Hinipuan ako ng lalaki sa jeep.', 'Sexual Harassment', 'VAWC'],
+  ['May lalaking sinusundan ako pauwi gabi-gabi.', 'Stalking', 'VAWC'],
+  ['Ginahasa ako ng kakilala ko.', 'Sexual Violence', 'VAWC'],
+  ['Kinagat ng asong gala ang anak ko sa kalsada.', 'Animal Bite/Concern', 'Blotter'],
+  ['Nagpapatayo ang kapitbahay ng extension sa bangketa nang walang permit.', 'Illegal Construction', 'Blotter'],
+  ['Barado ang kanal sa amin at nagkalat ang basura.', 'Sanitation Concern', 'Blotter'],
+  ['Tatlong araw na kaming walang tubig sa kalye namin.', 'Utility Problem', 'Blotter'],
+  ['Malaki ang lubak sa kalsada at walang ilaw sa kalye.', 'Infrastructure Issue', 'Blotter'],
+  ['Ninakaw ang cellphone ko sa tindahan.', 'Theft & Robbery', 'Blotter'],
+  ['Na-scam ako sa GCash ng isang fake account.', 'Cybercrime', 'Blotter'],
+  ['Nabangga ng motorsiklo ang tricycle sa kanto.', 'Traffic Violation', 'Blotter'],
+];
+for (const [text, want, desk] of MATRIX_CASES) {
+  const r = run(text);
+  ok(`"${text.slice(0, 40)}…" -> ${want} (${desk})`,
+    r.suggestedCaseCategory === want && r.route === desk && r.classificationStatus === 'suggested',
+    `${r.suggestedCaseCategory} / ${r.route} / ${r.classificationStatus}`);
+}
+const argued = run('Nag-away kami ng asawa ko tungkol sa pera.');
+ok('an argument with a spouse is not assumed harmless: VAWC desk, needs review',
+  argued.suggestedCaseCategory === 'VAWC - Other' && argued.classificationStatus === 'needs_review' && argued.route === 'VAWC',
+  `${argued.suggestedCaseCategory} / ${argued.classificationStatus}`);
+const arguedNoHarm = run('Nag-away kami ng asawa ko tungkol sa pera.', [{ slot: 'injury', kind: 'option', value: 'no' }]);
+ok('...until the resident says no one was hurt: then Domestic Dispute, blotter',
+  arguedNoHarm.suggestedCaseCategory === 'Domestic Dispute' && arguedNoHarm.route === 'Blotter',
+  arguedNoHarm.suggestedCaseCategory);
+ok('"nag-away" alone is not physical force', !mentions('Nag-away kami ng asawa ko.', 'physical'));
+ok('so an argument does not fire rule H3', !argued.rulesApplied.includes('H3'), argued.rulesApplied.join(','));
+ok('VAWC suggestions carry what an officer must confirm (never inferred: gender)',
+  run(SHORT).officerToConfirm.some(c => /woman/.test(c) && /does not infer gender/.test(c)));
+ok('every result names the matrix version it used', /draft/.test(run(SHORT).matrixVersion));
+ok('the reasons quote the facts that matched',
+  run('Sinuntok ako ng kapitbahay namin kagabi.').categoryRationale.some(r => /Sinuntok/i.test(r)));
+
+console.log('\n8c. "what was said" is asked as fact, never as motive');
+const saidQ = run(SHORT, [
+  { slot: 'safety', kind: 'option', value: 'no' },
+  { slot: 'context', kind: 'text', text: 'Nagtatalo kami tungkol sa pera kagabi tapos tinulak niya ako sa pader.' },
+  { slot: 'injury', kind: 'option', value: 'no' }, { slot: 'weapon', kind: 'option', value: 'no' },
+  { slot: 'children', kind: 'option', value: 'no' }, { slot: 'recurrence', kind: 'option', value: 'yes' },
+]);
+ok('the statements question exists and asks only for what was heard',
+  ['statements', null].includes(saidQ.nextQuestion?.slot ?? null)
+  && (saidQ.nextQuestion?.slot !== 'statements' || /narinig o nakita/.test(saidQ.nextQuestion.text)),
+  saidQ.nextQuestion?.text);
+ok('reported speech in the narrative answers it without asking',
+  run('Sinampal ako ng asawa ko at sinabi niya na aalis na siya.').slots.find(s => s.id === 'statements')!.status === 'known');
+ok('it is not asked for a utility problem', !run('Tatlong araw na kaming walang tubig sa kalye namin.')
+  .slots.find(s => s.id === 'statements')!.relevant);
 
 console.log('\n9. limits');
 const flood: IntakeAnswer[] = SLOT_ORDER.flatMap(slot => [

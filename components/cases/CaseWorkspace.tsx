@@ -23,6 +23,7 @@ import {
   useCaseDetail,
 } from '@/hooks/useApi';
 import AssessmentReview from '@/components/cases/AssessmentReview';
+import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -551,7 +552,7 @@ function EditFollowUpModal({ caseId, fid, initialContent, initialOutcome, onDone
 
 // ─── AI Assessment Mini-Card ──────────────────────────────────────────────────
 
-function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, needsReview, intake, history }: {
+function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, needsReview, intake, history, caseType, basePath }: {
   ai?: AIRisk;
   riskLevel: string;
   caseId: string;
@@ -560,6 +561,8 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
   needsReview?: boolean;
   intake?: IntakeRecord | null;
   history?: HistoryRow[];
+  caseType: string;
+  basePath: string;
 }) {
   const [expanded, setExpanded] = useState(false);
   // The level the case is actually stored at. This card used to show the
@@ -590,6 +593,9 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
           Set from what the report states and the documented hard rules, never from the case type.
           It is a starting point for review, not a finding.
         </Typography>
+
+        {/* The category is decided here, before the reading behind it. */}
+        <CategoryReview caseId={caseId} caseType={caseType} basePath={basePath} onChanged={onReviewed} />
 
         <IntakeReviewPanel intake={intake} history={history} />
 
@@ -901,6 +907,8 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             needsReview={caseData.requiresOfficerReview}
             intake={caseData.intake}
             history={caseData.assessmentHistory}
+            caseType={caseData.caseType}
+            basePath={basePath}
           />
 
           {/* Original Description */}

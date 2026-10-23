@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Box, Typography, Card, CardContent, Grid, TextField,
-  MenuItem, ListSubheader, Button, CircularProgress, Alert,
+  Button, CircularProgress, Alert,
   Divider, ToggleButton, ToggleButtonGroup,
   Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
@@ -16,9 +16,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { VAWC_TYPES } from '@/lib/vawcTypes';
 import StreetSelect from '@/components/forms/StreetSelect';
-import OtherTypeField, { isOtherType, withOtherDetail } from '@/components/forms/OtherTypeField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 import { useLanguage } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
@@ -54,29 +52,20 @@ const IncidentLocationMap = dynamicImport(
 
 const ACCENT = '#14b8a6';
 
-const CASE_TYPES = [
-  'Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault',
-  'Cybercrime', 'Vandalism', 'Drug-Related', 'Traffic Violation',
-  'Noise Complaint', 'Utility Problem', 'Infrastructure Issue',
-  'Sanitation Concern', 'Illegal Construction', 'Animal Bite/Concern', 'Other',
-];
 
-
+// No case type is asked for. SafeComm reads what the resident wrote and the
+// classification matrix (lib/classificationSchema.ts) decides the category on
+// the server, or files it for an officer to classify when it cannot.
 const schema = z.object({
-  caseType:        z.string().min(1, 'Please select a case type'),
-  // Only meaningful when caseType is an "Other" option; the refine below
-  // makes it required in that case.
-  otherType:       z.string().optional(),
-  description:     z.string().min(20, 'Please describe the incident (min 20 characters)'),
+  // Ten characters, the server's own minimum. "Submit now" in an emergency
+  // goes through this check too, and must not stop someone who wrote little.
+  description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least'),
   // The street is stored on the case itself so reports and the risk heatmap
   // group by where the incident happened, not by the reporter's barangay.
   street:          z.string().min(1, 'Please select the street'),
   location:        z.string().optional(),
   additionalNotes: z.string().optional(),
-}).refine(
-  d => !isOtherType(d.caseType) || (d.otherType ?? '').trim().length >= 3,
-  { path: ['otherType'], message: 'Tell us what kind of case this is' },
-);
+});
 type FormData = z.infer<typeof schema>;
 
 
@@ -88,7 +77,7 @@ export default function ReportCasePage() {
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      caseType: '', otherType: '', description: '', street: '', location: '',
+      description: '', street: '', location: '',
       additionalNotes: '',
     },
   });
@@ -156,14 +145,14 @@ export default function ReportCasePage() {
   // Only a street the resident picked themselves moves the map.
   const streetValue = watch('street');
   const focusStreet = streetValue && streetValue !== streetFromMap.current ? streetValue : undefined;
-  const selectedCaseType = watch('caseType');
-  const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
+  const [intakeResult, setIntakeResult] = useState<IntakeResult | null>(null);
+  // Which desk the assistant's reading points to, once there is one.
+  const desk = intakeResult?.route ?? null;
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
 
   // SafeComm Assist: the answers given so far, and its latest reading.
   const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswer[]>([]);
-  const [intakeResult, setIntakeResult] = useState<IntakeResult | null>(null);
   // The final look before filing. Skipped by the emergency path.
   const [reviewing, setReviewing] = useState<FormData | null>(null);
   const descriptionValue = watch('description') ?? '';
@@ -179,9 +168,8 @@ export default function ReportCasePage() {
       try {
         const raw = sessionStorage.getItem(DRAFT_KEY);
         if (!raw) return;
-        const d = JSON.parse(raw) as { description?: string; caseType?: string; answers?: IntakeAnswer[] };
+        const d = JSON.parse(raw) as { description?: string; answers?: IntakeAnswer[] };
         if (d.description && !getValues('description')) setValue('description', d.description);
-        if (d.caseType && !getValues('caseType')) setValue('caseType', d.caseType);
         if (Array.isArray(d.answers)) setIntakeAnswers(d.answers);
       } catch { /* private mode or a malformed draft: start clean */ }
     }, 0);
@@ -192,12 +180,12 @@ export default function ReportCasePage() {
     const t = setTimeout(() => {
       try {
         sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
-          description: descriptionValue, caseType: selectedCaseType, answers: intakeAnswers,
+          description: descriptionValue, answers: intakeAnswers,
         }));
       } catch { /* storage unavailable: the in-page state still holds it */ }
     }, 300);
     return () => clearTimeout(t);
-  }, [descriptionValue, selectedCaseType, intakeAnswers]);
+  }, [descriptionValue, intakeAnswers]);
   const { t } = useLanguage();
   const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
@@ -250,7 +238,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          caseType: data.caseType,
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
@@ -261,11 +248,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           locationLabel: place?.chosen ? place.label ?? undefined : undefined,
           municipality: place?.chosen ? place.municipality ?? undefined : undefined,
           province: place?.chosen ? place.province ?? undefined : undefined,
-          description: withOtherDetail(
-            `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
-            data.caseType,
-            data.otherType ?? '',
-          ),
+          description: `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
           additionalNotes: data.additionalNotes,
           attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
           // What the resident wrote, before any landmark was appended, and
@@ -369,50 +352,41 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
             <CardContent sx={{ p: 3 }}>
               {apiError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{apiError}</Alert>}
 
-              {isVawcCase && (
+              {desk === 'VAWC' && (
                 <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2, bgcolor: '#f5f3ff', color: '#5b21b6', '& .MuiAlert-icon': { color: '#7c3aed' } }}>
-                  This case type is handled by the VAWC desk. Your report will be routed confidentially to a VAWC officer.
+                  From what you wrote, this will go to the VAWC desk. Your report will be routed confidentially to a VAWC officer.
                 </Alert>
               )}
 
               <Box component="form" onSubmit={handleSubmit(data => setReviewing(data))} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
-                {/* Case Type */}
-                <Controller
-                  name="caseType"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field} select label="Case Type *"
-                      error={!!errors.caseType} helperText={errors.caseType?.message}
-                      fullWidth
-                      slotProps={{ select: { MenuProps: { slotProps: { paper: { sx: { maxHeight: 360 } } } } } }}
-                    >
-                      <ListSubheader>General / Community Concerns</ListSubheader>
-                      {CASE_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
-                      <ListSubheader sx={{ color: '#7c3aed', fontWeight: 700 }}>
-                        VAWC (Violence Against Women &amp; Children)
-                      </ListSubheader>
-                      {VAWC_TYPES.map(t => <MenuItem key={`vawc-${t}`} value={t}>{t}</MenuItem>)}
-                    </TextField>
-                  )}
-                />
-
-                {/* Picking "Other" asks what the case actually is */}
-                {isOtherType(selectedCaseType) && (
-                  <Controller
-                    name="otherType"
-                    control={control}
-                    render={({ field }) => (
-                      <OtherTypeField
-                        value={field.value ?? ''}
-                        onChange={field.onChange}
-                        error={!!errors.otherType}
-                        helperText={errors.otherType?.message}
-                      />
-                    )}
+                {/* What happened, in the resident's own words. This is what the case is
+                    classified from - there is no category to pick. */}
+                <Box>
+                  <TextField
+                    label="What happened? *"
+                    placeholder="In your own words — what happened, who was involved, and when. Write only what you know."
+                    {...register('description')}
+                    error={!!errors.description}
+                    helperText={errors.description?.message || `${descLen}/800 characters`}
+                    fullWidth multiline rows={5}
+                    slotProps={{ htmlInput: { maxLength: 800 } }}
                   />
-                )}
+                </Box>
+
+                <IntakeAssistant
+                  narrative={descriptionValue}
+                  selectedCategory=""
+                  street={streetValue}
+                  answers={intakeAnswers}
+                  onAnswersChange={setIntakeAnswers}
+                  onResult={setIntakeResult}
+                  disabled={isSubmitting || analysing}
+                  // Danger: file what there is now. Validation still runs (a
+                  // case needs a street and a description), but the review
+                  // step is skipped.
+                  onSubmitNow={() => { void handleSubmit(onSubmit)(); }}
+                />
 
                 {/* Where it happened — street is structured, landmark is free text */}
                 {/* Where it happened. The map fills the street field below;
@@ -489,33 +463,6 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   fullWidth
                 />
 
-                {/* Description */}
-                <Box>
-                  <TextField
-                    label="Incident Description *"
-                    placeholder="Describe what happened — include date, time, persons involved, and any relevant context..."
-                    {...register('description')}
-                    error={!!errors.description}
-                    helperText={errors.description?.message || `${descLen}/800 characters`}
-                    fullWidth multiline rows={5}
-                    slotProps={{ htmlInput: { maxLength: 800 } }}
-                  />
-                </Box>
-
-                <IntakeAssistant
-                  narrative={descriptionValue}
-                  selectedCategory={selectedCaseType}
-                  street={streetValue}
-                  answers={intakeAnswers}
-                  onAnswersChange={setIntakeAnswers}
-                  onResult={setIntakeResult}
-                  disabled={isSubmitting || analysing}
-                  // Danger: file what there is now. Validation still runs (a
-                  // case needs a street and a description), but the review
-                  // step is skipped.
-                  onSubmitNow={() => { void handleSubmit(onSubmit)(); }}
-                />
-
                 {/* Additional notes */}
                 <TextField
                   label="Additional Notes (optional)"
@@ -563,9 +510,12 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           {reviewing && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
               {([
-                ['Case type you chose', reviewing.caseType === 'Other' || /^Other/.test(reviewing.caseType) ? `${reviewing.caseType} — ${reviewing.otherType ?? ''}` : reviewing.caseType],
-                ...(intakeResult?.suggestedCaseCategory && intakeResult.suggestedCaseCategory !== reviewing.caseType
-                  ? [['Description fits', `${intakeResult.suggestedCaseCategory} (both are sent to the officer)`]] : []),
+                ['Category', intakeResult
+                  ? intakeResult.classificationStatus === 'needs_review'
+                    ? 'An officer will classify it (the description does not clearly fit one category)'
+                    : `${intakeResult.suggestedCaseCategory} — suggested by SafeComm Assist; an officer confirms it`
+                  : 'Worked out from your description when you submit; an officer confirms it'],
+                ...(intakeResult ? [['Goes to', intakeResult.route === 'VAWC' ? 'The VAWC desk (confidential)' : 'The blotter desk']] : []),
                 ['Street', reviewing.street],
                 ['Questions answered', intakeAnswers.length
                   ? `${intakeAnswers.filter(a => a.kind === 'option' || a.kind === 'text').length} answered, ${intakeAnswers.filter(a => a.kind === 'skipped' || a.kind === 'declined').length} skipped`

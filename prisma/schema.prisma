@@ -335,7 +335,14 @@ model CaseIntake {
 
   informationCompleteness String
   suggestedCaseCategory   String?
+  /// suggested | needs_review - whether the matrix found a category or
+  /// filed it as Other / VAWC - Other for an officer to classify.
+  classificationStatus    String  @default("suggested")
   categoryConfidence      String
+  /// Facts the report cannot settle that an officer must confirm.
+  officerToConfirm        Json?
+  /// lib/classificationSchema.ts MATRIX_VERSION at the time.
+  matrixVersion           String?
   categoryRationale       Json
   conflicts               Json
   route                   String
@@ -357,9 +364,14 @@ model AssessmentHistory {
   id        String   @id @default(cuid())
   caseId    String
   case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  /// preliminary | officer_override | officer_confirm | walk_in
+  /// preliminary | officer_override | officer_confirm | walk_in |
+  /// category_confirm | category_change
   kind      String
   riskLevel String
+  /// The case category at this point, and what it was before - so a
+  /// reclassification can be read back without reconstructing it.
+  caseType         String?
+  previousCaseType String?
   informationCompleteness String?
   rationale Json
   /// Who did it. Null for the automated preliminary assessment.

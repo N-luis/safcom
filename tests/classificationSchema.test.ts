@@ -10,6 +10,8 @@
  */
 import {
   BLOTTER_CATEGORIES, VAWC_CATEGORIES, metaFor, type CategoryMeta,
+  ALL_CATEGORIES, categoryByName, needsReviewCategory, ruleMatches, matchCategories,
+  MATRIX_REVIEW_STATUS, type Signal,
 } from '../lib/classificationSchema';
 import { VAWC_TYPES } from '../lib/vawcTypes';
 
@@ -66,6 +68,42 @@ ok('with a colour', /^#[0-9a-f]{6}$/i.test(unknown.color));
 ok('and it says to read the report', /read the report/i.test(unknown.description));
 ok('a known type is found instead',
   metaFor('Child Abuse', VAWC_CATEGORIES).code === 'CA');
+
+console.log('\n8. the matrix keeps every category the resident dropdown offered');
+// The list the resident form's Case Type dropdown showed before it was
+// replaced by the assisted intake. Each must still be a destination.
+const FORMER_DROPDOWN = [
+  'Theft & Robbery', 'Public Nuisance', 'Domestic Dispute', 'Assault', 'Cybercrime', 'Vandalism',
+  'Drug-Related', 'Traffic Violation', 'Noise Complaint', 'Utility Problem', 'Infrastructure Issue',
+  'Sanitation Concern', 'Illegal Construction', 'Animal Bite/Concern', 'Other', ...VAWC_TYPES,
+];
+for (const c of FORMER_DROPDOWN) ok(`"${c}" is in the matrix`, Boolean(categoryByName(c)));
+
+console.log('\n9. every entry is complete enough to route and review');
+for (const c of ALL_CATEGORIES) {
+  const fallback = c.category === 'Other' || c.category === 'VAWC - Other';
+  ok(`${c.category}: has a definition`, c.definition.trim().length > 20);
+  ok(`${c.category}: ${fallback ? 'is never suggested by a rule' : 'has a rule that can recognise it'}`,
+    fallback ? c.rules.length === 0 : c.rules.some(r => (r.all?.length ?? 0) + (r.any?.length ?? 0) > 0));
+  ok(`${c.category}: desk matches its list`,
+    c.desk === ((VAWC_TYPES as readonly string[]).includes(c.category) ? 'VAWC' : 'Blotter'));
+  if (!fallback && c.desk === 'VAWC') {
+    ok(`${c.category}: cites where an officer should look`, c.legalBasis.length > 0);
+    ok(`${c.category}: is not sent to barangay conciliation`, c.conciliation === 'not_allowed');
+  }
+}
+const prios = ALL_CATEGORIES.filter(c => c.priority > 0).map(c => c.priority);
+ok('no two categories tie on priority', new Set(prios).size === prios.length);
+ok('the matrix says it is a draft until approved', /pending review/i.test(MATRIX_REVIEW_STATUS));
+
+console.log('\n10. the fallback keeps sensitive reports confidential');
+ok('nothing matched, nothing sensitive -> Other', needsReviewCategory(new Set()).category === 'Other');
+for (const s of ['partner', 'family', 'minor', 'sexualViolence', 'harassment', 'stalking'] as Signal[]) {
+  ok(`nothing matched but "${s}" -> VAWC - Other`, needsReviewCategory(new Set([s])).category === 'VAWC - Other');
+}
+ok('a rule with no facts never matches', !ruleMatches({}, new Set(['force'])));
+ok('"none" vetoes a match', !ruleMatches({ any: ['force'], none: ['partner'] }, new Set<Signal>(['force', 'partner'])));
+ok('highest priority wins', matchCategories(new Set<Signal>(['partner', 'force', 'minor']))[0].meta.category === 'Domestic Violence');
 
 console.log(`\n${pass} passed, ${fails.length} failed`);
 if (fails.length) { fails.forEach(f => console.log('  FAILED: ' + f)); process.exit(1); }

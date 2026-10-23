@@ -315,12 +315,36 @@ const T = {
   physical: [
     'sinuntok', 'sinampal', 'sinipa', 'sinaktan', 'sinasaktan', 'pananakit', 'nanakit',
     'binugbog', 'bugbog', 'sinakal', 'sinabunutan', 'hinampas', 'tinulak', 'kinaladkad',
-    'away', 'suntukan', 'sapakan', 'nag-away',
+    'suntukan', 'sapakan', 'nagsuntukan',
     'punched', 'slapped', 'kicked', 'beaten', 'choked', 'hit me', 'hurt me', 'struck me',
     'fistfight', 'mauled', 'assaulted', 'pushed me', 'shoved', 'pushed her', 'pushed him',
     'beat me', 'strangled', 'grabbed me', 'dragged me', 'threw me',
   ],
   domestic: ['asawa ko', 'kinakasama ko', 'sa loob ng bahay namin', 'domestic', 'household violence'],
+
+  // ── For the classification matrix (lib/classificationSchema.ts) ──
+  // A disagreement, with nothing physical said about it.
+  quarrel: ['away', 'nag-away', 'nagtalo', 'nagtatalo', 'pagtatalo', 'sigawan', 'argued', 'argument', 'quarrel'],
+  trafficking: ['trafficking', 'ibinenta', 'ipinagbili', 'pinagtrabaho nang sapilitan', 'recruiter',
+    'forced to work', 'sold me', 'trafficked'],
+  economicAbuse: ['hindi nagbibigay ng sustento', 'ayaw magbigay ng sustento', 'walang sustento',
+    'kinukuha ang sweldo', 'kinuha ang sweldo', 'ayaw akong pagtrabahuhin', 'withholds money',
+    'took my salary', 'no financial support', 'refuses to give money'],
+  emotionalAbuse: ['minumura', 'minura', 'ininsulto', 'pinapahiya', 'pinahiya', 'sinisigawan',
+    'binabantayan ang cellphone', 'kinokontrol', 'humiliated', 'insulted', 'controlling', 'verbally abused'],
+  construction: ['nagpapatayo', 'ipinapatayo', 'nagtatayo', 'walang permit', 'illegal construction',
+    'building permit', 'without a permit', 'extension ng bahay', 'construction'],
+  animalBite: ['kinagat', 'nakagat', 'kagat ng aso', 'asong gala', 'dog bite', 'bitten', 'stray dog', 'rabies'],
+  utility: ['walang tubig', 'mahinang tubig', 'brownout', 'walang kuryente', 'linya ng kuryente',
+    'water supply', 'power outage', 'no electricity', 'no water'],
+  sanitation: ['basura', 'baradong kanal', 'barado ang kanal', 'imburnal', 'mabaho', 'garbage',
+    'trash', 'clogged drain', 'sewage'],
+  infrastructure: ['sirang kalsada', 'lubak', 'sirang ilaw', 'walang ilaw sa kalye', 'poste',
+    'pothole', 'streetlight', 'broken road'],
+  cyber: ['na-scam', 'scam', 'na-hack', 'hacked', 'phishing', 'fake account', 'online', 'gcash',
+    'cyberbullying'],
+  trespass: ['pumasok sa bakuran', 'pumasok nang walang paalam', 'trespass', 'entered without permission'],
+  nuisance: ['tambay', 'nag-iinuman sa kalsada', 'nakaharang', 'loitering', 'blocking the road'],
   govt: ['barangay official', 'kagawad', 'kapitan', 'opisyal ng barangay', 'government office', 'city hall'],
 };
 

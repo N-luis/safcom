@@ -35,7 +35,9 @@ export type CaseIntakeMinAggregateOutputType = {
   language: string | null
   informationCompleteness: string | null
   suggestedCaseCategory: string | null
+  classificationStatus: string | null
   categoryConfidence: string | null
+  matrixVersion: string | null
   route: string | null
   immediateSafetyConcern: boolean | null
   requiresOfficerReview: boolean | null
@@ -51,7 +53,9 @@ export type CaseIntakeMaxAggregateOutputType = {
   language: string | null
   informationCompleteness: string | null
   suggestedCaseCategory: string | null
+  classificationStatus: string | null
   categoryConfidence: string | null
+  matrixVersion: string | null
   route: string | null
   immediateSafetyConcern: boolean | null
   requiresOfficerReview: boolean | null
@@ -68,7 +72,10 @@ export type CaseIntakeCountAggregateOutputType = {
   turns: number
   informationCompleteness: number
   suggestedCaseCategory: number
+  classificationStatus: number
   categoryConfidence: number
+  officerToConfirm: number
+  matrixVersion: number
   categoryRationale: number
   conflicts: number
   route: number
@@ -92,7 +99,9 @@ export type CaseIntakeMinAggregateInputType = {
   language?: true
   informationCompleteness?: true
   suggestedCaseCategory?: true
+  classificationStatus?: true
   categoryConfidence?: true
+  matrixVersion?: true
   route?: true
   immediateSafetyConcern?: true
   requiresOfficerReview?: true
@@ -108,7 +117,9 @@ export type CaseIntakeMaxAggregateInputType = {
   language?: true
   informationCompleteness?: true
   suggestedCaseCategory?: true
+  classificationStatus?: true
   categoryConfidence?: true
+  matrixVersion?: true
   route?: true
   immediateSafetyConcern?: true
   requiresOfficerReview?: true
@@ -125,7 +136,10 @@ export type CaseIntakeCountAggregateInputType = {
   turns?: true
   informationCompleteness?: true
   suggestedCaseCategory?: true
+  classificationStatus?: true
   categoryConfidence?: true
+  officerToConfirm?: true
+  matrixVersion?: true
   categoryRationale?: true
   conflicts?: true
   route?: true
@@ -221,7 +235,10 @@ export type CaseIntakeGroupByOutputType = {
   turns: runtime.JsonValue
   informationCompleteness: string
   suggestedCaseCategory: string | null
+  classificationStatus: string
   categoryConfidence: string
+  officerToConfirm: runtime.JsonValue | null
+  matrixVersion: string | null
   categoryRationale: runtime.JsonValue
   conflicts: runtime.JsonValue
   route: string
@@ -265,7 +282,10 @@ export type CaseIntakeWhereInput = {
   turns?: Prisma.JsonFilter<"CaseIntake">
   informationCompleteness?: Prisma.StringFilter<"CaseIntake"> | string
   suggestedCaseCategory?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  classificationStatus?: Prisma.StringFilter<"CaseIntake"> | string
   categoryConfidence?: Prisma.StringFilter<"CaseIntake"> | string
+  officerToConfirm?: Prisma.JsonNullableFilter<"CaseIntake">
+  matrixVersion?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   categoryRationale?: Prisma.JsonFilter<"CaseIntake">
   conflicts?: Prisma.JsonFilter<"CaseIntake">
   route?: Prisma.StringFilter<"CaseIntake"> | string
@@ -289,7 +309,10 @@ export type CaseIntakeOrderByWithRelationInput = {
   turns?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   suggestedCaseCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  classificationStatus?: Prisma.SortOrder
   categoryConfidence?: Prisma.SortOrder
+  officerToConfirm?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryRationale?: Prisma.SortOrder
   conflicts?: Prisma.SortOrder
   route?: Prisma.SortOrder
@@ -316,7 +339,10 @@ export type CaseIntakeWhereUniqueInput = Prisma.AtLeast<{
   turns?: Prisma.JsonFilter<"CaseIntake">
   informationCompleteness?: Prisma.StringFilter<"CaseIntake"> | string
   suggestedCaseCategory?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  classificationStatus?: Prisma.StringFilter<"CaseIntake"> | string
   categoryConfidence?: Prisma.StringFilter<"CaseIntake"> | string
+  officerToConfirm?: Prisma.JsonNullableFilter<"CaseIntake">
+  matrixVersion?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   categoryRationale?: Prisma.JsonFilter<"CaseIntake">
   conflicts?: Prisma.JsonFilter<"CaseIntake">
   route?: Prisma.StringFilter<"CaseIntake"> | string
@@ -340,7 +366,10 @@ export type CaseIntakeOrderByWithAggregationInput = {
   turns?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   suggestedCaseCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  classificationStatus?: Prisma.SortOrder
   categoryConfidence?: Prisma.SortOrder
+  officerToConfirm?: Prisma.SortOrderInput | Prisma.SortOrder
+  matrixVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryRationale?: Prisma.SortOrder
   conflicts?: Prisma.SortOrder
   route?: Prisma.SortOrder
@@ -369,7 +398,10 @@ export type CaseIntakeScalarWhereWithAggregatesInput = {
   turns?: Prisma.JsonWithAggregatesFilter<"CaseIntake">
   informationCompleteness?: Prisma.StringWithAggregatesFilter<"CaseIntake"> | string
   suggestedCaseCategory?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  classificationStatus?: Prisma.StringWithAggregatesFilter<"CaseIntake"> | string
   categoryConfidence?: Prisma.StringWithAggregatesFilter<"CaseIntake"> | string
+  officerToConfirm?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  matrixVersion?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
   categoryRationale?: Prisma.JsonWithAggregatesFilter<"CaseIntake">
   conflicts?: Prisma.JsonWithAggregatesFilter<"CaseIntake">
   route?: Prisma.StringWithAggregatesFilter<"CaseIntake"> | string
@@ -391,7 +423,10 @@ export type CaseIntakeCreateInput = {
   turns: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness: string
   suggestedCaseCategory?: string | null
+  classificationStatus?: string
   categoryConfidence: string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: string | null
   categoryRationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route: string
@@ -415,7 +450,10 @@ export type CaseIntakeUncheckedCreateInput = {
   turns: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness: string
   suggestedCaseCategory?: string | null
+  classificationStatus?: string
   categoryConfidence: string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: string | null
   categoryRationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route: string
@@ -437,7 +475,10 @@ export type CaseIntakeUpdateInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -461,7 +502,10 @@ export type CaseIntakeUncheckedUpdateInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -484,7 +528,10 @@ export type CaseIntakeCreateManyInput = {
   turns: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness: string
   suggestedCaseCategory?: string | null
+  classificationStatus?: string
   categoryConfidence: string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: string | null
   categoryRationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route: string
@@ -506,7 +553,10 @@ export type CaseIntakeUpdateManyMutationInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -529,7 +579,10 @@ export type CaseIntakeUncheckedUpdateManyInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -557,7 +610,10 @@ export type CaseIntakeCountOrderByAggregateInput = {
   turns?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   suggestedCaseCategory?: Prisma.SortOrder
+  classificationStatus?: Prisma.SortOrder
   categoryConfidence?: Prisma.SortOrder
+  officerToConfirm?: Prisma.SortOrder
+  matrixVersion?: Prisma.SortOrder
   categoryRationale?: Prisma.SortOrder
   conflicts?: Prisma.SortOrder
   route?: Prisma.SortOrder
@@ -579,7 +635,9 @@ export type CaseIntakeMaxOrderByAggregateInput = {
   language?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   suggestedCaseCategory?: Prisma.SortOrder
+  classificationStatus?: Prisma.SortOrder
   categoryConfidence?: Prisma.SortOrder
+  matrixVersion?: Prisma.SortOrder
   route?: Prisma.SortOrder
   immediateSafetyConcern?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
@@ -595,7 +653,9 @@ export type CaseIntakeMinOrderByAggregateInput = {
   language?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   suggestedCaseCategory?: Prisma.SortOrder
+  classificationStatus?: Prisma.SortOrder
   categoryConfidence?: Prisma.SortOrder
+  matrixVersion?: Prisma.SortOrder
   route?: Prisma.SortOrder
   immediateSafetyConcern?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
@@ -643,7 +703,10 @@ export type CaseIntakeCreateWithoutCaseInput = {
   turns: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness: string
   suggestedCaseCategory?: string | null
+  classificationStatus?: string
   categoryConfidence: string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: string | null
   categoryRationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route: string
@@ -665,7 +728,10 @@ export type CaseIntakeUncheckedCreateWithoutCaseInput = {
   turns: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness: string
   suggestedCaseCategory?: string | null
+  classificationStatus?: string
   categoryConfidence: string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: string | null
   categoryRationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route: string
@@ -703,7 +769,10 @@ export type CaseIntakeUpdateWithoutCaseInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -725,7 +794,10 @@ export type CaseIntakeUncheckedUpdateWithoutCaseInput = {
   turns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   informationCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
   suggestedCaseCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  classificationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   categoryConfidence?: Prisma.StringFieldUpdateOperationsInput | string
+  officerToConfirm?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matrixVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryRationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   conflicts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   route?: Prisma.StringFieldUpdateOperationsInput | string
@@ -750,7 +822,10 @@ export type CaseIntakeSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   turns?: boolean
   informationCompleteness?: boolean
   suggestedCaseCategory?: boolean
+  classificationStatus?: boolean
   categoryConfidence?: boolean
+  officerToConfirm?: boolean
+  matrixVersion?: boolean
   categoryRationale?: boolean
   conflicts?: boolean
   route?: boolean
@@ -774,7 +849,10 @@ export type CaseIntakeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   turns?: boolean
   informationCompleteness?: boolean
   suggestedCaseCategory?: boolean
+  classificationStatus?: boolean
   categoryConfidence?: boolean
+  officerToConfirm?: boolean
+  matrixVersion?: boolean
   categoryRationale?: boolean
   conflicts?: boolean
   route?: boolean
@@ -798,7 +876,10 @@ export type CaseIntakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   turns?: boolean
   informationCompleteness?: boolean
   suggestedCaseCategory?: boolean
+  classificationStatus?: boolean
   categoryConfidence?: boolean
+  officerToConfirm?: boolean
+  matrixVersion?: boolean
   categoryRationale?: boolean
   conflicts?: boolean
   route?: boolean
@@ -822,7 +903,10 @@ export type CaseIntakeSelectScalar = {
   turns?: boolean
   informationCompleteness?: boolean
   suggestedCaseCategory?: boolean
+  classificationStatus?: boolean
   categoryConfidence?: boolean
+  officerToConfirm?: boolean
+  matrixVersion?: boolean
   categoryRationale?: boolean
   conflicts?: boolean
   route?: boolean
@@ -836,7 +920,7 @@ export type CaseIntakeSelectScalar = {
   createdAt?: boolean
 }
 
-export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "categoryConfidence" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "createdAt", ExtArgs["result"]["caseIntake"]>
+export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "createdAt", ExtArgs["result"]["caseIntake"]>
 export type CaseIntakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -871,7 +955,20 @@ export type $CaseIntakePayload<ExtArgs extends runtime.Types.Extensions.Internal
     turns: runtime.JsonValue
     informationCompleteness: string
     suggestedCaseCategory: string | null
+    /**
+     * suggested | needs_review - whether the matrix found a category or
+     * filed it as Other / VAWC - Other for an officer to classify.
+     */
+    classificationStatus: string
     categoryConfidence: string
+    /**
+     * Facts the report cannot settle that an officer must confirm.
+     */
+    officerToConfirm: runtime.JsonValue | null
+    /**
+     * lib/classificationSchema.ts MATRIX_VERSION at the time.
+     */
+    matrixVersion: string | null
     categoryRationale: runtime.JsonValue
     conflicts: runtime.JsonValue
     route: string
@@ -1318,7 +1415,10 @@ export interface CaseIntakeFieldRefs {
   readonly turns: Prisma.FieldRef<"CaseIntake", 'Json'>
   readonly informationCompleteness: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly suggestedCaseCategory: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly classificationStatus: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly categoryConfidence: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly officerToConfirm: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly matrixVersion: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly categoryRationale: Prisma.FieldRef<"CaseIntake", 'Json'>
   readonly conflicts: Prisma.FieldRef<"CaseIntake", 'Json'>
   readonly route: Prisma.FieldRef<"CaseIntake", 'String'>

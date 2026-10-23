@@ -333,7 +333,9 @@ export default function IntakeAssistant({
               {t.summary}
             </Typography>
 
-            {result.suggestedCaseCategory ? (
+            {/* "Other" is where an unclear report is filed, not a finding, so
+                it is shown as "an officer will classify this". */}
+            {result.classificationStatus === 'suggested' ? (
               <Box sx={{ mb: 1 }}>
                 <Typography sx={{ fontSize: '0.85rem', color: '#0c1e46' }}>
                   {t.suggested} <b>{result.suggestedCaseCategory}</b>
@@ -348,7 +350,12 @@ export default function IntakeAssistant({
                 )}
               </Box>
             ) : (
-              <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>{t.noCategory}</Typography>
+              <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
+                {t.noCategory}
+                {result.route === 'VAWC' && (
+                  <Box component="span" sx={{ display: 'block', mt: 0.5 }}>{result.categoryRationale[1]}</Box>
+                )}
+              </Typography>
             )}
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>

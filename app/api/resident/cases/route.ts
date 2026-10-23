@@ -14,7 +14,10 @@ import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
 import { runIntake, answersSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
 
 const createSchema = z.object({
-  caseType: z.string().min(1, 'Case type is required'),
+  // No longer asked of the resident: the category is derived from what they
+  // wrote, by the classification matrix. Accepted from an older client as
+  // context only - it never decides the category.
+  caseType: z.string().max(120).optional(),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   barangay: z.string().optional(),
   additionalNotes: z.string().optional(),
@@ -127,16 +130,35 @@ export async function POST(req: NextRequest) {
     const { additionalNotes } = parsed.data;
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+    // The assisted intake: the resident's own narrative and answers, read by
+    // the same grounded rules as before. It decides completeness, the
+    // suggested category and the preliminary level - and the level comes from
+    // stated facts and the documented hard rules, never from the dropdown.
+    const narrative = (parsed.data.intakeNarrative ?? '').trim() || parsed.data.description;
+    const intake = await runIntake({
+      residentId: auth.resident.residentId,
+      narrative,
+      answers: parsed.data.intakeAnswers,
+      selectedCategory: parsed.data.caseType ?? null,
+      street: barangay,
+      gender: resident.gender ?? null,
+    });
+
+    // The case is filed under the matrix's category - a specific one, or
+    // "Other" / "VAWC - Other" when the report does not support one and an
+    // officer has to classify it. Which desk can see it follows from this.
+    const caseType = intake.result.suggestedCaseCategory;
+
     const [barangayCaseCount, residentCaseCount, residentSameTypeCount, highRiskAreaCaseCount] = await Promise.all([
       prisma.case.count({ where: { barangay, filedAt: { gte: thirtyDaysAgo } } }),
       prisma.case.count({ where: { residentId: auth.resident.residentId } }),
       prisma.case.count({
-        where: { residentId: auth.resident.residentId, caseType: parsed.data.caseType },
+        where: { residentId: auth.resident.residentId, caseType },
       }),
       prisma.case.count({
         where: {
           barangay,
-          caseType: parsed.data.caseType,
+          caseType,
           riskLevel: { in: ['High', 'Critical'] },
           filedAt: { gte: thirtyDaysAgo },
         },
@@ -144,7 +166,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     const aiRisk = computeRisk({
-      caseType: parsed.data.caseType,
+      caseType,
       barangay,
       description: parsed.data.description,
       filedAt,
@@ -202,19 +224,6 @@ export async function POST(req: NextRequest) {
     // their own account in Tagalog, and it is the resident who reads the reply.
     const detected = detectLanguageSafe(parsed.data.description);
 
-    // The assisted intake: the resident's own narrative and answers, read by
-    // the same grounded rules as before. It decides completeness, the
-    // suggested category and the preliminary level - and the level comes from
-    // stated facts and the documented hard rules, never from the dropdown.
-    const narrative = (parsed.data.intakeNarrative ?? '').trim() || parsed.data.description;
-    const intake = await runIntake({
-      residentId: auth.resident.residentId,
-      narrative,
-      answers: parsed.data.intakeAnswers,
-      selectedCategory: parsed.data.caseType,
-      street: barangay,
-      gender: resident.gender ?? null,
-    });
 
     // A photographed document is still read by the older path, with its
     // unclear-word guard; whichever reading is more serious is kept, because
@@ -244,7 +253,7 @@ export async function POST(req: NextRequest) {
         data: {
           caseNumber,
           residentName: `${resident.firstName} ${resident.lastName}`,
-          caseType: parsed.data.caseType,
+          caseType,
           description: parsed.data.description,
           barangay,
           status: 'Open',
@@ -280,7 +289,7 @@ export async function POST(req: NextRequest) {
     // factors reached on their own: an officer reading the feed has to see the
     // same answer the case carries, and which rules put it there.
     const raised = ir.rulesApplied;
-    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — ${riskLevel} risk (preliminary), `
+    const activityMsg = `Resident filed case ${caseNumber}: ${caseType}${ir.classificationStatus === 'needs_review' ? ' (needs review)' : ''} — ${riskLevel} risk (preliminary), `
       + `information ${ir.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`
       + `${raised.length ? ` (rule ${raised.join(', ')})` : ''}`
       + `${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
@@ -345,11 +354,14 @@ export async function POST(req: NextRequest) {
           data: {
             caseId: newCase.id,
             narrative,
-            selectedCategory: parsed.data.caseType,
+            selectedCategory: parsed.data.caseType ?? null,
             language: detected.language,
             turns: JSON.parse(JSON.stringify(transcript(parsed.data.intakeAnswers, ir))),
             informationCompleteness: ir.informationCompleteness,
             suggestedCaseCategory: ir.suggestedCaseCategory,
+            classificationStatus: ir.classificationStatus,
+            officerToConfirm: ir.officerToConfirm,
+            matrixVersion: ir.matrixVersion,
             categoryConfidence: ir.categoryConfidence,
             categoryRationale: ir.categoryRationale,
             conflicts: ir.conflicts,
@@ -368,6 +380,7 @@ export async function POST(req: NextRequest) {
             caseId: newCase.id,
             kind: 'preliminary',
             riskLevel,
+            caseType,
             informationCompleteness: ir.informationCompleteness,
             rationale: JSON.parse(JSON.stringify({ basis: ir.riskBasis, rules: ir.rulesApplied, why: ir.riskRationale })),
             engineVersion: ir.engineVersion,

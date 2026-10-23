@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { runIntake, answersSchema, NARRATIVE_MAX } from '@/lib/intakeServer';
+import { rateLimit, INTAKE_LIMIT } from '@/lib/rateLimit';
 
 /**
  * One step of the assisted intake: the narrative and the answers so far in,
@@ -22,6 +23,16 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const auth = await requireResidentAuth(req);
   if ('status' in auth) return auth;
+
+  const limited = rateLimit(`intake:${auth.resident.residentId}`, INTAKE_LIMIT);
+  if (!limited.allowed) {
+    const res = rError(
+      'Too many requests to the assistant for now. You can still submit your report — nothing you wrote is lost.',
+      429,
+    );
+    res.headers.set('Retry-After', String(limited.retryAfterSeconds));
+    return res;
+  }
 
   let body: unknown;
   try { body = await req.json(); } catch { return rError('Invalid request', 400); }

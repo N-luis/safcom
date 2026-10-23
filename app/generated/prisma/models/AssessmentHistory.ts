@@ -31,6 +31,8 @@ export type AssessmentHistoryMinAggregateOutputType = {
   caseId: string | null
   kind: string | null
   riskLevel: string | null
+  caseType: string | null
+  previousCaseType: string | null
   informationCompleteness: string | null
   actorId: string | null
   reason: string | null
@@ -43,6 +45,8 @@ export type AssessmentHistoryMaxAggregateOutputType = {
   caseId: string | null
   kind: string | null
   riskLevel: string | null
+  caseType: string | null
+  previousCaseType: string | null
   informationCompleteness: string | null
   actorId: string | null
   reason: string | null
@@ -55,6 +59,8 @@ export type AssessmentHistoryCountAggregateOutputType = {
   caseId: number
   kind: number
   riskLevel: number
+  caseType: number
+  previousCaseType: number
   informationCompleteness: number
   rationale: number
   actorId: number
@@ -70,6 +76,8 @@ export type AssessmentHistoryMinAggregateInputType = {
   caseId?: true
   kind?: true
   riskLevel?: true
+  caseType?: true
+  previousCaseType?: true
   informationCompleteness?: true
   actorId?: true
   reason?: true
@@ -82,6 +90,8 @@ export type AssessmentHistoryMaxAggregateInputType = {
   caseId?: true
   kind?: true
   riskLevel?: true
+  caseType?: true
+  previousCaseType?: true
   informationCompleteness?: true
   actorId?: true
   reason?: true
@@ -94,6 +104,8 @@ export type AssessmentHistoryCountAggregateInputType = {
   caseId?: true
   kind?: true
   riskLevel?: true
+  caseType?: true
+  previousCaseType?: true
   informationCompleteness?: true
   rationale?: true
   actorId?: true
@@ -180,6 +192,8 @@ export type AssessmentHistoryGroupByOutputType = {
   caseId: string
   kind: string
   riskLevel: string
+  caseType: string | null
+  previousCaseType: string | null
   informationCompleteness: string | null
   rationale: runtime.JsonValue
   actorId: string | null
@@ -214,6 +228,8 @@ export type AssessmentHistoryWhereInput = {
   caseId?: Prisma.StringFilter<"AssessmentHistory"> | string
   kind?: Prisma.StringFilter<"AssessmentHistory"> | string
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
+  caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -229,6 +245,8 @@ export type AssessmentHistoryOrderByWithRelationInput = {
   caseId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
+  caseType?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousCaseType?: Prisma.SortOrderInput | Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -247,6 +265,8 @@ export type AssessmentHistoryWhereUniqueInput = Prisma.AtLeast<{
   caseId?: Prisma.StringFilter<"AssessmentHistory"> | string
   kind?: Prisma.StringFilter<"AssessmentHistory"> | string
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
+  caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -262,6 +282,8 @@ export type AssessmentHistoryOrderByWithAggregationInput = {
   caseId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
+  caseType?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousCaseType?: Prisma.SortOrderInput | Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -281,6 +303,8 @@ export type AssessmentHistoryScalarWhereWithAggregatesInput = {
   caseId?: Prisma.StringWithAggregatesFilter<"AssessmentHistory"> | string
   kind?: Prisma.StringWithAggregatesFilter<"AssessmentHistory"> | string
   riskLevel?: Prisma.StringWithAggregatesFilter<"AssessmentHistory"> | string
+  caseType?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
+  previousCaseType?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonWithAggregatesFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableWithAggregatesFilter<"AssessmentHistory"> | string | null
@@ -293,6 +317,8 @@ export type AssessmentHistoryCreateInput = {
   id?: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -307,6 +333,8 @@ export type AssessmentHistoryUncheckedCreateInput = {
   caseId: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -319,6 +347,8 @@ export type AssessmentHistoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -333,6 +363,8 @@ export type AssessmentHistoryUncheckedUpdateInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -346,6 +378,8 @@ export type AssessmentHistoryCreateManyInput = {
   caseId: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -358,6 +392,8 @@ export type AssessmentHistoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -370,6 +406,8 @@ export type AssessmentHistoryUncheckedUpdateManyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -393,6 +431,8 @@ export type AssessmentHistoryCountOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
+  caseType?: Prisma.SortOrder
+  previousCaseType?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   rationale?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
@@ -406,6 +446,8 @@ export type AssessmentHistoryMaxOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
+  caseType?: Prisma.SortOrder
+  previousCaseType?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
   reason?: Prisma.SortOrder
@@ -418,6 +460,8 @@ export type AssessmentHistoryMinOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
+  caseType?: Prisma.SortOrder
+  previousCaseType?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   actorId?: Prisma.SortOrder
   reason?: Prisma.SortOrder
@@ -513,6 +557,8 @@ export type AssessmentHistoryCreateWithoutActorInput = {
   id?: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -526,6 +572,8 @@ export type AssessmentHistoryUncheckedCreateWithoutActorInput = {
   caseId: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -567,6 +615,8 @@ export type AssessmentHistoryScalarWhereInput = {
   caseId?: Prisma.StringFilter<"AssessmentHistory"> | string
   kind?: Prisma.StringFilter<"AssessmentHistory"> | string
   riskLevel?: Prisma.StringFilter<"AssessmentHistory"> | string
+  caseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
+  previousCaseType?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   informationCompleteness?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
   rationale?: Prisma.JsonFilter<"AssessmentHistory">
   actorId?: Prisma.StringNullableFilter<"AssessmentHistory"> | string | null
@@ -579,6 +629,8 @@ export type AssessmentHistoryCreateWithoutCaseInput = {
   id?: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -591,6 +643,8 @@ export type AssessmentHistoryUncheckedCreateWithoutCaseInput = {
   id?: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -630,6 +684,8 @@ export type AssessmentHistoryCreateManyActorInput = {
   caseId: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: string | null
@@ -641,6 +697,8 @@ export type AssessmentHistoryUpdateWithoutActorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +712,8 @@ export type AssessmentHistoryUncheckedUpdateWithoutActorInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -666,6 +726,8 @@ export type AssessmentHistoryUncheckedUpdateManyWithoutActorInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -677,6 +739,8 @@ export type AssessmentHistoryCreateManyCaseInput = {
   id?: string
   kind: string
   riskLevel: string
+  caseType?: string | null
+  previousCaseType?: string | null
   informationCompleteness?: string | null
   rationale: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: string | null
@@ -689,6 +753,8 @@ export type AssessmentHistoryUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -701,6 +767,8 @@ export type AssessmentHistoryUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -713,6 +781,8 @@ export type AssessmentHistoryUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousCaseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rationale?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   actorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -728,6 +798,8 @@ export type AssessmentHistorySelect<ExtArgs extends runtime.Types.Extensions.Int
   caseId?: boolean
   kind?: boolean
   riskLevel?: boolean
+  caseType?: boolean
+  previousCaseType?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -743,6 +815,8 @@ export type AssessmentHistorySelectCreateManyAndReturn<ExtArgs extends runtime.T
   caseId?: boolean
   kind?: boolean
   riskLevel?: boolean
+  caseType?: boolean
+  previousCaseType?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -758,6 +832,8 @@ export type AssessmentHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.T
   caseId?: boolean
   kind?: boolean
   riskLevel?: boolean
+  caseType?: boolean
+  previousCaseType?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -773,6 +849,8 @@ export type AssessmentHistorySelectScalar = {
   caseId?: boolean
   kind?: boolean
   riskLevel?: boolean
+  caseType?: boolean
+  previousCaseType?: boolean
   informationCompleteness?: boolean
   rationale?: boolean
   actorId?: boolean
@@ -781,7 +859,7 @@ export type AssessmentHistorySelectScalar = {
   createdAt?: boolean
 }
 
-export type AssessmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "kind" | "riskLevel" | "informationCompleteness" | "rationale" | "actorId" | "reason" | "engineVersion" | "createdAt", ExtArgs["result"]["assessmentHistory"]>
+export type AssessmentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "kind" | "riskLevel" | "caseType" | "previousCaseType" | "informationCompleteness" | "rationale" | "actorId" | "reason" | "engineVersion" | "createdAt", ExtArgs["result"]["assessmentHistory"]>
 export type AssessmentHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.AssessmentHistory$actorArgs<ExtArgs>
@@ -805,10 +883,17 @@ export type $AssessmentHistoryPayload<ExtArgs extends runtime.Types.Extensions.I
     id: string
     caseId: string
     /**
-     * preliminary | officer_override | officer_confirm | walk_in
+     * preliminary | officer_override | officer_confirm | walk_in |
+     * category_confirm | category_change
      */
     kind: string
     riskLevel: string
+    /**
+     * The case category at this point, and what it was before - so a
+     * reclassification can be read back without reconstructing it.
+     */
+    caseType: string | null
+    previousCaseType: string | null
     informationCompleteness: string | null
     rationale: runtime.JsonValue
     /**
@@ -1247,6 +1332,8 @@ export interface AssessmentHistoryFieldRefs {
   readonly caseId: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly kind: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly riskLevel: Prisma.FieldRef<"AssessmentHistory", 'String'>
+  readonly caseType: Prisma.FieldRef<"AssessmentHistory", 'String'>
+  readonly previousCaseType: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly informationCompleteness: Prisma.FieldRef<"AssessmentHistory", 'String'>
   readonly rationale: Prisma.FieldRef<"AssessmentHistory", 'Json'>
   readonly actorId: Prisma.FieldRef<"AssessmentHistory", 'String'>
