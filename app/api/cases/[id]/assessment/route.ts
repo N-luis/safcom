@@ -131,9 +131,38 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
       // The case row carries the coarse level the rest of the app reads, so it
       // has to follow the officer's decision rather than the original scoring.
+      //
+      // Confirming keeps the level the case already has. It used to be mapped
+      // through priorityToRiskLevel, which stops at High - so agreeing with a
+      // Critical case quietly downgraded it. An override to "Immediate
+      // Response" is Critical for the same reason.
+      const before = await tx.case.findUnique({
+        where: { id }, select: { riskLevel: true, informationCompleteness: true },
+      });
+      const newLevel = confirming && before?.riskLevel
+        ? before.riskLevel
+        : parsed.data.priority === 'Immediate Response'
+          ? 'Critical'
+          : priorityToRiskLevel(parsed.data.priority as CasePriority);
+
       await tx.case.update({
         where: { id },
-        data: { riskLevel: priorityToRiskLevel(parsed.data.priority as CasePriority) },
+        // A person has now looked at it.
+        data: { riskLevel: newLevel, requiresOfficerReview: false },
+      });
+
+      // Appended, never updated: the preliminary result stays readable under
+      // the decision that replaced it.
+      await tx.assessmentHistory.create({
+        data: {
+          caseId: id,
+          kind: confirming ? 'officer_confirm' : 'officer_override',
+          riskLevel: newLevel,
+          informationCompleteness: before?.informationCompleteness ?? null,
+          rationale: { from: before?.riskLevel ?? null, priority: parsed.data.priority },
+          actorId: auth.user.userId,
+          reason: note || null,
+        },
       });
 
       const who = assessment.overriddenBy?.name ?? 'an officer';

@@ -395,7 +395,9 @@ export const ModelName = {
   Notification: 'Notification',
   Alert: 'Alert',
   CaseFollowUp: 'CaseFollowUp',
-  Message: 'Message'
+  Message: 'Message',
+  CaseIntake: 'CaseIntake',
+  AssessmentHistory: 'AssessmentHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message"
+    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1303,6 +1305,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CaseIntake: {
+      payload: Prisma.$CaseIntakePayload<ExtArgs>
+      fields: Prisma.CaseIntakeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseIntakeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseIntakeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        findFirst: {
+          args: Prisma.CaseIntakeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseIntakeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        findMany: {
+          args: Prisma.CaseIntakeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>[]
+        }
+        create: {
+          args: Prisma.CaseIntakeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        createMany: {
+          args: Prisma.CaseIntakeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseIntakeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>[]
+        }
+        delete: {
+          args: Prisma.CaseIntakeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        update: {
+          args: Prisma.CaseIntakeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseIntakeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseIntakeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseIntakeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseIntakeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseIntakePayload>
+        }
+        aggregate: {
+          args: Prisma.CaseIntakeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseIntake>
+        }
+        groupBy: {
+          args: Prisma.CaseIntakeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseIntakeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseIntakeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseIntakeCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentHistory: {
+      payload: Prisma.$AssessmentHistoryPayload<ExtArgs>
+      fields: Prisma.AssessmentHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentHistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        update: {
+          args: Prisma.AssessmentHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentHistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentHistory>
+        }
+        groupBy: {
+          args: Prisma.AssessmentHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1381,6 +1531,8 @@ export const CaseScalarFieldEnum = {
   filedAt: 'filedAt',
   resolvedAt: 'resolvedAt',
   updatedAt: 'updatedAt',
+  informationCompleteness: 'informationCompleteness',
+  requiresOfficerReview: 'requiresOfficerReview',
   progressState: 'progressState',
   lastResidentUpdateAt: 'lastResidentUpdateAt',
   lastOfficerActionAt: 'lastOfficerActionAt',
@@ -1564,6 +1716,48 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const CaseIntakeScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  narrative: 'narrative',
+  selectedCategory: 'selectedCategory',
+  language: 'language',
+  turns: 'turns',
+  informationCompleteness: 'informationCompleteness',
+  suggestedCaseCategory: 'suggestedCaseCategory',
+  categoryConfidence: 'categoryConfidence',
+  categoryRationale: 'categoryRationale',
+  conflicts: 'conflicts',
+  route: 'route',
+  immediateSafetyConcern: 'immediateSafetyConcern',
+  supportingIndicators: 'supportingIndicators',
+  missingInformation: 'missingInformation',
+  recommendedNextSteps: 'recommendedNextSteps',
+  requiresOfficerReview: 'requiresOfficerReview',
+  reviewReasons: 'reviewReasons',
+  engineVersion: 'engineVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseIntakeScalarFieldEnum = (typeof CaseIntakeScalarFieldEnum)[keyof typeof CaseIntakeScalarFieldEnum]
+
+
+export const AssessmentHistoryScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  kind: 'kind',
+  riskLevel: 'riskLevel',
+  informationCompleteness: 'informationCompleteness',
+  rationale: 'rationale',
+  actorId: 'actorId',
+  reason: 'reason',
+  engineVersion: 'engineVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentHistoryScalarFieldEnum = (typeof AssessmentHistoryScalarFieldEnum)[keyof typeof AssessmentHistoryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1824,6 +2018,8 @@ export type GlobalOmitConfig = {
   alert?: Prisma.AlertOmit
   caseFollowUp?: Prisma.CaseFollowUpOmit
   message?: Prisma.MessageOmit
+  caseIntake?: Prisma.CaseIntakeOmit
+  assessmentHistory?: Prisma.AssessmentHistoryOmit
 }
 
 /* Types for Logging */

@@ -62,7 +62,9 @@ export const ModelName = {
   Notification: 'Notification',
   Alert: 'Alert',
   CaseFollowUp: 'CaseFollowUp',
-  Message: 'Message'
+  Message: 'Message',
+  CaseIntake: 'CaseIntake',
+  AssessmentHistory: 'AssessmentHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -120,6 +122,8 @@ export const CaseScalarFieldEnum = {
   filedAt: 'filedAt',
   resolvedAt: 'resolvedAt',
   updatedAt: 'updatedAt',
+  informationCompleteness: 'informationCompleteness',
+  requiresOfficerReview: 'requiresOfficerReview',
   progressState: 'progressState',
   lastResidentUpdateAt: 'lastResidentUpdateAt',
   lastOfficerActionAt: 'lastOfficerActionAt',
@@ -303,6 +307,48 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const CaseIntakeScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  narrative: 'narrative',
+  selectedCategory: 'selectedCategory',
+  language: 'language',
+  turns: 'turns',
+  informationCompleteness: 'informationCompleteness',
+  suggestedCaseCategory: 'suggestedCaseCategory',
+  categoryConfidence: 'categoryConfidence',
+  categoryRationale: 'categoryRationale',
+  conflicts: 'conflicts',
+  route: 'route',
+  immediateSafetyConcern: 'immediateSafetyConcern',
+  supportingIndicators: 'supportingIndicators',
+  missingInformation: 'missingInformation',
+  recommendedNextSteps: 'recommendedNextSteps',
+  requiresOfficerReview: 'requiresOfficerReview',
+  reviewReasons: 'reviewReasons',
+  engineVersion: 'engineVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseIntakeScalarFieldEnum = (typeof CaseIntakeScalarFieldEnum)[keyof typeof CaseIntakeScalarFieldEnum]
+
+
+export const AssessmentHistoryScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  kind: 'kind',
+  riskLevel: 'riskLevel',
+  informationCompleteness: 'informationCompleteness',
+  rationale: 'rationale',
+  actorId: 'actorId',
+  reason: 'reason',
+  engineVersion: 'engineVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentHistoryScalarFieldEnum = (typeof AssessmentHistoryScalarFieldEnum)[keyof typeof AssessmentHistoryScalarFieldEnum]
 
 
 export const SortOrder = {

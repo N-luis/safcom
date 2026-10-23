@@ -27,6 +27,7 @@ model User {
   sentMessages     Message[]      @relation("SentMessages")
   receivedMessages Message[]      @relation("ReceivedMessages")
   caseFollowUps    CaseFollowUp[]
+  assessmentActions AssessmentHistory[] @relation("AssessmentActor")
 }
 
 model Case {
@@ -66,6 +67,17 @@ model Case {
   followUps    CaseFollowUp[]
   attachments  CaseAttachment[]
   assessment   CaseAssessment?
+  intake       CaseIntake?
+  assessmentHistory AssessmentHistory[]
+
+  /// How much the report actually tells us: INSUFFICIENT | PARTIAL |
+  /// SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT. Null on cases filed before the
+  /// assisted intake existed. Deliberately separate from riskLevel - a short
+  /// report is not a low-risk report, and it is not a high-risk one either.
+  informationCompleteness String?
+  /// Set when the preliminary assessment needs a person: incomplete,
+  /// conflicting, VAWC, or a safety concern. Cleared by an officer review.
+  requiresOfficerReview   Boolean @default(false)
 
   /// Where the case is heading, from the latest follow-up unless an officer
   /// overrides it: improving | no_change | worsening | resolved.
@@ -301,4 +313,61 @@ model Message {
   parentId    String?
   parent      Message?  @relation("Replies", fields: [parentId], references: [id])
   replies     Message[] @relation("Replies")
+}
+
+/// What the resident told the assisted intake, kept exactly as given.
+///
+/// The original narrative is never edited here or on the Case: a later answer
+/// adds to the record, it does not rewrite it. One per case.
+model CaseIntake {
+  id        String   @id @default(cuid())
+  caseId    String   @unique
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  /// The first thing the resident wrote, verbatim.
+  narrative        String
+  /// The category the resident chose. Context, not the classification.
+  selectedCategory String?
+  language         String?
+  /// Every question asked, in order, with the answer or how it was left
+  /// (answered / skipped / declined / not sure).
+  turns            Json
+
+  informationCompleteness String
+  suggestedCaseCategory   String?
+  categoryConfidence      String
+  categoryRationale       Json
+  conflicts               Json
+  route                   String
+  immediateSafetyConcern  Boolean @default(false)
+  supportingIndicators    Json
+  missingInformation      Json
+  recommendedNextSteps    Json
+  requiresOfficerReview   Boolean @default(false)
+  reviewReasons           Json
+  /// Which engine produced this, so an old result can be told from a new one.
+  engineVersion           String
+  createdAt               DateTime @default(now())
+}
+
+/// Every assessment a case has had, oldest first. Nothing here is updated or
+/// deleted: an officer's override is a new row, and the preliminary result it
+/// replaced stays readable underneath it.
+model AssessmentHistory {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// preliminary | officer_override | officer_confirm | walk_in
+  kind      String
+  riskLevel String
+  informationCompleteness String?
+  rationale Json
+  /// Who did it. Null for the automated preliminary assessment.
+  actorId   String?
+  actor     User?    @relation("AssessmentActor", fields: [actorId], references: [id])
+  reason    String?
+  engineVersion String?
+  createdAt DateTime @default(now())
+
+  @@index([caseId, createdAt])
 }

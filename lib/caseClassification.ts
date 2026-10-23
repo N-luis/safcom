@@ -156,7 +156,63 @@ function wordPattern(n: string): RegExp {
   return re;
 }
 
-/** The first term that appears, with the words that carried it. */
+// ─── Negation ────────────────────────────────────────────────────────────────
+
+/**
+ * Words that deny what follows them.
+ *
+ * Without this the matcher read "hindi niya ako binantaan" (he did NOT
+ * threaten me) as a threat and "walang bata sa bahay" (there was NO child) as
+ * a child being involved - which then fired rule H2 and put a child on the
+ * record that the resident had said was not there.
+ */
+const NEGATORS = new Set([
+  'hindi', 'di', "'di", 'wala', 'walang', 'huwag', 'wag',
+  'no', 'not', 'never', 'without', 'none', 'nobody', 'neither', 'nor',
+]);
+
+/**
+ * Words a negator may reach across. Deliberately only pronouns, particles and
+ * articles: "hindi ako binantaan" is a denial, but "hindi tumigil sa
+ * pananakit" (did not stop hurting) is not, and "hindi lang" (not only) is
+ * the opposite of one - so "tumigil" and "lang" stop the search.
+ */
+const NEGATION_BRIDGE = new Set([
+  'ako', 'ko', 'mo', 'niya', 'nya', 'siya', 'sya', 'siyang', 'syang', 'akong', 'kami', 'kaming',
+  'tayo', 'sila', 'silang', 'po', 'naman', 'na', 'ng', 'nang', 'sa', 'ang', 'si', 'kay',
+  'pa', 'rin', 'din', 'man', 'ito', 'iyon', 'yung', 'kahit', 'anumang', 'ni', 'nila',
+  'i', 'me', 'he', 'she', 'him', 'her', 'they', 'them', 'we', 'us', 'it', 'a', 'an', 'the',
+  'any', 'was', 'were', 'be', 'been', 'there', 'have', 'has', 'had', 'even', 'ever', 'to', 'do', 'does', 'did',
+]);
+
+/** True when the words just before `index` deny the term that starts there. */
+function negatedAt(text: string, index: number): boolean {
+  // Only within the same clause: a denial does not reach past a full stop,
+  // a comma or a "but".
+  const before = text.slice(0, index).split(/[.,;:!?]|\b(?:pero|but|at|and)\b/).pop() ?? '';
+  const words = before.trim().split(/\s+/).filter(Boolean);
+  for (let i = words.length - 1, seen = 0; i >= 0 && seen < 4; i--, seen++) {
+    const w = words[i];
+    if (NEGATORS.has(w) || w.endsWith("n't")) return true;
+    if (!NEGATION_BRIDGE.has(w)) return false;
+  }
+  return false;
+}
+
+/** Whether `re` matches somewhere in `text` that is not denied. */
+function affirmedIn(text: string, re: RegExp): boolean {
+  const all = new RegExp(re.source, 'g');
+  for (const m of text.matchAll(all)) {
+    if (!negatedAt(text, m.index ?? 0)) return true;
+  }
+  return false;
+}
+
+/**
+ * The first term that appears and is not denied, with the words that carried
+ * it. A term that itself contains a denial ("walang nasaktan", "hindi ako
+ * ligtas") is matched as a whole, so its own negator does not cancel it.
+ */
 function find(text: string, original: string, terms: string[], blocked: string[]):
   { term: string; quote: string } | null {
   const t = norm(text);
@@ -164,7 +220,7 @@ function find(text: string, original: string, terms: string[], blocked: string[]
   for (const term of terms) {
     const n = norm(term);
     const re = wordPattern(n);
-    if (!re.test(t) && !re.test(c)) continue;
+    if (!affirmedIn(t, re) && !affirmedIn(c, re)) continue;
     // A word the reader was unsure of cannot support a parameter.
     if (blocked.some(b => norm(b) && n.includes(norm(b)))) continue;
     return { term, quote: quoteAround(original, term) };
@@ -205,7 +261,8 @@ const T = {
 
   threatExplicit: ['papatayin', 'sasaktan', 'kill you', 'kill me', 'bugbugin kita', 'paparusahan'],
   threatVerbal: ['nagbanta', 'binantaan', 'pinagbantaan', 'threatened', 'nananakot', 'tinakot'],
-  threatNone: ['walang banta', 'hindi naman nagbanta', 'no threats'],
+  threatNone: ['walang banta', 'hindi naman nagbanta', 'hindi nagbanta', 'hindi ako binantaan',
+    'hindi ako tinakot', 'no threats', 'did not threaten', "didn't threaten", 'never threatened'],
 
   intoxicated: ['lasing', 'nakainom', 'nag-inom', 'alak', 'tomador', 'drunk', 'intoxicated', 'alcohol', 'liquor'],
   notIntoxicated: ['hindi lasing', 'walang alak', 'not drunk', 'no alcohol'],
@@ -218,7 +275,12 @@ const T = {
   damageNone: ['walang nasira', 'walang napinsala', 'nothing was damaged'],
 
   unsafe: ['takot ako', 'natatakot', 'hindi ako ligtas', 'delikado', 'afraid', 'not safe', 'unsafe', 'scared'],
-  safe: ['ligtas naman ako', 'ligtas kami', 'i am safe', 'we are safe'],
+  safe: ['ligtas naman ako', 'ligtas kami', 'ligtas na ako', 'ligtas na kami', 'ligtas ako ngayon',
+    'nasa ligtas na lugar', 'i am safe', "i'm safe", 'we are safe', 'safe now'],
+  // Explicit denials, so a resident who says so is recorded as saying so.
+  weaponNone: ['walang hawak', 'wala siyang hawak', 'walang armas', 'walang dalang armas',
+    'no weapon', 'unarmed', 'without a weapon'],
+  childrenNone: ['walang bata', 'walang mga bata', 'walang anak', 'no children', 'no child', 'no kids'],
 
   witness: ['nakita ng', 'may saksi', 'testigo', 'witness', 'nakakita'],
 
@@ -255,7 +317,8 @@ const T = {
     'binugbog', 'bugbog', 'sinakal', 'sinabunutan', 'hinampas', 'tinulak', 'kinaladkad',
     'away', 'suntukan', 'sapakan', 'nag-away',
     'punched', 'slapped', 'kicked', 'beaten', 'choked', 'hit me', 'hurt me', 'struck me',
-    'fistfight', 'mauled', 'assaulted',
+    'fistfight', 'mauled', 'assaulted', 'pushed me', 'shoved', 'pushed her', 'pushed him',
+    'beat me', 'strangled', 'grabbed me', 'dragged me', 'threw me',
   ],
   domestic: ['asawa ko', 'kinakasama ko', 'sa loob ng bahay namin', 'domestic', 'household violence'],
   govt: ['barangay official', 'kagawad', 'kapitan', 'opisyal ng barangay', 'government office', 'city hall'],
@@ -311,10 +374,15 @@ export function classifyCase(input: ClassificationInput): Classification {
     const v = set(ctx, 'vulnerable_person', [...terms], value);
     if (v) vulnerable.push(v);
   }
+  // Said outright, and nothing above contradicted it.
+  if (!vulnerable.length && set(ctx, 'vulnerable_person', T.childrenNone, 'none' as const)) {
+    vulnerable.push('none');
+  }
 
   const weapon =
     set(ctx, 'weapon', T.weaponUsed, 'used' as const)
     ?? set(ctx, 'weapon', T.weaponPresent, 'present' as const)
+    ?? set(ctx, 'weapon', T.weaponNone, 'none' as const)
     ?? 'unknown';
 
   const injury =
@@ -332,7 +400,11 @@ export function classifyCase(input: ClassificationInput): Classification {
 
   const parameters: Parameters = {
     vulnerable_person: vulnerable.length ? vulnerable : ['unknown'],
-    immediate_danger: set(ctx, 'immediate_danger', T.dangerNow, 'yes' as const) ?? 'unknown',
+    // "Ligtas na ako" answers the danger question for the person reporting.
+    // It is only read as "no" when nothing in the report says danger is here.
+    immediate_danger: set(ctx, 'immediate_danger', T.dangerNow, 'yes' as const)
+      ?? set(ctx, 'immediate_danger', T.safe, 'no' as const)
+      ?? 'unknown',
     weapon,
     injury,
     relationship:
@@ -616,3 +688,16 @@ export function enforceHardRules(
 const LEVEL_OF: Record<Classification['risk_level'], RiskLevelName> = {
   LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', CRITICAL: 'Critical',
 };
+
+/** The term groups above, by name, for callers that need one fact checked. */
+export type TermGroup = keyof typeof T;
+
+/**
+ * Whether the text affirms something in one term group, with the resident's
+ * own words for it. Uses the same matcher as the classifier - including the
+ * negation guard - so a fact read here can never disagree with a fact read
+ * there.
+ */
+export function mentions(text: string, group: TermGroup, blocked: string[] = []): string | null {
+  return find(text, text, T[group], blocked)?.quote ?? null;
+}

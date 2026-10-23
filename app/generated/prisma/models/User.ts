@@ -245,6 +245,7 @@ export type UserWhereInput = {
   sentMessages?: Prisma.MessageListRelationFilter
   receivedMessages?: Prisma.MessageListRelationFilter
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
+  assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -267,6 +268,7 @@ export type UserOrderByWithRelationInput = {
   sentMessages?: Prisma.MessageOrderByRelationAggregateInput
   receivedMessages?: Prisma.MessageOrderByRelationAggregateInput
   caseFollowUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
+  assessmentActions?: Prisma.AssessmentHistoryOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -292,6 +294,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sentMessages?: Prisma.MessageListRelationFilter
   receivedMessages?: Prisma.MessageListRelationFilter
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
+  assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -350,6 +353,7 @@ export type UserCreateInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -372,6 +376,7 @@ export type UserUncheckedCreateInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserUpdateInput = {
@@ -394,6 +399,7 @@ export type UserUpdateInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -416,6 +422,7 @@ export type UserUncheckedUpdateInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -642,6 +649,22 @@ export type UserUpdateOneRequiredWithoutReceivedMessagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedMessagesInput, Prisma.UserUpdateWithoutReceivedMessagesInput>, Prisma.UserUncheckedUpdateWithoutReceivedMessagesInput>
 }
 
+export type UserCreateNestedOneWithoutAssessmentActionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssessmentActionsInput, Prisma.UserUncheckedCreateWithoutAssessmentActionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssessmentActionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAssessmentActionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssessmentActionsInput, Prisma.UserUncheckedCreateWithoutAssessmentActionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssessmentActionsInput
+  upsert?: Prisma.UserUpsertWithoutAssessmentActionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssessmentActionsInput, Prisma.UserUpdateWithoutAssessmentActionsInput>, Prisma.UserUncheckedUpdateWithoutAssessmentActionsInput>
+}
+
 export type UserCreateWithoutAssignedCasesInput = {
   id?: string
   email: string
@@ -661,6 +684,7 @@ export type UserCreateWithoutAssignedCasesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutAssignedCasesInput = {
@@ -682,6 +706,7 @@ export type UserUncheckedCreateWithoutAssignedCasesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutAssignedCasesInput = {
@@ -719,6 +744,7 @@ export type UserUpdateWithoutAssignedCasesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedCasesInput = {
@@ -740,6 +766,7 @@ export type UserUncheckedUpdateWithoutAssignedCasesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutOverriddenAssessmentsInput = {
@@ -761,6 +788,7 @@ export type UserCreateWithoutOverriddenAssessmentsInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
@@ -782,6 +810,7 @@ export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutOverriddenAssessmentsInput = {
@@ -819,6 +848,7 @@ export type UserUpdateWithoutOverriddenAssessmentsInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
@@ -840,6 +870,7 @@ export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCreatedReportsInput = {
@@ -861,6 +892,7 @@ export type UserCreateWithoutCreatedReportsInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCreatedReportsInput = {
@@ -882,6 +914,7 @@ export type UserUncheckedCreateWithoutCreatedReportsInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCreatedReportsInput = {
@@ -919,6 +952,7 @@ export type UserUpdateWithoutCreatedReportsInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedReportsInput = {
@@ -940,6 +974,7 @@ export type UserUncheckedUpdateWithoutCreatedReportsInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutActivitiesInput = {
@@ -961,6 +996,7 @@ export type UserCreateWithoutActivitiesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutActivitiesInput = {
@@ -982,6 +1018,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutActivitiesInput = {
@@ -1019,6 +1056,7 @@ export type UserUpdateWithoutActivitiesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivitiesInput = {
@@ -1040,6 +1078,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCaseFollowUpsInput = {
@@ -1061,6 +1100,7 @@ export type UserCreateWithoutCaseFollowUpsInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
@@ -1082,6 +1122,7 @@ export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCaseFollowUpsInput = {
@@ -1119,6 +1160,7 @@ export type UserUpdateWithoutCaseFollowUpsInput = {
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
@@ -1140,6 +1182,7 @@ export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -1161,6 +1204,7 @@ export type UserCreateWithoutSentMessagesInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -1182,6 +1226,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -1208,6 +1253,7 @@ export type UserCreateWithoutReceivedMessagesInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -1229,6 +1275,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -1266,6 +1313,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -1287,6 +1335,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -1319,6 +1368,7 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -1340,6 +1390,111 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutAssessmentActionsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAssessmentActionsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAssessmentActionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssessmentActionsInput, Prisma.UserUncheckedCreateWithoutAssessmentActionsInput>
+}
+
+export type UserUpsertWithoutAssessmentActionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssessmentActionsInput, Prisma.UserUncheckedUpdateWithoutAssessmentActionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssessmentActionsInput, Prisma.UserUncheckedCreateWithoutAssessmentActionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssessmentActionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssessmentActionsInput, Prisma.UserUncheckedUpdateWithoutAssessmentActionsInput>
+}
+
+export type UserUpdateWithoutAssessmentActionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssessmentActionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1355,6 +1510,7 @@ export type UserCountOutputType = {
   sentMessages: number
   receivedMessages: number
   caseFollowUps: number
+  assessmentActions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1365,6 +1521,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
   receivedMessages?: boolean | UserCountOutputTypeCountReceivedMessagesArgs
   caseFollowUps?: boolean | UserCountOutputTypeCountCaseFollowUpsArgs
+  assessmentActions?: boolean | UserCountOutputTypeCountAssessmentActionsArgs
 }
 
 /**
@@ -1426,6 +1583,13 @@ export type UserCountOutputTypeCountCaseFollowUpsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.CaseFollowUpWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAssessmentActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentHistoryWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1447,6 +1611,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
+  assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1504,6 +1669,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
+  assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1519,6 +1685,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sentMessages: Prisma.$MessagePayload<ExtArgs>[]
     receivedMessages: Prisma.$MessagePayload<ExtArgs>[]
     caseFollowUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
+    assessmentActions: Prisma.$AssessmentHistoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1934,6 +2101,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sentMessages<T extends Prisma.User$sentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receivedMessages<T extends Prisma.User$receivedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   caseFollowUps<T extends Prisma.User$caseFollowUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$caseFollowUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assessmentActions<T extends Prisma.User$assessmentActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assessmentActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2533,6 +2701,30 @@ export type User$caseFollowUpsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.CaseFollowUpScalarFieldEnum | Prisma.CaseFollowUpScalarFieldEnum[]
+}
+
+/**
+ * User.assessmentActions
+ */
+export type User$assessmentActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentHistory
+   */
+  select?: Prisma.AssessmentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentHistory
+   */
+  omit?: Prisma.AssessmentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentHistoryInclude<ExtArgs> | null
+  where?: Prisma.AssessmentHistoryWhereInput
+  orderBy?: Prisma.AssessmentHistoryOrderByWithRelationInput | Prisma.AssessmentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentHistoryScalarFieldEnum | Prisma.AssessmentHistoryScalarFieldEnum[]
 }
 
 /**

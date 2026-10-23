@@ -19,7 +19,8 @@
     "test:geo": "npx tsx tests/geo.test.ts",
     "test:access": "npx tsx tests/caseAccess.test.ts",
     "test:streets": "npx tsx tests/streetTargets.test.ts",
-    "test:schema": "npx tsx tests/classificationSchema.test.ts"
+    "test:schema": "npx tsx tests/classificationSchema.test.ts",
+    "test:intake": "npx tsx tests/intake.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

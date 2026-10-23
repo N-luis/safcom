@@ -112,3 +112,18 @@ export type CaseFollowUp = Prisma.CaseFollowUpModel
  * 
  */
 export type Message = Prisma.MessageModel
+/**
+ * Model CaseIntake
+ * What the resident told the assisted intake, kept exactly as given.
+ * 
+ * The original narrative is never edited here or on the Case: a later answer
+ * adds to the record, it does not rewrite it. One per case.
+ */
+export type CaseIntake = Prisma.CaseIntakeModel
+/**
+ * Model AssessmentHistory
+ * Every assessment a case has had, oldest first. Nothing here is updated or
+ * deleted: an officer's override is a new row, and the preliminary result it
+ * replaced stays readable underneath it.
+ */
+export type AssessmentHistory = Prisma.AssessmentHistoryModel

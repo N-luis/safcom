@@ -23,6 +23,7 @@ import {
   useCaseDetail,
 } from '@/hooks/useApi';
 import AssessmentReview from '@/components/cases/AssessmentReview';
+import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -85,6 +86,10 @@ interface CaseDetail {
   followUps: FollowUp[];
   attachments?: { id: string; filename: string; mimeType: string; size: number }[];
   aiRiskAssessment?: AIRisk;
+  informationCompleteness?: string | null;
+  requiresOfficerReview?: boolean;
+  intake?: IntakeRecord | null;
+  assessmentHistory?: HistoryRow[];
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -546,61 +551,48 @@ function EditFollowUpModal({ caseId, fid, initialContent, initialOutcome, onDone
 
 // ─── AI Assessment Mini-Card ──────────────────────────────────────────────────
 
-function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed }: {
+function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, needsReview, intake, history }: {
   ai?: AIRisk;
   riskLevel: string;
   caseId: string;
   onReviewed: () => void;
+  completeness?: string | null;
+  needsReview?: boolean;
+  intake?: IntakeRecord | null;
+  history?: HistoryRow[];
 }) {
   const [expanded, setExpanded] = useState(false);
-  const col = RISK_COLOR[ai?.level ?? riskLevel] ?? '#94a3b8';
-  const score = ai?.score ?? 0;
-  const inner = 44;
+  // The level the case is actually stored at. This card used to show the
+  // category-weighted engine's own level and a "/100" ring, so an officer
+  // could read "Medium" on a case the record held at High.
+  const col = RISK_COLOR[riskLevel] ?? '#94a3b8';
 
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25, flexWrap: 'wrap' }}>
           <Psychology sx={{ fontSize: 18, color: '#7c3aed' }} />
-          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>AI Risk Assessment</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46' }}>Preliminary Risk Assessment</Typography>
+          {needsReview && (
+            <Chip size="small" label="Needs officer review"
+              sx={{ ml: 'auto', height: 22, fontWeight: 700, fontSize: '0.72rem', bgcolor: '#fff7ed', color: '#c2410c' }} />
+          )}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: ai ? 1.25 : 0 }}>
-          {/* Score ring */}
-          <Box sx={{
-            width: 60, height: 60, borderRadius: '50%', flexShrink: 0,
-            background: `conic-gradient(${col} ${score * 3.6}deg, #f1f5f9 0deg)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Box sx={{ width: inner, height: inner, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: col, lineHeight: 1 }}>{score}</Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>/100</Typography>
-            </Box>
-          </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Chip label={ai?.level ?? riskLevel} size="small" sx={{ bgcolor: `${col}18`, color: col, fontWeight: 700, mb: 0.5 }} />
-            {ai?.confidence && (
-              <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>{ai.confidence}% model confidence</Typography>
-            )}
-            {ai?.highRiskZone && (
-              <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22, mt: 0.5 }} />
-            )}
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25, flexWrap: 'wrap' }}>
+          <Chip label={`${riskLevel} risk`} size="small" sx={{ bgcolor: `${col}18`, color: col, fontWeight: 800 }} />
+          <CompletenessChip value={completeness} />
+          {ai?.highRiskZone && (
+            <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          )}
         </Box>
+        <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8', mb: 1.25, lineHeight: 1.5 }}>
+          Set from what the report states and the documented hard rules, never from the case type.
+          It is a starting point for review, not a finding.
+        </Typography>
 
-        {ai?.justification && (
-          <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.55, mb: 1 }}>
-            {ai.justification}
-          </Typography>
-        )}
+        <IntakeReviewPanel intake={intake} history={history} />
 
-        {ai?.riskFactors && ai.riskFactors.length > 0 && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: expanded ? 1.25 : 0 }}>
-            {ai.riskFactors.map((rf, i) => (
-              <Chip key={i} label={rf} size="small" sx={{ bgcolor: `${col}0f`, color: col, fontSize: '0.72rem', height: 22 }} />
-            ))}
-          </Box>
-        )}
 
         {ai?.factors && ai.factors.length > 0 && (
           <>
@@ -608,7 +600,7 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed }: {
               size="small" onClick={() => setExpanded(p => !p)}
               sx={{ fontSize: '0.82rem', color: '#64748b', px: 0, '&:hover': { bgcolor: 'transparent', color: '#0c1e46' } }}
             >
-              {expanded ? 'Hide' : 'Show'} factor breakdown
+              {expanded ? 'Hide' : 'Show'} older engine signals (category-weighted, not used for the level)
             </Button>
             <Collapse in={expanded}>
               <Box sx={{ mt: 1 }}>
@@ -629,7 +621,7 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed }: {
           </>
         )}
 
-        {ai?.recommendation && (
+        {ai?.recommendation && expanded && (
           <Box sx={{ mt: 1.25, p: 1, borderRadius: 1.5, bgcolor: `${col}08`, border: `1px solid ${col}22` }}>
             <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'flex-start' }}>
               <AutoAwesome sx={{ fontSize: 13, color: col, mt: '1px', flexShrink: 0 }} />
@@ -905,6 +897,10 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             riskLevel={caseData.riskLevel}
             caseId={id}
             onReviewed={() => revalidate()}
+            completeness={caseData.informationCompleteness}
+            needsReview={caseData.requiresOfficerReview}
+            intake={caseData.intake}
+            history={caseData.assessmentHistory}
           />
 
           {/* Original Description */}

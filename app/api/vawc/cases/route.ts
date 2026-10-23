@@ -5,6 +5,7 @@ import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/l
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { canSeeVawc } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
+import { analyzeIntake } from '@/lib/intake';
 import { nextCaseNumber } from '@/lib/caseNumber';
 
 /** Reads a filter param that may hold one value or a comma-separated group. */
@@ -130,19 +131,42 @@ export async function POST(req: NextRequest) {
       barangayCaseCount, residentPriorCases,
     });
 
+    // The level comes from what the report says and the documented hard rules
+    // - the same reading the resident form uses - not from the case type. The
+    // old engine weighted the type ("theft" 72, "domestic" 70, anything else
+    // 50), so a thin report landed on Medium whatever it described.
+    const priorSameType = await prisma.case.count({
+      where: { residentName: { equals: residentName, mode: 'insensitive' }, caseType },
+    });
+    const { result: prelim } = analyzeIntake({ narrative: description, selectedCategory: caseType, priorSameType });
+
     const newCase = await prisma.case.create({
       data: {
         caseNumber, residentName, caseType, barangay, description,
-        riskLevel: aiRisk.level, status: 'Open',
+        riskLevel: prelim.riskLevel, status: 'Open',
+        informationCompleteness: prelim.informationCompleteness,
+        requiresOfficerReview: prelim.requiresOfficerReview,
         ...(notes && { notes }),
         ...(auth.user.userId && { assignedToId: auth.user.userId }),
+      },
+    });
+
+    await prisma.assessmentHistory.create({
+      data: {
+        caseId: newCase.id,
+        kind: 'walk_in',
+        riskLevel: prelim.riskLevel,
+        informationCompleteness: prelim.informationCompleteness,
+        rationale: JSON.parse(JSON.stringify({ basis: prelim.riskBasis, rules: prelim.rulesApplied, why: prelim.riskRationale })),
+        actorId: auth.user.userId,
+        engineVersion: prelim.engineVersion,
       },
     });
 
     await prisma.activity.create({
       data: {
         type: 'vawc_case_filed',
-        message: `New VAWC case filed: ${caseNumber} — ${residentName} (${caseType}) — AI flagged risk: ${aiRisk.level} (${aiRisk.score}/100)`,
+        message: `New VAWC case filed: ${caseNumber} — ${residentName} (${caseType}) — ${prelim.riskLevel} risk (preliminary), information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
         entityId: newCase.id,
         entityType: 'Case',
         userId: auth.user.userId,

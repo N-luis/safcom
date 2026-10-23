@@ -4,9 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
 import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
-import { enforceHardRules } from '@/lib/caseClassification';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
 import { vawcFilter, isVawcCaseHidden } from '@/lib/caseAccess';
+import { analyzeIntake } from '@/lib/intake';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -140,23 +140,46 @@ export async function POST(req: NextRequest) {
       barangayCaseCount, residentPriorCases,
     });
 
-    // The same floor the resident path uses. A walk-in report describing a
-    // child being hurt has to land where the identical report typed at home
-    // lands; the rules may raise the engine's level, never lower it.
-    const { level: riskLevel } = enforceHardRules(aiRisk.level, { report: description });
+    // The level comes from what the report says and the documented hard rules
+    // - the same reading the resident form uses - not from the case type. The
+    // old engine weighted the type ("theft" 72, "domestic" 70, anything else
+    // 50), so a thin report landed on Medium whatever it described.
+    const priorSameType = await prisma.case.count({
+      where: residentId
+        ? { residentId, caseType }
+        : { residentName: { equals: residentName, mode: 'insensitive' }, caseType },
+    });
+    const { result: prelim } = analyzeIntake({ narrative: description, selectedCategory: caseType, priorSameType });
+    const riskLevel = prelim.riskLevel;
 
     // Recorded here too: a walk-in is typed by an officer but dictated by the
     // resident, and the reply they are handed should be in their own words.
     const language = detectLanguageSafe(description).language;
 
     const newCase = await prisma.case.create({
-      data: { ...parsed.data, status: status || 'Open', riskLevel, language },
+      data: {
+        ...parsed.data, status: status || 'Open', riskLevel, language,
+        informationCompleteness: prelim.informationCompleteness,
+        requiresOfficerReview: prelim.requiresOfficerReview,
+      },
+    });
+
+    await prisma.assessmentHistory.create({
+      data: {
+        caseId: newCase.id,
+        kind: 'walk_in',
+        riskLevel,
+        informationCompleteness: prelim.informationCompleteness,
+        rationale: JSON.parse(JSON.stringify({ basis: prelim.riskBasis, rules: prelim.rulesApplied, why: prelim.riskRationale })),
+        actorId: auth.user.userId,
+        engineVersion: prelim.engineVersion,
+      },
     });
 
     await prisma.activity.create({
       data: {
         type: 'case',
-        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — AI flagged risk: ${riskLevel} (${aiRisk.score}/100)`,
+        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — ${riskLevel} risk (preliminary), information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
         entityId: newCase.id,
         entityType: 'Case',
         userId: auth.user.userId,

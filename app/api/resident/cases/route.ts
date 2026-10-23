@@ -11,6 +11,7 @@ import { isValidCoordinate } from '@/lib/geo';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
 import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
+import { runIntake, answersSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
 
 const createSchema = z.object({
   caseType: z.string().min(1, 'Case type is required'),
@@ -40,6 +41,11 @@ const createSchema = z.object({
   documentUnclearWords: z.array(z.string()).optional()
     .transform(list => (list ?? []).slice(0, MAX_UNCLEAR_WORDS).map(w => w.slice(0, 80))),
   documentReadFailed: z.boolean().optional(),
+  // The assisted intake. The narrative is what the resident wrote before any
+  // landmark or "other" detail was appended to the description; the answers
+  // are re-read here, so nothing computed in the browser is trusted.
+  intakeNarrative: z.string().max(NARRATIVE_MAX).optional(),
+  intakeAnswers: answersSchema,
 });
 
 export async function GET(req: NextRequest) {
@@ -196,28 +202,40 @@ export async function POST(req: NextRequest) {
     // their own account in Tagalog, and it is the resident who reads the reply.
     const detected = detectLanguageSafe(parsed.data.description);
 
-    // Multi-factor triage. The priority comes from what the report describes
-    // plus this reporter's own history of the same kind of incident - never
-    // from the case type, and never from anything about the person.
-    const assessment = assessCase(evidence.classifiedText, {
-      priorSameType: residentSameTypeCount,
-      areaRecentSameType: highRiskAreaCaseCount,
+    // The assisted intake: the resident's own narrative and answers, read by
+    // the same grounded rules as before. It decides completeness, the
+    // suggested category and the preliminary level - and the level comes from
+    // stated facts and the documented hard rules, never from the dropdown.
+    const narrative = (parsed.data.intakeNarrative ?? '').trim() || parsed.data.description;
+    const intake = await runIntake({
+      residentId: auth.resident.residentId,
+      narrative,
+      answers: parsed.data.intakeAnswers,
+      selectedCategory: parsed.data.caseType,
+      street: barangay,
       gender: resident.gender ?? null,
-      language: detected.language,
     });
-    // The hard rules are the floor under the weighted factors. A report that
-    // names a child being hurt, a weapon alongside a threat, or someone still
-    // there now cannot come out Low because the averages landed there. The
-    // grounded parameters behind the decision are kept with the case.
-    const { level: riskLevel, classification } = enforceHardRules(
-      priorityToRiskLevel(assessment.priority),
-      {
+
+    // A photographed document is still read by the older path, with its
+    // unclear-word guard; whichever reading is more serious is kept, because
+    // the rules only ever raise.
+    const assessment = intake.assessment;
+    const docRead = transcription
+      ? enforceHardRules(priorityToRiskLevel(assessCase(evidence.classifiedText, {
+        priorSameType: residentSameTypeCount, areaRecentSameType: highRiskAreaCaseCount,
+        gender: resident.gender ?? null, language: detected.language,
+      }).priority), {
         report: evidence.classifiedText,
         unclearWords: parsed.data.documentUnclearWords ?? [],
         priorCases: residentSameTypeCount,
         attachments: { photos: photos.length, documents: parsed.data.documentText ? 1 : 0 },
-      },
-    );
+      })
+      : null;
+    const LEVELS = ['Low', 'Medium', 'High', 'Critical'];
+    const riskLevel = docRead && LEVELS.indexOf(docRead.level) > LEVELS.indexOf(intake.result.riskLevel)
+      ? docRead.level : intake.result.riskLevel;
+    const classification = docRead?.classification ?? intake.classification;
+    const ir = intake.result;
 
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
@@ -231,6 +249,8 @@ export async function POST(req: NextRequest) {
           barangay,
           status: 'Open',
           riskLevel,
+          informationCompleteness: ir.informationCompleteness,
+          requiresOfficerReview: ir.requiresOfficerReview,
           language: detected.language,
           ...pin,
           filedAt,
@@ -241,90 +261,160 @@ export async function POST(req: NextRequest) {
     );
     const caseNumber = newCase.caseNumber;
 
-    await prisma.caseAssessment.create({
-      data: {
-        caseId: newCase.id,
-        priority: assessment.priority,
-        immediateThreat: assessment.factors.immediateThreat,
-        incidentSeverity: assessment.factors.incidentSeverity,
-        recurrence: assessment.factors.recurrence,
-        vulnerability: assessment.factors.vulnerability,
-        escalationPotential: assessment.factors.escalationPotential,
-        urgency: assessment.factors.urgency,
-        summary: assessment.summary,
-        reason: assessment.reason,
-        detail: JSON.parse(JSON.stringify({
-          detectedFactors: assessment.analysis.detectedFactors,
-          recommendations: assessment.recommendations,
-          safetyReminders: assessment.safetyReminders,
-          missingInformation: assessment.missingInformation,
-          language: detected.language,
-          languageConfidence: detected.confidence,
-          languageCounts: { tagalog: detected.tagalogCount, english: detected.englishCount },
-          barangayMessage: assessment.barangayMessage,
-          frequency: assessment.analysis.frequency,
-          escalation: assessment.analysis.escalation,
-          needsHumanReview: evidence.needsHumanReview || classification.needs_human_review,
-          reviewReasons: [
-            ...evidence.reviewReasons,
-            ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
-          ],
-          // Kept so an officer can see what the decision rested on, and which
-          // rules raised it, rather than being handed a level to trust.
-          classification: {
-            category: classification.case_category,
-            categoryConfidence: classification.category_confidence,
-            parameters: classification.parameters,
-            evidenceFromReport: classification.evidence_from_report,
-            routingHints: classification.routing_hints,
-            hardRulesApplied: classification.hard_rules_applied,
-            classificationScore: classification.score,
-            classificationLevel: classification.risk_level,
-            classificationExplanation: classification.explanation,
-          },
-          withheldFactors: evidence.withheldFactors,
-          documentText: parsed.data.documentText ?? null,
-          documentConfidence: parsed.data.documentConfidence ?? null,
-        })),
-      },
-    });
-
+    // The resident's photos first, on their own: they are evidence, and they
+    // must survive even if the assessment below cannot be written.
     if (photos.length) {
       await prisma.caseAttachment.createMany({
         data: photos.map(p => ({ ...p, caseId: newCase.id })),
       });
     }
 
+    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview;
+    const reviewReasons = [
+      ...evidence.reviewReasons,
+      ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
+      ...ir.reviewReasons,
+    ].filter((r, i, all) => all.indexOf(r) === i);
+
     // The level the case was actually stored at, not the one the weighted
     // factors reached on their own: an officer reading the feed has to see the
     // same answer the case carries, and which rules put it there.
-    const raised = classification.hard_rules_applied.filter(r => r !== 'H6');
-    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — ${riskLevel} risk, priority: ${assessment.priority}`
+    const raised = ir.rulesApplied;
+    const activityMsg = `Resident filed case ${caseNumber}: ${parsed.data.caseType} — ${riskLevel} risk (preliminary), `
+      + `information ${ir.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`
       + `${raised.length ? ` (rule ${raised.join(', ')})` : ''}`
       + `${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
 
-    await prisma.activity.create({
-      data: {
-        type: 'case_filed',
-        message: activityMsg,
-        entityId: newCase.id,
-        entityType: 'Case',
-        caseId: newCase.id,
-        color: riskLevel === 'Critical' ? '#8b5cf6'
-          : riskLevel === 'High' ? '#ef4444'
-            : riskLevel === 'Medium' ? '#f97316' : '#14b8a6',
-      },
-    });
+    /**
+     * Everything the assessment produced, written together or not at all. A
+     * failure here must not cost the resident their report: the case above is
+     * already filed, so it is kept, marked for a person, and the resident is
+     * still given their case number.
+     */
+    let assessmentSaved = true;
+    try {
+      await prisma.$transaction([
+        prisma.caseAssessment.create({
+          data: {
+            caseId: newCase.id,
+            priority: assessment.priority,
+            immediateThreat: assessment.factors.immediateThreat,
+            incidentSeverity: assessment.factors.incidentSeverity,
+            recurrence: assessment.factors.recurrence,
+            vulnerability: assessment.factors.vulnerability,
+            escalationPotential: assessment.factors.escalationPotential,
+            urgency: assessment.factors.urgency,
+            summary: assessment.summary,
+            reason: assessment.reason,
+            detail: JSON.parse(JSON.stringify({
+              detectedFactors: assessment.analysis.detectedFactors,
+              recommendations: assessment.recommendations,
+              safetyReminders: assessment.safetyReminders,
+              missingInformation: ir.missingInformation,
+              language: detected.language,
+              languageConfidence: detected.confidence,
+              languageCounts: { tagalog: detected.tagalogCount, english: detected.englishCount },
+              barangayMessage: assessment.barangayMessage,
+              frequency: assessment.analysis.frequency,
+              escalation: assessment.analysis.escalation,
+              needsHumanReview,
+              reviewReasons,
+              informationCompleteness: ir.informationCompleteness,
+              riskBasis: ir.riskBasis,
+              riskRationale: ir.riskRationale,
+              // Kept so an officer can see what the decision rested on, and which
+              // rules raised it, rather than being handed a level to trust.
+              classification: {
+                category: classification.case_category,
+                categoryConfidence: classification.category_confidence,
+                parameters: classification.parameters,
+                evidenceFromReport: classification.evidence_from_report,
+                routingHints: classification.routing_hints,
+                hardRulesApplied: classification.hard_rules_applied,
+                classificationScore: classification.score,
+                classificationLevel: classification.risk_level,
+                classificationExplanation: classification.explanation,
+              },
+              withheldFactors: evidence.withheldFactors,
+              documentText: parsed.data.documentText ?? null,
+              documentConfidence: parsed.data.documentConfidence ?? null,
+            })),
+          },
+        }),
+        prisma.caseIntake.create({
+          data: {
+            caseId: newCase.id,
+            narrative,
+            selectedCategory: parsed.data.caseType,
+            language: detected.language,
+            turns: JSON.parse(JSON.stringify(transcript(parsed.data.intakeAnswers, ir))),
+            informationCompleteness: ir.informationCompleteness,
+            suggestedCaseCategory: ir.suggestedCaseCategory,
+            categoryConfidence: ir.categoryConfidence,
+            categoryRationale: ir.categoryRationale,
+            conflicts: ir.conflicts,
+            route: ir.route,
+            immediateSafetyConcern: ir.immediateSafetyConcern,
+            supportingIndicators: JSON.parse(JSON.stringify(ir.supportingIndicators)),
+            missingInformation: ir.missingInformation,
+            recommendedNextSteps: ir.recommendedNextSteps,
+            requiresOfficerReview: needsHumanReview,
+            reviewReasons,
+            engineVersion: ir.engineVersion,
+          },
+        }),
+        prisma.assessmentHistory.create({
+          data: {
+            caseId: newCase.id,
+            kind: 'preliminary',
+            riskLevel,
+            informationCompleteness: ir.informationCompleteness,
+            rationale: JSON.parse(JSON.stringify({ basis: ir.riskBasis, rules: ir.rulesApplied, why: ir.riskRationale })),
+            engineVersion: ir.engineVersion,
+          },
+        }),
+        prisma.activity.create({
+          data: {
+            type: 'case_filed',
+            message: activityMsg,
+            entityId: newCase.id,
+            entityType: 'Case',
+            caseId: newCase.id,
+            color: riskLevel === 'Critical' ? '#8b5cf6'
+              : riskLevel === 'High' ? '#ef4444'
+                : riskLevel === 'Medium' ? '#f97316' : '#14b8a6',
+          },
+        }),
+        // A safety concern goes to the desks at once, through the existing
+        // notification feed - which already withholds a VAWC case from anyone
+        // not entitled to it. The notice names no one and quotes nothing.
+        ...(ir.immediateSafetyConcern ? [prisma.notification.create({
+          data: {
+            title: `Safety concern in new report ${caseNumber}`,
+            message: 'A resident reported an immediate safety concern. Open the case to review it now.',
+            type: 'error',
+            userId: null,
+            caseId: newCase.id,
+          },
+        })] : []),
+      ]);
+    } catch (err) {
+      assessmentSaved = false;
+      console.error('[Resident case create] assessment not saved', err instanceof Error ? err.message : 'failed');
+      await prisma.case.update({
+        where: { id: newCase.id },
+        data: { requiresOfficerReview: true },
+      }).catch(() => undefined);
+    }
 
     return rSuccess({
       ...newCase,
       aiRiskAssessment: aiRisk,
       assessment,
-      needsHumanReview: evidence.needsHumanReview || classification.needs_human_review,
-      reviewReasons: [
-        ...evidence.reviewReasons,
-        ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
-      ],
+      intake: ir,
+      assessmentSaved,
+      needsHumanReview,
+      reviewReasons,
       classification,
     }, 201);
   } catch (err) {

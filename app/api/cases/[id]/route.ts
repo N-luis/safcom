@@ -42,6 +42,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           orderBy: { createdAt: 'asc' },
           select: { id: true, filename: true, mimeType: true, size: true, createdAt: true },
         },
+        // What the resident told the assisted intake, and every assessment
+        // the case has had, so an officer sees the trail and not just a level.
+        intake: true,
+        assessmentHistory: {
+          orderBy: { createdAt: 'asc' },
+          include: { actor: { select: { name: true, role: true } } },
+        },
       },
     });
     if (!c) return errorResponse('Case not found', 404);
@@ -87,10 +94,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return errorResponse('This case type is handled by the VAWC desk', 403);
     }
 
-    // Risk level is never set manually — SafComm AI re-analyzes it on every update,
-    // factoring in the (possibly new) status/type/location/description, case age,
-    // repeat-incident history, and barangay hotspot density, so the flag stays
-    // current as the case progresses.
+    // The stored level is NOT recomputed here. It used to be: every status or
+    // notes change re-ran the category-weighted engine and wrote its answer
+    // over riskLevel - replacing the grounded preliminary level and silently
+    // erasing any level an officer had set. A level now changes only through
+    // the assessment review, which records who changed it and why.
     const merged = { ...existing, ...parsed.data };
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const [barangayCaseCount, residentCount] = await Promise.all([
@@ -105,7 +113,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       barangayCaseCount, residentPriorCases: Math.max(0, residentCount - 1),
     });
 
-    const data = { ...parsed.data, riskLevel: aiRisk.level } as Record<string, unknown>;
+    const data = { ...parsed.data } as Record<string, unknown>;
     if (parsed.data.resolvedAt) data.resolvedAt = new Date(parsed.data.resolvedAt);
 
     const updated = await prisma.case.update({ where: { id }, data });
@@ -120,20 +128,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           userId: auth.user.userId,
           caseId: id,
           color: '#f59e0b',
-        },
-      });
-    }
-
-    if (aiRisk.level !== existing.riskLevel) {
-      await prisma.activity.create({
-        data: {
-          type: 'case',
-          message: `AI re-flagged case ${existing.caseNumber} risk: ${existing.riskLevel} → ${aiRisk.level} (${aiRisk.score}/100)`,
-          entityId: id,
-          entityType: 'Case',
-          userId: auth.user.userId,
-          caseId: id,
-          color: '#7c3aed',
         },
       });
     }

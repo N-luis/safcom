@@ -9,6 +9,7 @@ import {
   Box, Typography, Card, CardContent, Grid, TextField,
   MenuItem, ListSubheader, Button, CircularProgress, Alert,
   Divider, ToggleButton, ToggleButtonGroup,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import {
   CheckCircle, Send, ArrowBack,
@@ -26,6 +27,8 @@ import type { CaseAssessment } from '@/lib/caseAssessment';
 import dynamicImport from 'next/dynamic';
 import { BARANGAY_STREETS, type BarangayStreet } from '@/lib/streets';
 import BarangayStreetMap from '@/components/forms/BarangayStreetMap';
+import IntakeAssistant from '@/components/forms/IntakeAssistant';
+import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 
 /**
@@ -82,7 +85,7 @@ export default function ReportCasePage() {
   const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null } | null>(null);
   const [apiError, setApiError] = useState('');
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       caseType: '', otherType: '', description: '', street: '', location: '',
@@ -157,6 +160,44 @@ export default function ReportCasePage() {
   const isVawcCase = (VAWC_TYPES as readonly string[]).includes(selectedCaseType);
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+
+  // SafeComm Assist: the answers given so far, and its latest reading.
+  const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswer[]>([]);
+  const [intakeResult, setIntakeResult] = useState<IntakeResult | null>(null);
+  // The final look before filing. Skipped by the emergency path.
+  const [reviewing, setReviewing] = useState<FormData | null>(null);
+  const descriptionValue = watch('description') ?? '';
+
+  /**
+   * A draft, so a failed request or a reload never costs the resident what
+   * they wrote. sessionStorage, not localStorage, on purpose: this is someone's
+   * account of being hurt, and on a shared phone it must not outlive the tab.
+   */
+  const DRAFT_KEY = 'safecomm_report_draft';
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        const raw = sessionStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const d = JSON.parse(raw) as { description?: string; caseType?: string; answers?: IntakeAnswer[] };
+        if (d.description && !getValues('description')) setValue('description', d.description);
+        if (d.caseType && !getValues('caseType')) setValue('caseType', d.caseType);
+        if (Array.isArray(d.answers)) setIntakeAnswers(d.answers);
+      } catch { /* private mode or a malformed draft: start clean */ }
+    }, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+          description: descriptionValue, caseType: selectedCaseType, answers: intakeAnswers,
+        }));
+      } catch { /* storage unavailable: the in-page state still holds it */ }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [descriptionValue, selectedCaseType, intakeAnswers]);
   const { t } = useLanguage();
   const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
@@ -227,6 +268,10 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           ),
           additionalNotes: data.additionalNotes,
           attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
+          // What the resident wrote, before any landmark was appended, and
+          // their answers. The server reads both again itself.
+          intakeNarrative: data.description,
+          intakeAnswers,
         }),
       });
       const json = await res.json();
@@ -244,6 +289,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         caseNumber: json.data.caseNumber,
         assessment: json.data.assessment ?? null,
       };
+      try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
       toast.success('Report submitted successfully!');
     } catch {
       if (cancelled.current) return;
@@ -329,7 +375,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Box component="form" onSubmit={handleSubmit(data => setReviewing(data))} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
                 {/* Case Type */}
                 <Controller
@@ -456,6 +502,20 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   />
                 </Box>
 
+                <IntakeAssistant
+                  narrative={descriptionValue}
+                  selectedCategory={selectedCaseType}
+                  street={streetValue}
+                  answers={intakeAnswers}
+                  onAnswersChange={setIntakeAnswers}
+                  onResult={setIntakeResult}
+                  disabled={isSubmitting || analysing}
+                  // Danger: file what there is now. Validation still runs (a
+                  // case needs a street and a description), but the review
+                  // step is skipped.
+                  onSubmitNow={() => { void handleSubmit(onSubmit)(); }}
+                />
+
                 {/* Additional notes */}
                 <TextField
                   label="Additional Notes (optional)"
@@ -494,6 +554,49 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         </Grid>
 
       </Grid>
+
+      <Dialog open={Boolean(reviewing)} onClose={() => setReviewing(null)} maxWidth="sm" fullWidth
+        aria-labelledby="review-title"
+        sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}>
+        <DialogTitle id="review-title" sx={{ fontWeight: 800, color: '#0c1e46' }}>Review before submitting</DialogTitle>
+        <DialogContent>
+          {reviewing && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              {([
+                ['Case type you chose', reviewing.caseType === 'Other' || /^Other/.test(reviewing.caseType) ? `${reviewing.caseType} — ${reviewing.otherType ?? ''}` : reviewing.caseType],
+                ...(intakeResult?.suggestedCaseCategory && intakeResult.suggestedCaseCategory !== reviewing.caseType
+                  ? [['Description fits', `${intakeResult.suggestedCaseCategory} (both are sent to the officer)`]] : []),
+                ['Street', reviewing.street],
+                ['Questions answered', intakeAnswers.length
+                  ? `${intakeAnswers.filter(a => a.kind === 'option' || a.kind === 'text').length} answered, ${intakeAnswers.filter(a => a.kind === 'skipped' || a.kind === 'declined').length} skipped`
+                  : 'None — you can still submit'],
+                ...(intakeResult ? [['Information', intakeResult.informationCompleteness === 'SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT'
+                  ? 'Enough for a preliminary assessment' : intakeResult.informationCompleteness === 'PARTIAL' ? 'Partial' : 'Not enough yet — an officer will follow up']] : []),
+                ['Photos', String(photos.length)],
+              ] as [string, string][]).map(([k, v]) => (
+                <Box key={k} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography sx={{ fontSize: '0.84rem', color: '#94a3b8', minWidth: 150 }}>{k}</Typography>
+                  <Typography sx={{ fontSize: '0.84rem', color: '#0c1e46', fontWeight: 600, flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{v}</Typography>
+                </Box>
+              ))}
+              <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25 }}>
+                <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>Your description</Typography>
+                <Typography sx={{ fontSize: '0.86rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{reviewing.description}</Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
+          <Button onClick={() => setReviewing(null)} sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, color: '#64748b' }}>
+            Edit
+          </Button>
+          <Button variant="contained" startIcon={<Send />}
+            onClick={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
+            sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, bgcolor: ACCENT, fontWeight: 700, '&:hover': { bgcolor: '#0d9488' } }}>
+            Submit report
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <AnalyzingCard
         phase={phase}

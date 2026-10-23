@@ -58,9 +58,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const existing = await prisma.case.findFirst({ where: { id, caseType: { in: [...VAWC_TYPES] } } });
     if (!existing) return errorResponse('Case not found', 404);
 
-    // Risk level is never set manually — SafComm AI re-analyzes it on every update,
-    // factoring in the (possibly new) status, case age, repeat-incident history, and
-    // barangay hotspot density, so the flag stays current as the case progresses.
+    // The stored level is NOT recomputed here. It used to be: every status or
+    // notes change re-ran the category-weighted engine and wrote its answer
+    // over riskLevel - replacing the grounded preliminary level and silently
+    // erasing any level an officer had set. A level now changes only through
+    // the assessment review, which records who changed it and why.
     const status = parsed.data.status ?? existing.status;
     const description = parsed.data.description ?? existing.description;
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -81,23 +83,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       where: { id },
       data: {
         ...parsed.data,
-        riskLevel: aiRisk.level,
         ...(isNowResolved && !wasResolved && { resolvedAt: new Date() }),
         ...(!isNowResolved && wasResolved && { resolvedAt: null }),
       },
     });
-
-    if (aiRisk.level !== existing.riskLevel) {
-      await prisma.activity.create({
-        data: {
-          type: 'vawc_risk_reassessed',
-          message: `AI re-flagged VAWC case ${existing.caseNumber} risk: ${existing.riskLevel} → ${aiRisk.level} (${aiRisk.score}/100)`,
-          entityId: id, entityType: 'Case',
-          caseId: id, userId: auth.user.userId,
-          color: '#7c3aed',
-        },
-      });
-    }
 
     if (parsed.data.status && parsed.data.status !== existing.status) {
       await prisma.activity.create({
