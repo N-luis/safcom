@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { isVawcCaseHidden } from '@/lib/caseAccess';
 import {
   OFFICER_ACTIONS, OFFICER_ACTION_LABELS, PROGRESS_STATES, sanitizeNote,
   MAX_NOTE_LENGTH, type ProgressState,
@@ -20,12 +21,31 @@ const createSchema = z.object({
   progressState: z.enum(PROGRESS_STATES).optional(),
 });
 
+/**
+ * The case this belongs to, and whether this role may touch it at all.
+ *
+ * A follow-up is part of the case narrative, so reaching one means reaching
+ * the case. Without this a blotter officer could read - and write - the
+ * timeline of a VAWC case through its id, which is the same disclosure the
+ * gate on /api/cases/[id] exists to prevent.
+ */
+async function caseIfPermitted(caseId: string, role: string | undefined) {
+  const owner = await prisma.case.findUnique({
+    where: { id: caseId }, select: { id: true, caseType: true, status: true },
+  });
+  if (!owner) return null;
+  if (isVawcCaseHidden(role, owner.caseType)) return null;
+  return owner;
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
   const { id } = await params;
 
   try {
+    if (!await caseIfPermitted(id, auth.user.role)) return errorResponse('Case not found', 404);
+
     // Officers see the whole timeline - internal notes and hidden entries
     // included - because the audit trail is the point of keeping them.
     const followUps = await prisma.caseFollowUp.findMany({
@@ -62,6 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const existing = await prisma.case.findUnique({ where: { id } });
     if (!existing) return errorResponse('Case not found', 404);
+    if (isVawcCaseHidden(auth.user.role, existing.caseType)) return errorResponse('Case not found', 404);
 
     const { type, content, statusTo, outcome, action, visibleToReporter, progressState } = parsed.data;
     const statusFrom = existing.status;

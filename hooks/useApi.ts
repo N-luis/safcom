@@ -63,8 +63,13 @@ export function useCurrentUser() {
   return useSWR('/api/auth/me', fetcher);
 }
 
-export function useAIStats() {
-  return useSWR('/api/ai/stats', fetcher, { revalidateOnFocus: false });
+/** Risk analytics for a desk. 'vawc' asks for that desk's caseload only. */
+export function useAIStats(scope: 'all' | 'vawc' = 'all') {
+  return useSWR(
+    `/api/ai/stats${scope === 'vawc' ? '?scope=vawc' : ''}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
 }
 
 export function useCaseDetail(id: string | null) {

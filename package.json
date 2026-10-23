@@ -18,7 +18,8 @@
     "test:language": "npx tsx tests/detectLanguage.test.ts",
     "test:geo": "npx tsx tests/geo.test.ts",
     "test:access": "npx tsx tests/caseAccess.test.ts",
-    "test:streets": "npx tsx tests/streetTargets.test.ts"
+    "test:streets": "npx tsx tests/streetTargets.test.ts",
+    "test:schema": "npx tsx tests/classificationSchema.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

@@ -6,7 +6,7 @@ import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
-import { vawcFilter } from '@/lib/caseAccess';
+import { vawcFilter, isVawcCaseHidden } from '@/lib/caseAccess';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -116,6 +116,13 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? parsed.error.message, 400);
 
     const { caseType, barangay, description, residentName, residentId, status } = parsed.data;
+
+    // Filing into the other desk's caseload is the same disclosure as reading
+    // it: the case would vanish from the filer's own list, and whoever walked
+    // in would have been told the wrong desk was handling them.
+    if (isVawcCaseHidden(auth.user.role, caseType)) {
+      return errorResponse('That case type is handled by the VAWC desk.', 403);
+    }
     const filedAt = new Date();
 
     // AI risk assessment — the blotter officer no longer assigns the risk level manually;

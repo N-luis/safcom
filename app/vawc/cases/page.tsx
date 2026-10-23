@@ -7,11 +7,11 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Skeleton, Dialog, DialogTitle, DialogContent, DialogActions,
   Grid, Divider, Select, MenuItem, FormControl, InputLabel,
-  Alert, CircularProgress, Tooltip,
+  Alert, CircularProgress, Tooltip, IconButton,
 } from '@mui/material';
 import {
   Search, Add, FolderOpen, Assessment, LocationOn, CalendarToday,
-  Edit, CheckCircle, Close, AutoAwesome,
+  Edit, CheckCircle, Close, AutoAwesome, OpenInNew, Visibility,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
@@ -47,7 +47,9 @@ function timeAgo(d: string) {
 const MotionTableRow = motion(TableRow);
 
 // ─── Case Detail/Edit Dialog ──────────────────────────────────────────────────
-function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; onSaved: () => void }) {
+function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
+  c: CaseRow; onClose: () => void; onSaved: () => void; onOpenFull: () => void;
+}) {
   const [editing, setEditing] = useState(false);
   const [status, setStatus] = useState(c.status);
   const [notes, setNotes] = useState(c.notes ?? '');
@@ -159,9 +161,16 @@ function CaseDialog({ c, onClose, onSaved }: { c: CaseRow; onClose: () => void; 
         ) : (
           <>
             <Button onClick={onClose} sx={{ color: '#64748b' }}>Close</Button>
-            <Button variant="contained" onClick={() => setEditing(true)} startIcon={<Edit sx={{ fontSize: 15 }} />}
+            <Button onClick={() => setEditing(true)} startIcon={<Edit sx={{ fontSize: 15 }} />}
+              sx={{ color: ACCENT, fontWeight: 700 }}>
+              Quick Edit
+            </Button>
+            {/* The dialog is a glance. Everything an officer actually does to a
+                case - the timeline, interventions, evidence, confirming the AI
+                risk - lives in the workspace, the same one the blotter uses. */}
+            <Button variant="contained" onClick={onOpenFull} startIcon={<OpenInNew sx={{ fontSize: 15 }} />}
               sx={{ bgcolor: ACCENT, '&:hover': { bgcolor: '#6d28d9' }, borderRadius: 2 }}>
-              Edit Case
+              Open Full Case
             </Button>
           </>
         )}
@@ -215,6 +224,8 @@ export default function VawcCasesPage() {
     const riskParam = sp.get('riskLevel');
     const statusParam = sp.get('status');
     const searchParam = sp.get('search');
+    // Case Classification opens a category here.
+    const typeParam = sp.get('type');
     if (hl) setHighlightId(hl);
     if (f && PRESETS[f]) setPreset(f);
     // Single-value deep links still drive the dropdowns directly; a preset wins
@@ -222,6 +233,7 @@ export default function VawcCasesPage() {
     if (riskParam) setRisk(riskParam);
     if (statusParam) setStatus(statusParam);
     if (searchParam) setSearch(searchParam);
+    if (typeParam) setType(typeParam);
   }, []);
 
   const query = new URLSearchParams({
@@ -299,7 +311,7 @@ export default function VawcCasesPage() {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
-                {['Case ID', 'Subject', 'Type', 'Street/Barangay', 'Risk', 'Status', 'Filed', 'Updated'].map(h => (
+                {['Case ID', 'Subject', 'Type', 'Street/Barangay', 'Risk', 'Status', 'Filed', 'Updated', ''].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
               </TableRow>
@@ -358,6 +370,20 @@ export default function VawcCasesPage() {
                           </Box>
                         </TableCell>
                         <TableCell><Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
+                        <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                          <Tooltip title="Quick look">
+                            <IconButton size="small" aria-label={`Quick look at case ${c.caseNumber}`}
+                              onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelected(c); }}>
+                              <Visibility sx={{ fontSize: 17, color: '#64748b' }} />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Open full case">
+                            <IconButton size="small" aria-label={`Open full case ${c.caseNumber}`}
+                              onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/vawc/cases/${c.id}`); }}>
+                              <OpenInNew sx={{ fontSize: 16, color: ACCENT }} />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
                       </MotionTableRow>
                     ))
                 }
@@ -378,7 +404,8 @@ export default function VawcCasesPage() {
       </Card>
 
       {selected && (
-        <CaseDialog c={selected} onClose={() => setSelected(null)} onSaved={() => { mutate(); setSelected(null); }} />
+        <CaseDialog c={selected} onClose={() => setSelected(null)} onSaved={() => { mutate(); setSelected(null); }} onOpenFull={() => router.push(`/vawc/cases/${selected.id}`)}
+        />
       )}
     </Box>
   );

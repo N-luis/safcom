@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { computeRisk } from '@/lib/riskEngine';
+import { vawcFilter } from '@/lib/caseAccess';
+import { VAWC_TYPES } from '@/lib/vawcTypes';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -11,8 +13,24 @@ export async function GET(req: NextRequest) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
 
+    /**
+     * Only the cases this role may see.
+     *
+     * Everything below is built from this list - the top-risk table, the map,
+     * the per-area counts - so an unfiltered read put VAWC cases, by number,
+     * type and the person's name, on the blotter's own risk page.
+     *
+     * scope=vawc narrows it to that desk's caseload instead, and is refused
+     * to anyone those cases are hidden from.
+     */
+    const visible = vawcFilter(auth.user.role);
+    const wantsVawc = req.nextUrl.searchParams.get('scope') === 'vawc';
+    if (wantsVawc && Object.keys(visible).length > 0) return errorResponse('Not found', 404);
+    const where = wantsVawc ? { caseType: { in: [...VAWC_TYPES] } } : visible;
+
     // Fetch all relevant cases (capped at 1000 for performance)
     const allCases = await prisma.case.findMany({
+      where,
       take: 1000,
       orderBy: { filedAt: 'desc' },
       select: {

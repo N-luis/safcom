@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { canSeeVawc } from '@/lib/caseAccess';
+import { VAWC_TYPES } from '@/lib/vawcTypes';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -12,9 +14,20 @@ export async function GET(req: NextRequest) {
   const unreadOnly = searchParams.get('unread') === 'true';
 
   try {
-    const where: Record<string, unknown> = {
-      OR: [{ userId: auth.user.userId }, { userId: null }],
-    };
+    /**
+     * Mine or everyone's, and never about a case I may not read.
+     *
+     * A notice carries its case's number and type, and its own title usually
+     * names the case too - so an ungated list told a blotter officer that a
+     * Domestic Violence case had been filed, and which number it was. The
+     * narrative was already withheld; this withholds the rest.
+     */
+    const mine = { OR: [{ userId: auth.user.userId }, { userId: null }] };
+    const caseVisible = canSeeVawc(auth.user.role)
+      ? {}
+      : { OR: [{ caseId: null }, { case: { caseType: { notIn: [...VAWC_TYPES] } } }] };
+
+    const where: Record<string, unknown> = { AND: [mine, caseVisible] };
     if (unreadOnly) where.read = false;
 
     const [notifications, unreadCount] = await Promise.all([
@@ -31,9 +44,9 @@ export async function GET(req: NextRequest) {
           },
         },
       }),
-      prisma.notification.count({
-        where: { OR: [{ userId: auth.user.userId }, { userId: null }], read: false },
-      }),
+      // Counted the same way, or the badge promises unread notices that the
+      // list will not show.
+      prisma.notification.count({ where: { AND: [mine, caseVisible], read: false } }),
     ]);
 
     return successResponse({ notifications, unreadCount });

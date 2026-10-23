@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import { canSeeVawc } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
 import { nextCaseNumber } from '@/lib/caseNumber';
 
@@ -22,6 +23,13 @@ const createSchema = z.object({
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+
+  // The VAWC desk, the captain and the system administrator - nobody else.
+  // These endpoints sit outside the /vawc prefix the proxy gates by role, so
+  // without this a blotter officer's own session read every survivor
+  // narrative straight from the API. 404 rather than 403: whether a VAWC case
+  // exists is itself part of what is being kept.
+  if (!canSeeVawc(auth.user.role)) return errorResponse('Not found', 404);
 
   const sp = req.nextUrl.searchParams;
   const page = Math.max(1, Number(sp.get('page') ?? 1));
@@ -82,6 +90,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+
+  // The VAWC desk, the captain and the system administrator - nobody else.
+  // These endpoints sit outside the /vawc prefix the proxy gates by role, so
+  // without this a blotter officer's own session read every survivor
+  // narrative straight from the API. 404 rather than 403: whether a VAWC case
+  // exists is itself part of what is being kept.
+  if (!canSeeVawc(auth.user.role)) return errorResponse('Not found', 404);
 
   let body: unknown;
   try { body = await req.json(); } catch { return errorResponse('Invalid JSON', 400); }

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { isVawcCaseHidden } from '@/lib/caseAccess';
 
 const editSchema = z.object({
   content: z.string().min(1).optional(),
@@ -19,6 +20,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const body = await req.json();
     const parsed = editSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Validation error', 400);
+
+    const owner = await prisma.case.findUnique({ where: { id }, select: { caseType: true } });
+    // Same rule as the case itself: a role that may not read the case may not
+    // edit or hide anything hanging off it.
+    if (!owner || isVawcCaseHidden(auth.user.role, owner.caseType)) return errorResponse('Not found', 404);
 
     const existing = await prisma.caseFollowUp.findUnique({ where: { id: fid } });
     if (!existing) return errorResponse('Follow-up not found', 404);
@@ -49,6 +55,11 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   const { id, fid } = await params;
 
   try {
+    const owner = await prisma.case.findUnique({ where: { id }, select: { caseType: true } });
+    // Same rule as the case itself: a role that may not read the case may not
+    // edit or hide anything hanging off it.
+    if (!owner || isVawcCaseHidden(auth.user.role, owner.caseType)) return errorResponse('Not found', 404);
+
     const existing = await prisma.caseFollowUp.findUnique({ where: { id: fid } });
     if (!existing) return errorResponse('Follow-up not found', 404);
     if (existing.caseId !== id) return errorResponse('Not found', 404);
