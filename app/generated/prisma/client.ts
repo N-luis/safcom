@@ -144,3 +144,13 @@ export type RiskMatrixChunk = Prisma.RiskMatrixChunkModel
  * resident. Counts only - no report text is ever stored here.
  */
 export type AiUsage = Prisma.AiUsageModel
+/**
+ * Model ReporterAccessLog
+ * Every attempt by an official to see a reporter's contact details, permitted
+ * or not. Append-only: a database trigger (prisma/sql/002_reporter_access.sql)
+ * refuses UPDATE, DELETE and TRUNCATE. It holds no phone number, e-mail or
+ * narrative - only who asked, for which case, what kind of detail, and why.
+ * Case and user ids are plain columns, not relations, so the record outlives
+ * a deleted case or account.
+ */
+export type ReporterAccessLog = Prisma.ReporterAccessLogModel

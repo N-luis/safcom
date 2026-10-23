@@ -63,6 +63,8 @@ export type CaseMinAggregateOutputType = {
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
   reminderSentAt: Date | null
+  contactPreference: string | null
+  contactSafetyNote: string | null
 }
 
 export type CaseMaxAggregateOutputType = {
@@ -92,6 +94,8 @@ export type CaseMaxAggregateOutputType = {
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
   reminderSentAt: Date | null
+  contactPreference: string | null
+  contactSafetyNote: string | null
 }
 
 export type CaseCountAggregateOutputType = {
@@ -121,6 +125,8 @@ export type CaseCountAggregateOutputType = {
   lastResidentUpdateAt: number
   lastOfficerActionAt: number
   reminderSentAt: number
+  contactPreference: number
+  contactSafetyNote: number
   _all: number
 }
 
@@ -162,6 +168,8 @@ export type CaseMinAggregateInputType = {
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
   reminderSentAt?: true
+  contactPreference?: true
+  contactSafetyNote?: true
 }
 
 export type CaseMaxAggregateInputType = {
@@ -191,6 +199,8 @@ export type CaseMaxAggregateInputType = {
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
   reminderSentAt?: true
+  contactPreference?: true
+  contactSafetyNote?: true
 }
 
 export type CaseCountAggregateInputType = {
@@ -220,6 +230,8 @@ export type CaseCountAggregateInputType = {
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
   reminderSentAt?: true
+  contactPreference?: true
+  contactSafetyNote?: true
   _all?: true
 }
 
@@ -336,6 +348,8 @@ export type CaseGroupByOutputType = {
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
   reminderSentAt: Date | null
+  contactPreference: string | null
+  contactSafetyNote: string | null
   _count: CaseCountAggregateOutputType | null
   _avg: CaseAvgAggregateOutputType | null
   _sum: CaseSumAggregateOutputType | null
@@ -388,6 +402,8 @@ export type CaseWhereInput = {
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
+  contactPreference?: Prisma.StringNullableFilter<"Case"> | string | null
+  contactSafetyNote?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
@@ -426,6 +442,8 @@ export type CaseOrderByWithRelationInput = {
   lastResidentUpdateAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactSafetyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedTo?: Prisma.UserOrderByWithRelationInput
   resident?: Prisma.ResidentOrderByWithRelationInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
@@ -467,6 +485,8 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
+  contactPreference?: Prisma.StringNullableFilter<"Case"> | string | null
+  contactSafetyNote?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
@@ -505,6 +525,8 @@ export type CaseOrderByWithAggregationInput = {
   lastResidentUpdateAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactSafetyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseCountOrderByAggregateInput
   _avg?: Prisma.CaseAvgOrderByAggregateInput
   _max?: Prisma.CaseMaxOrderByAggregateInput
@@ -542,6 +564,8 @@ export type CaseScalarWhereWithAggregatesInput = {
   lastResidentUpdateAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
+  contactPreference?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  contactSafetyNote?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
 }
 
 export type CaseCreateInput = {
@@ -569,6 +593,8 @@ export type CaseCreateInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -607,6 +633,8 @@ export type CaseUncheckedCreateInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -641,6 +669,8 @@ export type CaseUpdateInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -679,6 +709,8 @@ export type CaseUncheckedUpdateInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -715,6 +747,8 @@ export type CaseCreateManyInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
 }
 
 export type CaseUpdateManyMutationInput = {
@@ -742,6 +776,8 @@ export type CaseUpdateManyMutationInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseUncheckedUpdateManyInput = {
@@ -771,6 +807,8 @@ export type CaseUncheckedUpdateManyInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseListRelationFilter = {
@@ -810,6 +848,8 @@ export type CaseCountOrderByAggregateInput = {
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
+  contactPreference?: Prisma.SortOrder
+  contactSafetyNote?: Prisma.SortOrder
 }
 
 export type CaseAvgOrderByAggregateInput = {
@@ -844,6 +884,8 @@ export type CaseMaxOrderByAggregateInput = {
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
+  contactPreference?: Prisma.SortOrder
+  contactSafetyNote?: Prisma.SortOrder
 }
 
 export type CaseMinOrderByAggregateInput = {
@@ -873,6 +915,8 @@ export type CaseMinOrderByAggregateInput = {
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
+  contactPreference?: Prisma.SortOrder
+  contactSafetyNote?: Prisma.SortOrder
 }
 
 export type CaseSumOrderByAggregateInput = {
@@ -1113,6 +1157,8 @@ export type CaseCreateWithoutAssignedToInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -1149,6 +1195,8 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -1214,6 +1262,8 @@ export type CaseScalarWhereInput = {
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
+  contactPreference?: Prisma.StringNullableFilter<"Case"> | string | null
+  contactSafetyNote?: Prisma.StringNullableFilter<"Case"> | string | null
 }
 
 export type CaseCreateWithoutAssessmentInput = {
@@ -1241,6 +1291,8 @@ export type CaseCreateWithoutAssessmentInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1278,6 +1330,8 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -1327,6 +1381,8 @@ export type CaseUpdateWithoutAssessmentInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -1364,6 +1420,8 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -1397,6 +1455,8 @@ export type CaseCreateWithoutAttachmentsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1434,6 +1494,8 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -1483,6 +1545,8 @@ export type CaseUpdateWithoutAttachmentsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -1520,6 +1584,8 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -1553,6 +1619,8 @@ export type CaseCreateWithoutResidentInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -1589,6 +1657,8 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -1649,6 +1719,8 @@ export type CaseCreateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -1686,6 +1758,8 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -1735,6 +1809,8 @@ export type CaseUpdateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -1772,6 +1848,8 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -1805,6 +1883,8 @@ export type CaseCreateWithoutNotificationsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1842,6 +1922,8 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -1891,6 +1973,8 @@ export type CaseUpdateWithoutNotificationsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -1928,6 +2012,8 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -1961,6 +2047,8 @@ export type CaseCreateWithoutFollowUpsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1998,6 +2086,8 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -2047,6 +2137,8 @@ export type CaseUpdateWithoutFollowUpsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2084,6 +2176,8 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -2117,6 +2211,8 @@ export type CaseCreateWithoutIntakeInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2154,6 +2250,8 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2203,6 +2301,8 @@ export type CaseUpdateWithoutIntakeInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2240,6 +2340,8 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2273,6 +2375,8 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2310,6 +2414,8 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2359,6 +2465,8 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2396,6 +2504,8 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2430,6 +2540,8 @@ export type CaseCreateManyAssignedToInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
 }
 
 export type CaseUpdateWithoutAssignedToInput = {
@@ -2457,6 +2569,8 @@ export type CaseUpdateWithoutAssignedToInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -2493,6 +2607,8 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2528,6 +2644,8 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseCreateManyResidentInput = {
@@ -2556,6 +2674,8 @@ export type CaseCreateManyResidentInput = {
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
   reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
 }
 
 export type CaseUpdateWithoutResidentInput = {
@@ -2583,6 +2703,8 @@ export type CaseUpdateWithoutResidentInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -2619,6 +2741,8 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2654,6 +2778,8 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -2750,6 +2876,8 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
   reminderSentAt?: boolean
+  contactPreference?: boolean
+  contactSafetyNote?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
@@ -2789,6 +2917,8 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
   reminderSentAt?: boolean
+  contactPreference?: boolean
+  contactSafetyNote?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
@@ -2820,6 +2950,8 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
   reminderSentAt?: boolean
+  contactPreference?: boolean
+  contactSafetyNote?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
@@ -2851,9 +2983,11 @@ export type CaseSelectScalar = {
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
   reminderSentAt?: boolean
+  contactPreference?: boolean
+  contactSafetyNote?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -2947,6 +3081,16 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * is idempotent and a resident is never reminded twice for the same silence.
      */
     reminderSentAt: Date | null
+    /**
+     * How the reporter says it is safe to reach them, from the report form:
+     * call_ok | text_first | no_phone. Null when they did not say. Officers
+     * see it beside the contact details; it is never inferred.
+     */
+    contactPreference: string | null
+    /**
+     * Their own words: safe times, who may answer, what not to say.
+     */
+    contactSafetyNote: string | null
   }, ExtArgs["result"]["case"]>
   composites: {}
 }
@@ -3405,6 +3549,8 @@ export interface CaseFieldRefs {
   readonly lastResidentUpdateAt: Prisma.FieldRef<"Case", 'DateTime'>
   readonly lastOfficerActionAt: Prisma.FieldRef<"Case", 'DateTime'>
   readonly reminderSentAt: Prisma.FieldRef<"Case", 'DateTime'>
+  readonly contactPreference: Prisma.FieldRef<"Case", 'String'>
+  readonly contactSafetyNote: Prisma.FieldRef<"Case", 'String'>
 }
     
 

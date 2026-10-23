@@ -66,7 +66,8 @@ export const ModelName = {
   CaseIntake: 'CaseIntake',
   AssessmentHistory: 'AssessmentHistory',
   RiskMatrixChunk: 'RiskMatrixChunk',
-  AiUsage: 'AiUsage'
+  AiUsage: 'AiUsage',
+  ReporterAccessLog: 'ReporterAccessLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -129,7 +130,9 @@ export const CaseScalarFieldEnum = {
   progressState: 'progressState',
   lastResidentUpdateAt: 'lastResidentUpdateAt',
   lastOfficerActionAt: 'lastOfficerActionAt',
-  reminderSentAt: 'reminderSentAt'
+  reminderSentAt: 'reminderSentAt',
+  contactPreference: 'contactPreference',
+  contactSafetyNote: 'contactSafetyNote'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -403,6 +406,22 @@ export const AiUsageScalarFieldEnum = {
 } as const
 
 export type AiUsageScalarFieldEnum = (typeof AiUsageScalarFieldEnum)[keyof typeof AiUsageScalarFieldEnum]
+
+
+export const ReporterAccessLogScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  actorId: 'actorId',
+  actorRole: 'actorRole',
+  caseId: 'caseId',
+  caseNumber: 'caseNumber',
+  fields: 'fields',
+  outcome: 'outcome',
+  code: 'code',
+  reason: 'reason'
+} as const
+
+export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]
 
 
 export const SortOrder = {

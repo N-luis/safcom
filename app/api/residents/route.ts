@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
+import { canSeeDirectoryContacts } from '@/lib/reporterAccess';
 
 const createSchema = z.object({
   residentNumber: z.string().min(1),
@@ -64,7 +65,13 @@ export async function GET(req: NextRequest) {
       prisma.resident.count({ where }),
     ]);
 
-    return successResponse({ residents, pagination: paginationMeta(total, page, limit) });
+    // Contact details for the roles that manage resident records only; for
+    // everyone else they are removed here, on the server, not hidden in the UI.
+    const contacts = await canSeeDirectoryContacts(auth.user.userId);
+    const shown = contacts ? residents
+      : residents.map(r => ({ ...r, contactNumber: null, email: null, contactRestricted: true }));
+
+    return successResponse({ residents: shown, pagination: paginationMeta(total, page, limit) });
   } catch {
     return errorResponse('Server error', 500);
   }

@@ -399,7 +399,8 @@ export const ModelName = {
   CaseIntake: 'CaseIntake',
   AssessmentHistory: 'AssessmentHistory',
   RiskMatrixChunk: 'RiskMatrixChunk',
-  AiUsage: 'AiUsage'
+  AiUsage: 'AiUsage',
+  ReporterAccessLog: 'ReporterAccessLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage"
+    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1603,6 +1604,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ReporterAccessLog: {
+      payload: Prisma.$ReporterAccessLogPayload<ExtArgs>
+      fields: Prisma.ReporterAccessLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReporterAccessLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReporterAccessLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        findFirst: {
+          args: Prisma.ReporterAccessLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReporterAccessLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        findMany: {
+          args: Prisma.ReporterAccessLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>[]
+        }
+        create: {
+          args: Prisma.ReporterAccessLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        createMany: {
+          args: Prisma.ReporterAccessLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReporterAccessLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>[]
+        }
+        delete: {
+          args: Prisma.ReporterAccessLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        update: {
+          args: Prisma.ReporterAccessLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReporterAccessLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReporterAccessLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReporterAccessLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReporterAccessLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReporterAccessLogPayload>
+        }
+        aggregate: {
+          args: Prisma.ReporterAccessLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReporterAccessLog>
+        }
+        groupBy: {
+          args: Prisma.ReporterAccessLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReporterAccessLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReporterAccessLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReporterAccessLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1686,7 +1761,9 @@ export const CaseScalarFieldEnum = {
   progressState: 'progressState',
   lastResidentUpdateAt: 'lastResidentUpdateAt',
   lastOfficerActionAt: 'lastOfficerActionAt',
-  reminderSentAt: 'reminderSentAt'
+  reminderSentAt: 'reminderSentAt',
+  contactPreference: 'contactPreference',
+  contactSafetyNote: 'contactSafetyNote'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -1962,6 +2039,22 @@ export const AiUsageScalarFieldEnum = {
 export type AiUsageScalarFieldEnum = (typeof AiUsageScalarFieldEnum)[keyof typeof AiUsageScalarFieldEnum]
 
 
+export const ReporterAccessLogScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  actorId: 'actorId',
+  actorRole: 'actorRole',
+  caseId: 'caseId',
+  caseNumber: 'caseNumber',
+  fields: 'fields',
+  outcome: 'outcome',
+  code: 'code',
+  reason: 'reason'
+} as const
+
+export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2232,6 +2325,7 @@ export type GlobalOmitConfig = {
   assessmentHistory?: Prisma.AssessmentHistoryOmit
   riskMatrixChunk?: Prisma.RiskMatrixChunkOmit
   aiUsage?: Prisma.AiUsageOmit
+  reporterAccessLog?: Prisma.ReporterAccessLogOmit
 }
 
 /* Types for Logging */

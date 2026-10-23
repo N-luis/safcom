@@ -66,6 +66,10 @@ const schema = z.object({
   street:          z.string().min(1, 'Please select the street'),
   location:        z.string().optional(),
   additionalNotes: z.string().optional(),
+  // How it is safe to reach them. Optional; shown to the officer handling
+  // the case beside the contact details.
+  contactPreference: z.enum(['', 'call_ok', 'text_first', 'no_phone']).optional(),
+  contactSafetyNote: z.string().max(200, 'Keep this under 200 characters').optional(),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -79,7 +83,7 @@ export default function ReportCasePage() {
     resolver: zodResolver(schema),
     defaultValues: {
       description: '', street: '', location: '',
-      additionalNotes: '',
+      additionalNotes: '', contactPreference: '', contactSafetyNote: '',
     },
   });
 
@@ -251,6 +255,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           province: place?.chosen ? place.province ?? undefined : undefined,
           description: `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
           additionalNotes: data.additionalNotes,
+          contactPreference: data.contactPreference || undefined,
+          contactSafetyNote: data.contactSafetyNote?.trim() || undefined,
           attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
           // What the resident wrote, before any landmark was appended, and
           // their answers. The server reads both again itself.
@@ -463,6 +469,52 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   {...register('additionalNotes')}
                   fullWidth multiline rows={2}
                 />
+
+                {/* How it is safe to reach them - never assumed to be a call */}
+                <Box>
+                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.25 }}>
+                    How can the barangay safely contact you? (optional)
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mb: 1 }}>
+                    Only the official handling your case sees this, with your registered number.
+                  </Typography>
+                  <Controller
+                    name="contactPreference"
+                    control={control}
+                    render={({ field }) => (
+                      <ToggleButtonGroup
+                        value={field.value || null}
+                        exclusive
+                        size="small"
+                        aria-label="How it is safe to contact you"
+                        onChange={(_, v) => field.onChange(v ?? '')}
+                        disabled={isSubmitting || analysing}
+                        sx={{
+                          flexWrap: 'wrap', gap: 0.75,
+                          '& .MuiToggleButton-root': {
+                            minHeight: 40, px: 1.5, textTransform: 'none', fontWeight: 600, fontSize: '0.8rem',
+                            border: '1px solid #e2e8f0 !important', borderRadius: '8px !important',
+                            '&.Mui-selected': { bgcolor: '#14b8a618', color: '#0f766e', borderColor: '#14b8a6 !important' },
+                          },
+                        }}
+                      >
+                        <ToggleButton value="call_ok">You can call or text me</ToggleButton>
+                        <ToggleButton value="text_first">Text me first before calling</ToggleButton>
+                        <ToggleButton value="no_phone">Do not call or text me — it is not safe</ToggleButton>
+                      </ToggleButtonGroup>
+                    )}
+                  />
+                  <TextField
+                    label="Safe times or other instructions (optional)"
+                    placeholder="e.g. only after 6 PM; if someone else answers, say it is about the barangay clean-up"
+                    {...register('contactSafetyNote')}
+                    error={!!errors.contactSafetyNote}
+                    helperText={errors.contactSafetyNote?.message}
+                    fullWidth size="small"
+                    slotProps={{ htmlInput: { maxLength: 200 } }}
+                    sx={{ mt: 1.25 }}
+                  />
+                </Box>
 
                 {/* Photo evidence — shrunk in the browser before upload */}
                 <PhotoAttachments

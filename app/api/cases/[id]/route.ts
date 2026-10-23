@@ -118,6 +118,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const updated = await prisma.case.update({ where: { id }, data });
 
+    // Assignment decides who may see the reporter's contact details, so every
+    // change of hands is on the case's record.
+    if (parsed.data.assignedToId !== undefined && parsed.data.assignedToId !== existing.assignedToId) {
+      const to = parsed.data.assignedToId
+        ? await prisma.user.findUnique({ where: { id: parsed.data.assignedToId }, select: { name: true } })
+        : null;
+      await prisma.activity.create({
+        data: {
+          type: 'assignment',
+          message: to ? `Case ${existing.caseNumber} assigned to ${to.name}` : `Case ${existing.caseNumber} unassigned`,
+          entityId: id, entityType: 'Case', userId: auth.user.userId, caseId: id, color: '#0ea5e9',
+        },
+      });
+    }
+
     if (parsed.data.status && parsed.data.status !== existing.status) {
       await prisma.activity.create({
         data: {

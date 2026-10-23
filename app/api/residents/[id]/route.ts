@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { canSeeDirectoryContacts } from '@/lib/reporterAccess';
 
 const updateSchema = z.object({
   firstName: z.string().optional(),
@@ -56,8 +57,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     ]);
 
     const { clerkId, ...rest } = resident;
+    // As in the list: contact details for the captain and system admin only.
+    const contacts = await canSeeDirectoryContacts(auth.user.userId);
     return successResponse({
       ...rest,
+      ...(!contacts && { contactNumber: null, email: null, contactRestricted: true }),
       openCases,
       resolvedCases,
       // Clerk owns credentials for accounts created since the migration; older

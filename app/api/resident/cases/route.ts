@@ -21,6 +21,10 @@ const createSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   barangay: z.string().optional(),
   additionalNotes: z.string().optional(),
+  // How it is safe to reach the reporter. Shown to the official handling the
+  // case beside the contact details (lib/reporterAccess.ts).
+  contactPreference: z.enum(['call_ok', 'text_first', 'no_phone']).optional(),
+  contactSafetyNote: z.string().trim().max(200).optional(),
   // Where it happened, from the map picker. Optional: a report filed without
   // a pin is still a report, and the street field carries the location.
   latitude: z.number().min(-90).max(90).optional().nullable(),
@@ -269,6 +273,8 @@ export async function POST(req: NextRequest) {
           filedAt,
           residentId: auth.resident.residentId,
           ...(notesValue && { notes: notesValue }),
+          contactPreference: parsed.data.contactPreference ?? null,
+          contactSafetyNote: parsed.data.contactSafetyNote || null,
         },
       }),
     );

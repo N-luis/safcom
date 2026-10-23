@@ -88,6 +88,13 @@ model Case {
   /// is idempotent and a resident is never reminded twice for the same silence.
   reminderSentAt       DateTime?
 
+  /// How the reporter says it is safe to reach them, from the report form:
+  /// call_ok | text_first | no_phone. Null when they did not say. Officers
+  /// see it beside the contact details; it is never inferred.
+  contactPreference    String?
+  /// Their own words: safe times, who may answer, what not to say.
+  contactSafetyNote    String?
+
   @@index([progressState])
 }
 
@@ -459,4 +466,32 @@ model AiUsage {
   requests  Int      @default(0)
   tokens    Int      @default(0)
   updatedAt DateTime @default(now())
+}
+
+/// Every attempt by an official to see a reporter's contact details, permitted
+/// or not. Append-only: a database trigger (prisma/sql/002_reporter_access.sql)
+/// refuses UPDATE, DELETE and TRUNCATE. It holds no phone number, e-mail or
+/// narrative - only who asked, for which case, what kind of detail, and why.
+/// Case and user ids are plain columns, not relations, so the record outlives
+/// a deleted case or account.
+model ReporterAccessLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  /// Null only when the caller could not be identified.
+  actorId    String?
+  actorRole  String?
+  caseId     String
+  caseNumber String?
+  /// What was asked for: phone | email.
+  fields     String[]
+  /// permitted | denied
+  outcome    String
+  /// Why: assigned | oversight | not_assigned | vawc_restricted | inactive |
+  /// reason_required | not_found | no_contact_on_file | rate_limited | ...
+  code       String
+  /// The official's stated reason, when the policy asks for one.
+  reason     String?
+
+  @@index([caseId, createdAt])
+  @@index([actorId, createdAt])
 }

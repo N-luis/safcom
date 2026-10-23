@@ -25,6 +25,7 @@ import {
 import AssessmentReview from '@/components/cases/AssessmentReview';
 import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
+import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -896,6 +897,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
               </Box>
             </CardContent>
           </Card>
+
+          {/* Reporter contact: masked, revealed only after the server allows it */}
+          <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
 
           {/* AI Assessment */}
           <AIAssessmentCard
