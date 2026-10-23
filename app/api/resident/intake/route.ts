@@ -9,9 +9,11 @@ import { rateLimit, INTAKE_LIMIT } from '@/lib/rateLimit';
  * One step of the assisted intake: the narrative and the answers so far in,
  * the next question and the current reading out.
  *
- * Nothing is stored here - the report is only filed when the resident submits
- * - and nothing leaves the server: the reading is done by SafeComm's own
- * rules, not by an outside service. The narrative is not logged.
+ * Nothing is stored here - the report is only filed when the resident submits.
+ * The reading is SafeComm's own rules, joined by the AI reader when it is
+ * configured (lib/aiClassifier.ts: Groq free plan, with phone numbers, e-mail
+ * addresses and the resident's name removed first, and every fact it returns
+ * checked against the text). The narrative is not logged.
  */
 const schema = z.object({
   narrative: z.string().trim().min(1, 'Describe what happened first').max(NARRATIVE_MAX),
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const resident = await prisma.resident.findUnique({
-      where: { id: auth.resident.residentId }, select: { gender: true },
+      where: { id: auth.resident.residentId }, select: { gender: true, firstName: true, lastName: true },
     });
     const { result } = await runIntake({
       residentId: auth.resident.residentId,
@@ -50,6 +52,8 @@ export async function POST(req: NextRequest) {
       selectedCategory: parsed.data.selectedCategory,
       street: parsed.data.street,
       gender: resident?.gender ?? null,
+      useAi: true,
+      residentNames: resident ? [resident.firstName, resident.lastName] : [],
     });
     return rSuccess(result);
   } catch (err) {

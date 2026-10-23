@@ -142,6 +142,10 @@ export async function POST(req: NextRequest) {
       selectedCategory: parsed.data.caseType ?? null,
       street: barangay,
       gender: resident.gender ?? null,
+      // The same text as the popup read, so this is normally the cached
+      // reading, not a second call against the day's quota.
+      useAi: true,
+      residentNames: [resident.firstName, resident.lastName],
     });
 
     // The case is filed under the matrix's category - a specific one, or
@@ -384,6 +388,22 @@ export async function POST(req: NextRequest) {
             sourceVerified: intake.grounding.sourceVerified,
             knowledgeBaseStatus: intake.grounding.knowledgeBaseStatus,
             assessedBy: intake.grounding.assessedBy,
+            ...(intake.grounding.ai && {
+              aiReading: JSON.parse(JSON.stringify({
+                status: intake.grounding.ai.status,
+                used: intake.grounding.ai.used,
+                model: intake.grounding.ai.model,
+                version: intake.grounding.ai.version,
+                note: intake.grounding.ai.note,
+                category: intake.grounding.ai.hints?.category ?? null,
+                categoryConfidence: intake.grounding.ai.hints?.categoryConfidence ?? null,
+                alternativeCategories: intake.grounding.ai.hints?.alternativeCategories ?? [],
+                facts: intake.grounding.ai.hints?.facts ?? [],
+                slots: intake.grounding.ai.hints?.slots ?? [],
+                reasons: intake.grounding.ai.reasons,
+                dropped: intake.grounding.ai.dropped,
+              })),
+            }),
           },
         }),
         prisma.assessmentHistory.create({

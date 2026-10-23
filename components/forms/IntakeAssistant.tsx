@@ -36,6 +36,7 @@ const T: Record<Lang, Record<string, string>> = {
     startHint: 'Opsyonal. Magtatanong ng ilang bagay para maitala nang tama ang report. Maaari kang mag-submit kahit hindi ito gamitin.',
     reading: 'Binabasa ang iyong sagot…',
     readingReport: 'Binabasa ang iyong report…',
+    aiRead: 'May tulong ng AI',
     answer: 'Sagutin',
     skip: 'Laktawan',
     decline: 'Ayokong sagutin',
@@ -73,6 +74,7 @@ const T: Record<Lang, Record<string, string>> = {
     startHint: 'Optional. Asks a few things so your report is recorded correctly. You can submit without using it.',
     reading: 'Reading your answer…',
     readingReport: 'Reading your report…',
+    aiRead: 'AI-assisted',
     answer: 'Answer',
     skip: 'Skip',
     decline: 'Prefer not to answer',
@@ -201,6 +203,11 @@ export default function IntakeAssistant({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
         <AutoAwesome sx={{ fontSize: 18, color: ACCENT }} />
         <Typography sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0c1e46' }}>{t.title}</Typography>
+        {/* Said plainly when the AI reader took part; an officer still decides. */}
+        {result?.aiAssist?.used && (
+          <Chip size="small" label={t.aiRead}
+            sx={{ height: 20, fontWeight: 700, fontSize: '0.68rem', bgcolor: '#eef2ff', color: '#4338ca' }} />
+        )}
         {result && (
           <Chip size="small" label={t[result.informationCompleteness]}
             sx={{

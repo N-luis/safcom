@@ -398,7 +398,8 @@ export const ModelName = {
   Message: 'Message',
   CaseIntake: 'CaseIntake',
   AssessmentHistory: 'AssessmentHistory',
-  RiskMatrixChunk: 'RiskMatrixChunk'
+  RiskMatrixChunk: 'RiskMatrixChunk',
+  AiUsage: 'AiUsage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk"
+    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1528,6 +1529,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AiUsage: {
+      payload: Prisma.$AiUsagePayload<ExtArgs>
+      fields: Prisma.AiUsageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiUsageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiUsageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        findFirst: {
+          args: Prisma.AiUsageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiUsageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        findMany: {
+          args: Prisma.AiUsageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>[]
+        }
+        create: {
+          args: Prisma.AiUsageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        createMany: {
+          args: Prisma.AiUsageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiUsageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>[]
+        }
+        delete: {
+          args: Prisma.AiUsageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        update: {
+          args: Prisma.AiUsageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        deleteMany: {
+          args: Prisma.AiUsageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiUsageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiUsageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>[]
+        }
+        upsert: {
+          args: Prisma.AiUsageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsagePayload>
+        }
+        aggregate: {
+          args: Prisma.AiUsageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiUsage>
+        }
+        groupBy: {
+          args: Prisma.AiUsageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiUsageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1827,6 +1902,7 @@ export const CaseIntakeScalarFieldEnum = {
   sourceVerified: 'sourceVerified',
   knowledgeBaseStatus: 'knowledgeBaseStatus',
   assessedBy: 'assessedBy',
+  aiReading: 'aiReading',
   createdAt: 'createdAt'
 } as const
 
@@ -1874,6 +1950,16 @@ export const RiskMatrixChunkScalarFieldEnum = {
 } as const
 
 export type RiskMatrixChunkScalarFieldEnum = (typeof RiskMatrixChunkScalarFieldEnum)[keyof typeof RiskMatrixChunkScalarFieldEnum]
+
+
+export const AiUsageScalarFieldEnum = {
+  bucket: 'bucket',
+  requests: 'requests',
+  tokens: 'tokens',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiUsageScalarFieldEnum = (typeof AiUsageScalarFieldEnum)[keyof typeof AiUsageScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2145,6 +2231,7 @@ export type GlobalOmitConfig = {
   caseIntake?: Prisma.CaseIntakeOmit
   assessmentHistory?: Prisma.AssessmentHistoryOmit
   riskMatrixChunk?: Prisma.RiskMatrixChunkOmit
+  aiUsage?: Prisma.AiUsageOmit
 }
 
 /* Types for Logging */

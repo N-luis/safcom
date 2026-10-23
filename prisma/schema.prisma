@@ -375,8 +375,12 @@ model CaseIntake {
   sourceVerified          Boolean?
   /// ok | no_match | no_documents | unavailable | empty_query
   knowledgeBaseStatus     String?
-  /// What made the assessment. No external AI provider is called.
+  /// What made the assessment: the rules alone, or the rules with the AI reader.
   assessedBy              String?
+  /// The AI reader's checked reading at filing (lib/aiClassifier.ts): status,
+  /// model, the facts it found with the resident's words, its category. Null
+  /// when it did not run.
+  aiReading               Json?
   createdAt               DateTime @default(now())
 }
 
@@ -445,4 +449,14 @@ model RiskMatrixChunk {
   @@index([documentType, isCurrent])
   @@index([riskLevel])
   @@index([content(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+/// How much of the free AI tier has been used. One row per bucket:
+/// "day:YYYY-MM-DD" for the whole app, "resident:<id>:YYYY-MM-DD" for one
+/// resident. Counts only - no report text is ever stored here.
+model AiUsage {
+  bucket    String   @id
+  requests  Int      @default(0)
+  tokens    Int      @default(0)
+  updatedAt DateTime @default(now())
 }

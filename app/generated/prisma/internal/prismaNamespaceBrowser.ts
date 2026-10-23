@@ -65,7 +65,8 @@ export const ModelName = {
   Message: 'Message',
   CaseIntake: 'CaseIntake',
   AssessmentHistory: 'AssessmentHistory',
-  RiskMatrixChunk: 'RiskMatrixChunk'
+  RiskMatrixChunk: 'RiskMatrixChunk',
+  AiUsage: 'AiUsage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -344,6 +345,7 @@ export const CaseIntakeScalarFieldEnum = {
   sourceVerified: 'sourceVerified',
   knowledgeBaseStatus: 'knowledgeBaseStatus',
   assessedBy: 'assessedBy',
+  aiReading: 'aiReading',
   createdAt: 'createdAt'
 } as const
 
@@ -391,6 +393,16 @@ export const RiskMatrixChunkScalarFieldEnum = {
 } as const
 
 export type RiskMatrixChunkScalarFieldEnum = (typeof RiskMatrixChunkScalarFieldEnum)[keyof typeof RiskMatrixChunkScalarFieldEnum]
+
+
+export const AiUsageScalarFieldEnum = {
+  bucket: 'bucket',
+  requests: 'requests',
+  tokens: 'tokens',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiUsageScalarFieldEnum = (typeof AiUsageScalarFieldEnum)[keyof typeof AiUsageScalarFieldEnum]
 
 
 export const SortOrder = {

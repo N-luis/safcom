@@ -137,3 +137,10 @@ export type AssessmentHistory = Prisma.AssessmentHistoryModel
  * dropping what it does not recognise. Searched in lib/knowledgeBase.ts.
  */
 export type RiskMatrixChunk = Prisma.RiskMatrixChunkModel
+/**
+ * Model AiUsage
+ * How much of the free AI tier has been used. One row per bucket:
+ * "day:YYYY-MM-DD" for the whole app, "resident:<id>:YYYY-MM-DD" for one
+ * resident. Counts only - no report text is ever stored here.
+ */
+export type AiUsage = Prisma.AiUsageModel

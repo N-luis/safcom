@@ -121,6 +121,7 @@ export type CaseIntakeCountAggregateOutputType = {
   sourceVerified: number
   knowledgeBaseStatus: number
   assessedBy: number
+  aiReading: number
   createdAt: number
   _all: number
 }
@@ -218,6 +219,7 @@ export type CaseIntakeCountAggregateInputType = {
   sourceVerified?: true
   knowledgeBaseStatus?: true
   assessedBy?: true
+  aiReading?: true
   createdAt?: true
   _all?: true
 }
@@ -342,6 +344,7 @@ export type CaseIntakeGroupByOutputType = {
   sourceVerified: boolean | null
   knowledgeBaseStatus: string | null
   assessedBy: string | null
+  aiReading: runtime.JsonValue | null
   createdAt: Date
   _count: CaseIntakeCountAggregateOutputType | null
   _avg: CaseIntakeAvgAggregateOutputType | null
@@ -402,6 +405,7 @@ export type CaseIntakeWhereInput = {
   sourceVerified?: Prisma.BoolNullableFilter<"CaseIntake"> | boolean | null
   knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  aiReading?: Prisma.JsonNullableFilter<"CaseIntake">
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
@@ -440,6 +444,7 @@ export type CaseIntakeOrderByWithRelationInput = {
   sourceVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReading?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
@@ -481,6 +486,7 @@ export type CaseIntakeWhereUniqueInput = Prisma.AtLeast<{
   sourceVerified?: Prisma.BoolNullableFilter<"CaseIntake"> | boolean | null
   knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
+  aiReading?: Prisma.JsonNullableFilter<"CaseIntake">
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id" | "caseId">
@@ -519,6 +525,7 @@ export type CaseIntakeOrderByWithAggregationInput = {
   sourceVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiReading?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CaseIntakeCountOrderByAggregateInput
   _avg?: Prisma.CaseIntakeAvgOrderByAggregateInput
@@ -564,6 +571,7 @@ export type CaseIntakeScalarWhereWithAggregatesInput = {
   sourceVerified?: Prisma.BoolNullableWithAggregatesFilter<"CaseIntake"> | boolean | null
   knowledgeBaseStatus?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
+  aiReading?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseIntake"> | Date | string
 }
 
@@ -600,6 +608,7 @@ export type CaseIntakeCreateInput = {
   sourceVerified?: boolean | null
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutIntakeInput
 }
@@ -638,6 +647,7 @@ export type CaseIntakeUncheckedCreateInput = {
   sourceVerified?: boolean | null
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -674,6 +684,7 @@ export type CaseIntakeUpdateInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutIntakeNestedInput
 }
@@ -712,6 +723,7 @@ export type CaseIntakeUncheckedUpdateInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -749,6 +761,7 @@ export type CaseIntakeCreateManyInput = {
   sourceVerified?: boolean | null
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -785,6 +798,7 @@ export type CaseIntakeUpdateManyMutationInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -822,6 +836,7 @@ export type CaseIntakeUncheckedUpdateManyInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -864,6 +879,7 @@ export type CaseIntakeCountOrderByAggregateInput = {
   sourceVerified?: Prisma.SortOrder
   knowledgeBaseStatus?: Prisma.SortOrder
   assessedBy?: Prisma.SortOrder
+  aiReading?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -1002,6 +1018,7 @@ export type CaseIntakeCreateWithoutCaseInput = {
   sourceVerified?: boolean | null
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -1038,6 +1055,7 @@ export type CaseIntakeUncheckedCreateWithoutCaseInput = {
   sourceVerified?: boolean | null
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -1090,6 +1108,7 @@ export type CaseIntakeUpdateWithoutCaseInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1126,6 +1145,7 @@ export type CaseIntakeUncheckedUpdateWithoutCaseInput = {
   sourceVerified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1165,6 +1185,7 @@ export type CaseIntakeSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   sourceVerified?: boolean
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
+  aiReading?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1203,6 +1224,7 @@ export type CaseIntakeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sourceVerified?: boolean
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
+  aiReading?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1241,6 +1263,7 @@ export type CaseIntakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sourceVerified?: boolean
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
+  aiReading?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1279,10 +1302,11 @@ export type CaseIntakeSelectScalar = {
   sourceVerified?: boolean
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
+  aiReading?: boolean
   createdAt?: boolean
 }
 
-export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "framework" | "matrixLevel" | "matrixLabel" | "matchedCriteria" | "assessmentStatus" | "alternativeCategories" | "levelCaveats" | "matrixReferences" | "sourceVerified" | "knowledgeBaseStatus" | "assessedBy" | "createdAt", ExtArgs["result"]["caseIntake"]>
+export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "framework" | "matrixLevel" | "matrixLabel" | "matchedCriteria" | "assessmentStatus" | "alternativeCategories" | "levelCaveats" | "matrixReferences" | "sourceVerified" | "knowledgeBaseStatus" | "assessedBy" | "aiReading" | "createdAt", ExtArgs["result"]["caseIntake"]>
 export type CaseIntakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -1382,9 +1406,15 @@ export type $CaseIntakePayload<ExtArgs extends runtime.Types.Extensions.Internal
      */
     knowledgeBaseStatus: string | null
     /**
-     * What made the assessment. No external AI provider is called.
+     * What made the assessment: the rules alone, or the rules with the AI reader.
      */
     assessedBy: string | null
+    /**
+     * The AI reader's checked reading at filing (lib/aiClassifier.ts): status,
+     * model, the facts it found with the resident's words, its category. Null
+     * when it did not run.
+     */
+    aiReading: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["caseIntake"]>
   composites: {}
@@ -1843,6 +1873,7 @@ export interface CaseIntakeFieldRefs {
   readonly sourceVerified: Prisma.FieldRef<"CaseIntake", 'Boolean'>
   readonly knowledgeBaseStatus: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly assessedBy: Prisma.FieldRef<"CaseIntake", 'String'>
+  readonly aiReading: Prisma.FieldRef<"CaseIntake", 'Json'>
   readonly createdAt: Prisma.FieldRef<"CaseIntake", 'DateTime'>
 }
     

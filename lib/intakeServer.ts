@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from './prisma';
 import { analyzeIntake, SLOT_ORDER, type IntakeAnalysis, type IntakeAnswer, type SlotId } from './intake';
 import { searchMatrix, levelChunk, type KbDb, type SearchStatus } from './knowledgeBase';
+import { readWithAi, type AiReading, type ReadDeps } from './aiClassifier';
 
 /**
  * The intake, run on the server against this resident's own history.
@@ -30,7 +31,12 @@ async function analyse(params: {
   selectedCategory?: string | null;
   street?: string | null;
   gender?: string | null;
-}): Promise<IntakeAnalysis> {
+  /** Ask the AI reader as well (resident reports). Off: the rules alone. */
+  useAi?: boolean;
+  /** The resident's own name, removed from the text before the AI sees it. */
+  residentNames?: string[];
+}, ai: AiReading | null = null): Promise<IntakeAnalysis> {
+  const hints = ai?.used ? ai.hints : null;
   // First pass to learn what the words describe; recurrence is then counted
   // against that, not against whatever was picked in the dropdown.
   const first = analyzeIntake({
@@ -38,6 +44,7 @@ async function analyse(params: {
     answers: params.answers,
     selectedCategory: params.selectedCategory,
     gender: params.gender,
+    ai: hints,
   });
   const type = first.result.suggestedCaseCategory ?? params.selectedCategory ?? null;
   if (!type) return first;
@@ -63,6 +70,7 @@ async function analyse(params: {
     gender: params.gender,
     priorSameType,
     areaRecentSameType,
+    ai: hints,
   });
 }
 
@@ -91,8 +99,10 @@ export interface Grounding {
    * not be reached.
    */
   sourceVerified: boolean | null;
-  /** How the assessment was made. No external model is called. */
+  /** How the assessment was made: the rules alone, or the rules with the AI reader. */
   assessedBy: string;
+  /** The AI reader's run, checked; null when it was not asked. */
+  ai: AiReading | null;
 }
 
 export type GroundedAnalysis = IntakeAnalysis & { grounding: Grounding };
@@ -118,9 +128,19 @@ function toReference(h: { sectionTitle: string; riskLevel: number | null; riskLa
 export async function runIntake(
   params: Parameters<typeof analyse>[0],
   db?: KbDb,
+  aiDeps?: ReadDeps,
 ): Promise<GroundedAnalysis> {
-  const analysis = await analyse(params);
+  // The AI reader first, so its checked facts are part of the reading. It
+  // never throws and never blocks: on any trouble the rules run alone.
+  const ai = params.useAi
+    ? await readWithAi({
+      narrative: params.narrative, answers: params.answers,
+      residentId: params.residentId, residentNames: params.residentNames,
+    }, aiDeps).catch((): AiReading | null => null)
+    : null;
+  const analysis = await analyse(params, ai);
   const r = analysis.result;
+  r.aiAssist = { used: Boolean(ai?.used), model: ai?.used ? ai.model : null };
 
   // The facts' names reach the search as the matrices' own English wording,
   // so a Tagalog report finds the English source text.
@@ -160,7 +180,10 @@ export async function runIntake(
       knowledgeBaseStatus: search.status,
       references,
       sourceVerified,
-      assessedBy: `${r.engineVersion} (rule-based; no external AI provider)`,
+      assessedBy: ai?.used
+        ? `${r.engineVersion} with ${ai.version} (Groq free plan, ${ai.model}); AI facts checked against the report text`
+        : `${r.engineVersion} (rule-based; no external AI provider${ai ? ` - ${ai.note}` : ''})`,
+      ai,
     },
   };
 }

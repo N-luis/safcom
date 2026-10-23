@@ -44,6 +44,14 @@ export interface IntakeRecord {
   sourceVerified?: boolean | null;
   knowledgeBaseStatus?: string | null;
   assessedBy?: string | null;
+  /** The AI reader's checked reading at filing; null when it did not run. */
+  aiReading?: {
+    status: string; used: boolean; model: string | null; note: string;
+    category: string | null; categoryConfidence: string | null; alternativeCategories: string[];
+    facts: { key: string; quote: string }[];
+    slots: { slot: string; value: string; quote: string }[];
+    reasons: string[]; dropped: number;
+  } | null;
 }
 
 export interface HistoryRow {
@@ -196,6 +204,53 @@ export default function IntakeReviewPanel({ intake, history }: {
               <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
                 {intake.knowledgeBaseStatus ? `${KB_STATUS[intake.knowledgeBaseStatus] ?? intake.knowledgeBaseStatus}. ` : ''}
                 An operational triage framework, not a legal determination. {intake.assessedBy ?? ''}
+              </Typography>
+            </Box>
+          )}
+
+          {/* The AI reader: what it found, each with the resident's words */}
+          {intake.aiReading && (
+            <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1.25, bgcolor: '#fcfcfd' }}>
+              <Typography sx={label}>AI reading at filing</Typography>
+              {intake.aiReading.used ? (
+                <>
+                  <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center', flexWrap: 'wrap', my: 0.5 }}>
+                    <Typography sx={{ fontSize: '0.86rem', color: '#0c1e46' }}>
+                      {intake.aiReading.category
+                        ? <>Read as <b>{intake.aiReading.category}</b> <Box component="span" sx={{ color: '#94a3b8' }}>({intake.aiReading.categoryConfidence} confidence)</Box></>
+                        : 'No category clearly supported'}
+                    </Typography>
+                    {intake.aiReading.category && (
+                      <Chip size="small"
+                        label={intake.aiReading.category === intake.suggestedCaseCategory ? 'Agrees with the rules' : 'Differs from the rules'}
+                        sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700,
+                          bgcolor: intake.aiReading.category === intake.suggestedCaseCategory ? '#ecfdf5' : '#fffbeb',
+                          color: intake.aiReading.category === intake.suggestedCaseCategory ? '#047857' : '#a16207' }} />
+                    )}
+                  </Box>
+                  {intake.aiReading.facts.map(f => (
+                    <Typography key={f.key} sx={{ fontSize: '0.8rem', color: '#334155' }}>
+                      • <b>{f.key}</b> <Box component="span" sx={{ color: '#64748b' }}>— “{f.quote}”</Box>
+                    </Typography>
+                  ))}
+                  {intake.aiReading.reasons.map(r => (
+                    <Typography key={r} sx={{ fontSize: '0.78rem', color: '#475569', mt: 0.25 }}>{r}</Typography>
+                  ))}
+                  {intake.aiReading.alternativeCategories.length > 0 && (
+                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.5 }}>
+                      AI says it could also fit: {intake.aiReading.alternativeCategories.join(', ')}
+                    </Typography>
+                  )}
+                  {intake.aiReading.dropped > 0 && (
+                    <Typography sx={{ fontSize: '0.74rem', color: '#a16207', mt: 0.5 }}>
+                      {intake.aiReading.dropped} item{intake.aiReading.dropped === 1 ? ' was' : 's were'} discarded because the quoted words were not in the report.
+                    </Typography>
+                  )}
+                </>
+              ) : null}
+              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
+                {intake.aiReading.note}{intake.aiReading.model ? ` Model: ${intake.aiReading.model} (Groq free plan).` : ''}
+                {' '}The AI suggests; the risk matrix sets the level and an officer decides.
               </Typography>
             </Box>
           )}

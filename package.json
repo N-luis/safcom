@@ -23,6 +23,7 @@
     "test:intake": "npx tsx tests/intake.test.ts",
     "test:matrices": "npx tsx tests/riskMatrices.test.ts",
     "test:kb": "npx tsx --env-file=.env --conditions=react-server tests/knowledgeBase.test.ts",
+    "test:ai": "npx tsx --env-file=.env --conditions=react-server tests/aiClassifier.test.ts",
     "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
     "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts"
   },

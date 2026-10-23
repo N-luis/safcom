@@ -7,9 +7,12 @@
  * - including its negation guard). It is deterministic: the same narrative and
  * answers always produce the same questions and the same result, and every
  * fact it reports can be traced to a quote or to an answer the resident gave.
- * It does not call an external language model, so no narrative leaves the
- * server. A model could later phrase the questions; it must never decide them,
- * and it must never set the risk level - see the rules below.
+ * On its own it calls no language model. When the AI reader is configured
+ * (lib/aiClassifier.ts), its reading arrives here as `input.ai`: facts named
+ * in this file's own vocabulary, each with the resident's exact words, already
+ * checked against the report. They are added to what the rules found - never
+ * removing anything - and the same matrices then decide the category and the
+ * level. The model never sets a level directly.
  *
  * THE FOUR THINGS IT KEEPS APART
  *   - completeness: how much is known. Never a risk level.
@@ -31,7 +34,7 @@ import {
   type Facts, type Framework, type MatchedIndicator,
 } from './riskMatrices';
 import {
-  matchCategories, needsReviewCategory, MATRIX_VERSION, type Signal,
+  matchCategories, needsReviewCategory, categoryByName, MATRIX_VERSION, type Signal, type CategoryMeta,
 } from './classificationSchema';
 
 export const INTAKE_ENGINE_VERSION = 'safecomm-intake-rules/2.0';
@@ -191,6 +194,9 @@ export interface IntakeResult {
 
   requiresOfficerReview: boolean;
   reviewReasons: string[];
+
+  /** Whether the AI reader's checked facts were part of this reading. Set on the server. */
+  aiAssist?: { used: boolean; model: string | null };
 }
 
 // ─── Wording ─────────────────────────────────────────────────────────────────
@@ -380,6 +386,29 @@ const higher = (a: RiskLevel, b: RiskLevel): RiskLevel => (ORDER.indexOf(a) >= O
 
 // ─── The analysis ────────────────────────────────────────────────────────────
 
+/**
+ * What the AI reader found, after checking. Every quote here appears in the
+ * report text that was read; anything it could not back with the resident's
+ * own words has already been dropped (lib/aiClassifier.ts).
+ */
+export interface AiIntakeHints {
+  /** Signal names (classificationSchema) and matrix fact names (riskMatrices). */
+  facts: { key: string; quote: string }[];
+  /** Questions the report already answers. */
+  slots: { slot: SlotId; value: 'yes' | 'no'; quote: string }[];
+  /** A category from the classification matrix, or null when it was unsure. */
+  category: string | null;
+  categoryConfidence: 'high' | 'medium' | 'low';
+  alternativeCategories: string[];
+  /** Provider and model, for the record. */
+  model: string;
+}
+
+/** Fact names that are about the people or the setting, not about what was done. */
+const NOT_AN_ACT = new Set(['partner', 'family', 'neighbors', 'minor', 'harmDenied', 'publicPlace', 'repeated', 'imminent']);
+const HARM_FACTS = new Set(['force', 'threat', 'weapon', 'injury', 'choking', 'severeBeating', 'explicitThreat', 'killThreat',
+  'weaponShown', 'weaponUsed', 'shooting', 'stabbing', 'sexualViolence', 'hostage', 'confinement']);
+
 export interface IntakeInput {
   narrative: string;
   answers?: IntakeAnswer[];
@@ -393,6 +422,8 @@ export interface IntakeInput {
    * used when an officer has moved the case to the other desk.
    */
   framework?: Framework;
+  /** The AI reader's checked reading, when it ran. */
+  ai?: AiIntakeHints | null;
 }
 
 export interface IntakeAnalysis {
@@ -427,9 +458,13 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
 
   const force = mentions(combined, 'physical');
   const threat = p.threats === 'verbal' || p.threats === 'explicit';
+  const ai = input.ai ?? null;
+  const aiFact = (k: string) => ai?.facts.find(f => f.key === k)?.quote;
+  const aiAct = ai?.facts.find(f => !NOT_AN_ACT.has(f.key));
   const actKnown = Boolean(force) || threat
     || p.weapon === 'used'
-    || (classification.case_category !== 'other_unclear');
+    || (classification.case_category !== 'other_unclear')
+    || Boolean(aiAct);
 
   // ── What the words already settle ──
   const fromReport: Partial<Record<SlotId, { value: 'yes' | 'no'; quote?: string }>> = {};
@@ -450,11 +485,16 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   const said = combined.match(/\b(sinabi niya|sabi niya|sinabihan (?:niya )?ako|sumigaw siya|he said|she said|told me)\b[^.!?]{0,80}/i);
   if (said) fromReport.statements = { value: 'yes', quote: said[0] };
   if (p.frequency !== 'unknown') fromReport.recurrence = { value: p.frequency === 'repeated' ? 'yes' : 'no', quote: quoteFor('frequency') };
+  // What the AI reader found the report already answers, for questions the
+  // rules could not settle. The rules' reading is kept where both have one.
+  if (aiAct && !fromReport.act) fromReport.act = { value: 'yes', quote: aiAct.quote };
+  for (const a of ai?.slots ?? []) if (!fromReport[a.slot]) fromReport[a.slot] = { value: a.value, quote: a.quote };
 
   // ── Which questions matter for this report ──
   const household = p.relationship === 'intimate_partners' || p.relationship === 'family';
   const harmContext = Boolean(force) || threat || p.weapon !== 'unknown'
-    || ['physical_harm', 'domestic_family', 'child_related', 'gender_based_harassment'].includes(classification.case_category);
+    || ['physical_harm', 'domestic_family', 'child_related', 'gender_based_harassment'].includes(classification.case_category)
+    || Boolean(ai?.facts.some(f => HARM_FACTS.has(f.key)));
 
   const answeredYes = (slot: SlotId) => {
     const a = answerOf(slot);
@@ -597,16 +637,43 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     const q = mentions(combined, g);
     if (q) addSig(g, q);
   }
-  if (slot('injury').value === 'no' && !force && !threat && slot('weapon').value !== 'yes') addSig('harmDenied');
+  // The AI reader's facts join the rules' - added, never replacing one.
+  for (const f of ai?.facts ?? []) if (SIGNAL_LABEL[f.key as Signal]) addSig(f.key as Signal, f.quote);
+  if (slot('injury').value === 'no' && !force && !threat && slot('weapon').value !== 'yes'
+    && ![...sig.keys()].some(k => HARM_FACTS.has(k))) addSig('harmDenied');
 
   const signals = new Set(sig.keys());
   const best = matchCategories(signals)[0] ?? null;
-  const chosen = best?.meta ?? needsReviewCategory(signals);
-  const classificationStatus: IntakeResult['classificationStatus'] = best ? 'suggested' : 'needs_review';
-  const categoryConfidence: IntakeResult['categoryConfidence'] =
-    !best ? 'low' : best.matched.length >= 2 && completeness !== 'INSUFFICIENT' ? 'high' : 'medium';
 
-  const categoryRationale = best
+  // The AI reader's own category, as a second opinion. It is used only when
+  // it names a real category in the matrix with some confidence. Where the
+  // rules found nothing, it fills the gap; where the two disagree, the case
+  // is sent for review with both named - neither is quietly dropped.
+  const aiMeta: CategoryMeta | null = ai?.category && ai.categoryConfidence !== 'low'
+    && !/^(vawc - )?other$/i.test(ai.category) ? categoryByName(ai.category) : null;
+  const aiDisagrees = Boolean(best && aiMeta && aiMeta.category !== best.meta.category);
+  const aiLeads = Boolean(aiMeta && (!best
+    || (aiDisagrees && ai!.categoryConfidence === 'high' && best.matched.length < 2)));
+  const chosen: CategoryMeta = aiLeads ? aiMeta! : best?.meta ?? needsReviewCategory(signals);
+  const classificationStatus: IntakeResult['classificationStatus'] = best || aiLeads ? 'suggested' : 'needs_review';
+  const categoryConfidence: IntakeResult['categoryConfidence'] =
+    aiLeads ? 'medium'
+      : !best ? 'low' : best.matched.length >= 2 && completeness !== 'INSUFFICIENT' && !aiDisagrees ? 'high' : 'medium';
+
+  const aiCategoryNote = aiMeta
+    ? [aiDisagrees
+      ? (lang === 'tl'
+        ? `Magkaiba ang basa: ang AI ay "${aiMeta.category}", ang mga panuntunan ay "${best!.meta.category}". Isang opisyal ang magpapasya.`
+        : `The readings differ: the AI read "${aiMeta.category}", the rules "${best!.meta.category}". An officer decides.`)
+      : (lang === 'tl' ? `Ganito rin ang basa ng AI (${ai!.model}).` : `The AI reading agrees (${ai!.model}).`)]
+    : [];
+
+  const categoryRationale = aiLeads && !best
+    ? [
+      ...ai!.facts.filter(f => !NOT_AN_ACT.has(f.key)).slice(0, 3).map(f => `${SIGNAL_LABEL[f.key as Signal]?.[lang] ?? f.key}: "${f.quote}"`),
+      lang === 'tl' ? `Binasa ng AI (${ai!.model}); kumpirmahin ng opisyal.` : `Read by the AI (${ai!.model}); an officer confirms it.`,
+    ]
+    : best
     ? best.matched.map(k => {
       const q = sig.get(k);
       return q ? `${SIGNAL_LABEL[k][lang]}: "${q}"` : SIGNAL_LABEL[k][lang];
@@ -619,6 +686,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
         ? 'Itinala sa VAWC desk habang sinusuri, dahil may binanggit na kapareha, kapamilya, bata, o sekswal na asal.'
         : 'Kept on the VAWC desk while it is reviewed, because it mentions a partner, family, a child or sexual conduct.']
       : [])];
+  categoryRationale.push(...aiCategoryNote);
 
   const selected = input.selectedCategory?.trim() || null;
   if (selected && selected !== chosen.category && !/^other/i.test(selected) && best) {
@@ -640,8 +708,10 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     const q = mentions(combined, g);
     if (q) put(g, q);
   }
-  const stab = mentions(combined, 'stabShoot');
-  if (stab) put(/baril|shot|shoot/i.test(stab) ? 'shooting' : 'stabbing', stab);
+  // The AI reader's matrix facts, under the same names the matrices use.
+  for (const f of ai?.facts ?? []) if (!SIGNAL_LABEL[f.key as Signal]) put(f.key, f.quote);
+  const stab = mentions(combined, 'stabShoot') ?? aiFact('stabbing') ?? aiFact('shooting');
+  if (stab && !facts.has('stabbing') && !facts.has('shooting')) put(/baril|shot|shoot/i.test(stab) ? 'shooting' : 'stabbing', stab);
   if (p.threats === 'explicit' || facts.has('killThreat')) put('explicitThreat', quoteFor('threats') ?? (facts.get('killThreat') as string));
   if (p.weapon === 'present' || p.weapon === 'used' || slot('weapon').value === 'yes') {
     put('weaponShown', quoteFor('weapon') ?? slot('weapon').quote);
@@ -675,11 +745,17 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   // involves a partner or family member while landing on the blotter, is not
   // a confident classification and is not presented as one.
   const allMatches = matchCategories(signals);
-  const alternativeCategories = allMatches.slice(1, 4).map(m => m.meta.category);
-  const crossesDesks = allMatches.length > 1 && allMatches.some(m => m.meta.desk !== chosen.desk);
+  const alternativeCategories = [
+    ...(aiLeads && best ? [best.meta.category] : []),
+    ...allMatches.map(m => m.meta.category),
+    ...(aiMeta && !aiLeads ? [aiMeta.category] : []),
+    ...(ai?.alternativeCategories ?? []).filter(c => categoryByName(c)),
+  ].filter((c, i, all) => c !== chosen.category && all.indexOf(c) === i).slice(0, 4);
+  const crossesDesks = (allMatches.length > 1 && allMatches.some(m => m.meta.desk !== chosen.desk))
+    || Boolean(aiMeta && aiMeta.desk !== chosen.desk);
   const householdOnBlotter = chosen.desk === 'Blotter' && (sig.has('partner') || sig.has('family'))
     && (sig.has('threat') || sig.has('force') || sig.has('injury'));
-  const ambiguous = crossesDesks || householdOnBlotter;
+  const ambiguous = crossesDesks || householdOnBlotter || aiDisagrees;
 
   const assessmentStatus: IntakeResult['assessmentStatus'] = !matrixLevel
     ? (riskBasis === 'not_covered_by_matrix' ? 'FOR_REVIEW' : 'NEEDS_MORE_INFORMATION')
@@ -767,6 +843,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (route === 'VAWC') reviewReasons.push('Describes a VAWC concern; needs the VAWC desk');
   if (immediateSafetyConcern) reviewReasons.push('Immediate safety concern');
   if (!matrixLevel) reviewReasons.push('No risk-matrix criterion met; an officer sets the level');
+  if (aiDisagrees) reviewReasons.push(`The AI reading (${aiMeta!.category}) and the rules (${best!.meta.category}) suggest different categories`);
   if (ambiguous) reviewReasons.push(`Could fit more than one category: ${[chosen.category, ...alternativeCategories].join(', ')}`);
   if (ruled.needs_human_review && ruled.needs_human_review_reason) reviewReasons.push(ruled.needs_human_review_reason);
 
