@@ -671,7 +671,6 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
           <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
             <Chip label="Active" color="success" size="small" sx={{ fontWeight: 700 }} />
             <Chip label="6-Model Consensus" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700 }} />
-            <Chip label="No API key required" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.78rem' }} />
           </Box>
           <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>
             SafComm Rule-Based Ensemble v2.0
