@@ -9,7 +9,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Skeleton, TextField, InputAdornment, MenuItem, Select,
   FormControl, InputLabel, Dialog, DialogTitle, DialogContent,
-  DialogActions, Divider, Fab, Tooltip,
+  DialogActions, Divider,
 } from '@mui/material';
 import {
   Search, FolderOpen, Add, Assessment, CheckCircle, Autorenew,
@@ -285,12 +285,6 @@ function MyCasesPage() {
       </Card>
 
       {selected && <CaseDetailDialog c={selected} onClose={() => setSelected(null)} />}
-
-      <Tooltip title="File a New Report" placement="left">
-        <Fab onClick={() => router.push('/resident/report-case')} sx={{ position: 'fixed', bottom: 28, right: 28, bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, boxShadow: '0 8px 24px rgba(20,184,166,0.45)' }}>
-          <Add />
-        </Fab>
-      </Tooltip>
     </Box>
   );
 }
