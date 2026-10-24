@@ -25,6 +25,7 @@
     "test:kb": "npx tsx --env-file=.env --conditions=react-server tests/knowledgeBase.test.ts",
     "test:ai": "npx tsx --env-file=.env --conditions=react-server tests/aiClassifier.test.ts",
     "test:reporter": "npx tsx --env-file=.env --conditions=react-server tests/reporterAccess.test.ts",
+    "test:interview": "npx tsx --env-file=.env --conditions=react-server tests/aiInterview.test.ts",
     "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
     "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts"
   },

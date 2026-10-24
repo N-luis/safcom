@@ -11,7 +11,8 @@ import { isValidCoordinate } from '@/lib/geo';
 import { enforceHardRules } from '@/lib/caseClassification';
 import { buildEvidence } from '@/lib/reportEvidence';
 import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
-import { runIntake, answersSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
+import { runIntake, answersSchema, relationshipSchema, turnsSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
+import { ANONYMOUS_NAME, type InterviewTurn } from '@/lib/interviewTypes';
 
 const createSchema = z.object({
   // No longer asked of the resident: the category is derived from what they
@@ -53,7 +54,16 @@ const createSchema = z.object({
   // are re-read here, so nothing computed in the browser is trusted.
   intakeNarrative: z.string().max(NARRATIVE_MAX).optional(),
   intakeAnswers: answersSchema,
+  // Who the report is for. Optional only for an older client, which is
+  // taken as SELF, as every report was before this was asked.
+  reportingRelationship: relationshipSchema.optional(),
+  // Who was affected, in the reporter's words - never required.
+  affectedPersonNote: z.string().trim().max(200).optional(),
+  // The AI interview as asked and answered. The resident's own statements;
+  // re-read on the server, never taken as a classification.
+  intakeTurns: turnsSchema,
 });
+
 
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
@@ -139,6 +149,12 @@ export async function POST(req: NextRequest) {
     // suggested category and the preliminary level - and the level comes from
     // stated facts and the documented hard rules, never from the dropdown.
     const narrative = (parsed.data.intakeNarrative ?? '').trim() || parsed.data.description;
+    const relationship = parsed.data.reportingRelationship ?? 'SELF';
+    const anonymous = relationship === 'ANONYMOUS';
+    const turns = (parsed.data.intakeTurns ?? []) as InterviewTurn[];
+    // The rules, then one Groq call: the facts and a preliminary assessment
+    // against the matrix text retrieved from the knowledge base. On any AI
+    // trouble the rules' reading stands alone and the report is still filed.
     const intake = await runIntake({
       residentId: auth.resident.residentId,
       narrative,
@@ -146,11 +162,13 @@ export async function POST(req: NextRequest) {
       selectedCategory: parsed.data.caseType ?? null,
       street: barangay,
       gender: resident.gender ?? null,
-      // The same text as the popup read, so this is normally the cached
-      // reading, not a second call against the day's quota.
       useAi: true,
       residentNames: [resident.firstName, resident.lastName],
+      relationship,
+      turns,
     });
+    const aiAssessment = intake.grounding.ai?.assessment ?? null;
+    const urgentReview = intake.result.immediateSafetyConcern || Boolean(aiAssessment?.urgentHumanReview);
 
     // The case is filed under the matrix's category - a specific one, or
     // "Other" / "VAWC - Other" when the report does not support one and an
@@ -260,7 +278,12 @@ export async function POST(req: NextRequest) {
       prisma.case.create({
         data: {
           caseNumber,
-          residentName: `${resident.firstName} ${resident.lastName}`,
+          // Anonymous: officials see no name. The account stays linked so the
+          // reporter can follow their own report in My Cases.
+          residentName: anonymous ? ANONYMOUS_NAME : `${resident.firstName} ${resident.lastName}`,
+          reportingRelationship: relationship,
+          affectedPersonNote: relationship === 'SELF' ? null : parsed.data.affectedPersonNote || null,
+          reporterIdentityWithheld: anonymous,
           caseType,
           description: parsed.data.description,
           barangay,
@@ -273,8 +296,9 @@ export async function POST(req: NextRequest) {
           filedAt,
           residentId: auth.resident.residentId,
           ...(notesValue && { notes: notesValue }),
-          contactPreference: parsed.data.contactPreference ?? null,
-          contactSafetyNote: parsed.data.contactSafetyNote || null,
+          // No way to be contacted is kept for an anonymous report.
+          contactPreference: anonymous ? null : parsed.data.contactPreference ?? null,
+          contactSafetyNote: anonymous ? null : parsed.data.contactSafetyNote || null,
         },
       }),
     );
@@ -408,8 +432,15 @@ export async function POST(req: NextRequest) {
                 slots: intake.grounding.ai.hints?.slots ?? [],
                 reasons: intake.grounding.ai.reasons,
                 dropped: intake.grounding.ai.dropped,
+                // The preliminary assessment against the retrieved matrix
+                // text, with its sources by id - separate from the facts.
+                assessment: aiAssessment,
               })),
             }),
+            // Every interview question as asked, with the answer or how it was
+            // left - kept exactly, beside the original narrative above.
+            aiInterview: JSON.parse(JSON.stringify({ relationship, turns, rounds: Math.max(0, ...turns.map(t => t.round)) })),
+            urgentReview,
           },
         }),
         prisma.assessmentHistory.create({
@@ -450,6 +481,14 @@ export async function POST(req: NextRequest) {
             title: `Safety concern in new report ${caseNumber}`,
             message: 'A resident reported an immediate safety concern. Open the case to review it now.',
             type: 'error',
+            userId: null,
+            caseId: newCase.id,
+          },
+        })] : urgentReview ? [prisma.notification.create({
+          data: {
+            title: `Urgent review recommended for ${caseNumber}`,
+            message: 'The preliminary AI assessment recommends urgent human review. Open the case to check it.',
+            type: 'warning',
             userId: null,
             caseId: newCase.id,
           },

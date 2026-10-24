@@ -51,8 +51,29 @@ export interface IntakeRecord {
     facts: { key: string; quote: string }[];
     slots: { slot: string; value: string; quote: string }[];
     reasons: string[]; dropped: number;
+    /** The preliminary assessment against the retrieved matrix text (lib/aiAssessment.ts). */
+    assessment?: {
+      status: 'COMPLETED' | 'ASSESSMENT_UNAVAILABLE'; unavailableReason: string | null;
+      framework: string | null; suggestedCategory: string | null; level: number | null; label: string | null;
+      criteria: { level: number; criterion: string; source: string; reportQuote: string }[];
+      droppedCriteria: number; classificationStatus: string; understanding: string | null;
+      missingInformation: string[]; uncertainty: string[]; recommendedNextAction: string | null;
+      urgentHumanReview: boolean; affectedPerson: string; reporterKnowledge: string;
+      sources: { sid: string; documentType: string; sectionTitle: string; riskLevel: number | null; pageNumber: number | null }[];
+      frameworkStatus: string | null; at: string;
+    } | null;
   } | null;
+  /** Every AI interview question as asked, with the answer or how it was left. */
+  aiInterview?: {
+    relationship: string; rounds: number;
+    turns: { id: string; round: number; text: string; slot: string | null; kind: string; value?: string; answerText?: string }[];
+  } | null;
+  urgentReview?: boolean;
 }
+
+const AFFECTED: Record<string, string> = { REPORTER: 'the reporter', OTHER_PERSON: 'someone other than the reporter', UNCLEAR: 'unclear' };
+const KNOWLEDGE: Record<string, string> = { DIRECT: 'saw or experienced it', HEARD: 'heard it', TOLD_BY_OTHERS: 'was told by others', UNCLEAR: 'unclear' };
+const ANSWER: Record<string, string> = { yes: 'Yes', no: 'No', unsure: "Don't know" };
 
 export interface HistoryRow {
   id: string;
@@ -248,10 +269,74 @@ export default function IntakeReviewPanel({ intake, history }: {
                   )}
                 </>
               ) : null}
+              {/* The assessment against the retrieved matrix text, kept apart from the facts */}
+              {intake.aiReading.assessment && (() => {
+                const a = intake.aiReading.assessment;
+                return (
+                  <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #e2e8f0' }}>
+                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#0c1e46' }}>
+                      AI preliminary assessment{a.framework ? ` — ${a.framework === 'VAWC' ? 'VAWC' : 'Blotter'} matrix` : ''}
+                    </Typography>
+                    {a.status === 'ASSESSMENT_UNAVAILABLE' ? (
+                      <Typography sx={{ fontSize: '0.78rem', color: '#a16207' }}>Assessment unavailable: {a.unavailableReason}</Typography>
+                    ) : (
+                      <>
+                        <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center', my: 0.25 }}>
+                          <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46' }}>
+                            {a.level ? <b>Level {a.level} — {a.label}</b> : 'No level — no criterion clearly met'}
+                            {a.suggestedCategory && <Box component="span" sx={{ color: '#64748b' }}> · {a.suggestedCategory}</Box>}
+                          </Typography>
+                          <Chip size="small" label={STATUS[a.classificationStatus]?.label ?? a.classificationStatus}
+                            sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#f1f5f9', color: '#475569' }} />
+                          {a.urgentHumanReview && (
+                            <Chip size="small" label="Urgent review recommended" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#b91c1c' }} />
+                          )}
+                        </Box>
+                        {a.understanding && <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>{a.understanding}</Typography>}
+                        {a.criteria.map((c, i) => (
+                          <Typography key={i} sx={{ fontSize: '0.78rem', color: '#334155' }}>
+                            • <b>L{c.level}</b> “{c.criterion}” <Box component="span" sx={{ color: '#94a3b8' }}>[{c.source}]</Box>
+                            <Box component="span" sx={{ color: '#64748b' }}> — reported as “{c.reportQuote}”</Box>
+                          </Typography>
+                        ))}
+                        <Typography sx={{ fontSize: '0.76rem', color: '#64748b', mt: 0.25 }}>
+                          Affected: {AFFECTED[a.affectedPerson] ?? a.affectedPerson} · Reporter {KNOWLEDGE[a.reporterKnowledge] ?? a.reporterKnowledge}
+                        </Typography>
+                        {a.recommendedNextAction && <Typography sx={{ fontSize: '0.76rem', color: '#334155' }}><b>Suggested next action:</b> {a.recommendedNextAction}</Typography>}
+                        {a.missingInformation.length > 0 && <Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>Missing: {a.missingInformation.join('; ')}</Typography>}
+                        {a.uncertainty.length > 0 && <Typography sx={{ fontSize: '0.76rem', color: '#a16207' }}>Uncertain: {a.uncertainty.join('; ')}</Typography>}
+                        {a.droppedCriteria > 0 && (
+                          <Typography sx={{ fontSize: '0.74rem', color: '#a16207' }}>{a.droppedCriteria} cited criteria were not in the matrix text and were discarded.</Typography>
+                        )}
+                        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.25 }}>
+                          Sources: {a.sources.map(s => `${s.sid} ${s.documentType}${s.riskLevel ? ` L${s.riskLevel}` : ` ${s.sectionTitle}`}`).join(' · ')}
+                          {a.frameworkStatus ? ` — ${a.frameworkStatus}` : ''}
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                );
+              })()}
               <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
                 {intake.aiReading.note}{intake.aiReading.model ? ` Model: ${intake.aiReading.model} (Groq free plan).` : ''}
                 {' '}The AI suggests; the risk matrix sets the level and an officer decides.
               </Typography>
+            </Box>
+          )}
+
+          {/* The AI interview, exactly as it went */}
+          {intake.aiInterview && intake.aiInterview.turns.length > 0 && (
+            <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1.25, bgcolor: '#fcfcfd' }}>
+              <Typography sx={label}>Follow-up interview ({intake.aiInterview.turns.length} question{intake.aiInterview.turns.length === 1 ? '' : 's'})</Typography>
+              {intake.aiInterview.turns.map(t => (
+                <Box key={t.id} sx={{ mb: 0.5 }}>
+                  <Typography sx={{ fontSize: '0.8rem', color: '#0c1e46' }}>{t.text}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: t.kind === 'skipped' || t.kind === 'declined' ? '#94a3b8' : '#334155' }}>
+                    → {t.kind === 'skipped' ? 'Skipped' : t.kind === 'declined' ? 'Preferred not to answer'
+                      : [t.value ? ANSWER[t.value] : '', t.answerText ? `“${t.answerText}”` : ''].filter(Boolean).join(' — ')}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           )}
 

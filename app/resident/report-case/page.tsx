@@ -10,6 +10,7 @@ import {
   Button, CircularProgress, Alert,
   Divider, ToggleButton, ToggleButtonGroup,
   Dialog, DialogTitle, DialogContent, DialogActions,
+  RadioGroup, Radio, FormControlLabel, FormHelperText,
 } from '@mui/material';
 import {
   CheckCircle, Send, ArrowBack,
@@ -28,6 +29,7 @@ import BarangayStreetMap from '@/components/forms/BarangayStreetMap';
 import IntakeAssistant from '@/components/forms/IntakeAssistant';
 import SubmissionSummary from '@/components/forms/SubmissionSummary';
 import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
+import { REPORTING_RELATIONSHIPS, RELATIONSHIP_LABEL, type InterviewTurn, type ReportingRelationship } from '@/lib/interviewTypes';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 
 /**
@@ -58,6 +60,12 @@ const ACCENT = '#14b8a6';
 // classification matrix (lib/classificationSchema.ts) decides the category on
 // the server, or files it for an officer to classify when it cannot.
 const schema = z.object({
+  // Who the report is for. Asked first: it changes the questions, and an
+  // anonymous report is filed without the reporter's name.
+  reportingRelationship: z.string().refine(v => (REPORTING_RELATIONSHIPS as readonly string[]).includes(v),
+    'Choose who you are reporting this for'),
+  // Who was affected, in the reporter's words. Never required.
+  affectedPersonNote: z.string().max(200, 'Keep this under 200 characters').optional(),
   // Ten characters, the server's own minimum. "Submit now" in an emergency
   // goes through this check too, and must not stop someone who wrote little.
   description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least'),
@@ -82,6 +90,7 @@ export default function ReportCasePage() {
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      reportingRelationship: '', affectedPersonNote: '',
       description: '', street: '', location: '',
       additionalNotes: '', contactPreference: '', contactSafetyNote: '',
     },
@@ -158,6 +167,11 @@ export default function ReportCasePage() {
 
   // SafeComm Assist: the answers given so far, and its latest reading.
   const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswer[]>([]);
+  // The AI interview's questions as asked and answered, in order.
+  const [intakeTurns, setIntakeTurns] = useState<InterviewTurn[]>([]);
+  const relationshipValue = (watch('reportingRelationship') || '') as ReportingRelationship | '';
+  const anonymous = relationshipValue === 'ANONYMOUS';
+  const aboutOthers = relationshipValue === 'THIRD_PARTY' || relationshipValue === 'ON_BEHALF';
   // The final look before filing. Skipped by the emergency path.
   const [reviewing, setReviewing] = useState<FormData | null>(null);
   const descriptionValue = watch('description') ?? '';
@@ -173,9 +187,11 @@ export default function ReportCasePage() {
       try {
         const raw = sessionStorage.getItem(DRAFT_KEY);
         if (!raw) return;
-        const d = JSON.parse(raw) as { description?: string; answers?: IntakeAnswer[] };
+        const d = JSON.parse(raw) as { description?: string; answers?: IntakeAnswer[]; turns?: InterviewTurn[]; relationship?: string };
         if (d.description && !getValues('description')) setValue('description', d.description);
         if (Array.isArray(d.answers)) setIntakeAnswers(d.answers);
+        if (Array.isArray(d.turns)) setIntakeTurns(d.turns);
+        if (d.relationship && !getValues('reportingRelationship')) setValue('reportingRelationship', d.relationship);
       } catch { /* private mode or a malformed draft: start clean */ }
     }, 0);
     return () => clearTimeout(t);
@@ -185,12 +201,12 @@ export default function ReportCasePage() {
     const t = setTimeout(() => {
       try {
         sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
-          description: descriptionValue, answers: intakeAnswers,
+          description: descriptionValue, answers: intakeAnswers, turns: intakeTurns, relationship: relationshipValue,
         }));
       } catch { /* storage unavailable: the in-page state still holds it */ }
     }, 300);
     return () => clearTimeout(t);
-  }, [descriptionValue, intakeAnswers]);
+  }, [descriptionValue, intakeAnswers, intakeTurns, relationshipValue]);
   const { t } = useLanguage();
   const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
@@ -262,6 +278,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           // their answers. The server reads both again itself.
           intakeNarrative: data.description,
           intakeAnswers,
+          intakeTurns,
+          reportingRelationship: data.reportingRelationship,
+          affectedPersonNote: data.affectedPersonNote?.trim() || undefined,
         }),
       });
       const json = await res.json();
@@ -373,6 +392,58 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
 
               <Box component="form" onSubmit={handleSubmit(data => setReviewing(data))} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
+                {/* Who the report is for - the reporter, the person affected and the
+                    person responsible are separate roles, and none is assumed. */}
+                <Box>
+                  <Typography id="relationship-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.5 }}>
+                    Who are you reporting this incident for? *
+                  </Typography>
+                  <Controller
+                    name="reportingRelationship"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup aria-labelledby="relationship-label" value={field.value} onChange={e => field.onChange(e.target.value)}
+                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0.75 }}>
+                        {REPORTING_RELATIONSHIPS.map(r => (
+                          <FormControlLabel key={r} value={r} disabled={isSubmitting || analysing}
+                            control={<Radio size="small" sx={{ '&.Mui-checked': { color: ACCENT } }} />}
+                            label={(
+                              <Box sx={{ py: 0.5 }}>
+                                <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>{RELATIONSHIP_LABEL[r].en}</Typography>
+                                <Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>{RELATIONSHIP_LABEL[r].hintEn}</Typography>
+                              </Box>
+                            )}
+                            sx={{
+                              m: 0, pr: 1, alignItems: 'flex-start', border: '1px solid',
+                              borderColor: field.value === r ? ACCENT : '#e2e8f0', borderRadius: 2,
+                              bgcolor: field.value === r ? '#14b8a60d' : 'transparent',
+                            }} />
+                        ))}
+                      </RadioGroup>
+                    )}
+                  />
+                  {errors.reportingRelationship && (
+                    <FormHelperText error sx={{ mx: 0 }}>{errors.reportingRelationship.message}</FormHelperText>
+                  )}
+                  {aboutOthers && (
+                    <TextField
+                      label="Who was affected? (optional)"
+                      placeholder="e.g. my neighbour, a woman living next door"
+                      helperText={errors.affectedPersonNote?.message ?? 'You do not need their name or contact details.'}
+                      error={!!errors.affectedPersonNote}
+                      {...register('affectedPersonNote')}
+                      fullWidth size="small" sx={{ mt: 1.25 }}
+                      slotProps={{ htmlInput: { maxLength: 200 } }}
+                    />
+                  )}
+                  {anonymous && (
+                    <Alert severity="info" sx={{ mt: 1.25, borderRadius: 2, fontSize: '0.82rem' }}>
+                      Barangay officials will not see your name or contact details, so they cannot call you back.
+                      You can still follow this report and reply to updates in My Cases.
+                    </Alert>
+                  )}
+                </Box>
+
                 {/* What happened, in the resident's own words. This is what the case is
                     classified from - there is no category to pick. */}
                 <Box>
@@ -470,8 +541,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   fullWidth multiline rows={2}
                 />
 
-                {/* How it is safe to reach them - never assumed to be a call */}
-                <Box>
+                {/* How it is safe to reach them - never assumed to be a call. Not
+                    asked on an anonymous report: no contact is kept for it. */}
+                {!anonymous && <Box>
                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.25 }}>
                     How can the barangay safely contact you? (optional)
                   </Typography>
@@ -514,7 +586,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     slotProps={{ htmlInput: { maxLength: 200 } }}
                     sx={{ mt: 1.25 }}
                   />
-                </Box>
+                </Box>}
 
                 {/* Photo evidence — shrunk in the browser before upload */}
                 <PhotoAttachments
@@ -569,6 +641,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 street={reviewing.street}
                 answers={intakeAnswers}
                 onAnswersChange={setIntakeAnswers}
+                relationship={(reviewing.reportingRelationship || 'SELF') as ReportingRelationship}
+                turns={intakeTurns}
+                onTurnsChange={setIntakeTurns}
                 onResult={setIntakeResult}
                 disabled={isSubmitting || analysing}
                 // Danger: file what there is now, with no further steps.
@@ -576,6 +651,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               />
               <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                 {([
+                  ['Reporting for', RELATIONSHIP_LABEL[(reviewing.reportingRelationship || 'SELF') as ReportingRelationship].en],
                   ['Street', reviewing.street],
                   ['Photos', String(photos.length)],
                 ] as [string, string][]).map(([k, v]) => (

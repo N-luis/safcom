@@ -34,7 +34,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         contactNumber: true, email: true, username: true, emailVerified: true,
         clerkId: true, idDocument: true, status: true, riskLevel: true,
         notes: true, registeredAt: true, updatedAt: true,
+        // Anonymous reports are not listed under the resident who filed them.
         cases: {
+          where: { reporterIdentityWithheld: false },
           orderBy: { filedAt: 'desc' },
           take: 10,
           select: {
@@ -43,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             assignedTo: { select: { name: true, role: true } },
           },
         },
-        _count: { select: { cases: true } },
+        _count: { select: { cases: { where: { reporterIdentityWithheld: false } } } },
       },
     });
     if (!resident) return errorResponse('Resident not found', 404);
@@ -52,8 +54,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // itself must never leave the server — count instead of selecting it.
     const [localPasswords, openCases, resolvedCases] = await Promise.all([
       prisma.resident.count({ where: { id, password: { not: null } } }),
-      prisma.case.count({ where: { residentId: id, status: { notIn: ['Resolved', 'Closed'] } } }),
-      prisma.case.count({ where: { residentId: id, status: { in: ['Resolved', 'Closed'] } } }),
+      prisma.case.count({ where: { residentId: id, reporterIdentityWithheld: false, status: { notIn: ['Resolved', 'Closed'] } } }),
+      prisma.case.count({ where: { residentId: id, reporterIdentityWithheld: false, status: { in: ['Resolved', 'Closed'] } } }),
     ]);
 
     const { clerkId, ...rest } = resident;

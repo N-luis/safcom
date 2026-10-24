@@ -30,7 +30,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const pref = (CONTACT_PREFERENCES as readonly string[]).includes(c.contactPreference ?? '')
       ? c.contactPreference as ContactPreference : null;
     const vawc = isVawcType(c.caseType);
-    const r = c.resident;
+    // Anonymous: nothing about who filed it leaves the server.
+    const r = c.reporterIdentityWithheld ? null : c.resident;
 
     const body = {
       caseNumber: c.caseNumber,
@@ -38,6 +39,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         name: r ? `${r.firstName} ${r.lastName}` : c.residentName,
         registered: Boolean(r),
         residentNumber: canReveal ? r?.residentNumber ?? null : null,
+        anonymous: c.reporterIdentityWithheld,
+        // Who the report is for, and who was affected in the reporter's words:
+        // the reporter is not assumed to be the person harmed.
+        relationship: c.reportingRelationship,
+        affectedPersonNote: c.affectedPersonNote,
       },
       contact: {
         hasPhone: Boolean(r?.contactNumber),

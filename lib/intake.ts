@@ -303,6 +303,17 @@ const QUESTION: Record<SlotId, Record<Lang, {
  * "May panganib na maulit ang pananakit?" put to someone reporting a noisy
  * videoke assumed a hurt that nobody had mentioned.
  */
+/**
+ * The safety question when the report is about someone else: the reporter is
+ * not assumed to be the person harmed, and may only know part of it.
+ */
+const OTHERS_SAFETY: Record<Lang, { text: string; yes: string; no: string; unsure: string }> = {
+  tl: { text: 'Sa pagkakaalam mo, may tao bang nasa panganib ngayon, o maaaring maulit agad ang pananakit?',
+    yes: 'Oo, may maaaring nasa panganib ngayon', no: 'Wala, ligtas sila ngayon', unsure: 'Hindi ko alam' },
+  en: { text: 'As far as you know, is anyone in danger right now, or could it happen again soon?',
+    yes: 'Yes, someone may be in danger now', no: 'No, they are safe now', unsure: "I don't know" },
+};
+
 const NEUTRAL_SAFETY: Record<Lang, string> = {
   tl: 'Mayroon bang panganib sa iyo o sa iba ngayon dahil dito?',
   en: 'Is anyone in danger right now because of this?',
@@ -424,6 +435,13 @@ export interface IntakeInput {
   framework?: Framework;
   /** The AI reader's checked reading, when it ran. */
   ai?: AiIntakeHints | null;
+  /**
+   * Who the report is for (lib/interviewTypes.ts). Anything but SELF: the
+   * reporter is not taken to be the person harmed, and is asked about others.
+   */
+  relationship?: 'SELF' | 'THIRD_PARTY' | 'ON_BEHALF' | 'ANONYMOUS' | null;
+  /** The resident's typed answers to AI interview questions - read like their other words. */
+  extraText?: string[];
 }
 
 export interface IntakeAnalysis {
@@ -448,7 +466,9 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
 
   // Only the resident's own words are read. Option buttons are turned into
   // slot values directly below, never into invented sentences.
-  const typed = answers.map(a => a.text?.trim()).filter((t): t is string => Boolean(t));
+  const typed = [...answers.map(a => a.text?.trim()), ...(input.extraText ?? []).map(t => t.trim().slice(0, 1000))]
+    .filter((t): t is string => Boolean(t));
+  const aboutOthers = input.relationship === 'THIRD_PARTY' || input.relationship === 'ON_BEHALF';
   const combined = [narrative, ...typed].join('\n');
 
   const classification = classifyCase({ report: combined, unclearWords: [], attachments: {} });
@@ -585,7 +605,9 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   // ── Immediate safety, checked before anything else is waited on ──
   const safetyReasons: string[] = [];
   if (slot('safety').value === 'yes') {
-    safetyReasons.push(lang === 'tl' ? 'Sinabi mong hindi ka ligtas ngayon.' : 'You said you are not safe right now.');
+    safetyReasons.push(aboutOthers
+      ? (lang === 'tl' ? 'Sinabi mong may maaaring nasa panganib ngayon.' : 'You said someone may be in danger right now.')
+      : (lang === 'tl' ? 'Sinabi mong hindi ka ligtas ngayon.' : 'You said you are not safe right now.'));
   }
   if (slot('injuryCare').value === 'yes') {
     safetyReasons.push(lang === 'tl' ? 'May nasaktan na nangangailangan ng medikal na tulong.' : 'Someone who was hurt needs medical help.');
@@ -853,10 +875,10 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (completeness !== 'SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT' && questionsAsked < MAX_QUESTIONS) {
     const target = slots.find(s => s.relevant && s.status === 'unknown' && !answerOf(s.id));
     if (target) {
-      const q = QUESTION[target.id][lang];
+      const q = target.id === 'safety' && aboutOthers ? { ...QUESTION.safety[lang], ...OTHERS_SAFETY[lang] } : QUESTION[target.id][lang];
       nextQuestion = {
         slot: target.id,
-        text: target.id === 'safety' && !harmContext && !household ? NEUTRAL_SAFETY[lang] : q.text,
+        text: target.id === 'safety' && !harmContext && !household && !aboutOthers ? NEUTRAL_SAFETY[lang] : q.text,
         options: q.text_only ? [] : [
           { value: 'yes', label: q.yes! },
           { value: 'no', label: q.no! },

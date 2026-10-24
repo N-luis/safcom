@@ -137,3 +137,22 @@ export async function levelChunk(type: Framework, level: number, db: KbDb = pris
     return null;
   }
 }
+
+/**
+ * Every current level row of a matrix (levels 1-5 with their criteria), for
+ * giving the source text itself to the AI assessment. Null when the database
+ * cannot be reached - which the caller must report, not paper over.
+ */
+export async function matrixLevelRows(type: Framework, db: KbDb = prisma): Promise<MatrixHit[] | null> {
+  try {
+    const rows = await db.$queryRaw<(Omit<MatrixHit, 'strength' | 'score'>)[]>`
+      SELECT id, "documentType", "documentName", "sectionTitle", "riskLevel", "riskLabel",
+             "pageNumber", content, fields
+      FROM "RiskMatrixChunk"
+      WHERE "documentType" = ${type} AND "isCurrent" = true AND "riskLevel" IS NOT NULL
+      ORDER BY "riskLevel" ASC`;
+    return rows.map(r => ({ ...r, score: 1, strength: 'strong' as const }));
+  } catch {
+    return null;
+  }
+}

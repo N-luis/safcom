@@ -95,6 +95,17 @@ model Case {
   /// Their own words: safe times, who may answer, what not to say.
   contactSafetyNote    String?
 
+  /// Who the report is for: SELF | THIRD_PARTY | ON_BEHALF | ANONYMOUS. Null
+  /// on cases filed before it was asked. The reporter, the affected person
+  /// and the accused are separate roles; THIRD_PARTY does not make the
+  /// reporter a victim or a witness.
+  reportingRelationship    String?
+  /// Who was affected, in the reporter's words (optional, never required).
+  affectedPersonNote       String?
+  /// ANONYMOUS: officials are not shown who filed it. The resident account is
+  /// still linked, so the reporter can follow their own report.
+  reporterIdentityWithheld Boolean @default(false)
+
   @@index([progressState])
 }
 
@@ -388,6 +399,12 @@ model CaseIntake {
   /// model, the facts it found with the resident's words, its category. Null
   /// when it did not run.
   aiReading               Json?
+  /// The AI interview: every question asked, by round, with the answer, a
+  /// skip or "prefer not to answer" - exactly as the resident left it.
+  aiInterview             Json?
+  /// Urgent human review recommended at filing - by the rules (danger now)
+  /// or by the AI assessment.
+  urgentReview            Boolean @default(false)
   createdAt               DateTime @default(now())
 }
 

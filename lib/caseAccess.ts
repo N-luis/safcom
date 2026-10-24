@@ -38,3 +38,12 @@ export function vawcFilter(role: string | undefined | null): Record<string, unkn
 export function isVawcCaseHidden(role: string | undefined | null, caseType: string): boolean {
   return !canSeeVawc(role) && (VAWC_TYPES as readonly string[]).includes(caseType);
 }
+
+/**
+ * An anonymous report as officials receive it: no link to the resident who
+ * filed it. Applied to every staff response that carries case rows, so an
+ * account id cannot be looked up in the resident directory.
+ */
+export function withholdReporter<T extends { reporterIdentityWithheld?: boolean | null; residentId?: string | null }>(c: T): T {
+  return c.reporterIdentityWithheld ? { ...c, residentId: null } : c;
+}

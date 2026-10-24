@@ -1763,7 +1763,10 @@ export const CaseScalarFieldEnum = {
   lastOfficerActionAt: 'lastOfficerActionAt',
   reminderSentAt: 'reminderSentAt',
   contactPreference: 'contactPreference',
-  contactSafetyNote: 'contactSafetyNote'
+  contactSafetyNote: 'contactSafetyNote',
+  reportingRelationship: 'reportingRelationship',
+  affectedPersonNote: 'affectedPersonNote',
+  reporterIdentityWithheld: 'reporterIdentityWithheld'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -1980,6 +1983,8 @@ export const CaseIntakeScalarFieldEnum = {
   knowledgeBaseStatus: 'knowledgeBaseStatus',
   assessedBy: 'assessedBy',
   aiReading: 'aiReading',
+  aiInterview: 'aiInterview',
+  urgentReview: 'urgentReview',
   createdAt: 'createdAt'
 } as const
 

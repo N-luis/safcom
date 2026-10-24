@@ -59,6 +59,7 @@ export type CaseIntakeMinAggregateOutputType = {
   sourceVerified: boolean | null
   knowledgeBaseStatus: string | null
   assessedBy: string | null
+  urgentReview: boolean | null
   createdAt: Date | null
 }
 
@@ -84,6 +85,7 @@ export type CaseIntakeMaxAggregateOutputType = {
   sourceVerified: boolean | null
   knowledgeBaseStatus: string | null
   assessedBy: string | null
+  urgentReview: boolean | null
   createdAt: Date | null
 }
 
@@ -122,6 +124,8 @@ export type CaseIntakeCountAggregateOutputType = {
   knowledgeBaseStatus: number
   assessedBy: number
   aiReading: number
+  aiInterview: number
+  urgentReview: number
   createdAt: number
   _all: number
 }
@@ -157,6 +161,7 @@ export type CaseIntakeMinAggregateInputType = {
   sourceVerified?: true
   knowledgeBaseStatus?: true
   assessedBy?: true
+  urgentReview?: true
   createdAt?: true
 }
 
@@ -182,6 +187,7 @@ export type CaseIntakeMaxAggregateInputType = {
   sourceVerified?: true
   knowledgeBaseStatus?: true
   assessedBy?: true
+  urgentReview?: true
   createdAt?: true
 }
 
@@ -220,6 +226,8 @@ export type CaseIntakeCountAggregateInputType = {
   knowledgeBaseStatus?: true
   assessedBy?: true
   aiReading?: true
+  aiInterview?: true
+  urgentReview?: true
   createdAt?: true
   _all?: true
 }
@@ -345,6 +353,8 @@ export type CaseIntakeGroupByOutputType = {
   knowledgeBaseStatus: string | null
   assessedBy: string | null
   aiReading: runtime.JsonValue | null
+  aiInterview: runtime.JsonValue | null
+  urgentReview: boolean
   createdAt: Date
   _count: CaseIntakeCountAggregateOutputType | null
   _avg: CaseIntakeAvgAggregateOutputType | null
@@ -406,6 +416,8 @@ export type CaseIntakeWhereInput = {
   knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   aiReading?: Prisma.JsonNullableFilter<"CaseIntake">
+  aiInterview?: Prisma.JsonNullableFilter<"CaseIntake">
+  urgentReview?: Prisma.BoolFilter<"CaseIntake"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
@@ -445,6 +457,8 @@ export type CaseIntakeOrderByWithRelationInput = {
   knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   aiReading?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiInterview?: Prisma.SortOrderInput | Prisma.SortOrder
+  urgentReview?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
@@ -487,6 +501,8 @@ export type CaseIntakeWhereUniqueInput = Prisma.AtLeast<{
   knowledgeBaseStatus?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableFilter<"CaseIntake"> | string | null
   aiReading?: Prisma.JsonNullableFilter<"CaseIntake">
+  aiInterview?: Prisma.JsonNullableFilter<"CaseIntake">
+  urgentReview?: Prisma.BoolFilter<"CaseIntake"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CaseIntake"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id" | "caseId">
@@ -526,6 +542,8 @@ export type CaseIntakeOrderByWithAggregationInput = {
   knowledgeBaseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   assessedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   aiReading?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiInterview?: Prisma.SortOrderInput | Prisma.SortOrder
+  urgentReview?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CaseIntakeCountOrderByAggregateInput
   _avg?: Prisma.CaseIntakeAvgOrderByAggregateInput
@@ -572,6 +590,8 @@ export type CaseIntakeScalarWhereWithAggregatesInput = {
   knowledgeBaseStatus?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
   assessedBy?: Prisma.StringNullableWithAggregatesFilter<"CaseIntake"> | string | null
   aiReading?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  aiInterview?: Prisma.JsonNullableWithAggregatesFilter<"CaseIntake">
+  urgentReview?: Prisma.BoolWithAggregatesFilter<"CaseIntake"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseIntake"> | Date | string
 }
 
@@ -609,6 +629,8 @@ export type CaseIntakeCreateInput = {
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: boolean
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutIntakeInput
 }
@@ -648,6 +670,8 @@ export type CaseIntakeUncheckedCreateInput = {
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: boolean
   createdAt?: Date | string
 }
 
@@ -685,6 +709,8 @@ export type CaseIntakeUpdateInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutIntakeNestedInput
 }
@@ -724,6 +750,8 @@ export type CaseIntakeUncheckedUpdateInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -762,6 +790,8 @@ export type CaseIntakeCreateManyInput = {
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: boolean
   createdAt?: Date | string
 }
 
@@ -799,6 +829,8 @@ export type CaseIntakeUpdateManyMutationInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -837,6 +869,8 @@ export type CaseIntakeUncheckedUpdateManyInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -880,6 +914,8 @@ export type CaseIntakeCountOrderByAggregateInput = {
   knowledgeBaseStatus?: Prisma.SortOrder
   assessedBy?: Prisma.SortOrder
   aiReading?: Prisma.SortOrder
+  aiInterview?: Prisma.SortOrder
+  urgentReview?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -909,6 +945,7 @@ export type CaseIntakeMaxOrderByAggregateInput = {
   sourceVerified?: Prisma.SortOrder
   knowledgeBaseStatus?: Prisma.SortOrder
   assessedBy?: Prisma.SortOrder
+  urgentReview?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -934,6 +971,7 @@ export type CaseIntakeMinOrderByAggregateInput = {
   sourceVerified?: Prisma.SortOrder
   knowledgeBaseStatus?: Prisma.SortOrder
   assessedBy?: Prisma.SortOrder
+  urgentReview?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -1019,6 +1057,8 @@ export type CaseIntakeCreateWithoutCaseInput = {
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: boolean
   createdAt?: Date | string
 }
 
@@ -1056,6 +1096,8 @@ export type CaseIntakeUncheckedCreateWithoutCaseInput = {
   knowledgeBaseStatus?: string | null
   assessedBy?: string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: boolean
   createdAt?: Date | string
 }
 
@@ -1109,6 +1151,8 @@ export type CaseIntakeUpdateWithoutCaseInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1146,6 +1190,8 @@ export type CaseIntakeUncheckedUpdateWithoutCaseInput = {
   knowledgeBaseStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiReading?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  aiInterview?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgentReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1186,6 +1232,8 @@ export type CaseIntakeSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
   aiReading?: boolean
+  aiInterview?: boolean
+  urgentReview?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1225,6 +1273,8 @@ export type CaseIntakeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
   aiReading?: boolean
+  aiInterview?: boolean
+  urgentReview?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1264,6 +1314,8 @@ export type CaseIntakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
   aiReading?: boolean
+  aiInterview?: boolean
+  urgentReview?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseIntake"]>
@@ -1303,10 +1355,12 @@ export type CaseIntakeSelectScalar = {
   knowledgeBaseStatus?: boolean
   assessedBy?: boolean
   aiReading?: boolean
+  aiInterview?: boolean
+  urgentReview?: boolean
   createdAt?: boolean
 }
 
-export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "framework" | "matrixLevel" | "matrixLabel" | "matchedCriteria" | "assessmentStatus" | "alternativeCategories" | "levelCaveats" | "matrixReferences" | "sourceVerified" | "knowledgeBaseStatus" | "assessedBy" | "aiReading" | "createdAt", ExtArgs["result"]["caseIntake"]>
+export type CaseIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "narrative" | "selectedCategory" | "language" | "turns" | "informationCompleteness" | "suggestedCaseCategory" | "classificationStatus" | "categoryConfidence" | "officerToConfirm" | "matrixVersion" | "categoryRationale" | "conflicts" | "route" | "immediateSafetyConcern" | "supportingIndicators" | "missingInformation" | "recommendedNextSteps" | "requiresOfficerReview" | "reviewReasons" | "engineVersion" | "framework" | "matrixLevel" | "matrixLabel" | "matchedCriteria" | "assessmentStatus" | "alternativeCategories" | "levelCaveats" | "matrixReferences" | "sourceVerified" | "knowledgeBaseStatus" | "assessedBy" | "aiReading" | "aiInterview" | "urgentReview" | "createdAt", ExtArgs["result"]["caseIntake"]>
 export type CaseIntakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -1415,6 +1469,16 @@ export type $CaseIntakePayload<ExtArgs extends runtime.Types.Extensions.Internal
      * when it did not run.
      */
     aiReading: runtime.JsonValue | null
+    /**
+     * The AI interview: every question asked, by round, with the answer, a
+     * skip or "prefer not to answer" - exactly as the resident left it.
+     */
+    aiInterview: runtime.JsonValue | null
+    /**
+     * Urgent human review recommended at filing - by the rules (danger now)
+     * or by the AI assessment.
+     */
+    urgentReview: boolean
     createdAt: Date
   }, ExtArgs["result"]["caseIntake"]>
   composites: {}
@@ -1874,6 +1938,8 @@ export interface CaseIntakeFieldRefs {
   readonly knowledgeBaseStatus: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly assessedBy: Prisma.FieldRef<"CaseIntake", 'String'>
   readonly aiReading: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly aiInterview: Prisma.FieldRef<"CaseIntake", 'Json'>
+  readonly urgentReview: Prisma.FieldRef<"CaseIntake", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"CaseIntake", 'DateTime'>
 }
     

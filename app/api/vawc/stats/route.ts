@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { canSeeVawc } from '@/lib/caseAccess';
+import { canSeeVawc, withholdReporter } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
 
 export async function GET(req: NextRequest) {
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         select: {
           id: true, caseNumber: true, residentName: true, caseType: true,
           status: true, riskLevel: true, barangay: true, description: true,
-          filedAt: true, residentId: true,
+          filedAt: true, residentId: true, reporterIdentityWithheld: true,
         },
       }),
     ]);
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    const scored = cases.map(c => ({
+    const scored = cases.map(c => withholdReporter({
       ...c,
       ...computeRisk({
         caseType: c.caseType,

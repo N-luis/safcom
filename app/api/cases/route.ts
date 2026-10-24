@@ -5,7 +5,7 @@ import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/l
 import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
-import { vawcFilter, isVawcCaseHidden } from '@/lib/caseAccess';
+import { vawcFilter, isVawcCaseHidden, withholdReporter } from '@/lib/caseAccess';
 import { analyzeIntake } from '@/lib/intake';
 
 const createSchema = z.object({
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
       ]);
     }
 
-    return successResponse({ cases, pagination: paginationMeta(total, page, limit) });
+    return successResponse({ cases: cases.map(withholdReporter), pagination: paginationMeta(total, page, limit) });
   } catch {
     return errorResponse('Server error', 500);
   }

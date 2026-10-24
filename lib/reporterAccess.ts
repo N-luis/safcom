@@ -61,6 +61,8 @@ export interface CaseFacts {
   riskLevel: string;
   requiresOfficerReview: boolean;
   immediateSafetyConcern: boolean;
+  /** An anonymous report: nobody is shown who filed it. */
+  identityWithheld?: boolean;
 }
 
 export type Decision =
@@ -74,7 +76,8 @@ export type DenyCode =
   | 'wrong_desk'          // a VAWC officer on a blotter case
   | 'not_assigned'        // the desk is right, but the case is not theirs
   | 'oversight_not_applicable' // captain: assigned elsewhere and not urgent
-  | 'reason_required';    // allowed, once a reason is given
+  | 'reason_required'     // allowed, once a reason is given
+  | 'identity_withheld';  // an anonymous report
 
 export const isVawcType = (caseType: string) => (VAWC_TYPES as readonly string[]).includes(caseType);
 
@@ -91,6 +94,8 @@ export function decideReporterAccess(actor: Actor, c: CaseFacts, reason?: string
     ({ allowed: false, code, canClaim: false, hidden: false, reasonRequired: false, ...extra });
 
   if (!actor.active) return deny('inactive');
+  // Anonymous means anonymous - for every role, urgent or not.
+  if (c.identityWithheld && !(vawc && !canSeeVawc(role))) return deny('identity_withheld');
   // A case on a desk this role cannot see is reported as not found.
   if (vawc && !canSeeVawc(role)) return deny('vawc_restricted', { hidden: true });
 
@@ -127,6 +132,7 @@ export const DENY_MESSAGE: Record<DenyCode, string> = {
   not_assigned: 'Only the officer assigned to this case can view the reporter’s contact details.',
   oversight_not_applicable: 'This case is assigned to another official and is not marked urgent, so its contact details stay with them.',
   reason_required: 'Give a reason to view the contact details. It is recorded.',
+  identity_withheld: 'This report was filed anonymously. The reporter’s identity and contact details are not shown to officials.',
 };
 
 /**
@@ -200,6 +206,7 @@ export async function loadCaseForContact(caseId: string) {
       id: true, caseNumber: true, caseType: true, status: true, riskLevel: true,
       requiresOfficerReview: true, assignedToId: true, residentName: true,
       contactPreference: true, contactSafetyNote: true,
+      reporterIdentityWithheld: true, reportingRelationship: true, affectedPersonNote: true,
       assignedTo: { select: { name: true } },
       intake: { select: { immediateSafetyConcern: true, assessmentStatus: true } },
       resident: { select: { residentNumber: true, firstName: true, lastName: true, contactNumber: true, email: true } },
@@ -212,6 +219,7 @@ export async function loadCaseForContact(caseId: string) {
       caseType: c.caseType, assignedToId: c.assignedToId, riskLevel: c.riskLevel,
       requiresOfficerReview: c.requiresOfficerReview,
       immediateSafetyConcern: Boolean(c.intake?.immediateSafetyConcern),
+      identityWithheld: c.reporterIdentityWithheld,
     } satisfies CaseFacts,
   };
 }

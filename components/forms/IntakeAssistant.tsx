@@ -8,6 +8,7 @@ import {
   AutoAwesome, Phone, Send, SkipNext, DoNotDisturbAlt, Refresh, CheckCircle, HelpOutlined,
 } from '@mui/icons-material';
 import type { IntakeAnswer, IntakeResult, Completeness } from '@/lib/intake';
+import type { InterviewQuestion, InterviewState, InterviewTurn, ReportingRelationship } from '@/lib/interviewTypes';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 import { useLanguage } from '@/lib/i18n';
 
@@ -20,9 +21,13 @@ import { useLanguage } from '@/lib/i18n';
  * stated danger puts the emergency numbers and a "submit now" button above
  * everything else straight away.
  *
- * The questions and the reading come from /api/resident/intake, which runs
- * SafeComm's own rules on the server. The spinner is the request; nothing is
- * shown as done before the server has answered.
+ * The questions come from /api/resident/intake. With Groq available, they
+ * are the AI interview's: a few at a time, written for this report and this
+ * reporting relationship, and shown one by one - the next round is asked for
+ * only when these are used up. Without it, SafeComm's own rules ask instead.
+ * The rules read every answer either way, so a stated danger is always seen.
+ * The spinner is the request; nothing is shown as done before the server has
+ * answered.
  */
 
 const ACCENT = '#14b8a6';
@@ -67,6 +72,10 @@ const T: Record<Lang, Record<string, string>> = {
     done: 'Wala nang tanong. Maaari mo nang i-submit ang report.',
     failed: 'Hindi mabasa ng assistant ngayon. Maaari mo pa ring i-submit ang iyong report — walang mawawala.',
     retry: 'Subukang muli',
+    yes: 'Oo', no: 'Hindi', unsure: 'Hindi ko alam',
+    understood: 'Ayon sa pagkakaintindi',
+    mayFit: 'Maaaring tungkol sa',
+    nextRound: 'Naghahanda ng susunod na tanong…',
   },
   en: {
     title: 'SafeComm Assist',
@@ -105,6 +114,10 @@ const T: Record<Lang, Record<string, string>> = {
     done: 'No more questions. You can submit your report.',
     failed: 'The assistant cannot read this right now. You can still submit your report — nothing is lost.',
     retry: 'Try again',
+    yes: 'Yes', no: 'No', unsure: "I don't know",
+    understood: 'What we understood',
+    mayFit: 'May be about',
+    nextRound: 'Preparing the next question…',
   },
 };
 
@@ -120,12 +133,18 @@ const RISK_COLOR: Record<string, string> = {
 
 export default function IntakeAssistant({
   narrative, selectedCategory, street, answers, onAnswersChange, onResult, onSubmitNow, disabled, autoStart,
+  relationship = 'SELF', turns = [], onTurnsChange,
 }: {
   narrative: string;
   selectedCategory: string;
   street: string;
   answers: IntakeAnswer[];
   onAnswersChange: (next: IntakeAnswer[]) => void;
+  /** Who the report is for; it shapes the questions. */
+  relationship?: ReportingRelationship;
+  /** The AI interview as asked and answered so far. */
+  turns?: InterviewTurn[];
+  onTurnsChange?: (next: InterviewTurn[]) => void;
   onResult?: (r: IntakeResult | null) => void;
   /** The emergency path: file what there is, now, skipping the final review. */
   onSubmitNow: () => void;
@@ -143,15 +162,20 @@ export default function IntakeAssistant({
   const [loading, setLoading] = useState(Boolean(autoStart));
   const [error, setError] = useState('');
   const [typed, setTyped] = useState('');
-  // The narrative the current result was computed from.
+  // The narrative and relationship the current result was computed from.
   const [readFrom, setReadFrom] = useState('');
+  // The AI interview: its latest reading, and the questions not yet shown.
+  const [interview, setInterview] = useState<InterviewState | null>(null);
+  const [queue, setQueue] = useState<InterviewQuestion[]>([]);
+  const [moreRounds, setMoreRounds] = useState(true);
 
   const lang: Lang = result ? (result.language === 'english' ? 'en' : 'tl') : (uiLang === 'tl' ? 'tl' : 'en');
   const t = T[lang];
-  const stale = Boolean(result) && readFrom.trim() !== narrative.trim();
+  const readKey = `${relationship}|${narrative.trim()}`;
+  const stale = Boolean(result) && readFrom !== readKey;
   const tooShort = narrative.trim().length < 10;
 
-  const ask = async (nextAnswers: IntakeAnswer[]) => {
+  const ask = async (nextAnswers: IntakeAnswer[], nextTurns: InterviewTurn[], wantQuestions: boolean) => {
     setLoading(true);
     setError('');
     try {
@@ -161,14 +185,27 @@ export default function IntakeAssistant({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           narrative, selectedCategory: selectedCategory || null, street: street || null, answers: nextAnswers,
+          relationship, turns: nextTurns, wantQuestions,
         }),
       });
       const json = await res.json().catch(() => null);
       if (!res.ok || !json?.data) throw new Error(json?.error ?? 'failed');
-      setResult(json.data as IntakeResult);
-      setReadFrom(narrative);
+      const data = json.data as IntakeResult & { interview: InterviewState | null };
+      setResult(data);
+      setReadFrom(readKey);
       onAnswersChange(nextAnswers);
-      onResult?.(json.data as IntakeResult);
+      onTurnsChange?.(nextTurns);
+      onResult?.(data);
+      if (data.interview) {
+        setInterview(data.interview);
+        if (data.interview.used) {
+          setQueue(data.interview.questions);
+          setMoreRounds(!data.interview.done);
+        } else if (data.interview.status === 'limit_reached') {
+          setQueue([]);
+          setMoreRounds(false);
+        }
+      }
       setTyped('');
     } catch {
       // The answers are kept as they were; the report itself is untouched.
@@ -183,19 +220,43 @@ export default function IntakeAssistant({
   // reopening continues where the resident left off.
   useEffect(() => {
     if (!autoStart) return;
-    const t = setTimeout(() => { void ask(answers); }, 0);
+    const t = setTimeout(() => { void ask(answers, turns, true); }, 0);
     return () => clearTimeout(t);
     // Once, when it appears; later questions are driven by the answers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The AI's questions while it is in use; the rules' when it is not.
+  const aiMode = Boolean(interview?.used);
+  const aiQ = aiMode ? queue[0] ?? null : null;
+
   const respond = (a: Omit<IntakeAnswer, 'slot'>) => {
+    if (aiQ) {
+      const turn: InterviewTurn = {
+        ...aiQ, kind: a.kind, ...(a.value && { value: a.value }), ...(a.text && { answerText: a.text }),
+      };
+      const rest = queue.slice(1);
+      setQueue(rest);
+      // The next round only once this one is used up.
+      void ask(answers, [...turns, turn], rest.length === 0 && moreRounds);
+      return;
+    }
     if (!result?.nextQuestion) return;
     const slot = result.nextQuestion.slot;
-    ask([...answers.filter(x => x.slot !== slot), { slot, ...a }]);
+    void ask([...answers.filter(x => x.slot !== slot), { slot, ...a }], turns, false);
   };
 
-  const q = result?.nextQuestion ?? null;
+  const q = aiQ
+    ? {
+      text: aiQ.text,
+      options: aiQ.answerType === 'yes_no'
+        ? [{ value: 'yes' as const, label: t.yes }, { value: 'no' as const, label: t.no }, { value: 'unsure' as const, label: t.unsure }]
+        : [],
+      allowText: true,
+      textPlaceholder: t.typePlaceholder,
+    }
+    : aiMode ? null : result?.nextQuestion ?? null;
+  const danger = Boolean(result?.immediateSafetyConcern || interview?.possibleOngoingDanger);
   const busy = loading || disabled;
 
   return (
@@ -204,7 +265,7 @@ export default function IntakeAssistant({
         <AutoAwesome sx={{ fontSize: 18, color: ACCENT }} />
         <Typography sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0c1e46' }}>{t.title}</Typography>
         {/* Said plainly when the AI reader took part; an officer still decides. */}
-        {result?.aiAssist?.used && (
+        {(aiMode || result?.aiAssist?.used) && (
           <Chip size="small" label={t.aiRead}
             sx={{ height: 20, fontWeight: 700, fontSize: '0.68rem', bgcolor: '#eef2ff', color: '#4338ca' }} />
         )}
@@ -223,7 +284,7 @@ export default function IntakeAssistant({
         <>
           <Typography sx={{ fontSize: '0.82rem', color: '#475569', mb: 1.25, lineHeight: 1.55 }}>{t.startHint}</Typography>
           <Button
-            variant="outlined" onClick={() => ask(answers)} disabled={busy || tooShort}
+            variant="outlined" onClick={() => ask(answers, turns, true)} disabled={busy || tooShort}
             startIcon={<AutoAwesome sx={{ fontSize: 17 }} />}
             sx={{ minHeight: 44, borderColor: ACCENT, color: '#0f766e', fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
           >
@@ -237,7 +298,7 @@ export default function IntakeAssistant({
         <Box role="status" aria-live="polite" sx={{ my: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
             <CircularProgress size={15} sx={{ color: ACCENT }} />
-            <Typography sx={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f766e' }}>{answers.length ? t.reading : t.readingReport}</Typography>
+            <Typography sx={{ fontSize: '0.84rem', fontWeight: 600, color: '#0f766e' }}>{answers.length || turns.length ? t.reading : t.readingReport}</Typography>
           </Box>
           <LinearProgress sx={{ height: 3, borderRadius: 2, bgcolor: '#ccfbf1', '& .MuiLinearProgress-bar': { bgcolor: ACCENT } }} />
         </Box>
@@ -245,7 +306,7 @@ export default function IntakeAssistant({
 
       {error && (
         <Alert severity="warning" sx={{ my: 1, borderRadius: 2, fontSize: '0.82rem' }}
-          action={<Button size="small" onClick={() => ask(answers)} startIcon={<Refresh sx={{ fontSize: 15 }} />}>{t.retry}</Button>}>
+          action={<Button size="small" onClick={() => ask(answers, turns, queue.length === 0 && moreRounds)} startIcon={<Refresh sx={{ fontSize: 15 }} />}>{t.retry}</Button>}>
           {error}
         </Alert>
       )}
@@ -253,7 +314,9 @@ export default function IntakeAssistant({
       {result && (
         <>
           {/* ── Danger first, above any question ── */}
-          {result.immediateSafetyConcern && (
+          {/* The rules' danger check, or words that say it is happening now -
+              shown at once, without waiting for any answer. */}
+          {danger && (
             <Alert severity="error" icon={<Phone />} sx={{ mb: 1.5, borderRadius: 2 }}>
               <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', mb: 0.25 }}>{t.emergencyTitle}</Typography>
               <Typography sx={{ fontSize: '0.82rem', mb: 1 }}>{t.emergencyBody}</Typography>
@@ -292,7 +355,7 @@ export default function IntakeAssistant({
 
           {stale && (
             <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2, fontSize: '0.82rem' }}
-              action={<Button size="small" onClick={() => ask(answers)} disabled={busy}>{t.recheck}</Button>}>
+              action={<Button size="small" onClick={() => ask(answers, turns, queue.length === 0 && moreRounds)} disabled={busy}>{t.recheck}</Button>}>
               {t.stale}
             </Alert>
           )}
@@ -300,7 +363,7 @@ export default function IntakeAssistant({
           {/* ── One question at a time ── */}
           {q && !stale && (
             <Box sx={{ bgcolor: '#fff', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, mb: 1.5 }}>
-              {result.questionsAsked === 0 && (
+              {result.questionsAsked === 0 && turns.length === 0 && (
                 <Typography sx={{ fontSize: '0.84rem', color: '#334155', mb: 1.25, lineHeight: 1.6 }}>{result.intro}</Typography>
               )}
               <Typography sx={{ fontWeight: 700, fontSize: '0.92rem', color: '#0c1e46', mb: 1.25 }}>
@@ -356,7 +419,7 @@ export default function IntakeAssistant({
             </Box>
           )}
 
-          {!q && !stale && (
+          {!q && !stale && !loading && (
             <Alert severity="success" icon={<CheckCircle sx={{ fontSize: 18 }} />} sx={{ mb: 1.5, borderRadius: 2, fontSize: '0.82rem' }}>
               {t.done}
             </Alert>
@@ -367,6 +430,19 @@ export default function IntakeAssistant({
             <Typography sx={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>
               {t.summary}
             </Typography>
+
+            {/* The AI's reading of what was reported - in neutral words, never as fact. */}
+            {aiMode && interview?.understanding && (
+              <Box sx={{ mb: 1 }}>
+                <Typography sx={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700 }}>{t.understood}</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.55 }}>{interview.understanding}</Typography>
+                {interview.possibleCategories.length > 0 && (
+                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.25 }}>
+                    {t.mayFit}: {interview.possibleCategories.join(', ')}
+                  </Typography>
+                )}
+              </Box>
+            )}
 
             {/* "Other" is where an unclear report is filed, not a finding, so
                 it is shown as "an officer will classify this". */}
@@ -421,11 +497,11 @@ export default function IntakeAssistant({
               <Typography key={c} sx={{ fontSize: '0.78rem', color: '#a16207', lineHeight: 1.55 }}>• {c}</Typography>
             ))}
 
-            {result.missingInformation.length > 0 && (
+            {(aiMode && interview?.missingInformation.length ? interview.missingInformation : result.missingInformation).length > 0 && (
               <>
                 <Divider sx={{ my: 1 }} />
                 <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
-                  <b>{t.stillUnknown}:</b> {result.missingInformation.join('; ')}
+                  <b>{t.stillUnknown}:</b> {(aiMode && interview?.missingInformation.length ? interview.missingInformation : result.missingInformation).join('; ')}
                 </Typography>
               </>
             )}

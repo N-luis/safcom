@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { computeRisk } from '@/lib/riskEngine';
-import { vawcFilter } from '@/lib/caseAccess';
+import { vawcFilter, withholdReporter } from '@/lib/caseAccess';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 
 export async function GET(req: NextRequest) {
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         barangay: true,
         description: true,
         filedAt: true,
-        residentId: true,
+        residentId: true, reporterIdentityWithheld: true,
       },
     });
 
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         barangayCaseCount: barangayCounts[c.barangay] || 1,
         residentPriorCases: Math.max(0, (c.residentId ? (residentCounts[c.residentId] || 0) : 0) - 1),
       });
-      return { ...c, ...result };
+      return withholdReporter({ ...c, ...result });
     });
 
     // Summary counts

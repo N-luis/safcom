@@ -214,13 +214,29 @@ async function main() {
   ok('a low-confidence AI category is not used', lowAi.classificationStatus === 'needs_review');
 
   console.log('\n7. end to end through runIntake (database read-only)');
-  const g4 = fakeGroq(GOOD);
+  // At filing the facts and the assessment come in one call, citing the
+  // passages it was actually sent - so the fake reads the request for them.
+  const assessingFetch = (async (_url: string, init: RequestInit) => {
+    const user = JSON.parse(String(init.body)).messages[1].content as string;
+    const sid = /\[(S\d+)\] VAWC [^\n]*Level 4/.exec(user)?.[1] ?? 'S0';
+    const reply = { ...GOOD, assessment: {
+      framework: 'VAWC', suggestedCategory: 'Domestic Violence', riskLevel: 4, riskLabel: 'x',
+      criteria: [{ level: 4, criterion: 'strangulation/choking', source: sid, reportQuote: 'hanggang hindi ako makahinga' }],
+      classificationStatus: 'PRELIMINARY', understanding: 'The reporter states their spouse choked them.',
+      missingInformation: [], uncertainty: [], recommendedNextAction: 'Treat as urgent.', urgentHumanReview: true,
+      affectedPerson: 'REPORTER', reporterKnowledge: 'DIRECT',
+    } };
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(reply) } }], usage: { total_tokens: 3000 } }), { status: 200 });
+  }) as unknown as typeof fetch;
   const grounded = await runIntake({ residentId: 'no-such-resident', narrative: CHOKE, useAi: true, residentNames: ['Maria'] },
-    undefined, { config: cfg, store: memStore().store, fetch: g4.f, pacer: fastPacer() });
+    undefined, { config: cfg, store: memStore().store, fetch: assessingFetch, pacer: fastPacer() });
   ok('runIntake uses the AI and says so', grounded.grounding.ai?.used === true && /Groq free plan/.test(grounded.grounding.assessedBy)
     && grounded.result.aiAssist?.used === true);
   ok('...and the level is still the matrix’s, checked against the source', grounded.result.matrixLevel === 4 && grounded.grounding.sourceVerified === true,
     `L${grounded.result.matrixLevel} verified=${grounded.grounding.sourceVerified}`);
+  ok('...and the AI assessment, checked against the retrieved text, agrees', grounded.grounding.ai?.assessment?.status === 'COMPLETED'
+    && grounded.grounding.ai.assessment.level === 4 && grounded.grounding.ai.assessment.label === 'CRITICAL – Violence Occurring / Imminent',
+    JSON.stringify(grounded.grounding.ai?.assessment).slice(0, 300));
   const rulesRun = await runIntake({ residentId: 'no-such-resident', narrative: CHOKE });
   ok('without useAi, nothing is asked', rulesRun.grounding.ai === null && /no external AI provider/.test(rulesRun.grounding.assessedBy));
 

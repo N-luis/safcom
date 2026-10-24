@@ -59,7 +59,8 @@ export async function GET(req: NextRequest) {
           contactNumber: true, email: true, emailVerified: true,
           idDocument: true, status: true, riskLevel: true, notes: true,
           registeredAt: true, updatedAt: true,
-          _count: { select: { cases: true } },
+          // Anonymous reports are not linked back to the resident here.
+          _count: { select: { cases: { where: { reporterIdentityWithheld: false } } } },
         },
       }),
       prisma.resident.count({ where }),

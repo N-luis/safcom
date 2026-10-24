@@ -56,6 +56,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // Not found, rather than forbidden: confirming a VAWC case exists at this
     // id tells someone without access more than they should have.
     if (isVawcCaseHidden(auth.user.role, c.caseType)) return errorResponse('Case not found', 404);
+    // An anonymous report keeps its reporter out of the response entirely.
+    if (c.reporterIdentityWithheld) Object.assign(c, { resident: null, residentId: null });
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const [barangayCaseCount, residentPriorCases] = await Promise.all([

@@ -45,6 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     if (!await caseIfPermitted(id, auth.user.role)) return errorResponse('Case not found', 404);
+    const withheld = (await prisma.case.findUnique({ where: { id }, select: { reporterIdentityWithheld: true } }))?.reporterIdentityWithheld;
 
     // Officers see the whole timeline - internal notes and hidden entries
     // included - because the audit trail is the point of keeping them.
@@ -59,9 +60,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
     return successResponse(followUps.map(f => ({
       ...f,
+      // Anonymous: the reporter's messages show as "Reporter", with no account.
+      ...(withheld && { resident: null, residentId: null }),
       internal: !f.visibleToReporter,
       authorName: f.authorRole === 'resident'
-        ? `${f.resident?.firstName ?? 'Resident'} ${f.resident?.lastName ?? ''}`.trim()
+        ? withheld ? 'Reporter' : `${f.resident?.firstName ?? 'Resident'} ${f.resident?.lastName ?? ''}`.trim()
         : f.user?.name ?? 'System',
       attachmentIds: f.attachments.map(a => a.id),
     })));

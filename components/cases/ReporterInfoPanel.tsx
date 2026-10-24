@@ -22,7 +22,10 @@ import toast from 'react-hot-toast';
 
 interface Summary {
   caseNumber: string;
-  reporter: { name: string; registered: boolean; residentNumber: string | null };
+  reporter: {
+    name: string; registered: boolean; residentNumber: string | null;
+    anonymous?: boolean; relationship?: string | null; affectedPersonNote?: string | null;
+  };
   contact: { hasPhone: boolean; hasEmail: boolean; phoneMasked: string | null; emailMasked: string | null };
   safety: {
     preference: string | null; label: string | null; guidance: string | null;
@@ -130,7 +133,21 @@ export default function ReporterInfoPanel({ caseId, onAssigned }: { caseId: stri
             {reporter.name}
             {reporter.residentNumber && <Box component="span" sx={{ color: '#94a3b8', fontWeight: 400 }}> · {reporter.residentNumber}</Box>}
           </Typography>
-          {!reporter.registered && (
+          {/* Who the report is for: the reporter is not assumed to be the person affected. */}
+          {reporter.relationship && reporter.relationship !== 'SELF' && (
+            <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>
+              {reporter.relationship === 'ANONYMOUS' ? 'Filed anonymously'
+                : reporter.relationship === 'ON_BEHALF' ? 'Filed on behalf of the affected person'
+                  : 'Reporting an incident involving someone else'}
+              {reporter.affectedPersonNote && <> — affected: &ldquo;{reporter.affectedPersonNote}&rdquo;</>}
+            </Typography>
+          )}
+          {reporter.anonymous ? (
+            <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+              The reporter chose not to be identified. Their name and contact details are not shown, and they cannot be called back;
+              reply through the case&rsquo;s follow-up messages instead.
+            </Typography>
+          ) : !reporter.registered && (
             <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
               Not filed from a resident account — no registered contact details.
             </Typography>
