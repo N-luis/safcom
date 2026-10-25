@@ -219,7 +219,9 @@ async function main() {
       && txt.includes(self.caseNumber) && txt.includes('CC-01') && txt.includes('Client states the incident happened at home.'), txt.slice(0, 300));
     ok('...with the Data Privacy Act reminder, and who exported it', /Data Privacy Act of 2012/.test(txt) && /exported by PROBE-OI vawc/.test(txt));
     ok('...and not someone else\'s answers', !txt.includes('ProbeThird') && !txt.includes('K-1'));
-    ok('a draft is marked DRAFT', /DRAFT/.test(await pdfText(new Uint8Array(await (await exportPdf(third.id, V.cookie))!.arrayBuffer()))));
+    ok('a completed intake\'s PDF carries no DRAFT watermark or notice', !/DRAFT/.test(txt) && !/has not been completed/.test(txt));
+    const draftTxt = await pdfText(new Uint8Array(await (await exportPdf(third.id, V.cookie))!.arrayBuffer()));
+    ok('a draft is marked DRAFT - watermark, and in words at the top', /DRAFT/.test(draftTxt) && /DRAFT - this intake has not been completed/.test(draftTxt));
     const pdfV2 = await exportPdf(self.id, V2.cookie);
     ok('an officer not assigned to the case gets no PDF', pdfV2!.status === 403 && pdfV2!.headers.get('content-type') !== 'application/pdf');
     ok('a blotter officer gets "not found" for a VAWC case\'s PDF', (await exportPdf(self.id, B.cookie))!.status === 404);

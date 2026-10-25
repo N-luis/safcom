@@ -109,13 +109,38 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
       y = by - 12;
     }
   };
+  /**
+   * A draft's watermark goes on each page FIRST, so everything after it is
+   * drawn on top: it can never grey out an answer. (It used to be added
+   * last, over the form, and covered words such as "Filipino".) A completed
+   * intake has none.
+   */
+  const watermark = (p: PDFPage) => {
+    if (input.status !== 'DRAFT') return;
+    const size = 120;
+    const tw = bold.widthOfTextAtSize('DRAFT', size);
+    const angle = 35 * Math.PI / 180;
+    // Centred on the page along its diagonal.
+    p.drawText('DRAFT', {
+      x: W / 2 - (tw / 2) * Math.cos(angle) + (size / 3) * Math.sin(angle),
+      y: H / 2 - (tw / 2) * Math.sin(angle) - (size / 3) * Math.cos(angle),
+      size, font: bold, color: rgb(0.93, 0.93, 0.93), rotate: degrees(35),
+    });
+  };
   const newPage = () => {
     page = pdf.addPage([W, H]);
     pages.push(page);
+    watermark(page);
     header(false);
   };
   const ensure = (h: number) => { if (y - h < BOTTOM) newPage(); };
+  watermark(page);
   header(true);
+  // A draft says so at the top, in words, not only in the watermark.
+  if (input.status === 'DRAFT') {
+    page.drawText('DRAFT - this intake has not been completed. Some items may still be unanswered.', { x: M, y: y + 2, size: 8, font: bold, color: RED });
+    y -= 12;
+  }
 
   // ── Instructions box ──
   {
@@ -300,9 +325,6 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   // ── Every page: watermark, footer, page numbers ──
   const stamp = `SafeComm export - Case #${input.caseNumber} - ${input.status === 'COMPLETED' ? `completed${input.completedBy ? ` by ${input.completedBy}` : ''}` : 'DRAFT, not completed'} - version ${input.version} - exported by ${input.exportedBy} on ${input.exportedAt.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' })}`;
   pages.forEach((p, i) => {
-    if (input.status === 'DRAFT') {
-      p.drawText('DRAFT', { x: 150, y: 300, size: 110, font: bold, color: rgb(0.88, 0.88, 0.88), rotate: degrees(35), opacity: 0.5 });
-    }
     wrap(PRIVACY, bold, 6.5, CW - 70).forEach((l, j) => p.drawText(l, { x: M, y: 40 - j * 8, size: 6.5, font: bold, color: RED }));
     p.drawText(`Page ${i + 1} of ${pages.length}`, { x: W - M - 50, y: 40, size: 8, font });
     wrap(stamp, font, 6, CW).forEach((l, j) => p.drawText(l, { x: M, y: 22 - j * 7, size: 6, font, color: GRAY }));

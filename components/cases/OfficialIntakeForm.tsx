@@ -114,6 +114,25 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const editable = Boolean(loaded?.access.edit && intake && !readOnly);
   const completed = intake?.status === 'COMPLETED';
 
+  /**
+   * The unanswered items an official may mark N/A in one go - the form says to
+   * write N/A for items that do not apply. Never the safety check or the
+   * confirmations: those need a real answer.
+   */
+  const bulkMarkable = (keys: string[]) => keys.filter(k => {
+    const it = INTAKE_SECTIONS.flatMap(s => s.items).find(i => i.key === k);
+    return it && !it.proposed && it.type !== 'confirm';
+  });
+  const markRemainingNA = () => {
+    const keys = bulkMarkable(missingForCompletion(responses).map(i => i.key));
+    if (!keys.length) return;
+    if (!window.confirm(`Mark ${keys.length} unanswered item${keys.length === 1 ? '' : 's'} as N/A?\n\nOnly do this for items that do not apply to this client. Items that were not asked should be answered, or marked Unknown or Declined instead. You can still change any of them before completing.`)) return;
+    setResponses(r => ({ ...r, ...Object.fromEntries(keys.map(k => [k, { marker: 'na' as Marker }])) }));
+    setDirty(true);
+    setMissingKeys(m => m.filter(k => !keys.includes(k)));
+    toast.success(`${keys.length} item${keys.length === 1 ? '' : 's'} marked N/A - review them, then complete the intake`);
+  };
+
   const save = async (status: 'DRAFT' | 'COMPLETED') => {
     if (!intake || saving) return;
     if (status === 'COMPLETED') {
@@ -153,6 +172,9 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   };
 
   const missingSet = useMemo(() => new Set(missingKeys), [missingKeys]);
+  // On the review step, what still stands between this draft and completion -
+  // shown before anyone presses Complete, not only after it is refused.
+  const stillMissing = useMemo(() => missingForCompletion(responses).map(i => i.key), [responses]);
 
   if (loadError) {
     return (
@@ -178,7 +200,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46' }}>Intake Form</Typography>
           <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
-            CONFIDENTIAL · {!intake ? 'Not started' : completed ? `Completed${intake.completedBy ? ` by ${intake.completedBy}` : ''}` : 'Draft'}
+            CONFIDENTIAL · {!intake ? 'Not started' : completed ? `Completed${intake.completedBy ? ` by ${intake.completedBy}` : ''}` : 'Draft - not completed'}
             {intake ? ` · version ${intake.version} · last saved ${when(intake.updatedAt)}${intake.updatedBy ? ` by ${intake.updatedBy}` : ''}` : ''}
           </Typography>
         </Box>
@@ -188,7 +210,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
           <Button variant="outlined" startIcon={<PictureAsPdf />} href={`/api/cases/${caseId}/official-intake/pdf`} download
             onClick={e => { if (dirty && !window.confirm('The PDF contains the saved version. Your unsaved changes will not be in it. Export anyway?')) e.preventDefault(); }}
             sx={{ minHeight: 40 }}>
-            Export PDF
+            {completed ? 'Export PDF' : 'Export PDF (draft)'}
           </Button>
         )}
         {intake && readOnly && loaded.access.edit && (
@@ -276,8 +298,23 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
           </>
         )}
 
+        {/* Completing was refused: said here, and it stays until it is fixed. */}
+        {current.key === 'review' && !completed && stillMissing.length > 0 && (
+          <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}
+            action={editable && bulkMarkable(stillMissing).length > 0 ? (
+              <Button color="inherit" size="small" onClick={markRemainingNA} sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                Mark the rest N/A
+              </Button>
+            ) : undefined}>
+            <Typography sx={{ fontWeight: 800, fontSize: '0.88rem' }}>This intake is not completed yet.</Typography>
+            <Typography sx={{ fontSize: '0.82rem' }}>
+              {stillMissing.length} item{stillMissing.length === 1 ? ' still needs' : 's still need'} an answer, or N/A, Unknown or Declined - they are marked in red below.
+              Until the intake is completed, it stays a draft and its PDF is marked DRAFT.
+            </Typography>
+          </Alert>
+        )}
         {current.key === 'review' && (
-          <ReviewSection responses={responses} missing={missingSet} onJump={key => setStep(STEPS.findIndex(s => INTAKE_SECTIONS.find(x => x.key === s.key)?.items.some(i => i.key === key)))}
+          <ReviewSection responses={responses} missing={completed ? missingSet : new Set([...missingSet, ...stillMissing])} onJump={key => setStep(STEPS.findIndex(s => INTAKE_SECTIONS.find(x => x.key === s.key)?.items.some(i => i.key === key)))}
             intake={intake} />
         )}
       </CardContent></Card>
