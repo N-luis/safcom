@@ -26,7 +26,7 @@ import AssessmentReview from '@/components/cases/AssessmentReview';
 import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
-import OfficialIntakeCard from '@/components/cases/OfficialIntakeCard';
+import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
 import { triageOf } from '@/lib/triageLabels';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -853,7 +853,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* The official intake for this case: start, continue, view, edit, export */}
+          <IntakeFormButton caseId={id} basePath={basePath} intake={caseData.officialIntake ?? null} />
           <Tooltip title="View in full list">
             <Button
               variant="outlined" size="small"
@@ -933,13 +935,8 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Reporter contact: masked, revealed only after the server allows it */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
 
-          {/* The official intake, and the case's other record types */}
-          <OfficialIntakeCard
-            caseId={id}
-            basePath={basePath}
-            intake={caseData.officialIntake ?? null}
-            onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))}
-          />
+          {/* The case's other record types; the intake is at the top right */}
+          <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
 
           {/* AI Assessment */}
           <AIAssessmentCard

@@ -14,6 +14,19 @@ import { signResidentToken } from '../lib/residentAuth';
 import { ALL_ITEMS, appliesTo, missingForCompletion, type Responses } from '../lib/officialIntakeForm';
 import { GET as intakeGET, POST as intakePOST, PUT as intakePUT } from '../app/api/cases/[id]/official-intake/route';
 import { GET as caseGET } from '../app/api/cases/[id]/route';
+import { GET as pdfGET } from '../app/api/cases/[id]/official-intake/pdf/route';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+/** The text of every page of a PDF, as a reader would extract it. */
+async function pdfText(bytes: Uint8Array): Promise<string> {
+  const doc = await getDocument({ data: bytes, useSystemFonts: true, isEvalSupported: false }).promise;
+  let out = '';
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    out += (await page.getTextContent()).items.map(it => ('str' in it ? it.str : '')).join(' ') + '\n';
+  }
+  return out;
+}
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -32,6 +45,7 @@ const json = async (res: Response | undefined) => res
   // A handler that returned nothing: counted as a failure, never as a pass.
   : { status: 0, body: {} as Body };
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
+const exportPdf = (id: string, cookie: string) => pdfGET(req(`/api/cases/${id}/official-intake/pdf`, cookie), params(id));
 const get = (id: string, cookie: string) => intakeGET(req(`/api/cases/${id}/official-intake`, cookie), params(id)).then(json);
 const start = (id: string, cookie: string) => intakePOST(req(`/api/cases/${id}/official-intake`, cookie, 'POST'), params(id)).then(json);
 const put = (id: string, cookie: string, body: unknown) => intakePUT(req(`/api/cases/${id}/official-intake`, cookie, 'PUT', body), params(id)).then(json);
@@ -192,6 +206,28 @@ async function main() {
     ok('every look is in the audit log, permitted and denied, with no answers in it', logs.some(l => l.outcome === 'permitted' && l.actorId === V.id)
       && logs.some(l => l.outcome === 'denied' && l.actorId === V2.id) && logs.some(l => l.actorId === C.id)
       && !JSON.stringify(logs).includes('Client states'));
+
+    console.log('\nPDF export');
+    const pdfRes = await exportPdf(self.id, V.cookie);
+    const pdfBytes = new Uint8Array(await pdfRes!.arrayBuffer());
+    ok('the assigned officer gets a PDF, as a download, never cached', pdfRes!.status === 200
+      && pdfRes!.headers.get('content-type') === 'application/pdf' && /attachment; filename="Intake-PROBE-OI-/.test(pdfRes!.headers.get('content-disposition') ?? '')
+      && /no-store/.test(pdfRes!.headers.get('cache-control') ?? '') && new TextDecoder().decode(pdfBytes.slice(0, 5)) === '%PDF-');
+    const txt = await pdfText(pdfBytes);
+    ok('...laid out as the intake form, with this case\'s saved answers', /INTAKE FORM/.test(txt) && /CONFIDENTIAL/.test(txt)
+      && /A\. ADMINISTRATIVE INFORMATION/.test(txt) && /D\. ALLEGED PERPETRATOR INFORMATION/.test(txt)
+      && txt.includes(self.caseNumber) && txt.includes('CC-01') && txt.includes('Client states the incident happened at home.'), txt.slice(0, 300));
+    ok('...with the Data Privacy Act reminder, and who exported it', /Data Privacy Act of 2012/.test(txt) && /exported by PROBE-OI vawc/.test(txt));
+    ok('...and not someone else\'s answers', !txt.includes('ProbeThird') && !txt.includes('K-1'));
+    ok('a draft is marked DRAFT', /DRAFT/.test(await pdfText(new Uint8Array(await (await exportPdf(third.id, V.cookie))!.arrayBuffer()))));
+    const pdfV2 = await exportPdf(self.id, V2.cookie);
+    ok('an officer not assigned to the case gets no PDF', pdfV2!.status === 403 && pdfV2!.headers.get('content-type') !== 'application/pdf');
+    ok('a blotter officer gets "not found" for a VAWC case\'s PDF', (await exportPdf(self.id, B.cookie))!.status === 404);
+    ok('a resident session gets nothing', (await exportPdf(self.id, residentCookie))!.status === 401);
+    ok('a case with no intake has nothing to export', (await exportPdf(noAccount.id, V.cookie))!.status === 404);
+    const pdfLogs = await prisma.reporterAccessLog.findMany({ where: { caseId: self.id, code: { startsWith: 'pdf_export' } } });
+    ok('every export is in the audit log, permitted and refused', pdfLogs.some(l => l.outcome === 'permitted' && l.actorId === V.id)
+      && pdfLogs.some(l => l.outcome === 'denied' && l.actorId === V2.id));
 
     console.log('\nK. the AI down');
     globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {

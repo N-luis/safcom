@@ -6,7 +6,7 @@ import {
   Box, Typography, Card, CardContent, Button, TextField, Radio, RadioGroup, FormControlLabel, Checkbox, Chip, Alert,
   CircularProgress, Divider, Grid, LinearProgress,
 } from '@mui/material';
-import { ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber, PictureAsPdf } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
@@ -182,6 +182,15 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
             {intake ? ` · version ${intake.version} · last saved ${when(intake.updatedAt)}${intake.updatedBy ? ` by ${intake.updatedBy}` : ''}` : ''}
           </Typography>
         </Box>
+        {intake && (
+          // The saved version, laid out as the intake form. Unsaved answers on
+          // this page are not in it - said before it downloads.
+          <Button variant="outlined" startIcon={<PictureAsPdf />} href={`/api/cases/${caseId}/official-intake/pdf`} download
+            onClick={e => { if (dirty && !window.confirm('The PDF contains the saved version. Your unsaved changes will not be in it. Export anyway?')) e.preventDefault(); }}
+            sx={{ minHeight: 40 }}>
+            Export PDF
+          </Button>
+        )}
         {intake && readOnly && loaded.access.edit && (
           <Button variant="outlined" startIcon={<Edit />} onClick={() => setReadOnly(false)} sx={{ minHeight: 40 }}>
             {completed ? 'Edit Intake' : 'Continue Intake'}
