@@ -85,6 +85,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const body = await req.json();
+    // The level and the triage status change only through the assessment
+    // review, which records who decided and why - not through a general edit.
+    if (body && typeof body === 'object' && ['riskLevel', 'triageStatus'].some(f => f in body)) {
+      return errorResponse('Risk level and triage status are set through the assessment review', 400);
+    }
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? parsed.error.message, 400);
 

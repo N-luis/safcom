@@ -13,6 +13,18 @@ import { buildEvidence } from '@/lib/reportEvidence';
 import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
 import { runIntake, answersSchema, relationshipSchema, turnsSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
 import { ANONYMOUS_NAME, type InterviewTurn } from '@/lib/interviewTypes';
+import { triageStatusFor } from '@/lib/intake';
+
+/**
+ * Fields only the server sets. A report that carries any of them is refused
+ * outright rather than quietly stripped, so a client can never believe it set
+ * a level, marked an assessment complete, or skipped the sufficiency check.
+ */
+const SERVER_ONLY_FIELDS = [
+  'riskLevel', 'matrixLevel', 'matrixLabel', 'status', 'triageStatus', 'assessmentStatus', 'classificationStatus',
+  'informationCompleteness', 'informationSufficient', 'requiresOfficerReview', 'urgentReview', 'assessment',
+  'aiAssessment', 'suggestedCategory', 'assignedToId', 'riskBasis',
+];
 
 const createSchema = z.object({
   // No longer asked of the resident: the category is derived from what they
@@ -116,6 +128,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    const forbidden = body && typeof body === 'object' ? SERVER_ONLY_FIELDS.filter(f => f in body) : [];
+    if (forbidden.length) {
+      return rError(`These are set by SafeComm's assessment, not by the report: ${forbidden.join(', ')}`, 400);
+    }
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Validation error', 400);
 
@@ -168,7 +184,12 @@ export async function POST(req: NextRequest) {
       turns,
     });
     const aiAssessment = intake.grounding.ai?.assessment ?? null;
-    const urgentReview = intake.result.immediateSafetyConcern || Boolean(aiAssessment?.urgentHumanReview);
+    // Where the report stands, from the server's own reading: urgent first,
+    // then whether the matrix could be consulted, then whether enough is known.
+    // A report with essentials missing is saved - never refused - as
+    // NEEDS_FOLLOW_UP, and is not presented as classified.
+    const triageStatus = triageStatusFor(intake.result, aiAssessment, intake.grounding.knowledgeBaseStatus === 'unavailable');
+    const urgentReview = triageStatus === 'URGENT_REVIEW';
 
     // The case is filed under the matrix's category - a specific one, or
     // "Other" / "VAWC - Other" when the report does not support one and an
@@ -267,8 +288,12 @@ export async function POST(req: NextRequest) {
       })
       : null;
     const LEVELS = ['Low', 'Medium', 'High', 'Critical'];
-    const riskLevel = docRead && LEVELS.indexOf(docRead.level) > LEVELS.indexOf(intake.result.riskLevel)
-      ? docRead.level : intake.result.riskLevel;
+    // An undetermined level is set by the document only through a safety rule
+    // it triggers - never by the keyword reading's own guess.
+    const docRule = Boolean(docRead?.classification.hard_rules_applied.some(r => r !== 'H6' && r !== 'H7'));
+    const current = intake.result.riskLevel;
+    const riskLevel = docRead && (current ? LEVELS.indexOf(docRead.level) > LEVELS.indexOf(current) : docRule)
+      ? docRead.level : current;
     const classification = docRead?.classification ?? intake.classification;
     const ir = intake.result;
 
@@ -290,7 +315,8 @@ export async function POST(req: NextRequest) {
           status: 'Open',
           riskLevel,
           informationCompleteness: ir.informationCompleteness,
-          requiresOfficerReview: ir.requiresOfficerReview,
+          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY',
+          triageStatus,
           language: detected.language,
           ...pin,
           filedAt,
@@ -323,7 +349,7 @@ export async function POST(req: NextRequest) {
     // factors reached on their own: an officer reading the feed has to see the
     // same answer the case carries, and which rules put it there.
     const raised = ir.rulesApplied;
-    const activityMsg = `Resident filed case ${caseNumber}: ${caseType}${ir.classificationStatus === 'needs_review' ? ' (needs review)' : ''} — ${riskLevel} risk (preliminary), `
+    const activityMsg = `Resident filed case ${caseNumber}: ${caseType}${ir.classificationStatus === 'needs_review' ? ' (needs review)' : ''} — ${riskLevel ? `${riskLevel} risk (preliminary)` : 'risk undetermined'}, triage ${triageStatus.toLowerCase().replace(/_/g, ' ')}, `
       + `information ${ir.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`
       + `${raised.length ? ` (rule ${raised.join(', ')})` : ''}`
       + `${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
@@ -470,7 +496,7 @@ export async function POST(req: NextRequest) {
             caseId: newCase.id,
             color: riskLevel === 'Critical' ? '#8b5cf6'
               : riskLevel === 'High' ? '#ef4444'
-                : riskLevel === 'Medium' ? '#f97316' : '#14b8a6',
+                : riskLevel === 'Medium' ? '#f97316' : riskLevel === 'Low' ? '#14b8a6' : '#64748b',
           },
         }),
         // A safety concern goes to the desks at once, through the existing

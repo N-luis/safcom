@@ -30,8 +30,8 @@ console.log('1. a short report is not levelled by the category it was filed unde
 const byCategory = ['Domestic Violence', 'Theft & Robbery', 'Noise Complaint', 'Other', null]
   .map(c => run(SHORT, [], c));
 ok('the same level whatever was selected',
-  new Set(byCategory.map(r => r.riskLevel)).size === 1, byCategory.map(r => r.riskLevel).join(','));
-ok('it is not the old default "Medium"', byCategory[0].riskLevel !== 'Medium', byCategory[0].riskLevel);
+  new Set(byCategory.map(r => r.riskLevel)).size === 1, byCategory.map(r => String(r.riskLevel)).join(','));
+ok('it is not the old default "Medium"', byCategory[0].riskLevel !== 'Medium', String(byCategory[0].riskLevel));
 ok('the level is explained by a criterion in the VAWC matrix, not a category',
   byCategory[0].framework === 'VAWC' && byCategory[0].matrixLevel === 4
   && byCategory[0].matchedCriteria.some(m => m.indicator === 'Physical assault')

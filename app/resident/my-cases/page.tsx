@@ -69,7 +69,7 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         <Grid container spacing={2} sx={{ mb: 2 }}>
           {[
             { label: 'Case Type', value: c.caseType },
-            { label: 'Risk Level', value: c.riskLevel },
+            { label: 'Risk Level', value: c.riskLevel ?? 'Not yet determined' },
             { label: 'Barangay', value: c.barangay },
             { label: 'Filed', value: new Date(c.filedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
             { label: 'Last Updated', value: timeAgo(c.updatedAt) },

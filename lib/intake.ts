@@ -149,10 +149,13 @@ export interface IntakeResult {
 
   /**
    * The level the rest of SafeComm queues by (Low/Medium/High/Critical). Set
-   * from the matrix level when there is one; see matrixLevel for the matrix's
-   * own five-level answer and label.
+   * from the matrix level when a criterion is met, or by a documented safety
+   * rule (e.g. "I am not safe right now"); see matrixLevel for the matrix's
+   * own five-level answer and label. NULL when neither applies: the risk is
+   * undetermined. It used to fall back to a keyword reading, which filed a
+   * short report as "Low" - an unknown risk is not a low one.
    */
-  riskLevel: RiskLevel;
+  riskLevel: RiskLevel | null;
   /**
    * matrix_criteria - a criterion in the matrix is met by what was reported.
    * not_covered_by_matrix - enough is known, but the matrix has no criterion
@@ -759,7 +762,10 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
 
   const matrix = evaluateMatrix(framework, facts);
   const matrixLevel = matrix.level;
-  const riskLevel: RiskLevel = matrixLevel ? queueLevelFor(matrixLevel) : legacyLevel;
+  // Only evidence sets a level: a matrix criterion met by what was said, or a
+  // safety rule triggered by it. Otherwise it is undetermined - never the
+  // keyword reading's guess, and never inferred from the category.
+  const riskLevel: RiskLevel | null = matrixLevel ? queueLevelFor(matrixLevel) : rulesApplied.length ? legacyLevel : null;
   const riskBasis: IntakeResult['riskBasis'] = matrixLevel
     ? 'matrix_criteria'
     : completeness === 'INSUFFICIENT' ? 'insufficient_information' : 'not_covered_by_matrix';
@@ -779,9 +785,14 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
     && (sig.has('threat') || sig.has('force') || sig.has('injury'));
   const ambiguous = crossesDesks || householdOnBlotter || aiDisagrees;
 
+  // Sufficiency comes before classification: a criterion matched on a report
+  // whose essentials (danger now, what was done, how) are still unknown is a
+  // lower bound, not a preliminary assessment. It keeps its level - the words
+  // support it - but is marked as needing more information.
   const assessmentStatus: IntakeResult['assessmentStatus'] = !matrixLevel
     ? (riskBasis === 'not_covered_by_matrix' ? 'FOR_REVIEW' : 'NEEDS_MORE_INFORMATION')
-    : classificationStatus === 'needs_review' || conflicts.length || ambiguous ? 'FOR_REVIEW' : 'PRELIMINARY';
+    : completeness === 'INSUFFICIENT' ? 'NEEDS_MORE_INFORMATION'
+      : classificationStatus === 'needs_review' || conflicts.length || ambiguous ? 'FOR_REVIEW' : 'PRELIMINARY';
 
   // Where the matched criterion depends on something not yet known, the
   // level is a lower bound and says so - unknown is not taken as "absent".
@@ -864,7 +875,8 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (classificationStatus === 'needs_review') reviewReasons.push('No category is supported by the description');
   if (route === 'VAWC') reviewReasons.push('Describes a VAWC concern; needs the VAWC desk');
   if (immediateSafetyConcern) reviewReasons.push('Immediate safety concern');
-  if (!matrixLevel) reviewReasons.push('No risk-matrix criterion met; an officer sets the level');
+  if (!matrixLevel) reviewReasons.push(riskLevel ? 'No risk-matrix criterion met; the level comes from a safety rule' : 'No risk-matrix criterion met; the level is undetermined until an officer sets it');
+  if (matrixLevel && completeness === 'INSUFFICIENT') reviewReasons.push('A criterion is met, but essential details are missing; the level may change');
   if (aiDisagrees) reviewReasons.push(`The AI reading (${aiMeta!.category}) and the rules (${best!.meta.category}) suggest different categories`);
   if (ambiguous) reviewReasons.push(`Could fit more than one category: ${[chosen.category, ...alternativeCategories].join(', ')}`);
   if (ruled.needs_human_review && ruled.needs_human_review_reason) reviewReasons.push(ruled.needs_human_review_reason);
@@ -935,6 +947,33 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
       reviewReasons,
     },
   };
+}
+
+export type TriageStatus = 'URGENT_REVIEW' | 'NEEDS_FOLLOW_UP' | 'FOR_REVIEW' | 'PRELIMINARY' | 'ASSESSMENT_UNAVAILABLE' | 'REVIEWED';
+
+/**
+ * Where a newly filed report stands, from what the server worked out - never
+ * from anything the browser says. In this order:
+ *   URGENT_REVIEW          the rules saw danger now, or the AI assessment asks
+ *                          for urgent human review - always submittable
+ *   ASSESSMENT_UNAVAILABLE the matrix text could not be consulted
+ *   NEEDS_FOLLOW_UP        essential information is missing (the rules, or
+ *                          the AI's sufficiency check): not fully classified
+ *   FOR_REVIEW             enough is known, but category or level is unclear
+ *   PRELIMINARY            enough is known and the level is supported
+ */
+export function triageStatusFor(r: Pick<IntakeResult, 'immediateSafetyConcern' | 'assessmentStatus' | 'informationCompleteness'>,
+  ai?: { urgentHumanReview?: boolean; informationSufficient?: boolean | null; status?: string; unavailableReason?: string | null } | null,
+  knowledgeBaseUnavailable = false): Exclude<TriageStatus, 'REVIEWED'> {
+  if (r.immediateSafetyConcern || ai?.urgentHumanReview) return 'URGENT_REVIEW';
+  if (knowledgeBaseUnavailable || (ai?.status === 'ASSESSMENT_UNAVAILABLE' && /knowledge base|not been imported|retriev/i.test(ai.unavailableReason ?? ''))) {
+    return 'ASSESSMENT_UNAVAILABLE';
+  }
+  if (r.assessmentStatus === 'NEEDS_MORE_INFORMATION' || r.informationCompleteness === 'INSUFFICIENT' || ai?.informationSufficient === false) {
+    return 'NEEDS_FOLLOW_UP';
+  }
+  if (r.assessmentStatus === 'FOR_REVIEW') return 'FOR_REVIEW';
+  return 'PRELIMINARY';
 }
 
 /** The last answer to each question wins; a question is never counted twice. */

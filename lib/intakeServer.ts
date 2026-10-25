@@ -150,10 +150,16 @@ function compareWithAssessment(r: IntakeAnalysis['result'], a: AiAssessment) {
       toReview();
       if (a.level) {
         const aiQueue = queueLevelFor(a.level);
-        if (LEVEL_ORDER.indexOf(aiQueue) > LEVEL_ORDER.indexOf(r.riskLevel)) r.riskLevel = aiQueue;
+        if (LEVEL_ORDER.indexOf(aiQueue) > (r.riskLevel ? LEVEL_ORDER.indexOf(r.riskLevel) : -1)) r.riskLevel = aiQueue;
       }
     }
     if (a.classificationStatus === 'FOR_REVIEW') toReview();
+    // The AI's sufficiency check can hold a report back from "preliminary";
+    // it can never promote one the rules found incomplete.
+    if (a.informationSufficient === false) {
+      push(`The AI sufficiency check found essential details missing${a.essentialMissing.length ? `: ${a.essentialMissing.join('; ')}` : ''}`);
+      if (r.assessmentStatus !== 'NEEDS_MORE_INFORMATION') r.assessmentStatus = 'NEEDS_MORE_INFORMATION';
+    }
     if (a.droppedCriteria) push(`${a.droppedCriteria} AI-cited criteria were not found in the matrix text and were discarded`);
     if (a.urgentHumanReview) push('The AI assessment recommends urgent human review');
   }

@@ -79,7 +79,7 @@ function CaseDetailDialog({ c, onClose, onUpdate }: { c: CaseRow; onClose: () =>
           </Grid>
           <Grid size={{ xs: 6 }}>
             <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary', mb: 0.25 }}>Risk Level</Typography>
-            <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}20`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 600, fontSize: '0.86rem' }} />
+            <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}20`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 600, fontSize: '0.86rem' }} />
           </Grid>
           {c.description && (
             <Grid size={{ xs: 12 }}>
@@ -495,7 +495,7 @@ export default function BlotterDashboard() {
                     </TableCell>
                     <TableCell>
                       <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8' }}>
-                        {c.riskLevel}
+                        {c.riskLevel ?? 'Undetermined'}
                       </Typography>
                     </TableCell>
                     <TableCell>

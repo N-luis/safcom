@@ -59,6 +59,7 @@ export type CaseMinAggregateOutputType = {
   updatedAt: Date | null
   informationCompleteness: string | null
   requiresOfficerReview: boolean | null
+  triageStatus: string | null
   progressState: string | null
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
@@ -93,6 +94,7 @@ export type CaseMaxAggregateOutputType = {
   updatedAt: Date | null
   informationCompleteness: string | null
   requiresOfficerReview: boolean | null
+  triageStatus: string | null
   progressState: string | null
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
@@ -127,6 +129,7 @@ export type CaseCountAggregateOutputType = {
   updatedAt: number
   informationCompleteness: number
   requiresOfficerReview: number
+  triageStatus: number
   progressState: number
   lastResidentUpdateAt: number
   lastOfficerActionAt: number
@@ -173,6 +176,7 @@ export type CaseMinAggregateInputType = {
   updatedAt?: true
   informationCompleteness?: true
   requiresOfficerReview?: true
+  triageStatus?: true
   progressState?: true
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
@@ -207,6 +211,7 @@ export type CaseMaxAggregateInputType = {
   updatedAt?: true
   informationCompleteness?: true
   requiresOfficerReview?: true
+  triageStatus?: true
   progressState?: true
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
@@ -241,6 +246,7 @@ export type CaseCountAggregateInputType = {
   updatedAt?: true
   informationCompleteness?: true
   requiresOfficerReview?: true
+  triageStatus?: true
   progressState?: true
   lastResidentUpdateAt?: true
   lastOfficerActionAt?: true
@@ -345,7 +351,7 @@ export type CaseGroupByOutputType = {
   residentName: string
   caseType: string
   status: string
-  riskLevel: string
+  riskLevel: string | null
   barangay: string
   description: string
   notes: string | null
@@ -362,6 +368,7 @@ export type CaseGroupByOutputType = {
   updatedAt: Date
   informationCompleteness: string | null
   requiresOfficerReview: boolean
+  triageStatus: string | null
   progressState: string
   lastResidentUpdateAt: Date | null
   lastOfficerActionAt: Date | null
@@ -402,7 +409,7 @@ export type CaseWhereInput = {
   residentName?: Prisma.StringFilter<"Case"> | string
   caseType?: Prisma.StringFilter<"Case"> | string
   status?: Prisma.StringFilter<"Case"> | string
-  riskLevel?: Prisma.StringFilter<"Case"> | string
+  riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
@@ -419,6 +426,7 @@ export type CaseWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   informationCompleteness?: Prisma.StringNullableFilter<"Case"> | string | null
   requiresOfficerReview?: Prisma.BoolFilter<"Case"> | boolean
+  triageStatus?: Prisma.StringNullableFilter<"Case"> | string | null
   progressState?: Prisma.StringFilter<"Case"> | string
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
@@ -445,7 +453,7 @@ export type CaseOrderByWithRelationInput = {
   residentName?: Prisma.SortOrder
   caseType?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  riskLevel?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -462,6 +470,7 @@ export type CaseOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
+  triageStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   progressState?: Prisma.SortOrder
   lastResidentUpdateAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -491,7 +500,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   residentName?: Prisma.StringFilter<"Case"> | string
   caseType?: Prisma.StringFilter<"Case"> | string
   status?: Prisma.StringFilter<"Case"> | string
-  riskLevel?: Prisma.StringFilter<"Case"> | string
+  riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
@@ -508,6 +517,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   informationCompleteness?: Prisma.StringNullableFilter<"Case"> | string | null
   requiresOfficerReview?: Prisma.BoolFilter<"Case"> | boolean
+  triageStatus?: Prisma.StringNullableFilter<"Case"> | string | null
   progressState?: Prisma.StringFilter<"Case"> | string
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
@@ -534,7 +544,7 @@ export type CaseOrderByWithAggregationInput = {
   residentName?: Prisma.SortOrder
   caseType?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  riskLevel?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -551,6 +561,7 @@ export type CaseOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
+  triageStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   progressState?: Prisma.SortOrder
   lastResidentUpdateAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -576,7 +587,7 @@ export type CaseScalarWhereWithAggregatesInput = {
   residentName?: Prisma.StringWithAggregatesFilter<"Case"> | string
   caseType?: Prisma.StringWithAggregatesFilter<"Case"> | string
   status?: Prisma.StringWithAggregatesFilter<"Case"> | string
-  riskLevel?: Prisma.StringWithAggregatesFilter<"Case"> | string
+  riskLevel?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   barangay?: Prisma.StringWithAggregatesFilter<"Case"> | string
   description?: Prisma.StringWithAggregatesFilter<"Case"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
@@ -593,6 +604,7 @@ export type CaseScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
   informationCompleteness?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   requiresOfficerReview?: Prisma.BoolWithAggregatesFilter<"Case"> | boolean
+  triageStatus?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   progressState?: Prisma.StringWithAggregatesFilter<"Case"> | string
   lastResidentUpdateAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
@@ -610,7 +622,7 @@ export type CaseCreateInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -625,6 +637,7 @@ export type CaseCreateInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -651,7 +664,7 @@ export type CaseUncheckedCreateInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -668,6 +681,7 @@ export type CaseUncheckedCreateInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -692,7 +706,7 @@ export type CaseUpdateInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,6 +721,7 @@ export type CaseUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -733,7 +748,7 @@ export type CaseUncheckedUpdateInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -750,6 +765,7 @@ export type CaseUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -774,7 +790,7 @@ export type CaseCreateManyInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -791,6 +807,7 @@ export type CaseCreateManyInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -808,7 +825,7 @@ export type CaseUpdateManyMutationInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,6 +840,7 @@ export type CaseUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -840,7 +858,7 @@ export type CaseUncheckedUpdateManyInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -857,6 +875,7 @@ export type CaseUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -901,6 +920,7 @@ export type CaseCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
+  triageStatus?: Prisma.SortOrder
   progressState?: Prisma.SortOrder
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
@@ -940,6 +960,7 @@ export type CaseMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
+  triageStatus?: Prisma.SortOrder
   progressState?: Prisma.SortOrder
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
@@ -974,6 +995,7 @@ export type CaseMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   informationCompleteness?: Prisma.SortOrder
   requiresOfficerReview?: Prisma.SortOrder
+  triageStatus?: Prisma.SortOrder
   progressState?: Prisma.SortOrder
   lastResidentUpdateAt?: Prisma.SortOrder
   lastOfficerActionAt?: Prisma.SortOrder
@@ -1204,7 +1226,7 @@ export type CaseCreateWithoutAssignedToInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1219,6 +1241,7 @@ export type CaseCreateWithoutAssignedToInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1244,7 +1267,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1260,6 +1283,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1313,7 +1337,7 @@ export type CaseScalarWhereInput = {
   residentName?: Prisma.StringFilter<"Case"> | string
   caseType?: Prisma.StringFilter<"Case"> | string
   status?: Prisma.StringFilter<"Case"> | string
-  riskLevel?: Prisma.StringFilter<"Case"> | string
+  riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
@@ -1330,6 +1354,7 @@ export type CaseScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   informationCompleteness?: Prisma.StringNullableFilter<"Case"> | string | null
   requiresOfficerReview?: Prisma.BoolFilter<"Case"> | boolean
+  triageStatus?: Prisma.StringNullableFilter<"Case"> | string | null
   progressState?: Prisma.StringFilter<"Case"> | string
   lastResidentUpdateAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   lastOfficerActionAt?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
@@ -1347,7 +1372,7 @@ export type CaseCreateWithoutAssessmentInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1362,6 +1387,7 @@ export type CaseCreateWithoutAssessmentInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1387,7 +1413,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1404,6 +1430,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1443,7 +1470,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1458,6 +1485,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1483,7 +1511,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1500,6 +1528,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1523,7 +1552,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1538,6 +1567,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1563,7 +1593,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1580,6 +1610,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1619,7 +1650,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1634,6 +1665,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1659,7 +1691,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1676,6 +1708,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1699,7 +1732,7 @@ export type CaseCreateWithoutResidentInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1714,6 +1747,7 @@ export type CaseCreateWithoutResidentInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1739,7 +1773,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1755,6 +1789,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1805,7 +1840,7 @@ export type CaseCreateWithoutActivitiesInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1820,6 +1855,7 @@ export type CaseCreateWithoutActivitiesInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1845,7 +1881,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1862,6 +1898,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -1901,7 +1938,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1916,6 +1953,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1941,7 +1979,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1958,6 +1996,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1981,7 +2020,7 @@ export type CaseCreateWithoutNotificationsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -1996,6 +2035,7 @@ export type CaseCreateWithoutNotificationsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2021,7 +2061,7 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2038,6 +2078,7 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2077,7 +2118,7 @@ export type CaseUpdateWithoutNotificationsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2092,6 +2133,7 @@ export type CaseUpdateWithoutNotificationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2117,7 +2159,7 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2134,6 +2176,7 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2157,7 +2200,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2172,6 +2215,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2197,7 +2241,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2214,6 +2258,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2253,7 +2298,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2268,6 +2313,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2293,7 +2339,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2310,6 +2356,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2333,7 +2380,7 @@ export type CaseCreateWithoutIntakeInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2348,6 +2395,7 @@ export type CaseCreateWithoutIntakeInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2373,7 +2421,7 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2390,6 +2438,7 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2429,7 +2478,7 @@ export type CaseUpdateWithoutIntakeInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2444,6 +2493,7 @@ export type CaseUpdateWithoutIntakeInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2469,7 +2519,7 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2486,6 +2536,7 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2509,7 +2560,7 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2524,6 +2575,7 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2549,7 +2601,7 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2566,6 +2618,7 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2605,7 +2658,7 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2620,6 +2673,7 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2645,7 +2699,7 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2662,6 +2716,7 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2685,7 +2740,7 @@ export type CaseCreateManyAssignedToInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2701,6 +2756,7 @@ export type CaseCreateManyAssignedToInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2718,7 +2774,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2733,6 +2789,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2758,7 +2815,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2774,6 +2831,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2798,7 +2856,7 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2814,6 +2872,7 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2831,7 +2890,7 @@ export type CaseCreateManyResidentInput = {
   residentName: string
   caseType: string
   status?: string
-  riskLevel?: string
+  riskLevel?: string | null
   barangay: string
   description: string
   notes?: string | null
@@ -2847,6 +2906,7 @@ export type CaseCreateManyResidentInput = {
   updatedAt?: Date | string
   informationCompleteness?: string | null
   requiresOfficerReview?: boolean
+  triageStatus?: string | null
   progressState?: string
   lastResidentUpdateAt?: Date | string | null
   lastOfficerActionAt?: Date | string | null
@@ -2864,7 +2924,7 @@ export type CaseUpdateWithoutResidentInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2879,6 +2939,7 @@ export type CaseUpdateWithoutResidentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2904,7 +2965,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2920,6 +2981,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2944,7 +3006,7 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   residentName?: Prisma.StringFieldUpdateOperationsInput | string
   caseType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2960,6 +3022,7 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progressState?: Prisma.StringFieldUpdateOperationsInput | string
   lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3061,6 +3124,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   informationCompleteness?: boolean
   requiresOfficerReview?: boolean
+  triageStatus?: boolean
   progressState?: boolean
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
@@ -3105,6 +3169,7 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   informationCompleteness?: boolean
   requiresOfficerReview?: boolean
+  triageStatus?: boolean
   progressState?: boolean
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
@@ -3141,6 +3206,7 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   informationCompleteness?: boolean
   requiresOfficerReview?: boolean
+  triageStatus?: boolean
   progressState?: boolean
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
@@ -3177,6 +3243,7 @@ export type CaseSelectScalar = {
   updatedAt?: boolean
   informationCompleteness?: boolean
   requiresOfficerReview?: boolean
+  triageStatus?: boolean
   progressState?: boolean
   lastResidentUpdateAt?: boolean
   lastOfficerActionAt?: boolean
@@ -3188,7 +3255,7 @@ export type CaseSelectScalar = {
   reporterIdentityWithheld?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -3229,7 +3296,13 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     residentName: string
     caseType: string
     status: string
-    riskLevel: string
+    /**
+     * The queue level: Low | Medium | High | Critical, or null when it is
+     * undetermined - too little is known and no matrix criterion or safety rule
+     * is met. Never defaulted: an unknown risk is not a low one. Cases filed
+     * before this kept the level they had.
+     */
+    riskLevel: string | null
     barangay: string
     description: string
     notes: string | null
@@ -3270,6 +3343,20 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * conflicting, VAWC, or a safety concern. Cleared by an officer review.
      */
     requiresOfficerReview: boolean
+    /**
+     * Where the preliminary triage stands - set by the server at filing and by
+     * an officer's review, never by the browser:
+     * URGENT_REVIEW          possible danger now; a person looks first
+     * NEEDS_FOLLOW_UP        essential details missing; not fully classified
+     * FOR_REVIEW             enough is known, but the category or level is
+     * uncertain or the readings disagree
+     * PRELIMINARY            enough is known and a level is supported
+     * ASSESSMENT_UNAVAILABLE the matrix text could not be consulted
+     * REVIEWED               an officer has confirmed or set the assessment
+     * Null on cases filed before it existed (legacy). Separate from `status`,
+     * which is the case's workflow (Open, In Progress, Resolved...).
+     */
+    triageStatus: string | null
     /**
      * Where the case is heading, from the latest follow-up unless an officer
      * overrides it: improving | no_change | worsening | resolved.
@@ -3762,6 +3849,7 @@ export interface CaseFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Case", 'DateTime'>
   readonly informationCompleteness: Prisma.FieldRef<"Case", 'String'>
   readonly requiresOfficerReview: Prisma.FieldRef<"Case", 'Boolean'>
+  readonly triageStatus: Prisma.FieldRef<"Case", 'String'>
   readonly progressState: Prisma.FieldRef<"Case", 'String'>
   readonly lastResidentUpdateAt: Prisma.FieldRef<"Case", 'DateTime'>
   readonly lastOfficerActionAt: Prisma.FieldRef<"Case", 'DateTime'>

@@ -454,7 +454,7 @@ export default function VawcDashboard() {
                       <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{c.barangay}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip label={c.riskLevel.toUpperCase().replace('HIGH', 'HIGH RISK')} size="small"
+                      <Chip label={(c.riskLevel ?? 'Undetermined').toUpperCase().replace('HIGH', 'HIGH RISK')} size="small"
                         sx={{ bgcolor: RISK_BG[c.riskLevel] ?? '#f8fafc', color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 24, border: `1px solid ${RISK_COLOR[c.riskLevel] ?? '#e2e8f0'}30` }} />
                     </TableCell>
                     <TableCell>

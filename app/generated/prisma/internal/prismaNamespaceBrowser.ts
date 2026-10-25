@@ -127,6 +127,7 @@ export const CaseScalarFieldEnum = {
   updatedAt: 'updatedAt',
   informationCompleteness: 'informationCompleteness',
   requiresOfficerReview: 'requiresOfficerReview',
+  triageStatus: 'triageStatus',
   progressState: 'progressState',
   lastResidentUpdateAt: 'lastResidentUpdateAt',
   lastOfficerActionAt: 'lastOfficerActionAt',

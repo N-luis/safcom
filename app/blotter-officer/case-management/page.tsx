@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useCases, useCaseStats } from '@/hooks/useApi';
+import { TRIAGE, TRIAGE_VALUES, LEGACY_TRIAGE, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 
@@ -36,7 +37,7 @@ function timeAgo(d: string) {
 
 interface CaseRow {
   id: string; caseNumber: string; residentName: string; caseType: string;
-  status: string; riskLevel: string; barangay: string; description: string;
+  status: string; riskLevel: string; triageStatus?: string | null; barangay: string; description: string;
   notes?: string; filedAt: string; assignedTo?: { name: string } | null;
 }
 
@@ -94,7 +95,7 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
           <Typography variant="caption" color="text.secondary">{c.caseType}</Typography>
         </Box>
         <Chip
-          label={c.riskLevel}
+          label={c.riskLevel ?? 'Undetermined'}
           size="small"
           sx={{ bgcolor: `${RISK_COLOR[c.riskLevel]}20`, color: RISK_COLOR[c.riskLevel], fontWeight: 700, fontSize: '0.82rem' }}
         />
@@ -191,6 +192,7 @@ export default function CaseManagementPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [riskFilter, setRiskFilter] = useState('');
+  const [triageFilter, setTriageFilter] = useState('');
   const [page, setPage] = useState(1);
   const [drawerCase, setDrawerCase] = useState<CaseRow | null>(null);
   const [autoOpenTarget, setAutoOpenTarget] = useState<string | null>(null);
@@ -213,8 +215,9 @@ export default function CaseManagementPage() {
     if (search) p.search = search;
     if (statusFilter) p.status = statusFilter;
     if (riskFilter) p.riskLevel = riskFilter;
+    if (triageFilter) p.triage = triageFilter;
     return p;
-  }, [search, statusFilter, riskFilter, page]);
+  }, [search, statusFilter, riskFilter, triageFilter, page]);
 
   const { data, isLoading } = useCases(params);
   const { data: stats } = useCaseStats();
@@ -293,10 +296,20 @@ export default function CaseManagementPage() {
               <Select value={riskFilter} label="Risk" onChange={e => { setRiskFilter(e.target.value); setPage(1); }} sx={{ borderRadius: 2 }}>
                 <MenuItem value="">All</MenuItem>
                 {RISK_LEVELS.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+                <MenuItem value="Undetermined">Undetermined</MenuItem>
               </Select>
             </FormControl>
-            {(search || statusFilter || riskFilter) && (
-              <Button size="small" variant="outlined" onClick={() => { setSearch(''); setStatusFilter(''); setRiskFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
+            {/* Where the preliminary triage stands - separate from the case's workflow status */}
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Triage</InputLabel>
+              <Select value={triageFilter} label="Triage" onChange={e => { setTriageFilter(e.target.value); setPage(1); }} sx={{ borderRadius: 2 }}>
+                <MenuItem value="">All</MenuItem>
+                {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
+                <MenuItem value="LEGACY">{LEGACY_TRIAGE.label}</MenuItem>
+              </Select>
+            </FormControl>
+            {(search || statusFilter || riskFilter || triageFilter) && (
+              <Button size="small" variant="outlined" onClick={() => { setSearch(''); setStatusFilter(''); setRiskFilter(''); setTriageFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
                 Clear
               </Button>
             )}
@@ -349,7 +362,11 @@ export default function CaseManagementPage() {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                        <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
+                        <Chip label={triageOf(c.triageStatus).label} size="small" title={triageOf(c.triageStatus).hint}
+                          sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${triageOf(c.triageStatus).color}14`, color: triageOf(c.triageStatus).color }} />
+                      </Box>
                     </TableCell>
                     <TableCell><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>
                     <TableCell>

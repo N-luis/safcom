@@ -57,7 +57,8 @@ export async function GET(req: NextRequest) {
       }
       placed += 1;
       const list = buckets.get(street) ?? [];
-      list.push(c.riskLevel);
+      // Undetermined levels are not counted as any level on the heat map.
+      if (c.riskLevel) list.push(c.riskLevel);
       buckets.set(street, list);
     }
 

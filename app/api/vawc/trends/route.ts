@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         month,
         total: inRange.length,
         resolved: inRange.filter(c => ['Resolved', 'Closed'].includes(c.status)).length,
-        highRisk: inRange.filter(c => ['High', 'Critical'].includes(c.riskLevel)).length,
+        highRisk: inRange.filter(c => ['High', 'Critical'].includes(c.riskLevel ?? '')).length,
       };
     });
 

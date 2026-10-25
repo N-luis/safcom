@@ -147,8 +147,9 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
       await tx.case.update({
         where: { id },
-        // A person has now looked at it.
-        data: { riskLevel: newLevel, requiresOfficerReview: false },
+        // A person has now looked at it: the one transition out of the
+        // preliminary triage statuses, made here and nowhere else.
+        data: { riskLevel: newLevel, requiresOfficerReview: false, triageStatus: 'REVIEWED' },
       });
 
       // Appended, never updated: the preliminary result stays readable under

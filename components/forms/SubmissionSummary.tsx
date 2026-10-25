@@ -25,6 +25,9 @@ const T: Record<Lang, Record<string, string>> = {
     PRELIMINARY: 'Paunang pagtatasa — susuriin pa ng opisyal',
     FOR_REVIEW: 'Para sa pagsusuri ng opisyal',
     NEEDS_MORE_INFORMATION: 'Kailangan pa ng kaunting impormasyon',
+    URGENT_REVIEW: 'Minarkahan para sa agarang pagsusuri ng isang opisyal',
+    NEEDS_FOLLOW_UP: 'Natanggap — kulang pa ang ilang detalye, kaya hindi pa ito ganap na natatasa. Maaaring mag-follow up ang isang opisyal.',
+    ASSESSMENT_UNAVAILABLE: 'Natanggap — isang opisyal ang magtatasa nito',
     level: 'Paunang antas',
     undetermined: 'Hindi pa matukoy',
     emergency: 'Kung may panganib ngayon, tumawag agad:',
@@ -42,6 +45,9 @@ const T: Record<Lang, Record<string, string>> = {
     PRELIMINARY: 'Preliminary assessment — an officer will review it',
     FOR_REVIEW: 'For officer review',
     NEEDS_MORE_INFORMATION: 'A little more information is needed',
+    URGENT_REVIEW: 'Marked for urgent review by an officer',
+    NEEDS_FOLLOW_UP: 'Received — some details are still missing, so it has not been fully assessed yet. An officer may follow up with you.',
+    ASSESSMENT_UNAVAILABLE: 'Received — an officer will assess it',
     level: 'Preliminary level',
     undetermined: 'Not yet determined',
     emergency: 'If there is danger now, call straight away:',
@@ -55,13 +61,17 @@ const T: Record<Lang, Record<string, string>> = {
   },
 };
 
-export default function SubmissionSummary({ intake, onOpenCases }: {
+export default function SubmissionSummary({ intake, triageStatus, onOpenCases }: {
   intake: IntakeResult;
+  /** Where the server's triage put it (lib/intake.ts triageStatusFor). */
+  triageStatus?: string | null;
   onOpenCases: () => void;
 }) {
   const lang: Lang = intake.language === 'english' ? 'en' : 'tl';
   const t = T[lang];
-  const prompt = intake.immediateSafetyConcern || (intake.matrixLevel ?? 0) >= 4;
+  const prompt = triageStatus === 'URGENT_REVIEW' || intake.immediateSafetyConcern || (intake.matrixLevel ?? 0) >= 4;
+  // The server's triage status where it has one; the intake's own otherwise.
+  const statusText = (triageStatus && t[triageStatus]) || t[intake.assessmentStatus];
 
   return (
     <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 2, textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
@@ -83,7 +93,7 @@ export default function SubmissionSummary({ intake, onOpenCases }: {
 
       <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
         <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{t.status}:</Typography>
-        <Chip size="small" label={t[intake.assessmentStatus]} sx={{ height: 'auto', py: 0.25, fontWeight: 700, '& .MuiChip-label': { whiteSpace: 'normal' } }} />
+        <Chip size="small" label={statusText} sx={{ height: 'auto', py: 0.25, fontWeight: 700, '& .MuiChip-label': { whiteSpace: 'normal' } }} />
       </Box>
       <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
         <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{t.level}:</Typography>

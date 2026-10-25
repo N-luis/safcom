@@ -28,6 +28,7 @@ import { BARANGAY_STREETS, type BarangayStreet } from '@/lib/streets';
 import BarangayStreetMap from '@/components/forms/BarangayStreetMap';
 import IntakeAssistant from '@/components/forms/IntakeAssistant';
 import SubmissionSummary from '@/components/forms/SubmissionSummary';
+import type { AssistState } from '@/components/forms/IntakeAssistant';
 import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import { REPORTING_RELATIONSHIPS, RELATIONSHIP_LABEL, type InterviewTurn, type ReportingRelationship } from '@/lib/interviewTypes';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
@@ -84,7 +85,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function ReportCasePage() {
   const router = useRouter();
-  const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null } | null>(null);
+  const [submitted, setSubmitted] = useState<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null; triageStatus?: string | null } | null>(null);
+  // Where SafeComm Assist stands, for the submit step (see IntakeAssistant).
+  const [assistState, setAssistState] = useState<AssistState | null>(null);
   const [apiError, setApiError] = useState('');
 
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -230,7 +233,7 @@ export default function ReportCasePage() {
   const lastSubmission = useRef<FormData | null>(null);
   // Held until the user presses View result, so the floating card can finish
   // its own lifecycle rather than being yanked away by a screen change.
-  const pendingResult = useRef<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null } | null>(null);
+  const pendingResult = useRef<{ caseNumber: string; assessment: CaseAssessment | null; intake: IntakeResult | null; triageStatus?: string | null } | null>(null);
 
 const analysing = phase === 'preparing' || phase === 'reading_document' || phase === 'assessing';
 
@@ -298,6 +301,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         caseNumber: json.data.caseNumber,
         assessment: json.data.assessment ?? null,
         intake: json.data.intake ?? null,
+        triageStatus: json.data.triageStatus ?? null,
       };
       try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
       toast.success('Report submitted successfully!');
@@ -338,7 +342,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                       priority panel is kept only for a response without one, as
                       it reads an unknown danger as "None Identified". */}
                   {submitted.intake
-                    ? <SubmissionSummary intake={submitted.intake} onOpenCases={() => router.push('/resident/my-cases')} />
+                    ? <SubmissionSummary intake={submitted.intake} triageStatus={submitted.triageStatus} onOpenCases={() => router.push('/resident/my-cases')} />
                     : <CaseAssessmentPanel assessment={assessment} caseNumber={submitted.caseNumber} />}
                 </Box>
               )}
@@ -390,7 +394,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit(data => setReviewing(data))} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Box component="form" onSubmit={handleSubmit(data => { setAssistState(null); setReviewing(data); })} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
                 {/* Who the report is for - the reporter, the person affected and the
                     person responsible are separate roles, and none is assumed. */}
@@ -645,6 +649,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 turns={intakeTurns}
                 onTurnsChange={setIntakeTurns}
                 onResult={setIntakeResult}
+                onStateChange={setAssistState}
                 disabled={isSubmitting || analysing}
                 // Danger: file what there is now, with no further steps.
                 onSubmitNow={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
@@ -666,14 +671,37 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
             </Box>
           )}
         </DialogContent>
+        {/* What submitting now means, said before it happens. Submitting is never
+            blocked - an incomplete report is saved as needing follow-up, and an
+            urgent one goes straight through. The server decides the status
+            again for itself. */}
+        <Box sx={{ px: 3, pt: 1.25 }} role="status" aria-live="polite">
+          <Typography sx={{ fontSize: '0.8rem', color: assistState === 'URGENT' ? '#b91c1c' : '#475569', lineHeight: 1.5 }}>
+            {assistState === 'URGENT'
+              ? 'If someone may be in danger, submit now - you do not need to answer any more questions.'
+              : assistState === 'FOLLOW_UP_REQUIRED'
+                ? 'A few more details would help the barangay understand what happened and respond the right way. Answer what you can and skip the rest. If you submit now, your report is saved as needing follow-up, and an officer may ask you for the missing details.'
+                : assistState === 'INCOMPLETE'
+                  ? 'Some details are still missing, and that is all right. Your report will be saved as needing follow-up, and an officer may ask you about them.'
+                  : assistState === 'READY'
+                    ? 'Your report has enough detail for a preliminary assessment. An officer will review it - this is not a decision.'
+                    : 'SafeComm Assist is reading your report. You can submit at any time.'}
+          </Typography>
+        </Box>
         <DialogActions sx={{ px: 3, py: 1.5, gap: 1, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
           <Button onClick={() => setReviewing(null)} sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, color: '#64748b' }}>
             Edit my report
           </Button>
-          <Button variant="contained" startIcon={<Send />}
+          <Button variant={assistState === 'FOLLOW_UP_REQUIRED' ? 'outlined' : 'contained'} startIcon={<Send />}
+            color={assistState === 'URGENT' ? 'error' : 'primary'}
             onClick={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
-            sx={{ minHeight: 44, width: { xs: '100%', sm: 'auto' }, bgcolor: ACCENT, fontWeight: 700, '&:hover': { bgcolor: '#0d9488' } }}>
-            Submit report
+            sx={{
+              minHeight: 44, width: { xs: '100%', sm: 'auto' }, fontWeight: 700,
+              ...(assistState === 'FOLLOW_UP_REQUIRED'
+                ? { borderColor: '#cbd5e1', color: '#475569' }
+                : assistState === 'URGENT' ? {} : { bgcolor: ACCENT, '&:hover': { bgcolor: '#0d9488' } }),
+            }}>
+            {assistState === 'URGENT' ? 'Submit now' : assistState === 'FOLLOW_UP_REQUIRED' ? 'Submit without answering' : 'Submit report'}
           </Button>
         </DialogActions>
       </Dialog>

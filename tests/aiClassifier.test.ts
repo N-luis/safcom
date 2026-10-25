@@ -202,7 +202,9 @@ async function main() {
   ok('an AI reading that finds nothing removes nothing the rules found',
     emptyAi.matrixLevel === rulesOnly.matrixLevel && emptyAi.suggestedCaseCategory === rulesOnly.suggestedCaseCategory);
   const disagree = analyzeIntake({ narrative: punch, ai: hints({ facts: [{ key: 'force', quote: 'Sinuntok ako' }], slots: [], category: 'Theft & Robbery', categoryConfidence: 'medium' }) }).result;
-  ok('rules and AI disagree -> FOR_REVIEW, both named', disagree.assessmentStatus === 'FOR_REVIEW'
+  // Not presented as classified, and both readings named. (Its essentials are
+  // unknown, so the sufficiency check holds it first: NEEDS_MORE_INFORMATION.)
+  ok('rules and AI disagree -> not preliminary, both named', disagree.assessmentStatus !== 'PRELIMINARY'
     && disagree.reviewReasons.some(r => /AI reading \(Theft & Robbery\)/.test(r)) && disagree.alternativeCategories.includes('Theft & Robbery'),
     `${disagree.assessmentStatus} ${disagree.reviewReasons.join('|')}`);
   const vague = 'May problema ako sa bahay at gusto kong humingi ng tulong.';
@@ -222,6 +224,7 @@ async function main() {
     const reply = { ...GOOD, assessment: {
       framework: 'VAWC', suggestedCategory: 'Domestic Violence', riskLevel: 4, riskLabel: 'x',
       criteria: [{ level: 4, criterion: 'strangulation/choking', source: sid, reportQuote: 'hanggang hindi ako makahinga' }],
+      informationSufficient: true, essentialMissing: [],
       classificationStatus: 'PRELIMINARY', understanding: 'The reporter states their spouse choked them.',
       missingInformation: [], uncertainty: [], recommendedNextAction: 'Treat as urgent.', urgentHumanReview: true,
       affectedPerson: 'REPORTER', reporterKnowledge: 'DIRECT',

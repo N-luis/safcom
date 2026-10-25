@@ -26,6 +26,7 @@ import AssessmentReview from '@/components/cases/AssessmentReview';
 import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
+import { triageOf } from '@/lib/triageLabels';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -75,7 +76,8 @@ interface CaseDetail {
   residentName: string;
   caseType: string;
   status: string;
-  riskLevel: string;
+  riskLevel: string | null;
+  triageStatus?: string | null;
   barangay: string;
   description: string;
   notes?: string | null;
@@ -555,7 +557,8 @@ function EditFollowUpModal({ caseId, fid, initialContent, initialOutcome, onDone
 
 function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, needsReview, intake, history, caseType, basePath }: {
   ai?: AIRisk;
-  riskLevel: string;
+  /** Null when undetermined. */
+  riskLevel: string | null;
   caseId: string;
   onReviewed: () => void;
   completeness?: string | null;
@@ -569,7 +572,7 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
   // The level the case is actually stored at. This card used to show the
   // category-weighted engine's own level and a "/100" ring, so an officer
   // could read "Medium" on a case the record held at High.
-  const col = RISK_COLOR[riskLevel] ?? '#94a3b8';
+  const col = RISK_COLOR[riskLevel ?? ''] ?? '#94a3b8';
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -584,7 +587,7 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25, flexWrap: 'wrap' }}>
-          <Chip label={`${riskLevel} risk`} size="small" sx={{ bgcolor: `${col}18`, color: col, fontWeight: 800 }} />
+          <Chip label={riskLevel ? `${riskLevel} risk` : 'Risk undetermined'} size="small" sx={{ bgcolor: `${col}18`, color: col, fontWeight: 800 }} />
           <CompletenessChip value={completeness} />
           {ai?.highRiskZone && (
             <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
@@ -783,7 +786,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
     );
   }
 
-  const riskCol = RISK_COLOR[caseData.riskLevel] ?? '#94a3b8';
+  const riskCol = RISK_COLOR[caseData.riskLevel ?? ''] ?? '#94a3b8';
   const statusCol = STATUS_COLOR[caseData.status] ?? '#94a3b8';
 
   return (
@@ -808,10 +811,15 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
                 sx={{ bgcolor: `${statusCol}18`, color: statusCol, fontWeight: 700, fontSize: '0.86rem' }}
               />
               <Chip
-                label={`${caseData.riskLevel} Risk`}
+                label={caseData.riskLevel ? `${caseData.riskLevel} Risk` : 'Risk undetermined'}
                 size="small"
                 sx={{ bgcolor: `${riskCol}18`, color: riskCol, fontWeight: 700, fontSize: '0.86rem' }}
               />
+              {/* Where the preliminary triage stands; separate from the workflow status */}
+              <Tooltip title={triageOf(caseData.triageStatus).hint}>
+                <Chip label={triageOf(caseData.triageStatus).label} size="small"
+                  sx={{ bgcolor: `${triageOf(caseData.triageStatus).color}14`, color: triageOf(caseData.triageStatus).color, fontWeight: 700, fontSize: '0.8rem' }} />
+              </Tooltip>
               {caseData.aiRiskAssessment?.highRiskZone && (
                 <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem' }} />
               )}

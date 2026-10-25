@@ -12,7 +12,8 @@ type CaseRow = {
   residentName: string;
   caseType: string;
   status: string;
-  riskLevel: string;
+  /** Null when undetermined. */
+  riskLevel: string | null;
   barangay: string;
   filedAt: Date;
   resolvedAt: Date | null;
@@ -124,7 +125,7 @@ export async function GET(req: NextRequest) {
     const escalations = cases
       .filter(c => ACTIVE_STATUSES.includes(c.status) && (c.riskLevel === 'Critical' || c.riskLevel === 'High'))
       .sort((a, b) => {
-        const diff = (RISK_ORDER[a.riskLevel] ?? 9) - (RISK_ORDER[b.riskLevel] ?? 9);
+        const diff = (RISK_ORDER[a.riskLevel ?? ''] ?? 9) - (RISK_ORDER[b.riskLevel ?? ''] ?? 9);
         return diff !== 0 ? diff : new Date(b.filedAt).getTime() - new Date(a.filedAt).getTime();
       })
       .slice(0, 8)

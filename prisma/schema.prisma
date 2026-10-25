@@ -36,7 +36,11 @@ model Case {
   residentName String
   caseType     String
   status       String         @default("Open")
-  riskLevel    String         @default("Low")
+  /// The queue level: Low | Medium | High | Critical, or null when it is
+  /// undetermined - too little is known and no matrix criterion or safety rule
+  /// is met. Never defaulted: an unknown risk is not a low one. Cases filed
+  /// before this kept the level they had.
+  riskLevel    String?
   barangay     String
   description  String
   notes        String?
@@ -78,6 +82,18 @@ model Case {
   /// Set when the preliminary assessment needs a person: incomplete,
   /// conflicting, VAWC, or a safety concern. Cleared by an officer review.
   requiresOfficerReview   Boolean @default(false)
+  /// Where the preliminary triage stands - set by the server at filing and by
+  /// an officer's review, never by the browser:
+  ///   URGENT_REVIEW          possible danger now; a person looks first
+  ///   NEEDS_FOLLOW_UP        essential details missing; not fully classified
+  ///   FOR_REVIEW             enough is known, but the category or level is
+  ///                          uncertain or the readings disagree
+  ///   PRELIMINARY            enough is known and a level is supported
+  ///   ASSESSMENT_UNAVAILABLE the matrix text could not be consulted
+  ///   REVIEWED               an officer has confirmed or set the assessment
+  /// Null on cases filed before it existed (legacy). Separate from `status`,
+  /// which is the case's workflow (Open, In Progress, Resolved...).
+  triageStatus            String?
 
   /// Where the case is heading, from the latest follow-up unless an officer
   /// overrides it: improving | no_change | worsening | resolved.
@@ -418,7 +434,8 @@ model AssessmentHistory {
   /// preliminary | officer_override | officer_confirm | walk_in |
   /// category_confirm | category_change
   kind      String
-  riskLevel String
+  /// Null when the level was undetermined at this point.
+  riskLevel String?
   /// The case category at this point, and what it was before - so a
   /// reclassification can be read back without reconstructing it.
   caseType         String?

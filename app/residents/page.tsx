@@ -789,7 +789,7 @@ function ViewResidentDialog({
                       </Box>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, flexShrink: 0 }}>
                         <Chip label={c.status} size="small" sx={{ height: 24, fontSize: '0.72rem', fontWeight: 700, bgcolor: sc.bg, color: sc.text, '& .MuiChip-label': { px: 0.75 } }} />
-                        <Chip label={c.riskLevel} size="small" sx={{ height: 24, fontSize: '0.72rem', fontWeight: 700, bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), '& .MuiChip-label': { px: 0.75 } }} />
+                        <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ height: 24, fontSize: '0.72rem', fontWeight: 700, bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), '& .MuiChip-label': { px: 0.75 } }} />
                       </Box>
                     </Box>
                   );

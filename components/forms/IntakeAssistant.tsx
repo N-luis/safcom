@@ -121,6 +121,18 @@ const T: Record<Lang, Record<string, string>> = {
   },
 };
 
+/**
+ * Where the report stands before submitting:
+ *   URGENT             possible danger now - submit straight away
+ *   FOLLOW_UP_REQUIRED essential details missing and questions still to ask
+ *   INCOMPLETE         details missing but nothing more to ask (skipped or
+ *                      unknown) - it is saved as needing follow-up
+ *   READY              enough is known for a preliminary assessment
+ * Shown to the resident only to explain the submit button; the server works
+ * the status out again for itself.
+ */
+export type AssistState = 'URGENT' | 'FOLLOW_UP_REQUIRED' | 'INCOMPLETE' | 'READY';
+
 const STEP: Record<Completeness, number> = {
   INSUFFICIENT: 1, PARTIAL: 2, SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT: 3,
 };
@@ -133,7 +145,7 @@ const RISK_COLOR: Record<string, string> = {
 
 export default function IntakeAssistant({
   narrative, selectedCategory, street, answers, onAnswersChange, onResult, onSubmitNow, disabled, autoStart,
-  relationship = 'SELF', turns = [], onTurnsChange,
+  relationship = 'SELF', turns = [], onTurnsChange, onStateChange,
 }: {
   narrative: string;
   selectedCategory: string;
@@ -145,6 +157,7 @@ export default function IntakeAssistant({
   /** The AI interview as asked and answered so far. */
   turns?: InterviewTurn[];
   onTurnsChange?: (next: InterviewTurn[]) => void;
+  onStateChange?: (s: AssistState) => void;
   onResult?: (r: IntakeResult | null) => void;
   /** The emergency path: file what there is, now, skipping the final review. */
   onSubmitNow: () => void;
@@ -175,7 +188,7 @@ export default function IntakeAssistant({
   const stale = Boolean(result) && readFrom !== readKey;
   const tooShort = narrative.trim().length < 10;
 
-  const ask = async (nextAnswers: IntakeAnswer[], nextTurns: InterviewTurn[], wantQuestions: boolean) => {
+  const ask = async (nextAnswers: IntakeAnswer[], nextTurns: InterviewTurn[], wantQuestions: boolean, queueAfter: InterviewQuestion[] = queue) => {
     setLoading(true);
     setError('');
     try {
@@ -196,16 +209,26 @@ export default function IntakeAssistant({
       onAnswersChange(nextAnswers);
       onTurnsChange?.(nextTurns);
       onResult?.(data);
+      let nextQueue = queueAfter;
       if (data.interview) {
         setInterview(data.interview);
         if (data.interview.used) {
-          setQueue(data.interview.questions);
+          nextQueue = data.interview.questions;
+          setQueue(nextQueue);
           setMoreRounds(!data.interview.done);
         } else if (data.interview.status === 'limit_reached') {
+          nextQueue = [];
           setQueue([]);
           setMoreRounds(false);
         }
       }
+      // Where it stands now: danger first; then whether more is needed and
+      // whether there is anything left to ask.
+      const iv = data.interview?.used || data.interview?.status === 'limit_reached' ? data.interview : interview;
+      const questionsLeft = iv?.used ? nextQueue.length > 0 : Boolean(data.nextQuestion);
+      const urgent = data.immediateSafetyConcern || Boolean(iv?.possibleOngoingDanger);
+      const enough = data.informationCompleteness !== 'INSUFFICIENT' && !(iv?.used && !iv.sufficient && questionsLeft);
+      onStateChange?.(urgent ? 'URGENT' : enough ? 'READY' : questionsLeft ? 'FOLLOW_UP_REQUIRED' : 'INCOMPLETE');
       setTyped('');
     } catch {
       // The answers are kept as they were; the report itself is untouched.
@@ -238,7 +261,7 @@ export default function IntakeAssistant({
       const rest = queue.slice(1);
       setQueue(rest);
       // The next round only once this one is used up.
-      void ask(answers, [...turns, turn], rest.length === 0 && moreRounds);
+      void ask(answers, [...turns, turn], rest.length === 0 && moreRounds, rest);
       return;
     }
     if (!result?.nextQuestion) return;
@@ -476,7 +499,7 @@ export default function IntakeAssistant({
                 <Chip size="small" label={`Level ${result.matrixLevel} — ${result.matrixLabel}`} sx={{
                   height: 'auto', py: 0.25, fontWeight: 800, fontSize: '0.74rem',
                   '& .MuiChip-label': { whiteSpace: 'normal' },
-                  bgcolor: `${RISK_COLOR[result.riskLevel]}1c`, color: RISK_COLOR[result.riskLevel],
+                  bgcolor: `${RISK_COLOR[result.riskLevel ?? ''] ?? '#475569'}1c`, color: RISK_COLOR[result.riskLevel ?? ''] ?? '#475569',
                 }} />
               ) : (
                 <Chip size="small" label={t.notDetermined} sx={{ height: 22, fontWeight: 700, fontSize: '0.74rem', bgcolor: '#f1f5f9', color: '#475569' }} />

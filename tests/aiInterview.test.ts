@@ -75,6 +75,7 @@ function assessmentFor(user: string) {
         { level: 3, criterion: 'Credible verbal threats', source: sid('BLOTTER', 3), reportQuote: quote },
         { level: 5, criterion: 'Witchcraft accusations', source: sid('BLOTTER', 5), reportQuote: quote },
       ],
+      informationSufficient: true, essentialMissing: [],
       classificationStatus: 'PRELIMINARY', understanding: 'The reporter states they heard a threat.',
       missingInformation: ['Whether anyone was hurt'], uncertainty: ['The reporter did not see it'],
       recommendedNextAction: 'Call the reporter at 0917 123 4567 and record a statement.', urgentHumanReview: false,
@@ -270,8 +271,9 @@ async function main() {
       && downIntake.result.reviewReasons.some(r => /AI assessment unavailable/.test(r)));
     fake.assessment = u => ({ ...assessmentFor(u), assessment: { ...assessmentFor(u).assessment, criteria: [], riskLevel: null } });
     const lower = await runIntake({ residentId: A.id, narrative: 'Sinuntok ako ng kapitbahay namin kagabi sa tapat ng tindahan. (lower)', useAi: true, relationship: 'SELF' });
-    ok('the AI finding less than the rules never lowers the level; it sends it for review', lower.result.riskLevel === 'High'
-      && lower.result.assessmentStatus === 'FOR_REVIEW', `${lower.result.riskLevel} ${lower.result.assessmentStatus}`);
+    ok('the AI finding less than the rules never lowers the level, and it is not presented as classified', lower.result.riskLevel === 'High'
+      && lower.result.assessmentStatus !== 'PRELIMINARY' && lower.result.reviewReasons.some(x => /AI assessment: no level/.test(x)),
+      `${lower.result.riskLevel} ${lower.result.assessmentStatus}`);
     fake.assessment = u => assessmentFor(u);
 
     console.log('\n6. filing: what is kept');

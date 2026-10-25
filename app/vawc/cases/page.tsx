@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import { TRIAGE, TRIAGE_VALUES, LEGACY_TRIAGE, triageOf } from '@/lib/triageLabels';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -29,7 +30,7 @@ const ACCENT = '#7c3aed';
 
 interface CaseRow {
   id: string; caseNumber: string; residentName: string; caseType: string;
-  status: string; riskLevel: string; barangay: string; description: string;
+  status: string; riskLevel: string; triageStatus?: string | null; barangay: string; description: string;
   notes: string | null; filedAt: string; updatedAt: string;
   assignedTo: { name: string } | null;
 }
@@ -70,7 +71,7 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
       const newRisk = j.data?.riskLevel as string | undefined;
       toast.success(
         newRisk && newRisk !== c.riskLevel
-          ? `Case updated — AI re-flagged risk: ${c.riskLevel} → ${newRisk}`
+          ? `Case updated — AI re-flagged risk: ${c.riskLevel ?? 'Undetermined'} → ${newRisk}`
           : 'Case updated'
       );
       onSaved();
@@ -123,7 +124,7 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
             <Grid size={{ xs: 6 }}>
               <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, mb: 0.5 }}>Risk Level</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 40 }}>
-                <Chip label={c.riskLevel} size="small" sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem' }} />
+                <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem' }} />
                 <Tooltip title="Risk level is set by SafComm AI and is automatically re-analyzed every time this case is updated — it is not editable manually.">
                   <AutoAwesome sx={{ fontSize: 15, color: '#94a3b8' }} />
                 </Tooltip>
@@ -209,6 +210,7 @@ export default function VawcCasesPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [risk, setRisk] = useState('');
+  const [triageFilter, setTriageFilter] = useState('');
   const [type, setType] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<CaseRow | null>(null);
@@ -239,7 +241,7 @@ export default function VawcCasesPage() {
   const query = new URLSearchParams({
     limit: '15', page: String(page),
     ...(preset ? PRESETS[preset].params : { ...(status && { status }), ...(risk && { risk }) }),
-    ...(type && { type }), ...(search && { search }),
+    ...(type && { type }), ...(search && { search }), ...(triageFilter && { triage: triageFilter }),
   }).toString();
 
   const { data, isLoading, mutate } = useSWR<{ cases: CaseRow[]; total: number; totalPages: number }>(
@@ -294,8 +296,16 @@ export default function VawcCasesPage() {
           <InputLabel>Risk Level</InputLabel>
           <Select value={preset ? '' : risk} onChange={e => { setRisk(e.target.value); setPage(1); }} label="Risk Level">
             <MenuItem value="">All</MenuItem>
-            {['Critical', 'High', 'Medium', 'Low'].map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+            {['Critical', 'High', 'Medium', 'Low', 'Undetermined'].map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
           </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Triage</InputLabel>
+              <Select value={triageFilter} label="Triage" onChange={e => { setTriageFilter(e.target.value); setPage(1); }} sx={{ borderRadius: 2 }}>
+                <MenuItem value="">All</MenuItem>
+                {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
+                <MenuItem value="LEGACY">{LEGACY_TRIAGE.label}</MenuItem>
+              </Select>
         </FormControl>
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel>Case Type</InputLabel>
@@ -356,8 +366,12 @@ export default function VawcCasesPage() {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Chip label={c.riskLevel} size="small"
-                            sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                            <Chip label={c.riskLevel ?? 'Undetermined'} size="small"
+                              sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
+                            <Chip label={triageOf(c.triageStatus).label} size="small" title={triageOf(c.triageStatus).hint}
+                              sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${triageOf(c.triageStatus).color}14`, color: triageOf(c.triageStatus).color }} />
+                          </Box>
                         </TableCell>
                         <TableCell>
                           <Chip label={c.status} size="small"

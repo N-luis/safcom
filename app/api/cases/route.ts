@@ -6,7 +6,8 @@ import { OVERDUE_AFTER_DAYS } from '@/lib/followUps';
 import { computeRisk } from '@/lib/riskEngine';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
 import { vawcFilter, isVawcCaseHidden, withholdReporter } from '@/lib/caseAccess';
-import { analyzeIntake } from '@/lib/intake';
+import { analyzeIntake, triageStatusFor } from '@/lib/intake';
+import { TRIAGE_VALUES } from '@/lib/triageLabels';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -63,9 +64,17 @@ export async function GET(req: NextRequest) {
   } else if (progressFilter === 'new_follow_up') {
     where.lastResidentUpdateAt = { gte: newFollowUpCutoff };
   }
-  if (riskLevel) where.riskLevel = riskLevel;
+  // "Undetermined" is a level that was not set, so it filters on null.
+  if (riskLevel) where.riskLevel = riskLevel === 'Undetermined' ? null : riskLevel;
+  // Triage status: one of lib/triageLabels.ts, or LEGACY for cases filed
+  // before it existed. Anything else is ignored rather than matched.
+  const triage = searchParams.get('triage') || '';
+  if (triage === 'LEGACY') where.triageStatus = null;
+  else if (TRIAGE_VALUES.includes(triage)) where.triageStatus = triage;
 
-  const RISK_PRIORITY: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  // Undetermined sorts above Low on purpose: an unknown risk is not a low
+  // one, and must not sink to the bottom of the queue.
+  const RISK_PRIORITY: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Undetermined: 3, Low: 4 };
 
   try {
     let cases: Awaited<ReturnType<typeof prisma.case.findMany>>;
@@ -80,8 +89,8 @@ export async function GET(req: NextRequest) {
         include: { assignedTo: { select: { id: true, name: true } } },
       });
       all.sort((a, b) => {
-        const ap = RISK_PRIORITY[a.riskLevel] ?? 99;
-        const bp = RISK_PRIORITY[b.riskLevel] ?? 99;
+        const ap = RISK_PRIORITY[a.riskLevel ?? 'Undetermined'] ?? 99;
+        const bp = RISK_PRIORITY[b.riskLevel ?? 'Undetermined'] ?? 99;
         if (ap !== bp) return sortDir === 'desc' ? ap - bp : bp - ap;
         return new Date(b.filedAt).getTime() - new Date(a.filedAt).getTime();
       });
@@ -150,7 +159,9 @@ export async function POST(req: NextRequest) {
         : { residentName: { equals: residentName, mode: 'insensitive' }, caseType },
     });
     const { result: prelim } = analyzeIntake({ narrative: description, selectedCategory: caseType, priorSameType });
+    // Undetermined stays undetermined; triage says where it stands.
     const riskLevel = prelim.riskLevel;
+    const triageStatus = triageStatusFor(prelim);
 
     // Recorded here too: a walk-in is typed by an officer but dictated by the
     // resident, and the reply they are handed should be in their own words.
@@ -158,7 +169,7 @@ export async function POST(req: NextRequest) {
 
     const newCase = await prisma.case.create({
       data: {
-        ...parsed.data, status: status || 'Open', riskLevel, language,
+        ...parsed.data, status: status || 'Open', riskLevel, language, triageStatus,
         informationCompleteness: prelim.informationCompleteness,
         requiresOfficerReview: prelim.requiresOfficerReview,
       },
@@ -182,7 +193,7 @@ export async function POST(req: NextRequest) {
     await prisma.activity.create({
       data: {
         type: 'case',
-        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — ${riskLevel} risk (preliminary), information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
+        message: `New case ${newCase.caseNumber} filed for ${newCase.residentName} — ${riskLevel ? `${riskLevel} risk (preliminary)` : 'risk undetermined'}, information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
         entityId: newCase.id,
         entityType: 'Case',
         userId: auth.user.userId,

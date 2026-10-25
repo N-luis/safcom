@@ -5,7 +5,8 @@ import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/l
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { canSeeVawc } from '@/lib/caseAccess';
 import { computeRisk } from '@/lib/riskEngine';
-import { analyzeIntake } from '@/lib/intake';
+import { analyzeIntake, triageStatusFor } from '@/lib/intake';
+import { TRIAGE_VALUES } from '@/lib/triageLabels';
 import { nextCaseNumber } from '@/lib/caseNumber';
 
 /** Reads a filter param that may hold one value or a comma-separated group. */
@@ -43,19 +44,33 @@ export async function GET(req: NextRequest) {
   const risk = csv(sp.get('risk'));
   const type = sp.get('type') ?? '';
   const urgent = sp.get('urgent') === 'true';
+  const triage = csv(sp.get('triage')).filter(t => t === 'LEGACY' || TRIAGE_VALUES.includes(t));
   const fromParam = sp.get('from');
   const from = fromParam ? new Date(fromParam) : null;
   const validFrom = from && !isNaN(from.getTime()) ? from : null;
 
   try {
+    // Each filter is one condition, combined with AND, so none overwrites another.
+    const and: Record<string, unknown>[] = [];
+    if (urgent) {
+      // Urgent includes a report flagged for urgent review whose level is
+      // still undetermined - it must not drop out of this list.
+      and.push({ status: { notIn: ['Resolved', 'Closed'] } });
+      and.push({ OR: [{ riskLevel: { in: ['High', 'Critical'] } }, { triageStatus: 'URGENT_REVIEW' }] });
+    } else {
+      if (status.length) and.push({ status: { in: status } });
+      if (risk.length) {
+        // "Undetermined" is a level that was not set: null.
+        and.push({ OR: [{ riskLevel: { in: risk.filter(r => r !== 'Undetermined') } }, ...(risk.includes('Undetermined') ? [{ riskLevel: null }] : [])] });
+      }
+    }
+    if (triage.length) {
+      // LEGACY: filed before triage statuses existed.
+      and.push({ OR: [{ triageStatus: { in: triage.filter(t => t !== 'LEGACY') } }, ...(triage.includes('LEGACY') ? [{ triageStatus: null }] : [])] });
+    }
     const where = {
       caseType: type ? { equals: type } : { in: [...VAWC_TYPES] },
-      ...(urgent
-        ? { riskLevel: { in: ['High', 'Critical'] }, status: { notIn: ['Resolved', 'Closed'] } }
-        : {
-            ...(status.length && { status: { in: status } }),
-            ...(risk.length && { riskLevel: { in: risk } }),
-          }),
+      ...(and.length && { AND: and }),
       ...(validFrom && { filedAt: { gte: validFrom } }),
       ...(search && {
         OR: [
@@ -74,7 +89,7 @@ export async function GET(req: NextRequest) {
         take: limit,
         select: {
           id: true, caseNumber: true, residentName: true, caseType: true,
-          status: true, riskLevel: true, barangay: true, description: true,
+          status: true, riskLevel: true, triageStatus: true, barangay: true, description: true,
           notes: true, filedAt: true, resolvedAt: true, updatedAt: true,
           assignedTo: { select: { name: true } },
         },
@@ -143,7 +158,7 @@ export async function POST(req: NextRequest) {
     const newCase = await prisma.case.create({
       data: {
         caseNumber, residentName, caseType, barangay, description,
-        riskLevel: prelim.riskLevel, status: 'Open',
+        riskLevel: prelim.riskLevel, status: 'Open', triageStatus: triageStatusFor(prelim),
         informationCompleteness: prelim.informationCompleteness,
         requiresOfficerReview: prelim.requiresOfficerReview,
         ...(notes && { notes }),
@@ -169,7 +184,7 @@ export async function POST(req: NextRequest) {
     await prisma.activity.create({
       data: {
         type: 'vawc_case_filed',
-        message: `New VAWC case filed: ${caseNumber} — ${residentName} (${caseType}) — ${prelim.riskLevel} risk (preliminary), information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
+        message: `New VAWC case filed: ${caseNumber} — ${residentName} (${caseType}) — ${prelim.riskLevel ? `${prelim.riskLevel} risk (preliminary)` : 'risk undetermined'}, information ${prelim.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`,
         entityId: newCase.id,
         entityType: 'Case',
         userId: auth.user.userId,

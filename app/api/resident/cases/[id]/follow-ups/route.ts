@@ -171,9 +171,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       const reassessed = assessCase(combined, { priorSameType });
       const nextLevel = priorityToRiskLevel(reassessed.priority);
 
-      // Only ever upward. Lowering a level is an officer's decision.
-      if (isHigherLevel(nextLevel, own.riskLevel)) {
-        riskChange = { from: own.riskLevel, to: nextLevel };
+      // Only ever upward. Lowering a level is an officer's decision. An
+      // undetermined level is set only by a sign of real danger, never filled
+      // in as Low or Medium from a follow-up's wording.
+      const current = own.riskLevel;
+      if (current ? isHigherLevel(nextLevel, current) : ['High', 'Critical'].includes(nextLevel)) {
+        riskChange = { from: current ?? 'Undetermined', to: nextLevel };
         await prisma.case.update({ where: { id }, data: { riskLevel: nextLevel } });
         await prisma.caseFollowUp.create({
           data: {

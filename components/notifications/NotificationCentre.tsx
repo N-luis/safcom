@@ -114,7 +114,7 @@ function NotificationDialog({ n, onClose, onOpenCase }: {
               ))}
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
               <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>Risk level</Typography>
-              <Chip label={c.riskLevel} size="small" sx={{
+              <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{
                 bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}18`,
                 color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 800, fontSize: '0.74rem', height: 22,
               }} />

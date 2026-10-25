@@ -212,7 +212,7 @@ export default function CaseSearch({ basePath, quickFilters: QUICK_FILTERS }: Ca
                               <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>— {c.residentName}</Typography>
                               <Box sx={{ ml: 'auto', display: 'flex', gap: 0.75 }}>
                                 <Chip label={c.status} size="small" sx={{ bgcolor: `${STATUS_COLOR[c.status]}18`, color: STATUS_COLOR[c.status], fontWeight: 600, fontSize: '0.78rem', height: 22 }} />
-                                <Chip label={c.riskLevel} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.78rem', height: 22 }} />
+                                <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.78rem', height: 22 }} />
                               </Box>
                             </Box>
                           }

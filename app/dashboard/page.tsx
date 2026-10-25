@@ -216,7 +216,7 @@ function CaseTable({ rows, loading, emptyText }: { rows: CaseRow[]; loading: boo
             </Box>
             <Chip size="small" label={c.module}
               sx={{ width: 'fit-content', bgcolor: `${MODULE_COLOR[c.module]}15`, color: MODULE_COLOR[c.module], fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
-            <Chip size="small" label={c.riskLevel}
+            <Chip size="small" label={c.riskLevel ?? 'Undetermined'}
               sx={{ width: 'fit-content', bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}15`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
             <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{c.status}</Typography>
             <Typography sx={{ fontSize: '0.82rem', color: c.officer ? '#475569' : '#f97316', fontWeight: c.officer ? 400 : 700 }}>

@@ -73,7 +73,9 @@ async function main() {
   ok('  ...the first step is to call, not to answer questions', /Huwag nang hintayin/.test(s6.recommendedNextSteps[0] ?? ''));
 
   const s7 = run('Nag-away kami ng tito ko tungkol sa lupa at sinabi niyang pagsisisihan ko ito.');
-  ok('7 ambiguous -> FOR_REVIEW with alternatives', s7.assessmentStatus === 'FOR_REVIEW' && s7.requiresOfficerReview
+  // Its essentials are not known yet, so it is not presented as classified:
+  // more information first, with the ambiguity kept for the officer.
+  ok('7 ambiguous -> not classified, needs more information, alternatives kept', s7.assessmentStatus === 'NEEDS_MORE_INFORMATION' && s7.requiresOfficerReview
     && s7.reviewReasons.some(r => /more than one category/.test(r)), s7.assessmentStatus);
 
   const s8 = run('My husband choked me last night and said he would kill me.');

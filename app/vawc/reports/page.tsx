@@ -436,7 +436,7 @@ export default function VawcReportsPage() {
                       <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.caseType}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip label={c.riskLevel} size="small"
+                      <Chip label={c.riskLevel ?? 'Undetermined'} size="small"
                         sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#64748b'}15`, color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                     </TableCell>
                     <TableCell>

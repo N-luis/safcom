@@ -57,6 +57,14 @@ export interface AiAssessment {
   /** Criteria the model gave that did not check out, and were dropped. */
   droppedCriteria: number;
   classificationStatus: 'NEEDS_MORE_INFORMATION' | 'PRELIMINARY' | 'FOR_REVIEW';
+  /**
+   * The sufficiency check, for this incident: enough is known to apply the
+   * matrix responsibly. False is not "low risk" and not "untrue" - only that
+   * the details below are still needed. Null when no assessment was made.
+   */
+  informationSufficient: boolean | null;
+  /** The specific details still needed for this incident - not a fixed list. */
+  essentialMissing: string[];
   understanding: string | null;
   missingInformation: string[];
   uncertainty: string[];
@@ -104,7 +112,7 @@ export async function retrieveSources(frameworks: Framework[], query: string, fa
 const ASSESS_FIELDS = {
   type: 'object',
   additionalProperties: false,
-  required: ['framework', 'riskLevel', 'riskLabel', 'criteria', 'classificationStatus', 'understanding',
+  required: ['framework', 'riskLevel', 'riskLabel', 'criteria', 'informationSufficient', 'essentialMissing', 'classificationStatus', 'understanding',
     'missingInformation', 'uncertainty', 'recommendedNextAction', 'urgentHumanReview', 'affectedPerson', 'reporterKnowledge'],
   properties: {
     framework: { type: 'string', enum: ['BLOTTER', 'VAWC', 'NONE'] },
@@ -117,6 +125,8 @@ const ASSESS_FIELDS = {
         properties: { level: { type: 'integer' }, criterion: { type: 'string' }, source: { type: 'string' }, reportQuote: { type: 'string' } },
       },
     },
+    informationSufficient: { type: 'boolean' },
+    essentialMissing: { type: 'array', items: { type: 'string' } },
     classificationStatus: { type: 'string', enum: ['NEEDS_MORE_INFORMATION', 'PRELIMINARY', 'FOR_REVIEW'] },
     understanding: { type: 'string' },
     missingInformation: { type: 'array', items: { type: 'string' } },
@@ -139,6 +149,8 @@ const assessSchema = z.object({
   riskLevel: z.number().int().nullable(),
   riskLabel: z.string().nullable(),
   criteria: z.array(z.object({ level: z.number().int(), criterion: z.string(), source: z.string(), reportQuote: z.string() })).max(20),
+  informationSufficient: z.boolean(),
+  essentialMissing: z.array(z.string()).max(10),
   classificationStatus: z.enum(['NEEDS_MORE_INFORMATION', 'PRELIMINARY', 'FOR_REVIEW']),
   understanding: z.string(),
   missingInformation: z.array(z.string()).max(10),
@@ -169,12 +181,13 @@ export const ASSESS_PROMPT = [
   '2. criteria: each criterion clearly met by what the report states: its level, the criterion copied exactly from that level\'s passage, the passage id, and reportQuote copied exactly from the report or answers. A criterion that is not written in the sources does not exist.',
   '3. riskLevel: the highest level with a criterion met, and riskLabel copied exactly from that passage. If none is clearly met, both null. Never choose a level from the category alone.',
   '4. An allegation is reported, not proven: write "reported", never state guilt.',
-  '5. classificationStatus: NEEDS_MORE_INFORMATION if too little is known to apply any criterion; FOR_REVIEW if the category or level is uncertain, the account conflicts, or it may belong to the other matrix; else PRELIMINARY.',
-  '6. urgentHumanReview: true if someone may be in danger now, a child is at risk, a weapon is involved, there is serious injury, or there is a threat to kill.',
-  '7. recommendedNextAction: one sentence for the officer, from the cited passage\'s Suggested Action where one applies. Never give phone numbers or say that anyone has been contacted.',
-  '8. affectedPerson: REPORTER if the harm is to the person writing, OTHER_PERSON if to someone else, else UNCLEAR. reporterKnowledge: DIRECT (saw or experienced it), HEARD, TOLD_BY_OTHERS, or UNCLEAR.',
-  '9. understanding: one or two neutral English sentences ("The reporter states that ..."). No names. missingInformation and uncertainty: short English phrases.',
-  '10. The VAWC matrix is a proposed operational triage framework, not a classification prescribed by Philippine law; Blotter levels do not establish legal guilt. Do not cite laws.',
+  '5. SUFFICIENCY FIRST. informationSufficient: true only if, for THIS incident, enough is known to apply a criterion responsibly - what was done, roughly when, whether it is still happening, how the reporter knows (saw, heard, was told) when it is someone else\'s incident, and whether anyone may be in danger now. Decide what is essential for this kind of incident; not every detail is needed for every report. essentialMissing: the specific details still needed. A short report is not a false report and not a low-risk one; unknown is never "no".',
+  '6. classificationStatus: NEEDS_MORE_INFORMATION if informationSufficient is false; FOR_REVIEW if the category or level is uncertain, the account conflicts, or it may belong to the other matrix; else PRELIMINARY. The category never decides the level, and the level never decides the category.',
+  '7. urgentHumanReview: true if someone may be in danger now, a child is at risk, a weapon is involved, there is serious injury, or there is a threat to kill.',
+  '8. recommendedNextAction: one sentence for the officer, from the cited passage\'s Suggested Action where one applies. Never give phone numbers or say that anyone has been contacted.',
+  '9. affectedPerson: REPORTER if the harm is to the person writing, OTHER_PERSON if to someone else, else UNCLEAR. reporterKnowledge: DIRECT (saw or experienced it), HEARD, TOLD_BY_OTHERS, or UNCLEAR.',
+  '10. understanding: one or two neutral English sentences ("The reporter states that ..."). No names. missingInformation and uncertainty: short English phrases.',
+  '11. The VAWC matrix is a proposed operational triage framework, not a classification prescribed by Philippine law; Blotter levels do not establish legal guilt. Do not cite laws.',
 ].join('\n');
 
 const RELATIONSHIP_LINE: Record<ReportingRelationship, string> = {
@@ -220,7 +233,9 @@ export function checkAssessment(raw: unknown, ctx: { sourceText: string; chunks:
   const label = level && usable ? ctx.chunks.find(s => s.documentType === usable && s.riskLevel === level)?.riskLabel
     ?? MATRICES[usable].levels.find(l => l.level === level)?.label ?? null : null;
 
-  const status = !level && a.classificationStatus === 'PRELIMINARY' ? 'NEEDS_MORE_INFORMATION'
+  // Not trusted to be consistent with itself: an assessment that says the
+  // information is insufficient, or has no supported level, is not preliminary.
+  const status = a.classificationStatus === 'PRELIMINARY' && (!a.informationSufficient || !level) ? 'NEEDS_MORE_INFORMATION'
     : dropped > 0 && a.classificationStatus === 'PRELIMINARY' ? 'FOR_REVIEW' : a.classificationStatus;
   const list = (xs: string[], n: number) => xs.map(x => x.trim().slice(0, 160)).filter(Boolean).slice(0, n);
   return {
@@ -231,6 +246,8 @@ export function checkAssessment(raw: unknown, ctx: { sourceText: string; chunks:
     suggestedCategory: null,
     level, label, criteria, droppedCriteria: dropped,
     classificationStatus: status,
+    informationSufficient: a.informationSufficient,
+    essentialMissing: a.essentialMissing.map(x => x.trim().slice(0, 160)).filter(Boolean).slice(0, 6),
     understanding: a.understanding.trim().slice(0, 500) || null,
     missingInformation: list(a.missingInformation, 6),
     uncertainty: list(a.uncertainty, 6),
@@ -252,6 +269,7 @@ export function checkAssessment(raw: unknown, ctx: { sourceText: string; chunks:
 export const unavailableAssessment = (reason: string): AiAssessment => ({
   status: 'ASSESSMENT_UNAVAILABLE', unavailableReason: reason, framework: null, suggestedCategory: null,
   level: null, label: null, criteria: [], droppedCriteria: 0, classificationStatus: 'FOR_REVIEW',
+  informationSufficient: null, essentialMissing: [],
   understanding: null, missingInformation: [], uncertainty: [], recommendedNextAction: null,
   urgentHumanReview: false, affectedPerson: 'UNCLEAR', reporterKnowledge: 'UNCLEAR', sources: [],
   frameworkStatus: null, at: new Date().toISOString(), version: ASSESSMENT_VERSION,

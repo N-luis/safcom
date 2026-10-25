@@ -58,7 +58,8 @@ export interface Actor { id: string; role: string; active: boolean }
 export interface CaseFacts {
   caseType: string;
   assignedToId: string | null;
-  riskLevel: string;
+  /** Null when undetermined. */
+  riskLevel: string | null;
   requiresOfficerReview: boolean;
   immediateSafetyConcern: boolean;
   /** An anonymous report: nobody is shown who filed it. */

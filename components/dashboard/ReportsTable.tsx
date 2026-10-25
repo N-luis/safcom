@@ -24,7 +24,6 @@ const CASE_TYPES = [
   'Mental Health', 'Community Conflict', 'Economic Crisis', 'Child Abuse',
   'Senior Welfare', 'Other',
 ];
-const RISK_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
 const STATUSES = ['Open', 'In Progress', 'Resolved', 'Closed'];
 
 interface CaseData {
@@ -194,7 +193,7 @@ export default function ReportsTable() {
                             sx={{ bgcolor: getStatusBgColor(c.status), color: getStatusColor(c.status), fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>
-                          <Chip label={c.riskLevel} size="small"
+                          <Chip label={c.riskLevel ?? 'Undetermined'} size="small"
                             sx={{ bgcolor: getRiskBgColor(c.riskLevel), color: getRiskColor(c.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
                         </TableCell>
                         <TableCell>{new Date(c.filedAt).toLocaleDateString()}</TableCell>
@@ -280,7 +279,7 @@ function ViewCaseDialog({ caseData, open, onClose, onEdit, onDelete }: {
             <Typography sx={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>{caseData.caseNumber} · {caseData.caseType}</Typography>
             <Box sx={{ display: 'flex', gap: 1, mt: 1.25, flexWrap: 'wrap' }}>
               <Chip label={caseData.status} size="small" sx={{ bgcolor: getStatusBgColor(caseData.status), color: getStatusColor(caseData.status), fontWeight: 700, fontSize: '0.78rem' }} />
-              <Chip label={caseData.riskLevel} size="small" sx={{ bgcolor: getRiskBgColor(caseData.riskLevel), color: getRiskColor(caseData.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
+              <Chip label={caseData.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: getRiskBgColor(caseData.riskLevel), color: getRiskColor(caseData.riskLevel), fontWeight: 700, fontSize: '0.78rem' }} />
             </Box>
           </Box>
           <IconButton size="small" onClick={onClose} sx={{ color: 'rgba(255,255,255,0.8)', mt: -0.5 }}><Close fontSize="small" /></IconButton>
@@ -350,7 +349,7 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
         residentName: caseData.residentName,
         caseType: caseData.caseType,
         status: caseData.status,
-        riskLevel: caseData.riskLevel,
+        riskLevel: caseData.riskLevel ?? '',
         barangay: caseData.barangay,
         description: caseData.description,
         notes: caseData.notes ?? '',
@@ -370,7 +369,6 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
     if (!form.residentName.trim()) e.residentName = 'Required';
     if (!form.caseType) e.caseType = 'Required';
     if (!form.status) e.status = 'Required';
-    if (!form.riskLevel) e.riskLevel = 'Required';
     if (!form.barangay) e.barangay = 'Required';
     if (!form.description.trim()) e.description = 'Required';
     setErrors(e);
@@ -388,7 +386,6 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
         residentName: form.residentName.trim(),
         caseType: form.caseType,
         status: form.status,
-        riskLevel: form.riskLevel,
         barangay: form.barangay,
         description: form.description.trim(),
         notes: form.notes.trim() || null,
@@ -465,19 +462,11 @@ function EditCaseDialog({ caseData, open, onClose, users, onSaved }: {
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth size="small" required error={Boolean(errors.riskLevel)}>
-              <InputLabel>Risk Level</InputLabel>
-              <Select value={form.riskLevel} onChange={e => setField('riskLevel', e.target.value)} label="Risk Level" sx={{ borderRadius: 2 }}>
-                {RISK_LEVELS.map(r => (
-                  <MenuItem key={r} value={r}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: getRiskColor(r) }} />
-                      {r}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {/* Read-only: the level changes only through the assessment review,
+                which records who decided and why. This field used to look
+                editable while the server ignored it. */}
+            <TextField fullWidth size="small" label="Risk Level" value={form.riskLevel || 'Undetermined'} disabled
+              helperText="Change it from the case's assessment review" />
           </Grid>
           <Grid size={{ xs: 12 }}>
             <TextField fullWidth label="Address" size="small" required

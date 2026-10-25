@@ -224,7 +224,7 @@ export default function CasesMap({
                   <span style={{ color: STATUS_COLORS[c.status], fontWeight: 600 }}>{c.status}</span>
                 </Box>
                 <Box component="div"><strong>Risk Level:</strong>{' '}
-                  <span style={{ color: RISK_COLORS[c.riskLevel], fontWeight: 700 }}>{c.riskLevel}</span>
+                  <span style={{ color: RISK_COLORS[c.riskLevel], fontWeight: 700 }}>{c.riskLevel ?? 'Undetermined'}</span>
                 </Box>
               </Box>
               <Button

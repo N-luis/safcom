@@ -228,8 +228,11 @@ const BY_CASE_TYPE: Partial<Record<string, Partial<Record<GuidanceRisk, Partial<
  * must not fall through to nothing. It is read as High: the most protective
  * block of the three, and the only one that tells someone to call for help.
  */
-function toGuidanceRisk(riskLevel: string): GuidanceRisk {
+function toGuidanceRisk(riskLevel: string | null): GuidanceRisk {
   const v = (riskLevel ?? '').trim().toLowerCase();
+  // Undetermined is not low: the guidance for it is the middle tier's, so an
+  // unknown risk is never answered with the reassurance meant for a low one.
+  if (!v) return 'Medium';
   if (v === 'critical' || v === 'high') return 'High';
   if (v === 'medium') return 'Medium';
   return 'Low';
@@ -237,7 +240,7 @@ function toGuidanceRisk(riskLevel: string): GuidanceRisk {
 
 /** The guidance for a case, by its level and type. */
 export function guidanceFor(
-  riskLevel: string,
+  riskLevel: string | null,
   caseType = '',
   locale: GuidanceLocale = 'en',
 ): { risk: GuidanceRisk; copy: GuidanceCopy } {
