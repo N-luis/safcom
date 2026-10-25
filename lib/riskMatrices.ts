@@ -30,6 +30,12 @@ export type Facts = Map<string, string | true>;
 export interface Cond { all?: string[]; any?: string[]; none?: string[] }
 
 export interface Indicator {
+  /**
+   * How SafeComm reads this indicator where the document leaves room, and
+   * what it has asked the matrix owners to clarify. Shown to officers. Never
+   * a change to the document's wording.
+   */
+  note?: string;
   /** Exactly as the document writes it. */
   text: string;
   /** Null: no report fact can show this; an officer decides. */
@@ -51,6 +57,21 @@ export interface MatrixDefinition {
   levels: MatrixLevel[];
 }
 
+/**
+ * VAWC Level 4 lists "Physical assault" under the heading "CRITICAL –
+ * Violence Occurring / Imminent", without distinguishing severity. SafeComm
+ * applies it when the violence is happening now or is about to - what the
+ * heading says - and does not stretch it to an assault that has ended. The
+ * document does not say how an ended assault should be classified; that is
+ * left undetermined, sent for officer review, and raised with the matrix
+ * owners (knowledge/MATRIX_REVIEW.md). The wording of the document is
+ * unchanged.
+ */
+export const PHYSICAL_ASSAULT_NOTE =
+  'Applied when the violence is occurring or imminent, per this level\'s heading "Violence Occurring / Imminent". '
+  + 'The matrix does not say how to classify a physical assault that has ended; such reports are left undetermined for officer review. '
+  + 'Clarification requested from the matrix owners.';
+
 export const VAWC_MATRIX: MatrixDefinition = {
   framework: 'VAWC',
   documentName: 'Proposed Incident Risk Classification Matrix',
@@ -59,7 +80,9 @@ export const VAWC_MATRIX: MatrixDefinition = {
   levels: [
     { level: 1, label: 'LOW – Minor Incident', indicators: [
       { text: 'Verbal disagreement', when: { all: ['quarrel'], none: ['force', 'threat'] } },
-      { text: 'isolated rude behavior', when: { all: ['rude'], none: ['repeated', 'force', 'threat'] } },
+      // "Isolated" is read from what was said (it happened once), not from
+      // silence: an unknown history is not an isolated one.
+      { text: 'isolated rude behavior', when: { all: ['rude', 'firstTime'], none: ['repeated', 'force', 'threat'] } },
       { text: 'minor non-threatening conflict', when: { all: ['quarrel', 'harmDenied'], none: ['threat'] } },
       { text: 'minor policy violation', when: null },
     ] },
@@ -80,7 +103,10 @@ export const VAWC_MATRIX: MatrixDefinition = {
       { text: 'credible weapon-related threat', when: { all: ['weaponShown', 'threat'] } },
     ] },
     { level: 4, label: 'CRITICAL – Violence Occurring / Imminent', indicators: [
-      { text: 'Physical assault', when: { any: ['force'] } },
+      // Read within its level's own heading, "Violence Occurring / Imminent"
+      // (Suggested Action: "Treat as an emergency"). It used to fire on any
+      // physical contact at any time - so a single past push was Critical.
+      { text: 'Physical assault', when: { all: ['force', 'imminent'] }, note: PHYSICAL_ASSAULT_NOTE },
       { text: 'strangulation/choking', when: { any: ['choking'] } },
       { text: 'weapon displayed', when: { any: ['weaponShown'] } },
       { text: 'forced confinement', when: { any: ['confinement'] } },
@@ -111,7 +137,7 @@ export const BLOTTER_MATRIX: MatrixDefinition = {
     { level: 1, label: 'LOW — Minor Community Disturbance', indicators: [
       { text: 'Curfew noise violations', when: { all: ['noise'], none: ['repeated'] } },
       { text: 'minor boundary disagreements', when: { all: ['boundary'], none: ['landDispute'] } },
-      { text: 'isolated pet nuisances', when: { all: ['pets'], none: ['repeated'] } },
+      { text: 'isolated pet nuisances', when: { all: ['pets', 'firstTime'], none: ['repeated'] } },
       { text: 'non-threatening verbal misunderstandings', when: { all: ['quarrel'], none: ['threat', 'force'] } },
       { text: 'minor sanitation issues', when: { all: ['sanitation'], none: ['repeated'] } },
     ] },

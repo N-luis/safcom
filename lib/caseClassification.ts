@@ -375,7 +375,12 @@ const T = {
   curfew: ['curfew', 'lampas na sa oras', 'hatinggabi', 'madaling araw', 'past midnight'],
   // Something still going on as the report is written.
   ongoing: ['nangyayari ngayon', 'nangyayari pa', 'hanggang ngayon', 'ngayon mismo', 'happening now',
-    'still happening', 'right now', 'ongoing'],
+    'still happening', 'right now', 'ongoing',
+    // Violence still going on as it is written: "patuloy niya akong
+    // sinasaktan ngayon", "nandito pa siya", "he is hitting me".
+    'patuloy niya akong', 'patuloy akong', 'tuloy-tuloy niya akong', 'akong sinasaktan ngayon', 'sinasaktan ako ngayon',
+    'sinasaktan niya ako ngayon', 'binubugbog ako ngayon', 'nandito pa siya', 'nandito pa rin siya', 'narito pa siya',
+    'is hitting me', 'is beating me', 'is hurting me', 'keeps hitting me', 'is still here'],
   publicPlace: ['sa kalsada', 'sa kalye', 'sa harap ng tindahan', 'sa labas', 'sa plaza', 'in public', 'on the street'],
   rude: ['bastos', 'walang galang', 'rude', 'disrespectful'],
   govt: ['barangay official', 'kagawad', 'kapitan', 'opisyal ng barangay', 'government office', 'city hall'],

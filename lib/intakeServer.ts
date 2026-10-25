@@ -6,7 +6,7 @@ import { searchMatrix, levelChunk, type KbDb, type SearchStatus } from './knowle
 import { type AiReading, type ReadDeps } from './aiClassifier';
 import { assessWithSources, type AiAssessment } from './aiAssessment';
 import { categoryByName } from './classificationSchema';
-import { queueLevelFor, type Framework } from './riskMatrices';
+import { type Framework } from './riskMatrices';
 import { REPORTING_RELATIONSHIPS, INTERVIEW_LIMITS, type InterviewTurn, type ReportingRelationship } from './interviewTypes';
 
 /**
@@ -120,7 +120,6 @@ async function analyse(params: {
   });
 }
 
-const LEVEL_ORDER = ['Low', 'Medium', 'High', 'Critical'] as const;
 
 /**
  * The AI assessment beside the rules' reading. Where they agree, nothing
@@ -148,10 +147,12 @@ function compareWithAssessment(r: IntakeAnalysis['result'], a: AiAssessment) {
       push(`AI assessment: ${a.level ? `Level ${a.level} (${a.criteria.filter(c => c.level === a.level).map(c => c.criterion).join('; ')})` : 'no level'}`
         + `; rules: ${r.matrixLevel ? `Level ${r.matrixLevel}` : 'no level'}`);
       toReview();
-      if (a.level) {
-        const aiQueue = queueLevelFor(a.level);
-        if (LEVEL_ORDER.indexOf(aiQueue) > (r.riskLevel ? LEVEL_ORDER.indexOf(r.riskLevel) : -1)) r.riskLevel = aiQueue;
-      }
+      // The AI's own level is advisory. It used to raise the queue level
+      // when higher - which let a model's "Level 4: Physical assault" for a
+      // single past push put the case back at Critical even after the
+      // documented criterion said otherwise. The level comes only from the
+      // matrix's conditions over the reported facts (the AI's checked facts
+      // included); a different AI level is shown to the officer, not applied.
     }
     if (a.classificationStatus === 'FOR_REVIEW') toReview();
     // The AI's sufficiency check can hold a report back from "preliminary";

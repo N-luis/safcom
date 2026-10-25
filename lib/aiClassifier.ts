@@ -160,10 +160,14 @@ export const FACT_GUIDE: Record<string, string> = {
   minor: 'a child or minor is the one harmed or targeted',
   publicPlace: 'it happened in a public place',
   repeated: 'it has happened more than once before',
-  imminent: 'the danger is happening now, or the person responsible is still there or about to return',
+  firstTime: 'the text says this is the first time, or that it happened only once',
+  imminent: 'the danger is happening now, or the person responsible is still there or about to return - only when the words say so (now, still, still here, coming back); a past act is not imminent',
   harmDenied: 'the report says nobody was hurt',
 };
 export const FACT_KEYS = Object.keys(FACT_GUIDE);
+
+/** Words that place harm in the present or the immediate future. */
+export const NOW_WORDS = /ngayon|mismo|patuloy|tuloy-tuloy|nandito pa|narito pa|nandyan pa|pa rin|babalik|mamaya|bukas|kasalukuyan|nangyayari|right now|\bnow\b|still|currently|ongoing|is (?:hitting|beating|hurting|chasing)|coming back|tonight|soon|any moment/i;
 
 /** Every Signal must be in the guide - checked at compile time. */
 const SIGNALS_COVERED: Record<Signal, true> = {
@@ -178,6 +182,7 @@ export const SIGNAL_KEYS = Object.keys(SIGNALS_COVERED) as Signal[];
 /** The questions the model may mark as already answered by the report. */
 export const SLOT_GUIDE: Partial<Record<SlotId, string>> = {
   safety: 'yes = the reporter says they are in danger now or it may happen again soon; no = they say they are safe now',
+  timing: 'yes = the text says it is still happening now; no = the text says it has ended (e.g. last night, yesterday)',
   injury: 'yes = someone was hurt; no = the report says nobody was hurt',
   injuryCare: 'yes = someone needs or got medical care; no = no care needed',
   weapon: 'yes = a weapon was involved; no = the report says there was no weapon',
@@ -296,6 +301,9 @@ export function checkResponse(raw: unknown, sourceText: string, model: string): 
   const facts: AiIntakeHints['facts'] = [];
   for (const f of r.facts) {
     if (!FACT_KEYS.includes(f.key) || !quoteIsInText(f.quote, sourceText)) { dropped++; continue; }
+    // "Happening now / about to happen" decides the matrices' top levels, so
+    // its quote must itself say so - "Tinulak ako ng asawa ko" does not.
+    if (f.key === 'imminent' && !NOW_WORDS.test(f.quote)) { dropped++; continue; }
     if (!facts.some(x => x.key === f.key)) facts.push({ key: f.key, quote: f.quote.trim().slice(0, 200) });
   }
   const slots: AiIntakeHints['slots'] = [];

@@ -40,7 +40,8 @@ import {
 export const INTAKE_ENGINE_VERSION = 'safecomm-intake-rules/2.0';
 
 /** Questions are never repeated, so this is also the most that can be asked. */
-export const MAX_QUESTIONS = 10;
+// One per question at most - there are 11 - so no question is ever cut off.
+export const MAX_QUESTIONS = 11;
 
 /**
  * A narrative this long is treated as describing the circumstances, so the
@@ -57,15 +58,23 @@ export type Completeness = 'INSUFFICIENT' | 'PARTIAL' | 'SUFFICIENT_FOR_PRELIMIN
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 
 export type SlotId =
-  | 'safety' | 'act' | 'context' | 'injury' | 'injuryCare'
+  | 'safety' | 'timing' | 'act' | 'context' | 'injury' | 'injuryCare'
   | 'weapon' | 'children' | 'recurrence' | 'statements' | 'priorReport';
 
 /** Asked in this order; a slot is only asked while it is relevant and unknown. */
 export const SLOT_ORDER: SlotId[] = [
-  'safety', 'act', 'context', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'statements', 'priorReport',
+  'safety', 'timing', 'act', 'context', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'statements', 'priorReport',
 ];
 
-const ESSENTIAL: SlotId[] = ['safety', 'act', 'context'];
+// Timing is essential where there is harm: whether violence is still going on
+// is what separates the matrices' "occurring / imminent" levels from the rest.
+const ESSENTIAL: SlotId[] = ['safety', 'timing', 'act', 'context'];
+
+/** The hard rules that may set a level on their own: about the danger, not about who is involved. */
+const LEVEL_RULES = ['H1', 'H4', 'H5'];
+
+/** Words that place an incident in the past - it has ended. */
+const PAST_TIME = /\b(kagabi|kahapon|kanina|kaninang (?:umaga|tanghali|hapon)|noong|nakaraang (?:linggo|buwan|araw)|last (?:night|week|month)|yesterday|earlier today|\d+ (?:days?|weeks?|hours?) ago)\b/i;
 
 /**
  * An answer to one question. `value` is the plain meaning of the slot's
@@ -208,6 +217,7 @@ type Lang = 'tl' | 'en';
 
 const LABEL: Record<SlotId, Record<Lang, string>> = {
   safety:      { tl: 'Kung may panganib ngayon', en: 'Whether anyone is in danger now' },
+  timing:      { tl: 'Kung kailan ito nangyari, at kung nangyayari pa ngayon', en: 'When it happened, and whether it is still happening' },
   act:         { tl: 'Kung ano ang ginawa', en: 'What was done' },
   context:     { tl: 'Paano at bakit ito nangyari, ayon sa nakita mo', en: 'How it happened and what came before' },
   injury:      { tl: 'Kung may nasaktan', en: 'Whether anyone was hurt' },
@@ -229,6 +239,14 @@ const QUESTION: Record<SlotId, Record<Lang, {
     en: { text: 'Are you safe right now, or is there a risk it could happen again soon?',
       yes: 'I am not safe right now', no: 'I am safe right now', unsure: 'I am not sure',
       placeholder: 'For example: they are still here, or I am somewhere else now' },
+  },
+  timing: {
+    tl: { text: 'Kailan ito nangyari? Nangyayari pa ba ito ngayon?',
+      yes: 'Nangyayari pa ngayon', no: 'Tapos na ito', unsure: 'Hindi ko sigurado',
+      placeholder: 'Halimbawa: kagabi bandang 10 PM' },
+    en: { text: 'When did this happen? Is it still happening now?',
+      yes: 'It is still happening', no: 'It has ended', unsure: 'I am not sure',
+      placeholder: 'For example: last night around 10 PM' },
   },
   act: {
     tl: { text: 'Ano ang nangyari? Ilarawan sa sarili mong salita kung ano ang ginawa o ang nakita mo.',
@@ -508,6 +526,11 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   const said = combined.match(/\b(sinabi niya|sabi niya|sinabihan (?:niya )?ako|sumigaw siya|he said|she said|told me)\b[^.!?]{0,80}/i);
   if (said) fromReport.statements = { value: 'yes', quote: said[0] };
   if (p.frequency !== 'unknown') fromReport.recurrence = { value: p.frequency === 'repeated' ? 'yes' : 'no', quote: quoteFor('frequency') };
+  // Still going on, or over? Only from words that say so - never assumed.
+  const ongoingWords = mentions(combined, 'ongoing');
+  const pastWords = PAST_TIME.exec(combined)?.[0];
+  if (ongoingWords) fromReport.timing = { value: 'yes', quote: ongoingWords };
+  else if (pastWords) fromReport.timing = { value: 'no', quote: pastWords };
   // What the AI reader found the report already answers, for questions the
   // rules could not settle. The rules' reading is kept where both have one.
   if (aiAct && !fromReport.act) fromReport.act = { value: 'yes', quote: aiAct.quote };
@@ -526,6 +549,8 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
 
   const relevant: Record<SlotId, boolean> = {
     safety: true,
+    // Whether harm is still going on - asked only where there is harm.
+    timing: harmContext || household,
     act: true,
     // Only once there is an act to describe; asking "how did it happen"
     // before knowing what "it" is would be asking twice.
@@ -746,16 +771,20 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (p.injury === 'needs_treatment' || slot('injuryCare').value === 'yes') {
     put('injuryTreatment', quoteFor('injury') ?? slot('injuryCare').quote);
   }
-  const unconscious = /nawalan ng malay|unconscious/i.exec(combined);
+  // "nawalan ng malay" with words between ("nawalan ako ng malay") too.
+  const unconscious = /nawalan(?: \p{L}+){0,2} ng (?:malay|ulirat)|hinimatay|unconscious|passed out|knocked out/iu.exec(combined);
   if (unconscious) put('unconscious', unconscious[0]);
   if (p.frequency === 'repeated' || slot('recurrence').value === 'yes') {
     put('repeated', quoteFor('frequency') ?? slot('recurrence').quote);
   }
   if (facts.has('repeated') || p.escalation === 'getting_worse') put('repeatedOrWorse', facts.get('repeated') ?? quoteFor('escalation'));
   if (sig.has('partner') || sig.has('family')) put('household', sig.get('partner') ?? sig.get('family'));
-  if (p.immediate_danger === 'yes' || slot('safety').value === 'yes' || facts.has('ongoing')) {
-    put('imminent', quoteFor('immediate_danger') ?? (facts.get('ongoing') as string | undefined) ?? slot('safety').quote);
+  if (p.immediate_danger === 'yes' || slot('safety').value === 'yes' || facts.has('ongoing') || slot('timing').value === 'yes') {
+    put('imminent', quoteFor('immediate_danger') ?? (facts.get('ongoing') as string | undefined) ?? slot('safety').quote ?? slot('timing').quote);
   }
+  // Said to have ended, or said to be a first time - facts, not defaults.
+  if (slot('timing').value === 'no') put('ended', slot('timing').quote);
+  if (slot('recurrence').value === 'no') put('firstTime', slot('recurrence').quote);
   if (facts.has('intimidation') && facts.has('repeated')) put('persistentIntimidation', facts.get('intimidation'));
   const harass = sig.get('harassment');
   if (harass && /hip|touch|grop|molest|hawak/i.test(harass)) put('seriousHarassment', harass);
@@ -765,7 +794,17 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   // Only evidence sets a level: a matrix criterion met by what was said, or a
   // safety rule triggered by it. Otherwise it is undetermined - never the
   // keyword reading's guess, and never inferred from the category.
-  const riskLevel: RiskLevel | null = matrixLevel ? queueLevelFor(matrixLevel) : rulesApplied.length ? legacyLevel : null;
+  // Without a matrix criterion, only the safety rules about what is
+  // happening may set a level: danger now (H1), a weapon with a threat or an
+  // injury (H4), an injury that is serious or needs treatment (H5). The rules
+  // about WHO is involved - a child (H2), a partner or family member (H3) -
+  // used to set "High" on their own, so a single push by a spouse was High
+  // before anything else was known. They now send the case to an officer
+  // instead: the relationship is not a risk level.
+  const levelRule = rulesApplied.find(r => r === 'H1') ? 'Critical'
+    : rulesApplied.includes('H5') && p.injury === 'serious' ? 'Critical'
+      : rulesApplied.some(r => r === 'H4' || r === 'H5') ? 'High' : null;
+  const riskLevel: RiskLevel | null = matrixLevel ? queueLevelFor(matrixLevel) : levelRule;
   const riskBasis: IntakeResult['riskBasis'] = matrixLevel
     ? 'matrix_criteria'
     : completeness === 'INSUFFICIENT' ? 'insufficient_information' : 'not_covered_by_matrix';
@@ -802,6 +841,29 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
       ? 'Hindi pa alam kung malubha ang pinsala. Kung malubha, maaaring tumaas ang antas (“Serious physical assault”).'
       : 'Whether the injury is serious is not yet known. If it is, the level could rise (“Serious physical assault”).');
   }
+  // Physical force on the VAWC desk that is not shown to be happening now.
+  // The matrix lists "Physical assault" under "Violence Occurring /
+  // Imminent", and says nothing about an assault that has ended - so the
+  // level is not guessed: what would decide it is said, and it is reviewed.
+  const assaultNotCurrent = framework === 'VAWC' && facts.has('force') && !facts.has('imminent')
+    && !matrix.matched.some(m => m.level >= 4);
+  if (assaultNotCurrent) {
+    levelCaveats.push(slot('timing').value === 'no'
+      ? (lang === 'tl'
+        ? 'Sinabi mong tapos na ito. Ang "Physical assault" sa VAWC matrix ay nasa Level 4, "Violence Occurring / Imminent"; hindi sinasabi ng matrix kung paano uuriin ang pananakit na tapos na, kaya isang opisyal ang magpapasya.'
+        : 'You said this has ended. The VAWC matrix lists "Physical assault" under Level 4, "Violence Occurring / Imminent"; it does not say how to classify an assault that has ended, so an officer decides.')
+      : (lang === 'tl'
+        ? 'Hindi pa alam kung nangyayari pa ito o kung may panganib na maulit agad. Kung oo, ito ay Level 4 ("Physical assault", "Violence Occurring / Imminent"). Kung nangyari na ito dati, maaaring Level 3 ("escalating intimate-partner violence").'
+        : 'It is not yet known whether this is still happening or could happen again soon. If it is, it meets Level 4 ("Physical assault", "Violence Occurring / Imminent"). If it has happened before, it may meet Level 3 ("escalating intimate-partner violence").'));
+  }
+  // An unknown history is not an isolated incident: where a criterion holds
+  // only while nothing is repeated, say that a repeat would change it.
+  if (matrix.matched.some(m => MATRICES[framework].levels.find(l => l.level === m.level)?.indicators
+    .find(i => i.text === m.indicator)?.when?.none?.includes('repeated')) && slot('recurrence').status !== 'known' && slot('recurrence').relevant) {
+    levelCaveats.push(lang === 'tl'
+      ? 'Hindi pa alam kung nangyari na ito dati. Kung paulit-ulit, maaaring tumaas ang antas.'
+      : 'Whether this has happened before is not yet known. If it is repeated, the level could rise.');
+  }
   if (matrix.matched.some(m => /non-imminent threats/.test(m.indicator)) && slot('safety').status !== 'known') {
     levelCaveats.push(lang === 'tl'
       ? 'Hindi pa alam kung may panganib ngayon. Kung mayroon, maaaring tumaas ang antas.'
@@ -827,7 +889,7 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
         : (lang === 'tl'
           ? `Walang pamantayan sa ${docName} na tumutugma sa iniulat. Isang opisyal ang magpapasya ng antas.`
           : `No criterion in the ${docName} matches what was reported. An officer will decide the level.`),
-      ...rulesApplied.map(r => RULE_TEXT[r]?.[lang]).filter((t): t is string => Boolean(t)),
+      ...rulesApplied.filter(r => LEVEL_RULES.includes(r)).map(r => RULE_TEXT[r]?.[lang]).filter((t): t is string => Boolean(t)),
     ];
 
   // ── Immediate danger: its own path, whatever the category or level ──
@@ -877,6 +939,12 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (immediateSafetyConcern) reviewReasons.push('Immediate safety concern');
   if (!matrixLevel) reviewReasons.push(riskLevel ? 'No risk-matrix criterion met; the level comes from a safety rule' : 'No risk-matrix criterion met; the level is undetermined until an officer sets it');
   if (matrixLevel && completeness === 'INSUFFICIENT') reviewReasons.push('A criterion is met, but essential details are missing; the level may change');
+  if (rulesApplied.includes('H3')) reviewReasons.push('Harm or a threat within a household or relationship is reported; an officer reviews it (the relationship alone does not set a level)');
+  if (rulesApplied.includes('H2')) reviewReasons.push('A child or other vulnerable person is involved; an officer reviews it');
+  if (assaultNotCurrent) {
+    reviewReasons.push('Physical force is reported but not shown to be occurring or imminent; the VAWC matrix lists "Physical assault" '
+      + 'only under "Violence Occurring / Imminent" and does not cover an ended assault - level left for an officer (matrix clarification requested)');
+  }
   if (aiDisagrees) reviewReasons.push(`The AI reading (${aiMeta!.category}) and the rules (${best!.meta.category}) suggest different categories`);
   if (ambiguous) reviewReasons.push(`Could fit more than one category: ${[chosen.category, ...alternativeCategories].join(', ')}`);
   if (ruled.needs_human_review && ruled.needs_human_review_reason) reviewReasons.push(ruled.needs_human_review_reason);

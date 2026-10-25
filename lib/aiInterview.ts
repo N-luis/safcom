@@ -23,7 +23,7 @@ import {
 
 export const INTERVIEW_VERSION = 'safecomm-ai-interview/1';
 
-const YES_NO_SLOTS: SlotId[] = ['safety', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'priorReport'];
+const YES_NO_SLOTS: SlotId[] = ['safety', 'timing', 'injury', 'injuryCare', 'weapon', 'children', 'recurrence', 'priorReport'];
 
 const INTERVIEW_SCHEMA = {
   type: 'object',
@@ -81,7 +81,7 @@ export const INTERVIEW_PROMPT = [
   '4. Use REPORTING_RELATIONSHIP. For someone else\'s incident, refer to the affected person neutrally ("the person", "siya") and, when it matters, ask whether the reporter saw it, heard it, or was told.',
   '5. If anything suggests someone may be in danger now, set immediateDangerToAssess true and make the first question whether the danger is happening now (slot safety), unless that is already answered.',
   '6. possibleOngoingDanger: true only if the text itself says violence is happening now, the person responsible is still there, or harm is about to happen; then dangerQuote is the exact words, copied character for character. Otherwise false and null.',
-  '7. slot: tag a question with what it asks about - safety (someone in danger now), injury (someone hurt), injuryCare (needs medical help), weapon, children (children present or involved), recurrence (happened before), priorReport (reported before), act (what was done), context (how it happened), statements (what was said) - or none. Phrase tagged yes/no questions so that YES means the thing is present (e.g. "Is someone in danger right now?").',
+  '7. slot: tag a question with what it asks about - safety (someone in danger now), timing (when it happened / whether it is still happening), injury (someone hurt), injuryCare (needs medical help), weapon, children (children present or involved), recurrence (happened before), priorReport (reported before), act (what was done), context (how it happened), statements (what was said) - or none. Phrase tagged yes/no questions so that YES means the thing is present (e.g. "Is someone in danger right now?").',
   '8. Write the questions in LANGUAGE.',
   '9. understanding: one or two neutral sentences, entirely in LANGUAGE - starting "The report says" in English, or "Ayon sa report," in Filipino; never mix the two. Allegations are not facts; no names.',
   '10. possibleCategories: up to 3 categories from the list the report could fit. missingInformation: up to 4 short phrases in LANGUAGE.',

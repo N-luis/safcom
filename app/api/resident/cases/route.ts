@@ -290,7 +290,9 @@ export async function POST(req: NextRequest) {
     const LEVELS = ['Low', 'Medium', 'High', 'Critical'];
     // An undetermined level is set by the document only through a safety rule
     // it triggers - never by the keyword reading's own guess.
-    const docRule = Boolean(docRead?.classification.hard_rules_applied.some(r => r !== 'H6' && r !== 'H7'));
+    // The same rule as the intake: only a danger or severity rule (H1, H4,
+    // H5) - never who is involved - sets a level the matrix did not.
+    const docRule = Boolean(docRead?.classification.hard_rules_applied.some(r => r === 'H1' || r === 'H4' || r === 'H5'));
     const current = intake.result.riskLevel;
     const riskLevel = docRead && (current ? LEVELS.indexOf(docRead.level) > LEVELS.indexOf(current) : docRule)
       ? docRead.level : current;

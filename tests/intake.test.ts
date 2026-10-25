@@ -32,10 +32,12 @@ const byCategory = ['Domestic Violence', 'Theft & Robbery', 'Noise Complaint', '
 ok('the same level whatever was selected',
   new Set(byCategory.map(r => r.riskLevel)).size === 1, byCategory.map(r => String(r.riskLevel)).join(','));
 ok('it is not the old default "Medium"', byCategory[0].riskLevel !== 'Medium', String(byCategory[0].riskLevel));
-ok('the level is explained by a criterion in the VAWC matrix, not a category',
-  byCategory[0].framework === 'VAWC' && byCategory[0].matrixLevel === 4
-  && byCategory[0].matchedCriteria.some(m => m.indicator === 'Physical assault')
-  && byCategory[0].riskRationale.some(r => /Physical assault/.test(r)),
+// A single push, timing unknown: the VAWC matrix lists "Physical assault"
+// under "Violence Occurring / Imminent", so it is not met until the report
+// says the violence is happening now. This test used to expect Level 4.
+ok('a single push with timing unknown meets no criterion - undetermined, and says what would decide it',
+  byCategory[0].framework === 'VAWC' && byCategory[0].matrixLevel === null && byCategory[0].riskLevel === null
+  && byCategory[0].levelCaveats.some(r => /Physical assault/.test(r) && /Violence Occurring \/ Imminent/.test(r)),
   `${byCategory[0].framework} L${byCategory[0].matrixLevel} ${byCategory[0].matchedCriteria.map(m => m.indicator).join(',')}`);
 ok('completeness is reported separately, as INSUFFICIENT',
   byCategory[0].informationCompleteness === 'INSUFFICIENT');

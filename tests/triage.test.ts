@@ -181,7 +181,10 @@ async function main() {
     const a7 = (c7?.intake?.aiReading as { assessment?: { reporterKnowledge: string; informationSufficient: boolean; essentialMissing: string[] } })?.assessment;
     ok('[7] third-party, heard only -> the AI sufficiency check holds it at NEEDS_FOLLOW_UP', c7?.triageStatus === 'NEEDS_FOLLOW_UP'
       && a7?.reporterKnowledge === 'HEARD' && a7.informationSufficient === false && a7.essentialMissing.length === 2, `${c7?.triageStatus}`);
-    ok('[7] ...its supported level is kept, not lost', c7?.riskLevel === 'High');
+    // The AI's own Level 3 is advisory: the rules found no criterion in these
+    // words, so the level stays undetermined and the AI's reading is named.
+    ok('[7] ...the AI\'s level is shown to the officer, not applied over the documented criteria', c7?.riskLevel === null
+      && (c7?.intake?.reviewReasons as string[]).some(x => /AI assessment: Level 3/.test(x)), `${c7?.riskLevel}`);
 
     console.log('\n3. the urgent path, and failures');
     fake.mode = 'error';

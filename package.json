@@ -27,6 +27,7 @@
     "test:reporter": "npx tsx --env-file=.env --conditions=react-server tests/reporterAccess.test.ts",
     "test:interview": "npx tsx --env-file=.env --conditions=react-server tests/aiInterview.test.ts",
     "test:triage": "npx tsx --env-file=.env --conditions=react-server tests/triage.test.ts",
+    "test:push": "npx tsx --env-file=.env --conditions=react-server tests/pushRegression.test.ts",
     "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
     "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts"
   },
