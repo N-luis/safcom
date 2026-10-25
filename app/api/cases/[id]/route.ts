@@ -46,6 +46,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         // What the resident told the assisted intake, and every assessment
         // the case has had, so an officer sees the trail and not just a level.
         intake: true,
+        // The official intake's state only - never its answers, which are
+        // served (and logged) by /official-intake to those allowed to see them.
+        officialIntake: { select: { id: true, status: true, version: true, updatedAt: true, completedAt: true } },
         assessmentHistory: {
           orderBy: { createdAt: 'asc' },
           include: { actor: { select: { name: true, role: true } } },

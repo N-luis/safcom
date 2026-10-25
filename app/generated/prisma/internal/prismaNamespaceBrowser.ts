@@ -67,7 +67,9 @@ export const ModelName = {
   AssessmentHistory: 'AssessmentHistory',
   RiskMatrixChunk: 'RiskMatrixChunk',
   AiUsage: 'AiUsage',
-  ReporterAccessLog: 'ReporterAccessLog'
+  ReporterAccessLog: 'ReporterAccessLog',
+  OfficialIntake: 'OfficialIntake',
+  OfficialIntakeRevision: 'OfficialIntakeRevision'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -428,6 +430,40 @@ export const ReporterAccessLogScalarFieldEnum = {
 } as const
 
 export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]
+
+
+export const OfficialIntakeScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  status: 'status',
+  version: 'version',
+  formVersion: 'formVersion',
+  responses: 'responses',
+  prefilled: 'prefilled',
+  startedById: 'startedById',
+  updatedById: 'updatedById',
+  completedById: 'completedById',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficialIntakeScalarFieldEnum = (typeof OfficialIntakeScalarFieldEnum)[keyof typeof OfficialIntakeScalarFieldEnum]
+
+
+export const OfficialIntakeRevisionScalarFieldEnum = {
+  id: 'id',
+  intakeId: 'intakeId',
+  version: 'version',
+  status: 'status',
+  responses: 'responses',
+  changedKeys: 'changedKeys',
+  changedById: 'changedById',
+  createdAt: 'createdAt'
+} as const
+
+export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisionScalarFieldEnum)[keyof typeof OfficialIntakeRevisionScalarFieldEnum]
 
 
 export const SortOrder = {

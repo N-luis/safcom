@@ -400,7 +400,9 @@ export const ModelName = {
   AssessmentHistory: 'AssessmentHistory',
   RiskMatrixChunk: 'RiskMatrixChunk',
   AiUsage: 'AiUsage',
-  ReporterAccessLog: 'ReporterAccessLog'
+  ReporterAccessLog: 'ReporterAccessLog',
+  OfficialIntake: 'OfficialIntake',
+  OfficialIntakeRevision: 'OfficialIntakeRevision'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog"
+    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1678,6 +1680,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OfficialIntake: {
+      payload: Prisma.$OfficialIntakePayload<ExtArgs>
+      fields: Prisma.OfficialIntakeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OfficialIntakeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OfficialIntakeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        findFirst: {
+          args: Prisma.OfficialIntakeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OfficialIntakeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        findMany: {
+          args: Prisma.OfficialIntakeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>[]
+        }
+        create: {
+          args: Prisma.OfficialIntakeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        createMany: {
+          args: Prisma.OfficialIntakeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OfficialIntakeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>[]
+        }
+        delete: {
+          args: Prisma.OfficialIntakeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        update: {
+          args: Prisma.OfficialIntakeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        deleteMany: {
+          args: Prisma.OfficialIntakeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OfficialIntakeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OfficialIntakeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>[]
+        }
+        upsert: {
+          args: Prisma.OfficialIntakeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakePayload>
+        }
+        aggregate: {
+          args: Prisma.OfficialIntakeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOfficialIntake>
+        }
+        groupBy: {
+          args: Prisma.OfficialIntakeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficialIntakeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OfficialIntakeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficialIntakeCountAggregateOutputType> | number
+        }
+      }
+    }
+    OfficialIntakeRevision: {
+      payload: Prisma.$OfficialIntakeRevisionPayload<ExtArgs>
+      fields: Prisma.OfficialIntakeRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OfficialIntakeRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OfficialIntakeRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.OfficialIntakeRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OfficialIntakeRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.OfficialIntakeRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.OfficialIntakeRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.OfficialIntakeRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OfficialIntakeRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.OfficialIntakeRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        update: {
+          args: Prisma.OfficialIntakeRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.OfficialIntakeRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OfficialIntakeRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OfficialIntakeRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.OfficialIntakeRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficialIntakeRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.OfficialIntakeRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOfficialIntakeRevision>
+        }
+        groupBy: {
+          args: Prisma.OfficialIntakeRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficialIntakeRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OfficialIntakeRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficialIntakeRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2061,6 +2211,40 @@ export const ReporterAccessLogScalarFieldEnum = {
 export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]
 
 
+export const OfficialIntakeScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  status: 'status',
+  version: 'version',
+  formVersion: 'formVersion',
+  responses: 'responses',
+  prefilled: 'prefilled',
+  startedById: 'startedById',
+  updatedById: 'updatedById',
+  completedById: 'completedById',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficialIntakeScalarFieldEnum = (typeof OfficialIntakeScalarFieldEnum)[keyof typeof OfficialIntakeScalarFieldEnum]
+
+
+export const OfficialIntakeRevisionScalarFieldEnum = {
+  id: 'id',
+  intakeId: 'intakeId',
+  version: 'version',
+  status: 'status',
+  responses: 'responses',
+  changedKeys: 'changedKeys',
+  changedById: 'changedById',
+  createdAt: 'createdAt'
+} as const
+
+export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisionScalarFieldEnum)[keyof typeof OfficialIntakeRevisionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2332,6 +2516,8 @@ export type GlobalOmitConfig = {
   riskMatrixChunk?: Prisma.RiskMatrixChunkOmit
   aiUsage?: Prisma.AiUsageOmit
   reporterAccessLog?: Prisma.ReporterAccessLogOmit
+  officialIntake?: Prisma.OfficialIntakeOmit
+  officialIntakeRevision?: Prisma.OfficialIntakeRevisionOmit
 }
 
 /* Types for Logging */

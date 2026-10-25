@@ -72,6 +72,8 @@ model Case {
   attachments  CaseAttachment[]
   assessment   CaseAssessment?
   intake       CaseIntake?
+  /// The official's intake interview (intake form.pdf), at most one per case.
+  officialIntake OfficialIntake?
   assessmentHistory AssessmentHistory[]
 
   /// How much the report actually tells us: INSUFFICIENT | PARTIAL |
@@ -528,4 +530,52 @@ model ReporterAccessLog {
 
   @@index([caseId, createdAt])
   @@index([actorId, createdAt])
+}
+
+/// The official intake interview for a case, on the barangay's intake form
+/// (lib/officialIntakeForm.ts, from "intake form.pdf"). At most one per case -
+/// starting it again reopens it, never duplicates it. Separate from
+/// CaseIntake, which is what the resident told SafeComm Assist; the original
+/// report is never changed by it.
+model OfficialIntake {
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// The reporter's resident account, taken from the case when the intake
+  /// was started. Null for an anonymous or staff-filed report - never looked
+  /// up by name.
+  residentId  String?
+  /// DRAFT | COMPLETED
+  status      String   @default("DRAFT")
+  /// Rises by one on every save; a save must name the version it edited, so a
+  /// repeated or stale submission cannot overwrite a newer one.
+  version     Int      @default(1)
+  formVersion String
+  /// Item key -> answer (value, "specify" text, or N/A / Unknown / Declined).
+  responses   Json
+  /// Which answers were filled in from records at the start, and from where.
+  prefilled   Json?
+  startedById   String
+  updatedById   String
+  completedById String?
+  completedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  revisions   OfficialIntakeRevision[]
+}
+
+/// Every saved version of an intake, in order. Append-only (database trigger,
+/// prisma/sql/003_official_intake.sql): who changed which items, and when.
+model OfficialIntakeRevision {
+  id          String   @id @default(cuid())
+  intakeId    String
+  intake      OfficialIntake @relation(fields: [intakeId], references: [id], onDelete: Cascade)
+  version     Int
+  status      String
+  responses   Json
+  changedKeys String[]
+  changedById String
+  createdAt   DateTime @default(now())
+
+  @@unique([intakeId, version])
 }

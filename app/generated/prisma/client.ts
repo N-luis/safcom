@@ -154,3 +154,18 @@ export type AiUsage = Prisma.AiUsageModel
  * a deleted case or account.
  */
 export type ReporterAccessLog = Prisma.ReporterAccessLogModel
+/**
+ * Model OfficialIntake
+ * The official intake interview for a case, on the barangay's intake form
+ * (lib/officialIntakeForm.ts, from "intake form.pdf"). At most one per case -
+ * starting it again reopens it, never duplicates it. Separate from
+ * CaseIntake, which is what the resident told SafeComm Assist; the original
+ * report is never changed by it.
+ */
+export type OfficialIntake = Prisma.OfficialIntakeModel
+/**
+ * Model OfficialIntakeRevision
+ * Every saved version of an intake, in order. Append-only (database trigger,
+ * prisma/sql/003_official_intake.sql): who changed which items, and when.
+ */
+export type OfficialIntakeRevision = Prisma.OfficialIntakeRevisionModel

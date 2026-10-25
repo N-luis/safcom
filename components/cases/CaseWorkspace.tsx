@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useState, useMemo,
+  useState, useMemo, useRef, useEffect,
 } from 'react';
 import {
   useRouter,
@@ -26,6 +26,7 @@ import AssessmentReview from '@/components/cases/AssessmentReview';
 import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
+import OfficialIntakeCard from '@/components/cases/OfficialIntakeCard';
 import { triageOf } from '@/lib/triageLabels';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -78,6 +79,8 @@ interface CaseDetail {
   status: string;
   riskLevel: string | null;
   triageStatus?: string | null;
+  /** The official intake's state - never its answers. */
+  officialIntake?: { id: string; status: string; version: number; updatedAt: string; completedAt: string | null } | null;
   barangay: string;
   description: string;
   notes?: string | null;
@@ -134,6 +137,7 @@ const FOLLOWUP_META: Record<string, { label: string; color: string; Icon: typeof
   intervention:   { label: 'Intervention Applied',  color: '#8b5cf6', Icon: Shield },
   evidence:       { label: 'Evidence Added',        color: '#f97316', Icon: FolderOpen },
   status_change:  { label: 'Status Changed',        color: '#22c55e', Icon: Update },
+  intake:         { label: 'Official Intake',       color: '#0ea5e9', Icon: Shield },
 };
 
 function timeAgo(d: string) {
@@ -223,6 +227,8 @@ interface TimelineEntryData {
   createdAt: string;
   followUpId?: string;
   canEdit?: boolean;
+  /** Where the entry's record opens, for those allowed to see it. */
+  href?: string;
 }
 
 function TimelineEntry({
@@ -316,6 +322,12 @@ function TimelineEntry({
           <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6 }}>
             {entry.content}
           </Typography>
+          {entry.href && (
+            <Button size="small" href={entry.href} startIcon={<OpenInNew sx={{ fontSize: 14 }} />}
+              sx={{ mt: 0.5, px: 0, textTransform: 'none', fontWeight: 700, color }}>
+              Open intake
+            </Button>
+          )}
         </Paper>
 
         {/* Intervention outcome */}
@@ -334,13 +346,16 @@ function TimelineEntry({
 
 // ─── Add Follow-Up Form ───────────────────────────────────────────────────────
 
-function AddFollowUpForm({ caseId, currentStatus, onSaved }: {
+function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note', startOpen = false }: {
   caseId: string;
   currentStatus: string;
   onSaved: () => void;
+  /** Opened from a quick action ("Record Investigation Update"...) - remounted with these. */
+  initialType?: string;
+  startOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const [type, setType] = useState('note');
+  const [open, setOpen] = useState(startOpen);
+  const [type, setType] = useState(initialType);
   const [content, setContent] = useState('');
   const [updateStatus, setUpdateStatus] = useState(false);
   const [statusTo, setStatusTo] = useState('');
@@ -673,6 +688,12 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
   const [timelineFilter, setTimelineFilter] = useState<'all' | 'interventions'>('all');
   const [editTarget, setEditTarget] = useState<{ fid: string; content: string; outcome: string } | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
+  // A quick action opens the follow-up composer with its type chosen.
+  const [composer, setComposer] = useState<{ type: string; nonce: number }>({ type: 'note', nonce: 0 });
+  const composerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (composer.nonce > 0) composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [composer.nonce]);
 
   const { data: caseData, isLoading, mutate: revalidate } = useCaseDetail(id) as {
     data: CaseDetail | undefined; isLoading: boolean; mutate: () => void;
@@ -742,19 +763,22 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
     // System activities (exclude follow_up type to avoid duplicates)
     for (const act of caseData.activities ?? []) {
       if (act.type === 'follow_up') continue;
+      const isIntake = act.type === 'intake';
       entries.push({
         id: act.id,
         kind: 'activity',
-        type: 'activity',
+        type: isIntake ? 'intake' : 'activity',
         content: act.message,
         userName: act.user?.name,
         color: act.color,
         createdAt: act.createdAt,
+        // The intake opens through its own page, which checks access again.
+        ...(isIntake && { href: `${basePath}/${id}/intake` }),
       });
     }
 
     return entries.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  }, [caseData, authUser]);
+  }, [caseData, authUser, basePath, id]);
 
   const interventions = timeline.filter(e => e.type === 'intervention');
   const displayTimeline = timelineFilter === 'interventions' ? interventions : timeline;
@@ -909,6 +933,14 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Reporter contact: masked, revealed only after the server allows it */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
 
+          {/* The official intake, and the case's other record types */}
+          <OfficialIntakeCard
+            caseId={id}
+            basePath={basePath}
+            intake={caseData.officialIntake ?? null}
+            onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))}
+          />
+
           {/* AI Assessment */}
           <AIAssessmentCard
             ai={caseData.aiRiskAssessment}
@@ -1006,7 +1038,10 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
               </Box>
 
               {/* Add Follow-Up Form */}
-              <AddFollowUpForm caseId={id} currentStatus={caseData.status} onSaved={onSaved} />
+              <Box ref={composerRef}>
+                <AddFollowUpForm key={composer.nonce} caseId={id} currentStatus={caseData.status} onSaved={onSaved}
+                  initialType={composer.type} startOpen={composer.nonce > 0} />
+              </Box>
 
               {/* Edit inline form */}
               {editTarget && (
