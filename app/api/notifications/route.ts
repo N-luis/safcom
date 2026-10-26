@@ -2,8 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
-import { canSeeVawc } from '@/lib/caseAccess';
-import { VAWC_TYPES } from '@/lib/vawcTypes';
+import { notificationsVisibleTo } from '@/lib/caseAccess';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -22,12 +21,9 @@ export async function GET(req: NextRequest) {
      * Domestic Violence case had been filed, and which number it was. The
      * narrative was already withheld; this withholds the rest.
      */
-    const mine = { OR: [{ userId: auth.user.userId }, { userId: null }] };
-    const caseVisible = canSeeVawc(auth.user.role)
-      ? {}
-      : { OR: [{ caseId: null }, { case: { caseType: { notIn: [...VAWC_TYPES] } } }] };
+    const visible = notificationsVisibleTo(auth.user);
 
-    const where: Record<string, unknown> = { AND: [mine, caseVisible] };
+    const where: Record<string, unknown> = { ...visible };
     if (unreadOnly) where.read = false;
 
     const [notifications, unreadCount] = await Promise.all([
@@ -46,7 +42,7 @@ export async function GET(req: NextRequest) {
       }),
       // Counted the same way, or the badge promises unread notices that the
       // list will not show.
-      prisma.notification.count({ where: { AND: [mine, caseVisible], read: false } }),
+      prisma.notification.count({ where: { ...visible, read: false } }),
     ]);
 
     return successResponse({ notifications, unreadCount });
@@ -91,7 +87,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     await prisma.notification.updateMany({
-      where: { OR: [{ userId: auth.user.userId }, { userId: null }], read: false },
+      where: { ...notificationsVisibleTo(auth.user), read: false },
       data: { read: true },
     });
     return successResponse({ updated: true });

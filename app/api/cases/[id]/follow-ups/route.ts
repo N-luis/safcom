@@ -143,12 +143,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ? `${typeLabels[type] ?? 'Update'} by ${user?.name ?? 'Officer'} — Status: ${statusFrom} → ${statusTo}`
       : `${typeLabels[type] ?? 'Update'} by ${user?.name ?? 'Officer'}: ${content.slice(0, 80)}${content.length > 80 ? '…' : ''}`;
 
+    // Linked to the entry, not only the case: the resident's notice is read
+    // from the entry itself - whole, and only if it was shared - never from
+    // this cut-down log line.
     await prisma.activity.create({
       data: {
         type: 'follow_up',
         message: activityMsg,
-        entityId: id,
-        entityType: 'Case',
+        entityId: followUp.id,
+        entityType: 'CaseFollowUp',
         caseId: id,
         userId: auth.user.userId,
         color: typeColors[type] ?? '#64748b',

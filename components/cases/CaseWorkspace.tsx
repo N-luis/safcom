@@ -7,7 +7,7 @@ import {
   useRouter,
 } from 'next/navigation';
 import {
-  Box, Typography, Card, CardContent, Grid, Chip, Button, IconButton, Divider, LinearProgress, Skeleton, TextField, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper, Collapse, CircularProgress,
+  Box, Typography, Card, CardContent, Grid, Chip, Button, IconButton, Divider, LinearProgress, Skeleton, TextField, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper, Collapse, CircularProgress, Checkbox, FormControlLabel,
 } from '@mui/material';
 import {
   ArrowBack, Add, Save, Edit, Delete, CheckCircle, LocationOn, Person, AccessTime, FolderOpen, Shield, Search, AutoAwesome, Psychology, Notes, Update, Close, OpenInNew,
@@ -41,6 +41,7 @@ interface FollowUp {
   createdAt: string;
   updatedAt: string;
   user?: { id: string; name: string; role: string } | null;
+  visibleToReporter?: boolean;
 }
 
 interface CaseActivity {
@@ -227,6 +228,8 @@ interface TimelineEntryData {
   createdAt: string;
   followUpId?: string;
   canEdit?: boolean;
+  /** An official's entry the reporter can also read. */
+  shared?: boolean;
   /** Where the entry's record opens, for those allowed to see it. */
   href?: string;
 }
@@ -277,6 +280,9 @@ function TimelineEntry({
             {entry.kind === 'follow_up' && meta && (
               <Chip label={meta.label} size="small" sx={{ bgcolor: `${color}18`, color, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
             )}
+            {entry.kind === 'follow_up' && entry.shared && (
+              <Chip label="Shared with reporter" size="small" sx={{ bgcolor: '#f0fdfa', color: '#0f766e', fontWeight: 600, fontSize: '0.72rem', height: 22 }} />
+            )}
             {entry.kind === 'activity' && (
               <Chip label="System" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }} />
             )}
@@ -319,7 +325,7 @@ function TimelineEntry({
           p: 1.25, borderRadius: 1.5, bgcolor: entry.kind === 'filed' ? '#f8fafc' : `${color}05`,
           borderColor: entry.kind === 'activity' ? '#f1f5f9' : `${color}22`,
         }}>
-          <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6 }}>
+          <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
             {entry.content}
           </Typography>
           {entry.href && (
@@ -360,15 +366,18 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note',
   const [updateStatus, setUpdateStatus] = useState(false);
   const [statusTo, setStatusTo] = useState('');
   const [outcome, setOutcome] = useState('');
+  // Internal unless the official chooses otherwise: a working note is not
+  // correspondence, and on a VAWC case it may not be safe to send.
+  const [share, setShare] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const reset = () => { setType('note'); setContent(''); setUpdateStatus(false); setStatusTo(''); setOutcome(''); };
+  const reset = () => { setType('note'); setContent(''); setUpdateStatus(false); setStatusTo(''); setOutcome(''); setShare(false); };
 
   const submit = async () => {
     if (!content.trim()) return;
     setSaving(true);
     try {
-      const payload: Record<string, string> = { type, content: content.trim() };
+      const payload: Record<string, string | boolean> = { type, content: content.trim(), visibleToReporter: share };
       if (updateStatus && statusTo && statusTo !== currentStatus) payload.statusTo = statusTo;
       if (outcome.trim()) payload.outcome = outcome.trim();
 
@@ -487,6 +496,19 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note',
                     </Select>
                   </FormControl>
                 )}
+              </Box>
+
+              <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: share ? '#f0fdfa' : '#f8fafc', border: `1px solid ${share ? '#99f6e4' : '#f1f5f9'}`, mb: 1.5 }}>
+                <FormControlLabel
+                  control={<Checkbox size="small" checked={share} onChange={e => setShare(e.target.checked)} sx={{ py: 0.25 }} />}
+                  label={<Typography sx={{ fontSize: '0.9rem', color: '#374151' }}>Share this entry with the reporter</Typography>}
+                  sx={{ m: 0 }}
+                />
+                <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.25, pl: 3.75 }}>
+                  {share
+                    ? 'The reporter will see this text in full in their notifications and case timeline. Leave out internal notes, evidence details and anything that could put someone at risk.'
+                    : 'Internal: only officials see this entry. If it changes the status, the reporter is told the new status only.'}
+                </Typography>
               </Box>
 
               <Box sx={{ display: 'flex', gap: 1 }}>
@@ -756,6 +778,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
         color: FOLLOWUP_META[fu.type]?.color ?? '#64748b',
         createdAt: fu.createdAt,
         followUpId: fu.id,
+        shared: fu.visibleToReporter,
         canEdit: fu.user?.id === authUser?.userId || authUser?.role === 'admin' || authUser?.role === 'system_admin',
       });
     }

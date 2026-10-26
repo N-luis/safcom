@@ -22,6 +22,7 @@ import {
   useRouter,
 } from 'next/navigation';
 import toast from 'react-hot-toast';
+import NotificationMenu, { MESSAGE_FULL_SX, MESSAGE_PREVIEW_SX } from '@/components/notifications/NotificationMenu';
 
 const TYPE_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ sx?: object }>; label: string }> = {
   info:    { color: '#3b82f6', icon: Info,          label: 'Info' },
@@ -69,10 +70,15 @@ function NotificationDialog({ n, onClose, onOpenCase }: {
   const c = n.case;
 
   return (
+    // scroll="paper": a long message scrolls inside the dialog, and the title
+    // and the buttons stay on screen however long it is.
     <Dialog
-      open onClose={onClose} maxWidth="xs" fullWidth
+      open onClose={onClose} maxWidth="xs" fullWidth scroll="paper"
       aria-labelledby="notification-title"
-      sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}
+      sx={{ '& .MuiDialog-paper': {
+        m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' },
+        maxHeight: { xs: 'calc(100% - 24px)', sm: 'calc(100% - 64px)' }, borderRadius: 3,
+      } }}
     >
       <DialogTitle id="notification-title" sx={{ pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
@@ -83,7 +89,7 @@ function NotificationDialog({ n, onClose, onOpenCase }: {
             <Icon sx={{ fontSize: 19, color: cfg.color }} />
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3, overflowWrap: 'anywhere' }}>
               {n.title}
             </Typography>
             <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
@@ -98,7 +104,7 @@ function NotificationDialog({ n, onClose, onOpenCase }: {
       <DialogContent>
         <Chip label={cfg.label} size="small"
           sx={{ bgcolor: `${cfg.color}18`, color: cfg.color, fontWeight: 700, fontSize: '0.72rem', mb: 1.5 }} />
-        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>
+        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, ...MESSAGE_FULL_SX }}>
           {n.message}
         </Typography>
 
@@ -193,6 +199,14 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
       body: JSON.stringify({ read: true }),
     });
     invalidate();
+  };
+
+  const openNotice = (n: Notif) => { setOpened(n); if (!n.read) markRead(n.id); };
+  // The list only ever holds notices about cases this role may read (the
+  // server filters it), and the case page checks again when it loads.
+  const openCase = (id: string) => {
+    setOpened(null);
+    router.push(`${caseBasePath}/${encodeURIComponent(id)}`);
   };
 
   const markAllRead = async () => {
@@ -314,19 +328,30 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ delay: idx * 0.04 }}
                   >
+                    {/* The notice, and beside it - not inside it - its own
+                        controls: a button inside a button is invalid, and a
+                        click on "mark read" or the menu must not open it. */}
                     <ListItem
-                      component="button"
-                      aria-label={`Open notification: ${n.title}`}
-                      onClick={() => { setOpened(n); if (!n.read) markRead(n.id); }}
+                      disablePadding
                       sx={{
-                        px: { xs: 1.75, sm: 2.5 }, py: { xs: 1.25, sm: 1.75 },
                         bgcolor: n.read ? 'transparent' : `${cfg.color}06`,
                         borderBottom: '1px solid #f1f5f9',
-                        borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-                        width: '100%', textAlign: 'left', font: 'inherit',
-                        cursor: 'pointer', minHeight: 44,
                         transition: 'all 0.15s',
                         '&:hover': { bgcolor: '#f8fafc' },
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                    <Box
+                      component="button"
+                      type="button"
+                      aria-label={`Open notification: ${n.title}`}
+                      onClick={() => openNotice(n)}
+                      sx={{
+                        display: 'flex', flex: 1, minWidth: 0,
+                        pl: { xs: 1.75, sm: 2.5 }, pr: 0.5, py: { xs: 1.25, sm: 1.75 },
+                        border: 'none', bgcolor: 'transparent', color: 'inherit',
+                        textAlign: 'left', font: 'inherit',
+                        cursor: 'pointer', minHeight: 44,
                         '&:focus-visible': { outline: `3px solid ${cfg.color}55`, outlineOffset: -3 },
                         alignItems: 'flex-start',
                       }}
@@ -351,7 +376,7 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
                             <Typography component="span" sx={{
                               fontSize: { xs: '0.9rem', sm: '0.94rem' },
                               fontWeight: n.read ? 500 : 700,
-                              color: '#0c1e46', flex: 1,
+                              color: '#0c1e46', flex: 1, minWidth: 0, overflowWrap: 'anywhere',
                             }}>
                               {n.title}
                             </Typography>
@@ -367,7 +392,7 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
                           <Box component="span" sx={{ display: 'block' }}>
                             <Typography component="span" sx={{
                               fontSize: { xs: '0.86rem', sm: '0.9rem' },
-                              color: '#64748b', lineHeight: 1.5, display: 'block', mb: 0.3,
+                              color: '#64748b', lineHeight: 1.5, mb: 0.3, ...MESSAGE_PREVIEW_SX,
                             }}>
                               {n.message}
                             </Typography>
@@ -383,18 +408,28 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
                           </Box>
                         }
                       />
+                    </Box>
 
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pt: { xs: 1, sm: 1.5 }, pr: { xs: 0.75, sm: 1.5 }, flexShrink: 0 }}>
                       {!n.read && (
                         <Tooltip title="Mark as read">
                           <IconButton
                             size="small"
+                            aria-label={`Mark as read: ${n.title}`}
                             onClick={e => { e.stopPropagation(); markRead(n.id); }}
-                            sx={{ mt: 0.25, ml: 0.5, color: '#cbd5e1', '&:hover': { color: '#22c55e' }, flexShrink: 0 }}
+                            sx={{ color: '#cbd5e1', '&:hover': { color: '#22c55e' } }}
                           >
                             <CheckCircle sx={{ fontSize: 16 }} />
                           </IconButton>
                         </Tooltip>
                       )}
+                      <NotificationMenu
+                        title={n.title}
+                        message={n.message}
+                        onViewMessage={() => openNotice(n)}
+                        onViewCase={n.case ? () => openCase(n.case!.id) : undefined}
+                      />
+                    </Box>
                     </ListItem>
                   </motion.div>
                 );
@@ -421,10 +456,7 @@ export default function NotificationCentre({ caseBasePath }: NotificationCentreP
         <NotificationDialog
           n={opened}
           onClose={() => setOpened(null)}
-          onOpenCase={id => {
-            setOpened(null);
-            router.push(`${caseBasePath}/${id}`);
-          }}
+          onOpenCase={openCase}
         />
       )}
     </Box>

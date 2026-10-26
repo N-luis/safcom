@@ -34,6 +34,20 @@ export function vawcFilter(role: string | undefined | null): Record<string, unkn
   return canSeeVawc(role) ? {} : { caseType: { notIn: [...VAWC_TYPES] } };
 }
 
+/**
+ * The notifications a staff user may see: their own and everyone's, and never
+ * one about a case their role may not read. The list, its unread count, and
+ * marking or deleting one by id all use this, so an id from someone else's
+ * list cannot be acted on.
+ */
+export function notificationsVisibleTo(user: { userId: string; role?: string | null }): Record<string, unknown> {
+  const mine = { OR: [{ userId: user.userId }, { userId: null }] };
+  const caseVisible = canSeeVawc(user.role)
+    ? {}
+    : { OR: [{ caseId: null }, { case: { caseType: { notIn: [...VAWC_TYPES] } } }] };
+  return { AND: [mine, caseVisible] };
+}
+
 /** True when this particular case is one the role may not read. */
 export function isVawcCaseHidden(role: string | undefined | null, caseType: string): boolean {
   return !canSeeVawc(role) && (VAWC_TYPES as readonly string[]).includes(caseType);

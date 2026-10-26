@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { useRouter } from 'next/navigation';
 import { RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY } from '@/lib/notifications';
+import NotificationMenu, { MESSAGE_FULL_SX, MESSAGE_PREVIEW_SX } from '@/components/notifications/NotificationMenu';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -25,6 +26,8 @@ interface UpdateItem {
   caseRiskLevel?: string | null;
   /** Urgency of a barangay announcement. */
   level?: string | null;
+  /** The kind of official entry - "Investigation update" - when it is one. */
+  entryLabel?: string | null;
 }
 
 const ACCENT = '#14b8a6';
@@ -75,6 +78,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
   const isCase = u.source === 'case';
   const facts: [string, string][] = isCase
     ? [
+        ...(u.entryLabel ? [['Update type', u.entryLabel] as [string, string]] : []),
         ...(u.caseNumber ? [['Case number', `#${u.caseNumber}`] as [string, string]] : []),
         ...(u.caseType ? [['Case type', u.caseType] as [string, string]] : []),
         ...(u.caseStatus ? [['Status', u.caseStatus] as [string, string]] : []),
@@ -82,10 +86,15 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
     : [...(u.level ? [['Urgency', LEVEL_LABEL[u.level] ?? u.level] as [string, string]] : [])];
 
   return (
+    // scroll="paper": a long message scrolls inside the dialog, and the title
+    // and the buttons stay on screen however long it is.
     <Dialog
-      open onClose={onClose} maxWidth="xs" fullWidth
+      open onClose={onClose} maxWidth="xs" fullWidth scroll="paper"
       aria-labelledby="notification-title"
-      sx={{ '& .MuiDialog-paper': { m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' }, borderRadius: 3 } }}
+      sx={{ '& .MuiDialog-paper': {
+        m: { xs: 1.5, sm: 4 }, width: { xs: 'calc(100% - 24px)', sm: 'auto' },
+        maxHeight: { xs: 'calc(100% - 24px)', sm: 'calc(100% - 64px)' }, borderRadius: 3,
+      } }}
     >
       <DialogTitle id="notification-title" sx={{ pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
@@ -96,7 +105,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
             <IconComp sx={{ fontSize: 19, color: u.color }} />
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', lineHeight: 1.3, overflowWrap: 'anywhere' }}>
               {u.title}
             </Typography>
             <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>
@@ -114,7 +123,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
           size="small"
           sx={{ bgcolor: `${u.color}14`, color: u.color, fontWeight: 700, fontSize: '0.72rem', mb: 1.5 }}
         />
-        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>
+        <Typography sx={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.65, ...MESSAGE_FULL_SX }}>
           {u.message}
         </Typography>
 
@@ -124,7 +133,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
             {facts.map(([label, value]) => (
               <Box key={label} sx={{ display: 'flex', gap: 1, mb: 0.6, flexWrap: 'wrap' }}>
                 <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8', minWidth: 104 }}>{label}</Typography>
-                <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 700 }}>{value}</Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46', fontWeight: 700, overflowWrap: 'anywhere' }}>{value}</Typography>
               </Box>
             ))}
             {isCase && u.caseRiskLevel && (
@@ -188,6 +197,12 @@ export default function ResidentNotificationsPage() {
 
   const router = useRouter();
   const [opened, setOpened] = useState<UpdateItem | null>(null);
+  // My Cases opens it only if it is in this resident's own list, which the
+  // server builds from their account - an id alone opens nothing.
+  const openCase = (id: string) => {
+    setOpened(null);
+    router.push(`/resident/my-cases?case=${encodeURIComponent(id)}`);
+  };
 
   const { data: updates, isLoading, mutate } = useSWR<UpdateItem[]>('/api/resident/updates?limit=20', fetcher, { refreshInterval: 30000 });
 
@@ -274,6 +289,13 @@ export default function ResidentNotificationsPage() {
                     exit={{ opacity: 0, x: -16 }}
                     transition={{ delay: i * 0.04 }}
                   >
+                    {/* The row holds two controls side by side - the notice
+                        and its menu - so neither sits inside the other. */}
+                    <Box sx={{
+                      display: 'flex', alignItems: 'flex-start',
+                      borderBottom: i < displayed.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      '&:hover': { bgcolor: '#fafbfc' }, transition: 'background 0.15s',
+                    }}>
                     {/* A button, not a div with a click handler: it is reachable
                         by keyboard and announced as actionable. */}
                     <Box
@@ -282,12 +304,10 @@ export default function ResidentNotificationsPage() {
                       onClick={() => setOpened(u)}
                       aria-label={`Open notification: ${u.title}`}
                       sx={{
-                        display: 'flex', gap: 1.75, px: { xs: 1.75, sm: 2.5 }, py: 2,
-                        borderBottom: i < displayed.length - 1 ? '1px solid #f1f5f9' : 'none',
-                        borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-                        bgcolor: 'transparent', width: '100%', textAlign: 'left',
+                        display: 'flex', gap: 1.75, pl: { xs: 1.75, sm: 2.5 }, pr: 1, py: 2,
+                        border: 'none',
+                        bgcolor: 'transparent', flex: 1, minWidth: 0, textAlign: 'left',
                         font: 'inherit', color: 'inherit', cursor: 'pointer', minHeight: 44,
-                        '&:hover': { bgcolor: '#fafbfc' }, transition: 'background 0.15s',
                         '&:focus-visible': { outline: `3px solid ${ACCENT}55`, outlineOffset: -3 },
                         alignItems: 'flex-start',
                       }}>
@@ -304,7 +324,7 @@ export default function ResidentNotificationsPage() {
                             {new Date(u.createdAt).getTime() > lastSeen && (
                               <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: '#ef4444', flexShrink: 0 }} />
                             )}
-                            <Typography sx={{ fontSize: '0.94rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3 }}>
+                            <Typography sx={{ fontSize: '0.94rem', fontWeight: 700, color: '#0c1e46', lineHeight: 1.3, overflowWrap: 'anywhere' }}>
                               {u.title}
                             </Typography>
                           </Box>
@@ -314,17 +334,23 @@ export default function ResidentNotificationsPage() {
                             sx={{ bgcolor: `${u.color}12`, color: u.color, fontWeight: 600, fontSize: '0.72rem', height: 22, flexShrink: 0 }}
                           />
                         </Box>
-                        <Typography sx={{
-                          fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5,
-                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                        }}>
+                        <Typography sx={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.5, ...MESSAGE_PREVIEW_SX }}>
                           {u.message}
                         </Typography>
                         <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.5 }}>
-                          {timeAgo(u.createdAt)}
+                          {u.entryLabel ? `${u.entryLabel} · ` : ''}{timeAgo(u.createdAt)}
                         </Typography>
                       </Box>
-                      <ChevronRight sx={{ fontSize: 18, color: '#cbd5e1', alignSelf: 'center', flexShrink: 0 }} />
+                      <ChevronRight sx={{ fontSize: 18, color: '#cbd5e1', alignSelf: 'center', flexShrink: 0, display: { xs: 'none', sm: 'block' } }} />
+                    </Box>
+                    <Box sx={{ pt: 1.5, pr: { xs: 0.75, sm: 1.5 }, flexShrink: 0 }}>
+                      <NotificationMenu
+                        title={u.title}
+                        message={u.message}
+                        onViewMessage={() => setOpened(u)}
+                        onViewCase={u.caseId ? () => openCase(u.caseId as string) : undefined}
+                      />
+                    </Box>
                     </Box>
                   </motion.div>
                 );
@@ -338,10 +364,7 @@ export default function ResidentNotificationsPage() {
         <NotificationDialog
           u={opened}
           onClose={() => setOpened(null)}
-          onOpenCase={id => {
-            setOpened(null);
-            router.push(`/resident/my-cases?case=${id}`);
-          }}
+          onOpenCase={openCase}
         />
       )}
     </Box>

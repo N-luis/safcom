@@ -13,6 +13,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useNotifications, refreshNotifications } from '@/hooks/useApi';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { MESSAGE_FULL_SX } from '@/components/notifications/NotificationMenu';
 
 const typeConfig = {
   info: { icon: InfoOutlined, color: '#3b82f6', bg: '#3b82f620', label: 'Info' },
@@ -218,7 +219,8 @@ export default function NotificationsPage() {
                                       </Tooltip>
                                     </Box>
                                   </Box>
-                                  <Typography sx={{ fontSize: '0.9rem', mt: 0.3 }} color="text.secondary">
+                                  {/* Shown whole: this page has no detail view to open, so it wraps rather than clamps. */}
+                                  <Typography sx={{ fontSize: '0.9rem', mt: 0.3, ...MESSAGE_FULL_SX }} color="text.secondary">
                                     {n.message as string}
                                   </Typography>
                                   <Chip label={cfg.label} size="small" sx={{ mt: 0.75, height: 22, fontSize: '0.78rem', bgcolor: cfg.bg, color: cfg.color, '& .MuiChip-label': { px: 0.75 } }} />

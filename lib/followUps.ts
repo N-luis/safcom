@@ -74,10 +74,14 @@ export const MAX_NOTE_LENGTH = 1000;
  */
 export function sanitizeNote(raw: string): string {
   return (raw ?? '')
+    .replace(/\r\n?/g, '\n')
     // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '')
     .replace(/[<>]/g, '')
-    .replace(/\s{3,}/g, '  ')
+    // Long runs are collapsed, but a line break is kept: the note is shown
+    // with its own paragraphs, and two blank lines used to erase the break.
+    .replace(/[^\S\n]{3,}/g, '  ')
+    .replace(/(?:[^\S\n]*\n){3,}[^\S\n]*/g, '\n\n')
     .trim()
     .slice(0, MAX_NOTE_LENGTH);
 }

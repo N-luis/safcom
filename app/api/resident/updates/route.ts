@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
+import { RESIDENT_ACTIVITY_TYPES, residentNotice } from '@/lib/notifications';
 
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
@@ -28,11 +29,13 @@ export async function GET(req: NextRequest) {
     const [activities, alerts] = await Promise.all([
       caseIds.length > 0
         ? prisma.activity.findMany({
-            where: { caseId: { in: caseIds } },
+            where: { caseId: { in: caseIds }, type: { in: [...RESIDENT_ACTIVITY_TYPES] } },
             orderBy: { createdAt: 'desc' },
-            take: limit,
+            // Some are internal notes and dropped below; read enough to fill the page.
+            take: limit * 3,
             select: {
               id: true, type: true, message: true, color: true, createdAt: true,
+              entityId: true, entityType: true,
               case: { select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true } },
             },
           })
@@ -55,12 +58,33 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
+    // The official entries those activities are about, read whole. Bound to
+    // this resident's cases as well as to the ids, so a row can only ever
+    // resolve to an entry on a case the caller owns.
+    const entryIds = activities.filter(a => a.entityType === 'CaseFollowUp' && a.entityId).map(a => a.entityId as string);
+    const entries = entryIds.length > 0
+      ? await prisma.caseFollowUp.findMany({
+          where: { id: { in: entryIds }, caseId: { in: caseIds } },
+          select: { id: true, type: true, content: true, statusFrom: true, statusTo: true, visibleToReporter: true, hiddenAt: true },
+        })
+      : [];
+    const entryById = new Map(entries.map(e => [e.id, e]));
+
+    const caseUpdates = activities.flatMap(a => {
+      const linked = a.entityType === 'CaseFollowUp' ? entryById.get(a.entityId ?? '') ?? null : undefined;
+      // Linked to an entry that is not there any more: nothing to tell.
+      if (linked === null) return [];
+      const notice = residentNotice(a, linked);
+      return notice ? [{ ...a, notice }] : [];
+    });
+
     const updates = [
-      ...activities.map(a => ({
+      ...caseUpdates.map(a => ({
         id: a.id,
         source: 'case' as const,
         title: a.case ? `Case #${a.case.caseNumber} Update` : 'Case Update',
-        message: a.message,
+        message: a.notice.message,
+        entryLabel: a.notice.entryLabel,
         color: a.color,
         createdAt: a.createdAt,
         caseType: a.case?.caseType,
@@ -75,6 +99,7 @@ export async function GET(req: NextRequest) {
         source: 'alert' as const,
         title: a.title,
         message: a.message,
+        entryLabel: null,
         color: a.level === 'critical' ? '#ef4444' : a.level === 'warning' ? '#f97316' : '#3b82f6',
         createdAt: a.createdAt,
         caseType: undefined,
