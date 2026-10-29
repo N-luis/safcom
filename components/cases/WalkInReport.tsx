@@ -205,7 +205,7 @@ function StepClassification({ form, setForm }: { form: FormData; setForm: (f: Fo
           <Box>
             <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 0.5 }}>AI Risk Assessment</Typography>
             <Typography sx={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.6 }}>
-              Officers no longer assign the risk level manually. The instant this report is filed, SafComm AI analyzes the incident type, the reporter&apos;s case history, and location hotspot density, then automatically flags it as <Box component="span" sx={{ fontWeight: 700, color: '#4f46e5' }}>Low, Medium, High, or Critical</Box>.
+              Officers no longer assign the risk level manually. The instant this report is filed, SafeComm AI analyzes the incident type, the reporter&apos;s case history, and location hotspot density, then automatically flags it as <Box component="span" sx={{ fontWeight: 700, color: '#4f46e5' }}>Low, Medium, High, or Critical</Box>.
             </Typography>
           </Box>
         </Box>
@@ -241,7 +241,7 @@ function StepReview({ form, caseNumber, subjectLabel }: {
       <Box sx={{ p: 1.5, bgcolor: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <AutoAwesome sx={{ color: '#4f46e5', fontSize: 16 }} />
         <Typography sx={{ fontSize: '0.86rem', color: '#3730a3' }}>
-          Risk level will be automatically assessed by SafComm AI the moment this report is submitted.
+          Risk level will be automatically assessed by SafeComm AI the moment this report is submitted.
         </Typography>
       </Box>
       <Grid container spacing={1.5}>

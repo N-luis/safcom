@@ -77,7 +77,7 @@ export default function ReportsPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `safcom-reports-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `safecomm-reports-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

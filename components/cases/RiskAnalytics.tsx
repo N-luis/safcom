@@ -673,7 +673,7 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
             <Chip label="6-Model Consensus" size="small" sx={{ bgcolor: '#ede9fe', color: '#7c3aed', fontWeight: 700 }} />
           </Box>
           <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>
-            SafComm Rule-Based Ensemble v2.0
+            SafeComm Rule-Based Ensemble v2.0
           </Typography>
           <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mb: 1.5, lineHeight: 1.6 }}>
             6 specialized sub-models independently analyze each case. Risk level is assigned by rule-based consensus — not a simple score threshold. Each decision is fully traceable.

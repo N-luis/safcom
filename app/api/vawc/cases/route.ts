@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
     const filedAt = new Date();
 
     // AI risk assessment — the officer no longer sets the risk level manually;
-    // SafComm AI flags it the moment the case is filed, based on case-type severity,
+    // SafeComm AI flags it the moment the case is filed, based on case-type severity,
     // the incident description, repeat-incident history for this person, and
     // barangay hotspot density.
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

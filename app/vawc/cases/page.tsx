@@ -125,7 +125,7 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
               <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, mb: 0.5 }}>Risk Level</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, height: 40 }}>
                 <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem' }} />
-                <Tooltip title="Risk level is set by SafComm AI and is automatically re-analyzed every time this case is updated — it is not editable manually.">
+                <Tooltip title="Risk level is set by SafeComm AI and is automatically re-analyzed every time this case is updated — it is not editable manually.">
                   <AutoAwesome sx={{ fontSize: 15, color: '#94a3b8' }} />
                 </Tooltip>
               </Box>
@@ -134,7 +134,7 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', p: 1.25, mb: 0.5, borderRadius: 2, border: '1px dashed #c4b5fd', bgcolor: '#faf5ff' }}>
                 <AutoAwesome sx={{ color: ACCENT, fontSize: 16, mt: 0.15 }} />
                 <Typography sx={{ fontSize: '0.82rem', color: '#6d28d9', lineHeight: 1.55 }}>
-                  Saving will trigger SafComm AI to re-analyze and re-flag this case&apos;s risk level based on its updated status, case age, and incident history.
+                  Saving will trigger SafeComm AI to re-analyze and re-flag this case&apos;s risk level based on its updated status, case age, and incident history.
                 </Typography>
               </Box>
             </Grid>

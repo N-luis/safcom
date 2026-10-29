@@ -70,7 +70,7 @@ export default function QuickActions() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `safcom-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `safecomm-export-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

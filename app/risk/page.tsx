@@ -163,7 +163,7 @@ function ModelInfoDialog({ open, onClose }: { open: boolean; onClose: () => void
             <Chip label="Currently Active" color="success" size="small" sx={{ fontWeight: 700 }} />
             <Chip label="No API key required" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.78rem' }} />
           </Box>
-          <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>SafComm Rule-Based Engine v1.0</Typography>
+          <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.5 }}>SafeComm Rule-Based Engine v1.0</Typography>
           <Typography sx={{ fontSize: '0.9rem', color: '#64748b', mb: 1.5, lineHeight: 1.6 }}>
             Transparent, multi-factor weighted scoring running against live PostgreSQL data. Every score is traceable to a specific factor.
           </Typography>

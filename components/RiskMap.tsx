@@ -843,7 +843,7 @@ export default function RiskMap({ cases, areas }: RiskMapProps) {
           </>
         )}
         <Typography sx={{ fontSize: '0.72rem', color: '#cbd5e1', ml: 'auto' }}>
-          © OSM · CARTO · SafComm GeoRisk Engine
+          © OSM · CARTO · SafeComm GeoRisk Engine
         </Typography>
       </Box>
     </Box>

@@ -337,7 +337,7 @@ export default function SettingsPage() {
                       </Box>
                       <Grid container spacing={2}>
                         {[
-                          { label: 'Application', value: 'SafCom Admin Dashboard v1.0.0' },
+                          { label: 'Application', value: 'SafeComm Admin Dashboard v1.0.0' },
                           { label: 'Framework', value: 'Next.js 16 (App Router)' },
                           { label: 'Database', value: 'PostgreSQL (Supabase)' },
                           { label: 'Environment', value: process.env.NODE_ENV === 'production' ? 'Production' : 'Development' },

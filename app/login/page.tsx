@@ -428,7 +428,7 @@ export default function LoginPage() {
             <Box sx={{ width: 40, height: 40, borderRadius: 2, background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(59,130,246,0.4)' }}>
               <Shield sx={{ color: 'white', fontSize: 22 }} />
             </Box>
-            <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1.1rem', lineHeight: 1.1 }}>SafCom</Typography>
+            <Typography sx={{ fontWeight: 800, color: 'white', fontSize: '1.1rem', lineHeight: 1.1 }}>SafeComm</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -485,7 +485,7 @@ export default function LoginPage() {
                   System
                 </Typography>
                 <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.75, mb: 4, maxWidth: 520 }}>
-                  SafCom centralizes incident reporting, case tracking, VAWC management, and AI-powered risk analytics for Barangay Biñang 2nd&apos;s public safety officers — all in one secure platform.
+                  SafeComm centralizes incident reporting, case tracking, VAWC management, and AI-powered risk analytics for Barangay Biñang 2nd&apos;s public safety officers — all in one secure platform.
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 5 }}>
                   <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
@@ -518,7 +518,7 @@ export default function LoginPage() {
                 <Shield sx={{ color: 'white', fontSize: 18 }} />
               </Box>
               <Box>
-                <Typography sx={{ fontWeight: 700, color: 'white', fontSize: '0.98rem' }}>SafCom</Typography>
+                <Typography sx={{ fontWeight: 700, color: 'white', fontSize: '0.98rem' }}>SafeComm</Typography>
                 <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Community Safety Platform</Typography>
               </Box>
             </Box>

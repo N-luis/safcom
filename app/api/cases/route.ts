@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
     const filedAt = new Date();
 
     // AI risk assessment — the blotter officer no longer assigns the risk level manually;
-    // SafComm AI flags it automatically based on incident severity, the incident
+    // SafeComm AI flags it automatically based on incident severity, the incident
     // description, repeat-incident history for this person, and barangay hotspot density.
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const [barangayCaseCount, residentPriorCases] = await Promise.all([
