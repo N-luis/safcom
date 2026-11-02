@@ -1,4 +1,5 @@
 'use client';
+import ContactCopyButton from '@/components/shared/ContactCopyButton';
 
 import { useState, useEffect } from 'react';
 import {
@@ -345,11 +346,11 @@ export default function IntakeAssistant({
               <Typography sx={{ fontSize: '0.82rem', mb: 1 }}>{t.emergencyBody}</Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.25 }}>
                 {EMERGENCY_CONTACTS.map(c => (
-                  <Button key={c.label} size="small" variant="outlined" color="error"
-                    href={`tel:${c.number.replace(/[^\d+]/g, '')}`} startIcon={<Phone sx={{ fontSize: 15 }} />}
+                  <ContactCopyButton key={c.label} name={c.label} number={c.number} size="small" variant="outlined" color="error"
+                    startIcon={<Phone sx={{ fontSize: 15 }} />}
                     sx={{ minHeight: 40, textTransform: 'none', fontWeight: 700 }}>
                     {c.label}: {c.number}
-                  </Button>
+                  </ContactCopyButton>
                 ))}
               </Box>
               <Button variant="contained" color="error" onClick={onSubmitNow} disabled={disabled}

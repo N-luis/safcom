@@ -1,4 +1,5 @@
 'use client';
+import ContactCopyButton from '@/components/shared/ContactCopyButton';
 
 import { useState } from 'react';
 import { Box, Typography, Chip, Button, CircularProgress } from '@mui/material';
@@ -218,11 +219,10 @@ export default function CaseGuidance({
           )}
 
           {/* The number comes from the barangay's settings; without one the
-              button still says what it is for rather than dialling nothing. */}
-          <Button
-            component={hotline ? 'a' : 'button'}
-            href={hotline ? `tel:${hotline.replace(/[^\d+]/g, '')}` : undefined}
-            disabled={!hotline}
+              card says so, and there is nothing to copy. */}
+          <ContactCopyButton
+            name="Barangay Hall"
+            number={hotline}
             variant="outlined"
             startIcon={<Phone aria-hidden sx={{ fontSize: 17 }} />}
             sx={{
@@ -231,8 +231,8 @@ export default function CaseGuidance({
               '&:hover': { borderColor: TEAL, bgcolor: 'transparent' },
             }}
           >
-            {hotline ? `Barangay hall ${hotline}` : 'Barangay hall [hotline number]'}
-          </Button>
+            {hotline ? `Barangay hall ${hotline}` : 'Barangay hall (no number yet)'}
+          </ContactCopyButton>
         </Box>
       </Box>
 

@@ -1,4 +1,5 @@
 'use client';
+import ContactCopyButton from '@/components/shared/ContactCopyButton';
 
 import { Box, Typography, Chip, Button, Alert } from '@mui/material';
 import { Phone, CheckCircle, Schedule, Edit } from '@mui/icons-material';
@@ -82,10 +83,10 @@ export default function SubmissionSummary({ intake, triageStatus, onOpenCases }:
           <Typography sx={{ fontWeight: 700, fontSize: '0.86rem', mb: 0.75 }}>{t.emergency}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
             {EMERGENCY_CONTACTS.map(c => (
-              <Button key={c.label} size="small" variant="outlined" color="error"
-                href={`tel:${c.number.replace(/[^\d+]/g, '')}`} sx={{ minHeight: 40, textTransform: 'none', fontWeight: 700 }}>
+              <ContactCopyButton key={c.label} name={c.label} number={c.number} size="small" variant="outlined" color="error"
+                sx={{ minHeight: 40, textTransform: 'none', fontWeight: 700 }}>
                 {c.label}: {c.number}
-              </Button>
+              </ContactCopyButton>
             ))}
           </Box>
         </Alert>

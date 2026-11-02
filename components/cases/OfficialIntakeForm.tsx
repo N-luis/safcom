@@ -1,4 +1,5 @@
 'use client';
+import ContactCopyButton from '@/components/shared/ContactCopyButton';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -289,7 +290,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1 }}>
                   {EMERGENCY_CONTACTS.map(c => (
-                    <Button key={c.label} size="small" variant="outlined" color="error" href={`tel:${c.number.replace(/[^\d+]/g, '')}`}>{c.label}: {c.number}</Button>
+                    <ContactCopyButton key={c.label} name={c.label} number={c.number} size="small" variant="outlined" color="error">{c.label}: {c.number}</ContactCopyButton>
                   ))}
                 </Box>
                 {editable && <Button variant="contained" color="error" disabled={saving} onClick={() => void save(completed ? 'COMPLETED' : 'DRAFT')}>Save and flag now</Button>}
