@@ -53,6 +53,9 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseParty: 'CaseParty',
+  CaseSafetyAssessment: 'CaseSafetyAssessment',
+  CaseReferral: 'CaseReferral',
   CaseAssessment: 'CaseAssessment',
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
@@ -138,10 +141,75 @@ export const CaseScalarFieldEnum = {
   contactSafetyNote: 'contactSafetyNote',
   reportingRelationship: 'reportingRelationship',
   affectedPersonNote: 'affectedPersonNote',
-  reporterIdentityWithheld: 'reporterIdentityWithheld'
+  reporterIdentityWithheld: 'reporterIdentityWithheld',
+  reportPath: 'reportPath',
+  reportingChannel: 'reportingChannel',
+  incidentDate: 'incidentDate',
+  incidentTimeApprox: 'incidentTimeApprox',
+  witnessInfo: 'witnessInfo'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CasePartyScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  role: 'role',
+  fullName: 'fullName',
+  age: 'age',
+  address: 'address',
+  contactNumber: 'contactNumber',
+  relationship: 'relationship',
+  dependentsAffected: 'dependentsAffected',
+  details: 'details',
+  source: 'source',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CasePartyScalarFieldEnum = (typeof CasePartyScalarFieldEnum)[keyof typeof CasePartyScalarFieldEnum]
+
+
+export const CaseSafetyAssessmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  immediateConcern: 'immediateConcern',
+  dependentsAffected: 'dependentsAffected',
+  urgentAssistance: 'urgentAssistance',
+  medicalNeeded: 'medicalNeeded',
+  shelterNeeded: 'shelterNeeded',
+  policeOrReferralNeeded: 'policeOrReferralNeeded',
+  additionalConcerns: 'additionalConcerns',
+  initialAction: 'initialAction',
+  assistanceProvided: 'assistanceProvided',
+  protectionActions: 'protectionActions',
+  followUpAt: 'followUpAt',
+  version: 'version',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseSafetyAssessmentScalarFieldEnum = (typeof CaseSafetyAssessmentScalarFieldEnum)[keyof typeof CaseSafetyAssessmentScalarFieldEnum]
+
+
+export const CaseReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  agency: 'agency',
+  agencyOther: 'agencyOther',
+  referredAt: 'referredAt',
+  reason: 'reason',
+  status: 'status',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseReferralScalarFieldEnum = (typeof CaseReferralScalarFieldEnum)[keyof typeof CaseReferralScalarFieldEnum]
 
 
 export const CaseAssessmentScalarFieldEnum = {

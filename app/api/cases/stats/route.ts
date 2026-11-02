@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
-import { vawcFilter } from '@/lib/caseAccess';
+import { vawcStatisticsFilter } from '@/lib/caseAccess';
 
 /**
  * Case counts for whoever is asking.
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
 
-  const visible = vawcFilter(auth.user.role);
+  const visible = vawcStatisticsFilter(auth.user.role);
   const wantsVawc = req.nextUrl.searchParams.get('scope') === 'vawc';
   if (wantsVawc && Object.keys(visible).length > 0) {
     return errorResponse('Not found', 404);

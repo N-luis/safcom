@@ -11,6 +11,7 @@ import {
   Divider, ToggleButton, ToggleButtonGroup,
   Dialog, DialogTitle, DialogContent, DialogActions,
   RadioGroup, Radio, FormControlLabel, FormHelperText,
+  FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {
   CheckCircle, Send, ArrowBack,
@@ -32,6 +33,8 @@ import type { AssistState } from '@/components/forms/IntakeAssistant';
 import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import { REPORTING_RELATIONSHIPS, RELATIONSHIP_LABEL, type InterviewTurn, type ReportingRelationship } from '@/lib/interviewTypes';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
+import ReportPeopleFields, { EMPTY_PEOPLE, peoplePayload, type PeopleState } from '@/components/forms/ReportPeopleFields';
+import { REPORT_PATHS, REPORT_PATH_LABEL, INITIAL_CATEGORIES, type ReportPath } from '@/lib/caseRecords';
 
 /**
  * Leaflet reaches for window as it loads, so the picker is never rendered on
@@ -61,6 +64,17 @@ const ACCENT = '#14b8a6';
 // classification matrix (lib/classificationSchema.ts) decides the category on
 // the server, or files it for an officer to classify when it cannot.
 const schema = z.object({
+  // Which form: the Blotter incident report or the confidential VAWC one.
+  // The reporter's first reading - the report's content decides the desk.
+  reportPath: z.string().refine(v => (REPORT_PATHS as readonly string[]).includes(v), 'Choose the kind of report'),
+  // A first guess at the category, if the reporter has one. Never required,
+  // never decisive: the case is filed under what the report describes.
+  initialCategory: z.string().optional(),
+  // When it happened, if known.
+  incidentDate: z.string().optional().refine(v => !v || v <= new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10),
+    'The date cannot be in the future'),
+  incidentTimeApprox: z.string().max(60, 'Keep this short').optional(),
+  witnessInfo: z.string().max(500, 'Keep this under 500 characters').optional(),
   // Who the report is for. Asked first: it changes the questions, and an
   // anonymous report is filed without the reporter's name.
   reportingRelationship: z.string().refine(v => (REPORTING_RELATIONSHIPS as readonly string[]).includes(v),
@@ -93,6 +107,7 @@ export default function ReportCasePage() {
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      reportPath: '', initialCategory: '', incidentDate: '', incidentTimeApprox: '', witnessInfo: '',
       reportingRelationship: '', affectedPersonNote: '',
       description: '', street: '', location: '',
       additionalNotes: '', contactPreference: '', contactSafetyNote: '',
@@ -174,6 +189,11 @@ export default function ReportCasePage() {
   const [intakeTurns, setIntakeTurns] = useState<InterviewTurn[]>([]);
   const relationshipValue = (watch('reportingRelationship') || '') as ReportingRelationship | '';
   const anonymous = relationshipValue === 'ANONYMOUS';
+  const pathValue = (watch('reportPath') || '') as ReportPath | '';
+  // The person affected and the person reported - optional, kept apart.
+  const [people, setPeople] = useState<PeopleState>(EMPTY_PEOPLE);
+  // Today in Philippine time, read once - the latest date the date field allows.
+  const [todayPh] = useState(() => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10));
   const aboutOthers = relationshipValue === 'THIRD_PARTY' || relationshipValue === 'ON_BEHALF';
   // The final look before filing. Skipped by the emergency path.
   const [reviewing, setReviewing] = useState<FormData | null>(null);
@@ -284,6 +304,13 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           intakeTurns,
           reportingRelationship: data.reportingRelationship,
           affectedPersonNote: data.affectedPersonNote?.trim() || undefined,
+          reportPath: data.reportPath,
+          // Context only: the server files it under what the report describes.
+          caseType: data.initialCategory || undefined,
+          incidentDate: data.incidentDate || undefined,
+          incidentTimeApprox: data.incidentTimeApprox?.trim() || undefined,
+          witnessInfo: data.witnessInfo?.trim() || undefined,
+          ...peoplePayload(people, data.reportPath as ReportPath, data.reportingRelationship as ReportingRelationship),
         }),
       });
       const json = await res.json();
@@ -378,7 +405,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         <Divider orientation="vertical" flexItem />
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>File a Report</Typography>
-          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Submit an incident or concern to your barangay</Typography>
+          <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
+            {pathValue ? REPORT_PATH_LABEL[pathValue].title : 'Submit an incident or concern to your barangay'}
+          </Typography>
         </Box>
       </Box>
 
@@ -395,6 +424,50 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               )}
 
               <Box component="form" onSubmit={handleSubmit(data => { setAssistState(null); setReviewing(data); })} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+
+                {/* Which form. Two, because a VAWC report is handled confidentially by
+                    a separate desk; the choice is a first reading, and the barangay
+                    files the report where its content belongs either way. */}
+                <Box>
+                  <Typography id="path-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.5 }}>
+                    What kind of report is this? *
+                  </Typography>
+                  <Controller
+                    name="reportPath"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup aria-labelledby="path-label" value={field.value}
+                        onChange={e => { field.onChange(e.target.value); setValue('initialCategory', ''); }}
+                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0.75 }}>
+                        {REPORT_PATHS.map(pth => (
+                          <FormControlLabel key={pth} value={pth} disabled={isSubmitting || analysing}
+                            control={<Radio size="small" sx={{ '&.Mui-checked': { color: pth === 'VAWC' ? '#7c3aed' : ACCENT } }} />}
+                            label={(
+                              <Box sx={{ py: 0.5 }}>
+                                <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>{REPORT_PATH_LABEL[pth].title}</Typography>
+                                <Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>{REPORT_PATH_LABEL[pth].hint}</Typography>
+                              </Box>
+                            )}
+                            sx={{
+                              m: 0, pr: 1, alignItems: 'flex-start', border: '1px solid',
+                              borderColor: field.value === pth ? (pth === 'VAWC' ? '#7c3aed' : ACCENT) : '#e2e8f0', borderRadius: 2,
+                              bgcolor: field.value === pth ? (pth === 'VAWC' ? '#7c3aed0d' : '#14b8a60d') : 'transparent',
+                            }} />
+                        ))}
+                      </RadioGroup>
+                    )}
+                  />
+                  {errors.reportPath && <FormHelperText error sx={{ mx: 0 }}>{errors.reportPath.message}</FormHelperText>}
+                  <Typography sx={{ fontSize: '0.76rem', color: '#64748b', mt: 0.5 }}>
+                    Not sure? Choose either one. The barangay reads what you write and sends it to the right desk.
+                  </Typography>
+                  {pathValue === 'VAWC' && (
+                    <Alert severity="info" sx={{ mt: 1, borderRadius: 2, fontSize: '0.82rem', bgcolor: '#f5f3ff', color: '#5b21b6', '& .MuiAlert-icon': { color: '#7c3aed' } }}>
+                      This report goes only to the barangay VAWC desk and is kept confidential. You do not need evidence to report,
+                      and you can leave out anything you do not know. If someone is in danger right now, say so - help is not delayed.
+                    </Alert>
+                  )}
+                </Box>
 
                 {/* Who the report is for - the reporter, the person affected and the
                     person responsible are separate roles, and none is assumed. */}
@@ -448,8 +521,14 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   )}
                 </Box>
 
+                {/* The person affected and the person reported - optional, kept apart */}
+                {pathValue && (
+                  <ReportPeopleFields path={pathValue} relationship={relationshipValue} value={people} onChange={setPeople}
+                    disabled={isSubmitting || analysing} />
+                )}
+
                 {/* What happened, in the resident's own words. This is what the case is
-                    classified from - there is no category to pick. */}
+                    classified from - a category picked below is only a first guess. */}
                 <Box>
                   <TextField
                     label="What happened? *"
@@ -459,6 +538,45 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     helperText={errors.description?.message || `${descLen}/800 characters`}
                     fullWidth multiline rows={5}
                     slotProps={{ htmlInput: { maxLength: 800 } }}
+                  />
+                </Box>
+
+                {/* A first guess at the category, and when it happened - all optional */}
+                {pathValue && (
+                  <Controller
+                    name="initialCategory"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="initial-category">{pathValue === 'VAWC' ? 'Type of incident (optional)' : 'Incident category (optional)'}</InputLabel>
+                        <Select labelId="initial-category" label={pathValue === 'VAWC' ? 'Type of incident (optional)' : 'Incident category (optional)'}
+                          value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} disabled={isSubmitting || analysing}>
+                          <MenuItem value="">I am not sure</MenuItem>
+                          {INITIAL_CATEGORIES[pathValue].map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                        </Select>
+                        <FormHelperText sx={{ mx: 0 }}>Only a first guess - the barangay confirms the category from what you wrote.</FormHelperText>
+                      </FormControl>
+                    )}
+                  />
+                )}
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                  <TextField
+                    label="When did it happen? (optional)"
+                    type="date"
+                    {...register('incidentDate')}
+                    error={!!errors.incidentDate}
+                    helperText={errors.incidentDate?.message ?? 'Leave blank if you are not sure'}
+                    size="small"
+                    slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayPh } }}
+                  />
+                  <TextField
+                    label="About what time? (optional)"
+                    placeholder="e.g. around 9 PM, early morning"
+                    {...register('incidentTimeApprox')}
+                    error={!!errors.incidentTimeApprox}
+                    helperText={errors.incidentTimeApprox?.message ?? 'An estimate is fine'}
+                    size="small"
+                    slotProps={{ htmlInput: { maxLength: 60 } }}
                   />
                 </Box>
 
@@ -535,6 +653,16 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   placeholder="e.g. near the covered court, in front of Block 7"
                   {...register('location')}
                   fullWidth
+                />
+
+                <TextField
+                  label="Witnesses (optional)"
+                  placeholder="Who else saw or heard it, if anyone - you do not need their names"
+                  {...register('witnessInfo')}
+                  error={!!errors.witnessInfo}
+                  helperText={errors.witnessInfo?.message}
+                  fullWidth size="small"
+                  slotProps={{ htmlInput: { maxLength: 500 } }}
                 />
 
                 {/* Additional notes */}
@@ -641,7 +769,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               <IntakeAssistant
                 autoStart
                 narrative={reviewing.description}
-                selectedCategory=""
+                selectedCategory={reviewing.initialCategory ?? ''}
                 street={reviewing.street}
                 answers={intakeAnswers}
                 onAnswersChange={setIntakeAnswers}
@@ -656,6 +784,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               />
               <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                 {([
+                  ['Form', REPORT_PATH_LABEL[(reviewing.reportPath || 'BLOTTER') as ReportPath].title],
                   ['Reporting for', RELATIONSHIP_LABEL[(reviewing.reportingRelationship || 'SELF') as ReportingRelationship].en],
                   ['Street', reviewing.street],
                   ['Photos', String(photos.length)],

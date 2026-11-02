@@ -14,14 +14,33 @@
 import { VAWC_TYPES } from './vawcTypes';
 
 /**
- * Roles the VAWC module is open to, matching the gate in proxy.ts. The captain
- * and the system administrator oversee both modules; a blotter officer does
- * not.
+ * Roles that may open a VAWC case - its narrative, its people, its photos.
+ *
+ * The VAWC desk, and the Punong Barangay ('admin'), who issues Barangay
+ * Protection Orders under RA 9262 and so has to be able to read the case.
+ * Not the system administrator: that is an IT role, and keeping the system
+ * running is no reason to read a survivor's account. A blotter officer does
+ * not either.
  */
-const VAWC_ROLES = ['vawc_officer', 'vawc', 'vawc_lead', 'admin', 'system_admin'];
+const VAWC_ROLES = ['vawc_officer', 'vawc', 'vawc_lead', 'admin'];
 
 export function canSeeVawc(role: string | undefined | null): boolean {
   return VAWC_ROLES.includes((role ?? '').trim());
+}
+
+/**
+ * Roles that may see VAWC numbers - counts, trends, totals by area - without
+ * any case behind them. The system administrator monitors the system as a
+ * whole, so the caseload is visible to them in aggregate; an endpoint that
+ * returns rows uses canSeeVawc instead.
+ */
+export function canSeeVawcStatistics(role: string | undefined | null): boolean {
+  return canSeeVawc(role) || (role ?? '').trim() === 'system_admin';
+}
+
+/** vawcFilter, for an endpoint that returns counts only. */
+export function vawcStatisticsFilter(role: string | undefined | null): Record<string, unknown> {
+  return canSeeVawcStatistics(role) ? {} : { caseType: { notIn: [...VAWC_TYPES] } };
 }
 
 /**

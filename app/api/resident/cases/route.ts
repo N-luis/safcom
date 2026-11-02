@@ -14,6 +14,9 @@ import { MAX_UNCLEAR_WORDS, type Transcription } from '@/lib/transcription';
 import { runIntake, answersSchema, relationshipSchema, turnsSchema, transcript, NARRATIVE_MAX } from '@/lib/intakeServer';
 import { ANONYMOUS_NAME, type InterviewTurn } from '@/lib/interviewTypes';
 import { triageStatusFor } from '@/lib/intake';
+import {
+  REPORT_PATHS, REPORT_PATH_LABEL, pathOfType, incidentDateSchema, affectedPartySchema, reportedPartySchema, hasPartyDetails,
+} from '@/lib/caseRecords';
 
 /**
  * Fields only the server sets. A report that carries any of them is refused
@@ -24,6 +27,8 @@ const SERVER_ONLY_FIELDS = [
   'riskLevel', 'matrixLevel', 'matrixLabel', 'status', 'triageStatus', 'assessmentStatus', 'classificationStatus',
   'informationCompleteness', 'informationSufficient', 'requiresOfficerReview', 'urgentReview', 'assessment',
   'aiAssessment', 'suggestedCategory', 'assignedToId', 'riskBasis',
+  // Officer-only records: never accepted from a resident.
+  'reportingChannel', 'safetyAssessment', 'referrals', 'parties',
 ];
 
 const createSchema = z.object({
@@ -74,6 +79,19 @@ const createSchema = z.object({
   // The AI interview as asked and answered. The resident's own statements;
   // re-read on the server, never taken as a classification.
   intakeTurns: turnsSchema,
+  // Which form they used - Blotter or VAWC. A first reading, like the
+  // category below: the report's own content decides, and a disagreement is
+  // put to an officer.
+  reportPath: z.enum(REPORT_PATHS).optional(),
+  // When it happened, if they know. Never required.
+  incidentDate: incidentDateSchema,
+  incidentTimeApprox: z.string().trim().max(60).optional(),
+  witnessInfo: z.string().trim().max(500).optional(),
+  // The person affected and the person reported, as far as the reporter
+  // knows - each field optional, each person stored on their own, and never
+  // matched to a resident record by name.
+  affectedParty: affectedPartySchema.optional(),
+  reportedParty: reportedPartySchema.optional(),
 });
 
 
@@ -299,6 +317,14 @@ export async function POST(req: NextRequest) {
     const classification = docRead?.classification ?? intake.classification;
     const ir = intake.result;
 
+    // The form chosen and the desk the report reads as can differ - someone
+    // may not know a partner's violence is a VAWC matter. The report is filed
+    // where its content puts it; the difference is for an officer to see.
+    const chosenPath = parsed.data.reportPath ?? null;
+    const pathMismatch = chosenPath && chosenPath !== pathOfType(caseType)
+      ? `Filed on the ${REPORT_PATH_LABEL[chosenPath].title} form, but the report reads as a ${pathOfType(caseType) === 'VAWC' ? 'VAWC' : 'Blotter'} matter (${caseType}); confirm the desk`
+      : null;
+
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
     const newCase = await createWithCaseNumber('SC', caseNumber =>
@@ -317,7 +343,7 @@ export async function POST(req: NextRequest) {
           status: 'Open',
           riskLevel,
           informationCompleteness: ir.informationCompleteness,
-          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY',
+          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || Boolean(pathMismatch),
           triageStatus,
           language: detected.language,
           ...pin,
@@ -327,10 +353,26 @@ export async function POST(req: NextRequest) {
           // No way to be contacted is kept for an anonymous report.
           contactPreference: anonymous ? null : parsed.data.contactPreference ?? null,
           contactSafetyNote: anonymous ? null : parsed.data.contactSafetyNote || null,
+          reportPath: parsed.data.reportPath ?? null,
+          reportingChannel: 'ONLINE',
+          incidentDate: parsed.data.incidentDate ? new Date(`${parsed.data.incidentDate}T00:00:00Z`) : null,
+          incidentTimeApprox: parsed.data.incidentTimeApprox || null,
+          witnessInfo: parsed.data.witnessInfo || null,
         },
       }),
     );
     const caseNumber = newCase.caseNumber;
+
+    // The person affected and the person reported, each a record of its own.
+    // Reporting for yourself, you are the person affected: what is asked then
+    // is only whether children or dependents are affected.
+    const parties = [
+      ...(hasPartyDetails(parsed.data.affectedParty) ? [{ role: 'AFFECTED', ...parsed.data.affectedParty }] : []),
+      ...(hasPartyDetails(parsed.data.reportedParty) ? [{ role: 'REPORTED', ...parsed.data.reportedParty }] : []),
+    ];
+    if (parties.length) {
+      await prisma.caseParty.createMany({ data: parties.map(p => ({ ...p, caseId: newCase.id, source: 'reporter' })) });
+    }
 
     // The resident's photos first, on their own: they are evidence, and they
     // must survive even if the assessment below cannot be written.
@@ -340,11 +382,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview;
+    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || Boolean(pathMismatch);
     const reviewReasons = [
       ...evidence.reviewReasons,
       ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
       ...ir.reviewReasons,
+      ...(pathMismatch ? [pathMismatch] : []),
     ].filter((r, i, all) => all.indexOf(r) === i);
 
     // The level the case was actually stored at, not the one the weighted

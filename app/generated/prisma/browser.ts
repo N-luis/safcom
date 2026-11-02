@@ -28,6 +28,27 @@ export type User = Prisma.UserModel
  */
 export type Case = Prisma.CaseModel
 /**
+ * Model CaseParty
+ * A person the report is about, other than the reporter: the person affected
+ * (AFFECTED) and the person reported (REPORTED). Kept apart from the
+ * reporter's account and never linked to a resident by matching names - the
+ * three may be the same person, or not, and only what was said is recorded.
+ */
+export type CaseParty = Prisma.CasePartyModel
+/**
+ * Model CaseSafetyAssessment
+ * The officer's initial safety assessment. Officer-only; one per case, and
+ * every save is also kept as an AssessmentHistory row (kind safety_assessment)
+ * so an earlier answer is never lost. Answers are yes | no | unknown.
+ */
+export type CaseSafetyAssessment = Prisma.CaseSafetyAssessmentModel
+/**
+ * Model CaseReferral
+ * A referral to another office - PNP Women and Children Protection Desk,
+ * social welfare, health, legal aid, or (blotter only) the Lupon.
+ */
+export type CaseReferral = Prisma.CaseReferralModel
+/**
  * Model CaseAssessment
  * *
  *  * The AI-assisted triage stored with the case, so an officer sees what the

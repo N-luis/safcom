@@ -20,13 +20,15 @@ const createSchema = z.object({
   barangay: z.string().min(1),
   description: z.string().min(10),
   notes: z.string().optional(),
+  // How it reached the desk; an officer filing it was there, so walk-in by default.
+  reportingChannel: z.enum(['WALK_IN', 'PHONE', 'REFERRAL', 'OTHER']).default('WALK_IN'),
 });
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
 
-  // The VAWC desk, the captain and the system administrator - nobody else.
+  // The VAWC desk and the captain - nobody else (lib/caseAccess).
   // These endpoints sit outside the /vawc prefix the proxy gates by role, so
   // without this a blotter officer's own session read every survivor
   // narrative straight from the API. 404 rather than 403: whether a VAWC case
@@ -107,7 +109,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
 
-  // The VAWC desk, the captain and the system administrator - nobody else.
+  // The VAWC desk and the captain - nobody else (lib/caseAccess).
   // These endpoints sit outside the /vawc prefix the proxy gates by role, so
   // without this a blotter officer's own session read every survivor
   // narrative straight from the API. 404 rather than 403: whether a VAWC case
@@ -158,6 +160,7 @@ export async function POST(req: NextRequest) {
     const newCase = await prisma.case.create({
       data: {
         caseNumber, residentName, caseType, barangay, description,
+        reportingChannel: parsed.data.reportingChannel,
         riskLevel: prelim.riskLevel, status: 'Open', triageStatus: triageStatusFor(prelim),
         informationCompleteness: prelim.informationCompleteness,
         requiresOfficerReview: prelim.requiresOfficerReview,

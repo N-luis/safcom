@@ -1,0 +1,144 @@
+'use client';
+
+import { useState } from 'react';
+import { Box, Typography, TextField, Button, Collapse, RadioGroup, Radio, FormControlLabel } from '@mui/material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { ANSWER_LABEL, YES_NO_UNKNOWN, type ReportPath } from '@/lib/caseRecords';
+import type { ReportingRelationship } from '@/lib/interviewTypes';
+
+/**
+ * The person affected and the person reported, as far as the reporter knows.
+ *
+ * Every field is optional and folded away until asked for: a report is never
+ * held back for a name the reporter does not know, and nobody should be
+ * pushed to find out. The reporter, the person affected and the person
+ * reported are separate - nothing here assumes one is another.
+ */
+
+export interface PeopleState {
+  affected: { fullName: string; age: string; address: string; contactNumber: string; relationship: string; dependentsAffected: string; details: string };
+  reported: { fullName: string; age: string; address: string; relationship: string; details: string };
+}
+
+export const EMPTY_PEOPLE: PeopleState = {
+  affected: { fullName: '', age: '', address: '', contactNumber: '', relationship: '', dependentsAffected: '', details: '' },
+  reported: { fullName: '', age: '', address: '', relationship: '', details: '' },
+};
+
+const clean = (o: Record<string, string>) => {
+  const out: Record<string, string | number> = {};
+  for (const [k, v] of Object.entries(o)) {
+    const t = v.trim();
+    if (!t) continue;
+    out[k] = k === 'age' ? Number(t) : t;
+  }
+  return Object.keys(out).length ? out : undefined;
+};
+
+/**
+ * What the server receives: only what was filled in, and only what the form
+ * as finally chosen asks - details typed before switching to "for myself", or
+ * from the VAWC form to the Blotter one, are not sent.
+ */
+export function peoplePayload(p: PeopleState, path: ReportPath, relationship: ReportingRelationship | '') {
+  const affected = relationship === 'SELF'
+    ? { ...EMPTY_PEOPLE.affected, dependentsAffected: path === 'VAWC' ? p.affected.dependentsAffected : '' }
+    : { ...p.affected, ...(path !== 'VAWC' && { contactNumber: '', dependentsAffected: '' }) };
+  return { affectedParty: clean(affected), reportedParty: clean(p.reported) };
+}
+
+export default function ReportPeopleFields({ path, relationship, value, onChange, disabled }: {
+  path: ReportPath;
+  relationship: ReportingRelationship | '';
+  value: PeopleState;
+  onChange: (next: PeopleState) => void;
+  disabled?: boolean;
+}) {
+  const [openAffected, setOpenAffected] = useState(false);
+  const [openReported, setOpenReported] = useState(false);
+  const vawc = path === 'VAWC';
+  const self = relationship === 'SELF';
+  const setA = (k: keyof PeopleState['affected']) => (e: { target: { value: string } }) =>
+    onChange({ ...value, affected: { ...value.affected, [k]: e.target.value } });
+  const setR = (k: keyof PeopleState['reported']) => (e: { target: { value: string } }) =>
+    onChange({ ...value, reported: { ...value.reported, [k]: e.target.value } });
+  const affectedName = vawc ? 'the victim-survivor' : 'the person affected';
+  const toggle = (open: boolean, set: (v: boolean) => void, text: string) => (
+    <Button size="small" onClick={() => set(!open)} aria-expanded={open} disabled={disabled}
+      endIcon={open ? <ExpandLess /> : <ExpandMore />}
+      sx={{ px: 0, textTransform: 'none', fontWeight: 700, color: '#0f766e', minHeight: 40, justifyContent: 'flex-start' }}>
+      {text}
+    </Button>
+  );
+  const ageProps = { htmlInput: { min: 0, max: 120, inputMode: 'numeric' as const } };
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+      <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>
+        People involved (optional)
+      </Typography>
+      <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+        Share only what you already know. You do not need names, and you should not put yourself at risk to find anything out.
+      </Typography>
+
+      {/* Reporting for yourself: you are the person affected. Only the
+          children question is asked, and only on the VAWC form. */}
+      {self && vawc && (
+        <Box sx={{ mt: 0.5 }}>
+          <Typography id="dependents-self" sx={{ fontSize: '0.84rem', color: '#334155' }}>Are any children or dependents affected?</Typography>
+          <RadioGroup row aria-labelledby="dependents-self" value={value.affected.dependentsAffected}
+            onChange={e => onChange({ ...value, affected: { ...value.affected, dependentsAffected: e.target.value } })}>
+            {YES_NO_UNKNOWN.map(a => <FormControlLabel key={a} value={a} disabled={disabled} control={<Radio size="small" />}
+              label={a === 'unknown' ? 'Not sure' : ANSWER_LABEL[a]} />)}
+          </RadioGroup>
+        </Box>
+      )}
+
+      {!self && (
+        <>
+          {toggle(openAffected, setOpenAffected, `Add details about ${affectedName}`)}
+          <Collapse in={openAffected}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 120px' }, gap: 1.25, pb: 1 }}>
+              <TextField size="small" label="Full name, if known" value={value.affected.fullName} onChange={setA('fullName')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} />
+              <TextField size="small" label="Age, if known" type="number" value={value.affected.age} onChange={setA('age')} disabled={disabled} slotProps={ageProps} />
+              <TextField size="small" label="Address, if needed" value={value.affected.address} onChange={setA('address')} disabled={disabled}
+                slotProps={{ htmlInput: { maxLength: 200 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+              {vawc && (
+                <TextField size="small" label="Their contact number - only if it is safe to use" value={value.affected.contactNumber} onChange={setA('contactNumber')}
+                  disabled={disabled} slotProps={{ htmlInput: { maxLength: 40, inputMode: 'tel' } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+              )}
+              <TextField size="small" label="Who are they to you?" placeholder="e.g. neighbour, sister, co-worker" value={value.affected.relationship}
+                onChange={setA('relationship')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+              {vawc && (
+                <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
+                  <Typography id="dependents-other" sx={{ fontSize: '0.84rem', color: '#334155' }}>Are any children or dependents affected?</Typography>
+                  <RadioGroup row aria-labelledby="dependents-other" value={value.affected.dependentsAffected}
+                    onChange={e => onChange({ ...value, affected: { ...value.affected, dependentsAffected: e.target.value } })}>
+                    {YES_NO_UNKNOWN.map(a => <FormControlLabel key={a} value={a} disabled={disabled} control={<Radio size="small" />}
+                      label={a === 'unknown' ? 'Not sure' : ANSWER_LABEL[a]} />)}
+                  </RadioGroup>
+                </Box>
+              )}
+              <TextField size="small" label="Anything else that may help (optional)" multiline minRows={2} value={value.affected.details}
+                onChange={setA('details')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 500 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+            </Box>
+          </Collapse>
+        </>
+      )}
+
+      {toggle(openReported, setOpenReported, vawc ? 'Add details about the person reported (the person who did this)' : 'Add details about the person reported')}
+      <Collapse in={openReported}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 120px' }, gap: 1.25, pb: 1 }}>
+          <TextField size="small" label="Full name, if known" value={value.reported.fullName} onChange={setR('fullName')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} />
+          <TextField size="small" label="Age, if known" type="number" value={value.reported.age} onChange={setR('age')} disabled={disabled} slotProps={ageProps} />
+          <TextField size="small" label="Address, if known" value={value.reported.address} onChange={setR('address')} disabled={disabled}
+            slotProps={{ htmlInput: { maxLength: 200 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+          <TextField size="small" label={`Who are they to ${self ? 'you' : affectedName}?`} placeholder={vawc ? 'e.g. husband, ex-partner, father' : 'e.g. neighbour, stranger'}
+            value={value.reported.relationship} onChange={setR('relationship')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+          <TextField size="small" label="Anything else that may help (optional)" multiline minRows={2} value={value.reported.details}
+            onChange={setR('details')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 500 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+        </Box>
+      </Collapse>
+    </Box>
+  );
+}

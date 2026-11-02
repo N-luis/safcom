@@ -5,7 +5,7 @@
  * endpoints - is in the commit that added the gate. These are the rules it
  * rests on, so a role added later cannot quietly inherit access.
  */
-import { canSeeVawc, vawcFilter, isVawcCaseHidden } from '../lib/caseAccess';
+import { canSeeVawc, vawcFilter, isVawcCaseHidden, canSeeVawcStatistics, vawcStatisticsFilter } from '../lib/caseAccess';
 import { VAWC_TYPES } from '../lib/vawcTypes';
 
 let pass = 0; const fails: string[] = [];
@@ -14,9 +14,18 @@ function ok(label: string, cond: boolean, extra = '') {
   console.log(`  ${cond ? 'PASS' : 'FAIL'}  ${label}${cond ? '' : '  ' + extra}`);
 }
 
-console.log('1. the VAWC desk, the captain and the administrator may read them');
-(['vawc_officer', 'vawc', 'vawc_lead', 'admin', 'system_admin'] as const)
+console.log('1. the VAWC desk and the captain may read them');
+(['vawc_officer', 'vawc', 'vawc_lead', 'admin'] as const)
   .forEach(r => ok(`"${r}" may`, canSeeVawc(r)));
+
+console.log('\n1b. the system administrator may not read them, only count them');
+ok('"system_admin" may not read a VAWC case', !canSeeVawc('system_admin'));
+ok('"system_admin" gets the VAWC filter on lists', Object.keys(vawcFilter('system_admin')).length > 0);
+ok('"system_admin" may see VAWC statistics', canSeeVawcStatistics('system_admin'));
+ok('statistics count every case for them', Object.keys(vawcStatisticsFilter('system_admin')).length === 0);
+ok('a blotter officer may not see VAWC statistics', !canSeeVawcStatistics('officer'));
+ok('nor count them', Object.keys(vawcStatisticsFilter('officer')).length > 0);
+ok('the VAWC desk may see the statistics too', canSeeVawcStatistics('vawc_officer'));
 
 console.log('\n2. the blotter desk may not');
 (['officer', 'blotter_officer'] as const).forEach(r => ok(`"${r}" may not`, !canSeeVawc(r)));

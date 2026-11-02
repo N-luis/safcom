@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { canSeeVawc } from '@/lib/caseAccess';
+import { canSeeVawcStatistics } from '@/lib/caseAccess';
 import {
   matchStreet, levelFromRisks,
   type StreetRisk, type StreetRiskResponse,
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
    * which includes them - was enough to get VAWC street counts back. Anyone
    * not on that desk is held to the blotter caseload whatever they ask for.
    */
-  const maySeeVawc = canSeeVawc(auth.user.role);
+  const maySeeVawc = canSeeVawcStatistics(auth.user.role);
   const scope = maySeeVawc ? requested : 'blotter';
 
   const where =

@@ -19,6 +19,8 @@ const createSchema = z.object({
   notes: z.string().optional(),
   assignedToId: z.string().optional(),
   residentId: z.string().optional(),
+  // How it reached the desk; an officer filing it was there, so walk-in by default.
+  reportingChannel: z.enum(['WALK_IN', 'PHONE', 'REFERRAL', 'OTHER']).default('WALK_IN'),
 });
 
 export async function GET(req: NextRequest) {

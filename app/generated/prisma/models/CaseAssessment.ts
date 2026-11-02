@@ -1036,7 +1036,8 @@ export type $CaseAssessmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     summary: string
     reason: string
     /**
-     * * Detected factors and generated recommendations, as produced.
+     * *
+     *    * Detected factors and generated recommendations, as produced.
      */
     detail: runtime.JsonValue
     assessedAt: Date

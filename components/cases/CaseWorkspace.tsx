@@ -26,6 +26,9 @@ import AssessmentReview from '@/components/cases/AssessmentReview';
 import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
+import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
+import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
+import { caseNumberLabel } from '@/lib/caseRecords';
 import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
 import { triageOf } from '@/lib/triageLabels';
 
@@ -638,6 +641,9 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
         {/* The category is decided here, before the reading behind it. */}
         <CategoryReview caseId={caseId} caseType={caseType} basePath={basePath} onChanged={onReviewed} />
 
+        {/* The official assessment and every AI one, apart; re-run from here */}
+        <AiAssessmentHistory caseId={caseId} onChanged={onReviewed} />
+
         <IntakeReviewPanel intake={intake} history={history} />
 
 
@@ -848,6 +854,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </IconButton>
           </Tooltip>
           <Box>
+            <Typography sx={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {caseNumberLabel(caseData.caseType)}
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap' }}>
               <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>
                 #{caseData.caseNumber}
@@ -957,6 +966,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
           {/* Reporter contact: masked, revealed only after the server allows it */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
+
+          {/* Report details, the people in it, safety assessment, referrals - officer-only */}
+          <CaseRecordsPanel caseId={id} onChanged={onSaved} />
 
           {/* The case's other record types; the intake is at the top right */}
           <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />

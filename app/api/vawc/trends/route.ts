@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { canSeeVawc } from '@/lib/caseAccess';
+import { canSeeVawcStatistics } from '@/lib/caseAccess';
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -21,12 +21,12 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
 
-  // The VAWC desk, the captain and the system administrator - nobody else.
+  // The VAWC desk and the captain; the system administrator for the counts only.
   // These endpoints sit outside the /vawc prefix the proxy gates by role, so
   // without this a blotter officer's own session read every survivor
   // narrative straight from the API. 404 rather than 403: whether a VAWC case
   // exists is itself part of what is being kept.
-  if (!canSeeVawc(auth.user.role)) return errorResponse('Not found', 404);
+  if (!canSeeVawcStatistics(auth.user.role)) return errorResponse('Not found', 404);
 
   const period = req.nextUrl.searchParams.get('period') === '12' ? 12 : 6;
 

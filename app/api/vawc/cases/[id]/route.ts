@@ -17,7 +17,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const auth = await requireAuth(_req);
   if ('status' in auth) return auth;
 
-  // The VAWC desk, the captain and the system administrator - nobody else.
+  // The VAWC desk and the captain - nobody else (lib/caseAccess).
   // These endpoints sit outside the /vawc prefix the proxy gates by role, so
   // without this a blotter officer's own session read every survivor
   // narrative straight from the API. 404 rather than 403: whether a VAWC case
@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
 
-  // The VAWC desk, the captain and the system administrator - nobody else.
+  // The VAWC desk and the captain - nobody else (lib/caseAccess).
   // These endpoints sit outside the /vawc prefix the proxy gates by role, so
   // without this a blotter officer's own session read every survivor
   // narrative straight from the API. 404 rather than 403: whether a VAWC case

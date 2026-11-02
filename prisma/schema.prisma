@@ -8,34 +8,34 @@ datasource db {
 }
 
 model User {
-  id               String     @id @default(cuid())
-  email            String     @unique
-  username         String?    @unique
-  name             String
-  password         String
-  role             String     @default("officer")
-  barangay         String?
-  phone            String?
-  avatar           String?
-  active           Boolean    @default(true)
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  assignedCases    Case[]         @relation("AssignedOfficer")
-  overriddenAssessments CaseAssessment[] @relation("AssessmentOverride")
-  createdReports   Report[]
-  activities       Activity[]
-  sentMessages     Message[]      @relation("SentMessages")
-  receivedMessages Message[]      @relation("ReceivedMessages")
-  caseFollowUps    CaseFollowUp[]
-  assessmentActions AssessmentHistory[] @relation("AssessmentActor")
+  id                    String              @id @default(cuid())
+  email                 String              @unique
+  username              String?             @unique
+  name                  String
+  password              String
+  role                  String              @default("officer")
+  barangay              String?
+  phone                 String?
+  avatar                String?
+  active                Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  assignedCases         Case[]              @relation("AssignedOfficer")
+  overriddenAssessments CaseAssessment[]    @relation("AssessmentOverride")
+  createdReports        Report[]
+  activities            Activity[]
+  sentMessages          Message[]           @relation("SentMessages")
+  receivedMessages      Message[]           @relation("ReceivedMessages")
+  caseFollowUps         CaseFollowUp[]
+  assessmentActions     AssessmentHistory[] @relation("AssessmentActor")
 }
 
 model Case {
-  id           String         @id @default(cuid())
-  caseNumber   String         @unique
+  id           String  @id @default(cuid())
+  caseNumber   String  @unique
   residentName String
   caseType     String
-  status       String         @default("Open")
+  status       String  @default("Open")
   /// The queue level: Low | Medium | High | Critical, or null when it is
   /// undetermined - too little is known and no matrix criterion or safety rule
   /// is met. Never defaulted: an unknown risk is not a low one. Cases filed
@@ -53,27 +53,27 @@ model Case {
   /// case filed before the picker existed has none, and because a report must
   /// never be blocked on the address lookup being reachable.
   /// `barangay` above still holds the street, which is what cases group by.
-  latitude      Float?
-  longitude     Float?
+  latitude          Float?
+  longitude         Float?
   /// The geocoder's full one-line address for the point, kept verbatim.
-  locationLabel String?
-  municipality  String?
-  province      String?
-  assignedToId String?
-  assignedTo   User?          @relation("AssignedOfficer", fields: [assignedToId], references: [id])
-  residentId   String?
-  resident     Resident?      @relation(fields: [residentId], references: [id])
-  filedAt      DateTime       @default(now())
-  resolvedAt   DateTime?
-  updatedAt    DateTime       @updatedAt
-  activities   Activity[]
-  notifications Notification[]
-  followUps    CaseFollowUp[]
-  attachments  CaseAttachment[]
-  assessment   CaseAssessment?
-  intake       CaseIntake?
+  locationLabel     String?
+  municipality      String?
+  province          String?
+  assignedToId      String?
+  assignedTo        User?               @relation("AssignedOfficer", fields: [assignedToId], references: [id])
+  residentId        String?
+  resident          Resident?           @relation(fields: [residentId], references: [id])
+  filedAt           DateTime            @default(now())
+  resolvedAt        DateTime?
+  updatedAt         DateTime            @updatedAt
+  activities        Activity[]
+  notifications     Notification[]
+  followUps         CaseFollowUp[]
+  attachments       CaseAttachment[]
+  assessment        CaseAssessment?
+  intake            CaseIntake?
   /// The official's intake interview (intake form.pdf), at most one per case.
-  officialIntake OfficialIntake?
+  officialIntake    OfficialIntake?
   assessmentHistory AssessmentHistory[]
 
   /// How much the report actually tells us: INSUFFICIENT | PARTIAL |
@@ -109,9 +109,9 @@ model Case {
   /// How the reporter says it is safe to reach them, from the report form:
   /// call_ok | text_first | no_phone. Null when they did not say. Officers
   /// see it beside the contact details; it is never inferred.
-  contactPreference    String?
+  contactPreference String?
   /// Their own words: safe times, who may answer, what not to say.
-  contactSafetyNote    String?
+  contactSafetyNote String?
 
   /// Who the report is for: SELF | THIRD_PARTY | ON_BEHALF | ANONYMOUS. Null
   /// on cases filed before it was asked. The reporter, the affected person
@@ -124,7 +124,98 @@ model Case {
   /// still linked, so the reporter can follow their own report.
   reporterIdentityWithheld Boolean @default(false)
 
+  /// Which form the reporter chose: BLOTTER | VAWC. Their first reading only -
+  /// the category and the desk come from what the report says, and a form
+  /// that disagrees with the report is flagged for an officer.
+  reportPath         String?
+  /// How the report reached the barangay: ONLINE | WALK_IN | PHONE | REFERRAL | OTHER.
+  reportingChannel   String?
+  /// When it happened, if the reporter knows. The day only; the time is the
+  /// reporter's own approximation ("around 9 PM"), never made exact.
+  incidentDate       DateTime? @db.Date
+  incidentTimeApprox String?
+  /// Who saw it, as the reporter described them.
+  witnessInfo        String?
+
+  parties          CaseParty[]
+  safetyAssessment CaseSafetyAssessment?
+  referrals        CaseReferral[]
+
   @@index([progressState])
+}
+
+/// A person the report is about, other than the reporter: the person affected
+/// (AFFECTED) and the person reported (REPORTED). Kept apart from the
+/// reporter's account and never linked to a resident by matching names - the
+/// three may be the same person, or not, and only what was said is recorded.
+model CaseParty {
+  id                 String   @id @default(cuid())
+  caseId             String
+  case               Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// AFFECTED | REPORTED
+  role               String
+  fullName           String?
+  age                Int?
+  address            String?
+  /// AFFECTED only: how to reach the victim-survivor, for the VAWC desk.
+  contactNumber      String?
+  /// AFFECTED: to the reporter. REPORTED: to the person affected.
+  relationship       String?
+  /// AFFECTED: children or dependents who may be affected - yes | no | unknown.
+  dependentsAffected String?
+  details            String?
+  /// reporter | official - who supplied this record.
+  source             String   @default("reporter")
+  updatedById        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([caseId])
+}
+
+/// The officer's initial safety assessment. Officer-only; one per case, and
+/// every save is also kept as an AssessmentHistory row (kind safety_assessment)
+/// so an earlier answer is never lost. Answers are yes | no | unknown.
+model CaseSafetyAssessment {
+  id                     String    @id @default(cuid())
+  caseId                 String    @unique
+  case                   Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  immediateConcern       String
+  dependentsAffected     String
+  urgentAssistance       String
+  medicalNeeded          String
+  shelterNeeded          String
+  policeOrReferralNeeded String
+  additionalConcerns     String?
+  initialAction          String?
+  assistanceProvided     String?
+  protectionActions      String?
+  followUpAt             DateTime?
+  version                Int       @default(1)
+  updatedById            String
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+/// A referral to another office - PNP Women and Children Protection Desk,
+/// social welfare, health, legal aid, or (blotter only) the Lupon.
+model CaseReferral {
+  id          String   @id @default(cuid())
+  caseId      String
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  agency      String
+  /// The office's name when agency is OTHER.
+  agencyOther String?
+  referredAt  DateTime
+  reason      String?
+  /// REFERRED | ACKNOWLEDGED | COMPLETED | DECLINED
+  status      String   @default("REFERRED")
+  notes       String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([caseId])
 }
 
 /**
@@ -134,9 +225,9 @@ model Case {
  * audit trail shows both.
  */
 model CaseAssessment {
-  id       String @id @default(cuid())
-  caseId   String @unique
-  case     Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   priority            String
   immediateThreat     String
@@ -146,17 +237,19 @@ model CaseAssessment {
   escalationPotential String
   urgency             String
 
-  summary         String
-  reason          String
-  /** Detected factors and generated recommendations, as produced. */
-  detail          Json
-  assessedAt      DateTime @default(now())
+  summary    String
+  reason     String
+  /**
+   * Detected factors and generated recommendations, as produced.
+   */
+  detail     Json
+  assessedAt DateTime @default(now())
 
   // Officer override. Null until someone changes it.
   overridePriority String?
   overrideReason   String?
   overriddenById   String?
-  overriddenBy     User?    @relation("AssessmentOverride", fields: [overriddenById], references: [id])
+  overriddenBy     User?     @relation("AssessmentOverride", fields: [overriddenById], references: [id])
   overriddenAt     DateTime?
 
   @@index([priority])
@@ -169,71 +262,71 @@ model CaseAssessment {
  * listing cases never drags the image data along.
  */
 model CaseAttachment {
-  id        String   @id @default(cuid())
-  caseId    String
-  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id         String        @id @default(cuid())
+  caseId     String
+  case       Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
   /// Set when the photo came with a follow-up rather than the original report.
   followUpId String?
   followUp   CaseFollowUp? @relation(fields: [followUpId], references: [id], onDelete: Cascade)
-  filename  String
-  mimeType  String
-  size      Int
-  data      Bytes
-  createdAt DateTime @default(now())
+  filename   String
+  mimeType   String
+  size       Int
+  data       Bytes
+  createdAt  DateTime      @default(now())
 
   @@index([caseId])
 }
 
 model Report {
-  id             String   @id @default(cuid())
-  reportNumber   String   @unique
-  title          String
-  category       String
-  status         String   @default("Pending")
-  priority       String   @default("Medium")
-  content        String
-  submittedById  String?
-  submittedBy    User?    @relation(fields: [submittedById], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(cuid())
+  reportNumber  String   @unique
+  title         String
+  category      String
+  status        String   @default("Pending")
+  priority      String   @default("Medium")
+  content       String
+  submittedById String?
+  submittedBy   User?    @relation(fields: [submittedById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Resident {
-  id             String    @id @default(cuid())
-  residentNumber String    @unique
-  firstName      String
-  lastName       String
-  age            Int
-  gender         String
-  barangay       String
-  address        String
-  contactNumber  String?
-  email          String?
-  username       String?   @unique
+  id                 String                   @id @default(cuid())
+  residentNumber     String                   @unique
+  firstName          String
+  lastName           String
+  age                Int
+  gender             String
+  barangay           String
+  address            String
+  contactNumber      String?
+  email              String?
+  username           String?                  @unique
   // Links this resident to their Clerk account. Clerk owns the credentials and
   // email verification; this row holds the barangay profile data.
-  clerkId        String?   @unique
-  password       String?
-  idDocument     String?
-  status         String    @default("Active")
-  riskLevel      String    @default("Low")
-  notes          String?
-  emailVerified  Boolean   @default(false)
-  registeredAt   DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  cases                   Case[]
-  verificationTokens      EmailVerificationToken[]
-  followUps      CaseFollowUp[]
+  clerkId            String?                  @unique
+  password           String?
+  idDocument         String?
+  status             String                   @default("Active")
+  riskLevel          String                   @default("Low")
+  notes              String?
+  emailVerified      Boolean                  @default(false)
+  registeredAt       DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  cases              Case[]
+  verificationTokens EmailVerificationToken[]
+  followUps          CaseFollowUp[]
 }
 
 model EmailVerificationToken {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   residentId String
-  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
-  tokenHash  String   @unique
+  resident   Resident  @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
   expiresAt  DateTime
   usedAt     DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([residentId])
 }
@@ -264,29 +357,29 @@ model Notification {
   /// The case this is about, when it is about one. Nullable: announcements and
   /// system notices are not. Without it a notification naming a case in its
   /// title could not open that case - the number was only ever text.
-  caseId    String?
-  case      Case?    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId String?
+  case   Case?   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([caseId])
 }
 
 model Alert {
-  id        String    @id @default(cuid())
-  title     String
-  message   String
-  level     String    @default("warning")
-  barangay  String?
-  active    Boolean   @default(true)
+  id             String    @id @default(cuid())
+  title          String
+  message        String
+  level          String    @default("warning")
+  barangay       String?
+  active         Boolean   @default(true)
   // Which module published it (blotter / vawc / admin) and the officer who did.
   // Denormalised so the announcement board never needs a join.
-  module    String?
-  createdBy String?
-  createdAt DateTime  @default(now())
-  expiresAt DateTime?
+  module         String?
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  expiresAt      DateTime?
   // Who it is addressed to: "residents", "officers" or "everyone". Residents
   // must never be shown an officers-only post, so the resident feed filters on
   // this rather than trusting the barangay match alone.
-  audience       String  @default("residents")
+  audience       String    @default("residents")
   // Narrows an officer audience to a single module ("blotter" / "vawc" /
   // "captain"); null means every officer.
   audienceModule String?
@@ -297,24 +390,24 @@ model Alert {
 /// Entries are never deleted - an officer may hide one, with a reason, and the
 /// row stays for the audit trail.
 model CaseFollowUp {
-  id         String   @id @default(cuid())
-  caseId     String
-  case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  caseId String
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   /// Exactly one of these is set, except for system entries where neither is.
   userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
   residentId String?
   resident   Resident? @relation(fields: [residentId], references: [id])
   /// resident | officer | system
-  authorRole String   @default("officer")
+  authorRole String    @default("officer")
 
   /// follow_up | officer_action | status_change | risk_change
-  updateType String   @default("officer_action")
+  updateType String  @default("officer_action")
   /// Only on a resident follow-up: still_happening | improving | worsening | resolved
   progress   String?
 
-  type       String   @default("note")
+  type       String  @default("note")
   content    String
   statusFrom String?
   statusTo   String?
@@ -330,8 +423,8 @@ model CaseFollowUp {
 
   attachments CaseAttachment[]
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([caseId, createdAt])
 }
@@ -356,9 +449,9 @@ model Message {
 /// The original narrative is never edited here or on the Case: a later answer
 /// adds to the record, it does not rewrite it. One per case.
 model CaseIntake {
-  id        String   @id @default(cuid())
-  caseId    String   @unique
-  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   /// The first thing the resident wrote, verbatim.
   narrative        String
@@ -393,67 +486,67 @@ model CaseIntake {
 
   // ── The risk matrix applied (lib/riskMatrices.ts, knowledge base) ──
   /// BLOTTER | VAWC
-  framework               String?
+  framework             String?
   /// 1-5 on that matrix; null when no criterion was met.
-  matrixLevel             Int?
+  matrixLevel           Int?
   /// The level's label exactly as the source document gives it.
-  matrixLabel             String?
+  matrixLabel           String?
   /// Each criterion met, in the document's words, with the resident's words.
-  matchedCriteria         Json?
+  matchedCriteria       Json?
   /// NEEDS_MORE_INFORMATION | PRELIMINARY | FOR_REVIEW
-  assessmentStatus        String?
-  alternativeCategories   Json?
+  assessmentStatus      String?
+  alternativeCategories Json?
   /// Unknowns that could move the level once answered.
-  levelCaveats            Json?
+  levelCaveats          Json?
   /// The source passages retrieved for this report, with their scores.
-  matrixReferences        Json?
+  matrixReferences      Json?
   /// Whether the matched criteria were found in the imported source text.
-  sourceVerified          Boolean?
+  sourceVerified        Boolean?
   /// ok | no_match | no_documents | unavailable | empty_query
-  knowledgeBaseStatus     String?
+  knowledgeBaseStatus   String?
   /// What made the assessment: the rules alone, or the rules with the AI reader.
-  assessedBy              String?
+  assessedBy            String?
   /// The AI reader's checked reading at filing (lib/aiClassifier.ts): status,
   /// model, the facts it found with the resident's words, its category. Null
   /// when it did not run.
-  aiReading               Json?
+  aiReading             Json?
   /// The AI interview: every question asked, by round, with the answer, a
   /// skip or "prefer not to answer" - exactly as the resident left it.
-  aiInterview             Json?
+  aiInterview           Json?
   /// Urgent human review recommended at filing - by the rules (danger now)
   /// or by the AI assessment.
-  urgentReview            Boolean @default(false)
-  createdAt               DateTime @default(now())
+  urgentReview          Boolean  @default(false)
+  createdAt             DateTime @default(now())
 }
 
 /// Every assessment a case has had, oldest first. Nothing here is updated or
 /// deleted: an officer's override is a new row, and the preliminary result it
 /// replaced stays readable underneath it.
 model AssessmentHistory {
-  id        String   @id @default(cuid())
-  caseId    String
-  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id                      String   @id @default(cuid())
+  caseId                  String
+  case                    Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
   /// preliminary | officer_override | officer_confirm | walk_in |
   /// category_confirm | category_change
-  kind      String
+  kind                    String
   /// Null when the level was undetermined at this point.
-  riskLevel String?
+  riskLevel               String?
   /// The case category at this point, and what it was before - so a
   /// reclassification can be read back without reconstructing it.
-  caseType         String?
-  previousCaseType String?
+  caseType                String?
+  previousCaseType        String?
   /// The matrix and its level at this point, alongside the queue level.
-  framework        String?
-  matrixLevel      Int?
-  matrixLabel      String?
+  framework               String?
+  matrixLevel             Int?
+  matrixLabel             String?
   informationCompleteness String?
-  rationale Json
+  rationale               Json
   /// Who did it. Null for the automated preliminary assessment.
-  actorId   String?
-  actor     User?    @relation("AssessmentActor", fields: [actorId], references: [id])
-  reason    String?
-  engineVersion String?
-  createdAt DateTime @default(now())
+  actorId                 String?
+  actor                   User?    @relation("AssessmentActor", fields: [actorId], references: [id])
+  reason                  String?
+  engineVersion           String?
+  createdAt               DateTime @default(now())
 
   @@index([caseId, createdAt])
 }
@@ -538,36 +631,36 @@ model ReporterAccessLog {
 /// CaseIntake, which is what the resident told SafeComm Assist; the original
 /// report is never changed by it.
 model OfficialIntake {
-  id          String   @id @default(cuid())
-  caseId      String   @unique
-  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id            String                   @id @default(cuid())
+  caseId        String                   @unique
+  case          Case                     @relation(fields: [caseId], references: [id], onDelete: Cascade)
   /// The reporter's resident account, taken from the case when the intake
   /// was started. Null for an anonymous or staff-filed report - never looked
   /// up by name.
-  residentId  String?
+  residentId    String?
   /// DRAFT | COMPLETED
-  status      String   @default("DRAFT")
+  status        String                   @default("DRAFT")
   /// Rises by one on every save; a save must name the version it edited, so a
   /// repeated or stale submission cannot overwrite a newer one.
-  version     Int      @default(1)
-  formVersion String
+  version       Int                      @default(1)
+  formVersion   String
   /// Item key -> answer (value, "specify" text, or N/A / Unknown / Declined).
-  responses   Json
+  responses     Json
   /// Which answers were filled in from records at the start, and from where.
-  prefilled   Json?
+  prefilled     Json?
   startedById   String
   updatedById   String
   completedById String?
   completedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  revisions   OfficialIntakeRevision[]
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  revisions     OfficialIntakeRevision[]
 }
 
 /// Every saved version of an intake, in order. Append-only (database trigger,
 /// prisma/sql/003_official_intake.sql): who changed which items, and when.
 model OfficialIntakeRevision {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   intakeId    String
   intake      OfficialIntake @relation(fields: [intakeId], references: [id], onDelete: Cascade)
   version     Int
@@ -575,7 +668,7 @@ model OfficialIntakeRevision {
   responses   Json
   changedKeys String[]
   changedById String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime       @default(now())
 
   @@unique([intakeId, version])
 }

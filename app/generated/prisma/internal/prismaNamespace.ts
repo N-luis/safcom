@@ -386,6 +386,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseParty: 'CaseParty',
+  CaseSafetyAssessment: 'CaseSafetyAssessment',
+  CaseReferral: 'CaseReferral',
   CaseAssessment: 'CaseAssessment',
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
@@ -418,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision"
+    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -567,6 +570,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CaseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseParty: {
+      payload: Prisma.$CasePartyPayload<ExtArgs>
+      fields: Prisma.CasePartyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CasePartyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CasePartyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        findFirst: {
+          args: Prisma.CasePartyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CasePartyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        findMany: {
+          args: Prisma.CasePartyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>[]
+        }
+        create: {
+          args: Prisma.CasePartyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        createMany: {
+          args: Prisma.CasePartyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CasePartyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>[]
+        }
+        delete: {
+          args: Prisma.CasePartyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        update: {
+          args: Prisma.CasePartyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        deleteMany: {
+          args: Prisma.CasePartyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CasePartyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CasePartyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>[]
+        }
+        upsert: {
+          args: Prisma.CasePartyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePartyPayload>
+        }
+        aggregate: {
+          args: Prisma.CasePartyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseParty>
+        }
+        groupBy: {
+          args: Prisma.CasePartyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePartyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CasePartyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePartyCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseSafetyAssessment: {
+      payload: Prisma.$CaseSafetyAssessmentPayload<ExtArgs>
+      fields: Prisma.CaseSafetyAssessmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseSafetyAssessmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseSafetyAssessmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseSafetyAssessmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseSafetyAssessmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        findMany: {
+          args: Prisma.CaseSafetyAssessmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>[]
+        }
+        create: {
+          args: Prisma.CaseSafetyAssessmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        createMany: {
+          args: Prisma.CaseSafetyAssessmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseSafetyAssessmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseSafetyAssessmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        update: {
+          args: Prisma.CaseSafetyAssessmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseSafetyAssessmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseSafetyAssessmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseSafetyAssessmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseSafetyAssessmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseSafetyAssessmentPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseSafetyAssessmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseSafetyAssessment>
+        }
+        groupBy: {
+          args: Prisma.CaseSafetyAssessmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseSafetyAssessmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseSafetyAssessmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseSafetyAssessmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseReferral: {
+      payload: Prisma.$CaseReferralPayload<ExtArgs>
+      fields: Prisma.CaseReferralFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseReferralFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseReferralFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseReferralFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseReferralFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        findMany: {
+          args: Prisma.CaseReferralFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>[]
+        }
+        create: {
+          args: Prisma.CaseReferralCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        createMany: {
+          args: Prisma.CaseReferralCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseReferralCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseReferralDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        update: {
+          args: Prisma.CaseReferralUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseReferralDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseReferralUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseReferralUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseReferralUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseReferralPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseReferralAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseReferral>
+        }
+        groupBy: {
+          args: Prisma.CaseReferralGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseReferralGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseReferralCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseReferralCountAggregateOutputType> | number
         }
       }
     }
@@ -1917,10 +2142,75 @@ export const CaseScalarFieldEnum = {
   contactSafetyNote: 'contactSafetyNote',
   reportingRelationship: 'reportingRelationship',
   affectedPersonNote: 'affectedPersonNote',
-  reporterIdentityWithheld: 'reporterIdentityWithheld'
+  reporterIdentityWithheld: 'reporterIdentityWithheld',
+  reportPath: 'reportPath',
+  reportingChannel: 'reportingChannel',
+  incidentDate: 'incidentDate',
+  incidentTimeApprox: 'incidentTimeApprox',
+  witnessInfo: 'witnessInfo'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CasePartyScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  role: 'role',
+  fullName: 'fullName',
+  age: 'age',
+  address: 'address',
+  contactNumber: 'contactNumber',
+  relationship: 'relationship',
+  dependentsAffected: 'dependentsAffected',
+  details: 'details',
+  source: 'source',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CasePartyScalarFieldEnum = (typeof CasePartyScalarFieldEnum)[keyof typeof CasePartyScalarFieldEnum]
+
+
+export const CaseSafetyAssessmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  immediateConcern: 'immediateConcern',
+  dependentsAffected: 'dependentsAffected',
+  urgentAssistance: 'urgentAssistance',
+  medicalNeeded: 'medicalNeeded',
+  shelterNeeded: 'shelterNeeded',
+  policeOrReferralNeeded: 'policeOrReferralNeeded',
+  additionalConcerns: 'additionalConcerns',
+  initialAction: 'initialAction',
+  assistanceProvided: 'assistanceProvided',
+  protectionActions: 'protectionActions',
+  followUpAt: 'followUpAt',
+  version: 'version',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseSafetyAssessmentScalarFieldEnum = (typeof CaseSafetyAssessmentScalarFieldEnum)[keyof typeof CaseSafetyAssessmentScalarFieldEnum]
+
+
+export const CaseReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  agency: 'agency',
+  agencyOther: 'agencyOther',
+  referredAt: 'referredAt',
+  reason: 'reason',
+  status: 'status',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseReferralScalarFieldEnum = (typeof CaseReferralScalarFieldEnum)[keyof typeof CaseReferralScalarFieldEnum]
 
 
 export const CaseAssessmentScalarFieldEnum = {
@@ -2349,20 +2639,6 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -2373,6 +2649,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2501,6 +2791,9 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   case?: Prisma.CaseOmit
+  caseParty?: Prisma.CasePartyOmit
+  caseSafetyAssessment?: Prisma.CaseSafetyAssessmentOmit
+  caseReferral?: Prisma.CaseReferralOmit
   caseAssessment?: Prisma.CaseAssessmentOmit
   caseAttachment?: Prisma.CaseAttachmentOmit
   report?: Prisma.ReportOmit

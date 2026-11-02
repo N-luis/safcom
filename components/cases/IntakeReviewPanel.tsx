@@ -122,6 +122,8 @@ const KIND: Record<string, string> = {
   officer_override: 'Changed by an officer',
   category_confirm: 'Category confirmed by an officer',
   category_change: 'Category changed by an officer',
+  ai_reassessment: 'AI assessment re-run (advisory)',
+  safety_assessment: 'Safety assessment recorded',
 };
 
 export function CompletenessChip({ value }: { value?: string | null }) {
