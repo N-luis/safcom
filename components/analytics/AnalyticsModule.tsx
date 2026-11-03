@@ -35,7 +35,7 @@ const SECTIONS = [
   { id: 'overview', label: 'Case Overview', Icon: Insights },
   { id: 'heatmap', label: 'Street Risk Heatmap', Icon: MapIcon },
   { id: 'priority', label: 'High-Priority Cases', Icon: ReportProblem },
-  { id: 'reporting', label: 'Correct Reporting', Icon: FactCheck },
+  { id: 'reporting', label: 'Reporting', Icon: FactCheck },
   { id: 'hearings', label: 'Hearing Management', Icon: Gavel },
   { id: 'letters', label: 'Acknowledgement Letters', Icon: MarkEmailRead },
 ] as const;
@@ -316,7 +316,7 @@ function Priority({ query, open, canOpen }: { query: string } & Opener) {
   );
 }
 
-// ── 4. Correct reporting ─────────────────────────────────────────────────────
+// ── 4. Reporting ─────────────────────────────────────────────────────────────
 
 function CaseChips({ list, open, canOpen }: { list: Data[] } & Opener) {
   if (!list.length) return <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8' }}>None.</Typography>;
@@ -333,7 +333,7 @@ function CaseChips({ list, open, canOpen }: { list: Data[] } & Opener) {
 function Reporting({ query, rangeLabel, open, canOpen }: { query: string; rangeLabel: string } & Opener) {
   const { data, error, isLoading, mutate } = useSection('reporting', query);
   return (
-    <Section id="reporting" title="Correct Reporting"
+    <Section id="reporting" title="Reporting"
       hint={`Reports filed ${rangeLabel}. Completeness measures how much detail a report gives for assessment - never whether what it says is true.`}>
       {error && !data ? <Failed error={error} retry={() => void mutate()} /> : isLoading ? <Loading /> : data && (
         data.total === 0 ? <Empty>No reports were filed in this period.</Empty> : (
