@@ -10,12 +10,13 @@ import { Close, Gavel, PictureAsPdf, Visibility, Event, AttachFile, Add } from '
 import toast from 'react-hot-toast';
 import {
   HEARING_STATUSES, HEARING_TITLES, HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, ATTENDANCE, NOTICE_STATUSES, NOTICE_METHODS, NOTICE_RECIPIENTS,
-  HEARING_EVENT_LABELS, allowedFrom, hasDayArrived, isLive, phDay, phTime, formatHearingWhen, formatHearingDate, formatHearingTime, outcomeLabel,
-  type HearingOutcome, type Attendance, type NoticeRecipient, type NoticeMethod,
+  HEARING_EVENT_LABELS, allowedFrom, hasDayArrived, isLive, phDay, phTime, phInstant, formatHearingWhen, formatHearingDate, formatHearingTime, outcomeLabel,
+  type HearingOutcome, type Attendance, type NoticeRecipient, type NoticeMethod, type ScheduleConflict,
 } from '@/lib/hearings';
+import ConflictWarnings, { ConflictList } from './ConflictWarnings';
 import { MAX_IMAGE_EDGE } from '@/lib/attachments';
 import {
-  NAVY, STATUS_COLOR, NOTICE_COLOR, ATTENDANCE_COLOR, chipSx, getJson, send, todayPh,
+  NAVY, STATUS_COLOR, NOTICE_COLOR, ATTENDANCE_COLOR, chipSx, getJson, send, todayPh, conflictsOf,
   type CaseHearingsData, type Hearing, type HearingNotice,
 } from './hearingUi';
 
@@ -45,6 +46,24 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
   const act = async (body: Record<string, unknown>, ok: string) => {
     try { await send(`/api/cases/${caseId}/hearings/${hearingId}`, 'PATCH', body); toast.success(ok); refresh(); return true; }
     catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); return false; }
+  };
+  // Every change to a hearing's schedule is confirmed first, with what changes and what is kept.
+  const [confirm, setConfirm] = useState<Pending | null>(null);
+  const ask = (p: Omit<Pending, 'conflicts'>) => setConfirm({ ...p, conflicts: null });
+  const runConfirmed = async () => {
+    if (!confirm) return;
+    try {
+      await send(`/api/cases/${caseId}/hearings/${hearingId}`, 'PATCH', { ...confirm.body, ...(confirm.conflicts && { confirmConflicts: true }) });
+      toast.success(confirm.ok); setConfirm(null); setDialog(null); refresh();
+    } catch (e) {
+      const conflicts = conflictsOf(e);
+      if (conflicts) setConfirm(c => (c ? { ...c, conflicts } : c));
+      else toast.error(e instanceof Error ? e.message : 'Could not save');
+    }
+  };
+  const whenOf = (body: Record<string, unknown>) => {
+    const at = typeof body.date === 'string' && typeof body.time === 'string' ? phInstant(body.date, body.time) : null;
+    return at ? formatHearingWhen(at) : '-';
   };
 
   return (
@@ -79,7 +98,9 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
             </Tabs>
             <Box sx={{ p: 2 }}>
               {!data.canEdit && data.accessMessage && <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2, fontSize: '0.8rem' }}>{data.accessMessage}</Alert>}
-              {tab === 0 && <Overview data={data} h={h} can={can} onDialog={setDialog} act={act} />}
+              {tab === 0 && <Overview data={data} h={h} can={can} onDialog={setDialog}
+                onSchedule={() => ask({ title: `Schedule hearing ${h.hearingNumber}?`, ok: `Hearing ${h.hearingNumber} scheduled - the complainant has been told`,
+                  lines: [`${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`, 'The complainant is told the date, time and venue.'], body: { action: 'schedule' } })} />}
               {tab === 1 && <Notices caseId={caseId} h={h} canEdit={can('notice')} refresh={refresh} onDialog={n => setDialog(n)} />}
               {tab === 2 && <Proceedings caseId={caseId} h={h} can={can} act={act} refresh={refresh} />}
               {tab === 3 && <Outcome data={data} h={h} can={can} act={act} onScheduleNext={onScheduleNext} />}
@@ -94,15 +115,22 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
 
       {h && data && dialog && (dialog.kind === 'edit' || dialog.kind === 'reschedule') && (
         <ScheduleDialog data={data} h={h} mode={dialog.kind} requestId={'requestId' in dialog ? dialog.requestId : undefined}
-          onClose={() => setDialog(null)} onSave={async body => { if (await act(body, dialog.kind === 'edit' ? 'Draft updated' : 'New date set')) setDialog(null); }} />
+          onClose={() => setDialog(null)} onSave={async body => ask(dialog.kind === 'edit'
+            ? { title: `Save the changes to the draft of hearing ${h.hearingNumber}?`, ok: 'Draft updated', body,
+                lines: [`Date and time: ${whenOf(body)}`, `Venue: ${String(body.venue ?? h.venue ?? 'Barangay Hall')}`, 'The earlier details are kept in the history.'] }
+            : { title: `Change the schedule of hearing ${h.hearingNumber}?`, ok: 'New date set', body,
+                lines: [`From: ${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`, `To: ${whenOf(body)} at ${String(body.venue ?? h.venue ?? 'Barangay Hall')}`,
+                  `Reason: ${String(body.reason ?? '')}`, 'The previous schedule stays in the history under your name. Notices for the old date are marked replaced, and the complainant is told the new date.'] })} />
       )}
       {h && data && dialog?.kind === 'details' && (
-        <DetailsDialog data={data} h={h} onClose={() => setDialog(null)} onSave={async body => { if (await act(body, 'Details updated')) setDialog(null); }} />
+        <DetailsDialog data={data} h={h} onClose={() => setDialog(null)} onSave={async body => ask({ title: `Change the official or instructions for hearing ${h.hearingNumber}?`, ok: 'Details updated', body,
+          lines: [`Assigned official: ${h.assignedOfficial?.name ?? 'Not assigned'} → ${data.officials.find(o => o.id === body.assignedOfficialId)?.name ?? 'Not assigned'}`, 'The change is kept in the history under your name.'] })} />
       )}
       {h && dialog?.kind === 'cancel' && (
         <ReasonDialog title={`Cancel hearing ${h.hearingNumber}`} label="Why it is cancelled *" confirm="Cancel hearing"
           hint={h.status === 'DRAFT' ? 'The draft was never shown to the complainant.' : 'The complainant is told the hearing was cancelled - not the reason.'}
-          onClose={() => setDialog(null)} onSave={async reason => { if (await act({ action: 'cancel', reason }, 'Hearing cancelled')) setDialog(null); }} />
+          onClose={() => setDialog(null)} onSave={async reason => ask({ title: `Cancel hearing ${h.hearingNumber}?`, ok: 'Hearing cancelled', body: { action: 'cancel', reason }, danger: true,
+            lines: [`${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`, `Reason: ${reason}`, 'The cancelled hearing stays on record with its history; its notices are marked replaced. This cannot be undone - a new hearing would be created instead.'] })} />
       )}
       {h && dialog?.kind === 'decline' && (
         <ReasonDialog title="Decline the request for a new date" label="Your answer to the complainant *" confirm="Decline request"
@@ -113,6 +141,7 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
         <NoticeDialog caseId={caseId} h={h} notice={dialog.notice} kind={dialog.kind} hasResident={Boolean(data?.case.hasReporterAccount)}
           onClose={() => setDialog(null)} onDone={() => { setDialog(null); refresh(); }} />
       )}
+      {confirm && <ConfirmChange pending={confirm} onBack={() => setConfirm(null)} onConfirm={runConfirmed} />}
     </Dialog>
   );
 }
@@ -130,11 +159,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 type Opener = (d: { kind: 'edit' | 'reschedule' | 'details' | 'cancel'; requestId?: string } | { kind: 'decline'; requestId: string }) => void;
 
-function Overview({ data, h, can, onDialog, act }: { data: CaseHearingsData; h: Hearing; can: (a: string) => boolean; onDialog: Opener; act: (b: Record<string, unknown>, ok: string) => Promise<boolean> }) {
+function Overview({ data, h, can, onDialog, onSchedule }: { data: CaseHearingsData; h: Hearing; can: (a: string) => boolean; onDialog: Opener; onSchedule: () => void }) {
   const current = (r: NoticeRecipient) => h.notices.filter(n => n.recipientRole === r && n.status !== 'SUPERSEDED').at(-1);
   const earlier = data.hearings.filter(x => x.hearingNumber < h.hearingNumber || (x.hearingNumber === h.hearingNumber && x.id !== h.id && x.status === 'CANCELLED'));
   const pending = h.requests.filter(r => r.status === 'PENDING');
-  const [busy, setBusy] = useState(false);
+  const later = data.hearings.find(x => x.hearingNumber === h.hearingNumber + 1 && x.status !== 'CANCELLED');
+  const nextInfo = later ? `Hearing ${later.hearingNumber} - ${formatHearingWhen(later.scheduledAt)} (${HEARING_STATUSES[later.status].toLowerCase()})`
+    : h.nextHearingAt ? `Proposed for ${formatHearingDate(h.nextHearingAt)} - not yet scheduled`
+      : h.outcome && HEARING_OUTCOMES[h.outcome as HearingOutcome]?.ends ? 'None - the proceedings ended here'
+        : h.hearingNumber === 3 && h.status === 'COMPLETED' ? 'None - hearing 3 was the last' : 'Not set';
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       {pending.map(r => (
@@ -176,6 +209,7 @@ function Overview({ data, h, can, onDialog, act }: { data: CaseHearingsData; h: 
         <Field label="Last updated">{when(h.updatedAt)}</Field>
         <Field label="Times rescheduled">{h.rescheduleCount}</Field>
         {h.outcome && <Field label="Outcome">{outcomeLabel(h.outcome)}</Field>}
+        <Field label="Next hearing">{nextInfo}</Field>
       </Box>
       {h.statusReason && <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}><b>{h.status === 'CANCELLED' ? 'Cancelled because' : 'Last new date because'}:</b> {h.statusReason}</Typography>}
       {h.residentInstructions && <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}><b>Instructions for the complainant:</b> {h.residentInstructions}</Typography>}
@@ -185,8 +219,7 @@ function Overview({ data, h, can, onDialog, act }: { data: CaseHearingsData; h: 
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {can('update') && <Button size="small" variant="outlined" onClick={() => onDialog({ kind: 'edit' })} sx={{ textTransform: 'none' }}>Edit draft</Button>}
           {can('schedule') && (
-            <Button size="small" variant="contained" disabled={busy} sx={{ textTransform: 'none', bgcolor: NAVY }}
-              onClick={async () => { setBusy(true); await act({ action: 'schedule' }, `Hearing ${h.hearingNumber} scheduled - the complainant has been told`); setBusy(false); }}>
+            <Button size="small" variant="contained" sx={{ textTransform: 'none', bgcolor: NAVY }} onClick={onSchedule}>
               Schedule (tell the complainant)
             </Button>
           )}
@@ -598,6 +631,7 @@ function ScheduleDialog({ data, h, mode, requestId, onClose, onSave }: { data: C
         </Box>
         <TextField size="small" label="Venue" value={venue} onChange={e => setVenue(e.target.value)} slotProps={{ htmlInput: { maxLength: 200 } }} />
         {mode === 'reschedule' && <TextField size="small" label="Reason for the new date *" value={reason} onChange={e => setReason(e.target.value)} slotProps={{ htmlInput: { maxLength: 300 } }} />}
+        <ConflictWarnings date={date} time={time} venue={venue} officialId={mode === 'edit' ? official || null : h.assignedOfficialId} excludeId={h.id} />
         {mode === 'edit' && (
           <>
             <TextField select size="small" label="Assigned official" value={official} onChange={e => setOfficial(e.target.value)}>
@@ -639,6 +673,7 @@ function DetailsDialog({ data, h, onClose, onSave }: { data: CaseHearingsData; h
           {data.officials.map(o => <MenuItem key={o.id} value={o.id}>{o.name}</MenuItem>)}
         </TextField>
         <TextField size="small" multiline minRows={2} label="Instructions for the complainant" value={instructions} onChange={e => setInstructions(e.target.value)} slotProps={{ htmlInput: { maxLength: 600 } }} />
+        {official && official !== h.assignedOfficialId && <ConflictWarnings date={phDay(h.scheduledAt)} time={phTime(h.scheduledAt)} venue={h.venue ?? ''} officialId={official} excludeId={h.id} />}
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 1.25 }}>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>Back</Button>
@@ -666,6 +701,35 @@ function ReasonDialog({ title, label, confirm, hint, onClose, onSave }: { title:
         <Button variant="contained" color="error" disabled={saving || v.trim().length < 3} sx={{ textTransform: 'none' }}
           onClick={async () => { setSaving(true); await onSave(v.trim()); setSaving(false); }}>
           {saving ? <CircularProgress size={16} color="inherit" /> : confirm}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// ── Confirmation ────────────────────────────────────────────────────────────
+
+interface Pending {
+  title: string; lines: string[]; body: Record<string, unknown>; ok: string; danger?: boolean;
+  /** Set when the server found a clash: the official may go ahead knowingly. */
+  conflicts: ScheduleConflict[] | null;
+}
+
+function ConfirmChange({ pending, onBack, onConfirm }: { pending: Pending; onBack: () => void; onConfirm: () => Promise<void> }) {
+  const [saving, setSaving] = useState(false);
+  return (
+    <Dialog open onClose={onBack} fullWidth maxWidth="xs" aria-labelledby="confirm-change-title">
+      <DialogTitle id="confirm-change-title" sx={{ fontWeight: 800, color: NAVY, fontSize: '1rem' }}>{pending.title}</DialogTitle>
+      <DialogContent dividers sx={{ display: 'grid', gap: 0.75 }}>
+        {pending.lines.map(l => <Typography key={l} sx={{ fontSize: '0.84rem', color: '#334155' }}>{l}</Typography>)}
+        {pending.conflicts && <ConflictList conflicts={pending.conflicts} footer="Nothing was changed. Go back to pick another time, or go ahead only if both hearings can really happen." />}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, py: 1.25 }}>
+        <Button onClick={onBack} sx={{ textTransform: 'none' }}>Back</Button>
+        <Button variant="contained" color={pending.conflicts ? 'warning' : pending.danger ? 'error' : 'primary'} disabled={saving}
+          sx={{ textTransform: 'none', ...(!pending.conflicts && !pending.danger && { bgcolor: NAVY }) }}
+          onClick={async () => { setSaving(true); await onConfirm(); setSaving(false); }}>
+          {saving ? <CircularProgress size={16} color="inherit" /> : pending.conflicts ? 'Go ahead anyway' : 'Confirm'}
         </Button>
       </DialogActions>
     </Dialog>

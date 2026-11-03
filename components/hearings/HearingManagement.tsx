@@ -1,14 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Button, Tabs, Tab, TextField, MenuItem, Chip, Alert, Skeleton, InputAdornment, IconButton, Tooltip,
   Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
 } from '@mui/material';
-import { Gavel, Add, Search, ChevronLeft, ChevronRight, CalendarMonth, Refresh, WarningAmber } from '@mui/icons-material';
+import { Gavel, Add, Search, CalendarMonth, Refresh, WarningAmber } from '@mui/icons-material';
 import {
-  HEARING_STATUSES, HEARING_TITLES, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, phDay, outcomeLabel,
+  HEARING_STATUSES, HEARING_TITLES, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
   type HearingStatus, type NoticeStatus, type Attendance,
 } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
@@ -37,11 +38,17 @@ const TAB_HINTS: Record<number, string> = {
 
 /**
  * Hearing Management for officials: every hearing they may see, by hearing
- * number or on a calendar, with the record behind each one. Hearings are
- * created one at a time, each only when the one before it calls for it.
+ * number, with the record behind each one (the calendar is its own page,
+ * HearingCalendar). Hearings are created one at a time, each only when the
+ * one before it calls for it. Each tab is a page of its own, so the sidebar
+ * can link to Hearing 1, 2 and 3 directly.
  */
-export default function HearingManagement({ caseBase }: { caseBase: string }) {
-  const [tab, setTab] = useState(0);
+export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', initialTab = 0 }: {
+  caseBase: string; basePath?: string; initialTab?: 0 | 1 | 2 | 3;
+}) {
+  const router = useRouter();
+  const tab = initialTab;
+  const setTab = (v: number) => router.push(v ? `${basePath}/${v}` : basePath);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
@@ -79,11 +86,16 @@ export default function HearingManagement({ caseBase }: { caseBase: string }) {
             <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay hearings for eligible blotter disputes. VAWC cases under RA 9262 are never heard here.</Typography>
           </Box>
         </Box>
-        {data?.canCreate && (
-          <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ ml: { sm: 'auto' }, textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>
-            Create Hearing
+        <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant="outlined" startIcon={<CalendarMonth />} href={`${basePath}/calendar`} sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
+            Hearing Calendar
           </Button>
-        )}
+          {data?.canCreate && (
+            <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>
+              Create Hearing
+            </Button>
+          )}
+        </Box>
       </Box>
 
       {forbidden && <Alert severity="info" sx={{ borderRadius: 2 }}>{error?.message}</Alert>}
@@ -108,11 +120,10 @@ export default function HearingManagement({ caseBase }: { caseBase: string }) {
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
               <Tab label="All hearings" sx={{ textTransform: 'none', fontWeight: 600 }} />
               {[1, 2, 3].map(n => <Tab key={n} label={`Hearing ${n} - ${HEARING_TITLES[n]}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
-              <Tab icon={<CalendarMonth sx={{ fontSize: 18 }} />} iconPosition="start" label="Calendar" sx={{ textTransform: 'none', fontWeight: 600, minHeight: 48 }} />
             </Tabs>
             <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
               {TAB_HINTS[tab] && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>{TAB_HINTS[tab]}</Typography>}
-              {tab !== 4 && (
+              {(
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
                   <TextField size="small" placeholder="Case number or hearing ID" value={q} onChange={e => setQ(e.target.value)}
                     slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment> } }} />
@@ -126,8 +137,7 @@ export default function HearingManagement({ caseBase }: { caseBase: string }) {
                 </Box>
               )}
               {isLoading && !data && <Skeleton variant="rounded" height={240} />}
-              {data && tab !== 4 && <RecordsTable rows={data.rows} caseBase={caseBase} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
-              {data && tab === 4 && <Calendar rows={data.rows} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} />}
+              {data && <RecordsTable rows={data.rows} caseBase={caseBase} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
             </CardContent>
           </Card>
         </>
@@ -206,52 +216,5 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
         </TableBody>
       </Table>
     </TableContainer>
-  );
-}
-
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-/** A month of hearings, by their Philippine date. */
-function Calendar({ rows, onOpen }: { rows: Row[]; onOpen: (r: Row) => void }) {
-  const today = phDay(new Date());
-  const [month, setMonth] = useState(today.slice(0, 7));
-  const [y, m] = month.split('-').map(Number);
-  const first = new Date(Date.UTC(y, m - 1, 1));
-  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
-  const byDay = useMemo(() => {
-    const map = new Map<string, Row[]>();
-    for (const r of rows) if (r.status !== 'CANCELLED') { const d = phDay(r.scheduledAt); map.set(d, [...(map.get(d) ?? []), r]); }
-    return map;
-  }, [rows]);
-  const shift = (n: number) => { const d = new Date(Date.UTC(y, m - 1 + n, 1)); setMonth(d.toISOString().slice(0, 7)); };
-  const cells = [...Array(first.getUTCDay()).fill(null), ...Array.from({ length: days }, (_, i) => `${month}-${String(i + 1).padStart(2, '0')}`)];
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <IconButton size="small" onClick={() => shift(-1)} aria-label="Previous month"><ChevronLeft /></IconButton>
-        <Typography sx={{ fontWeight: 800, color: NAVY, minWidth: 150, textAlign: 'center' }}>{first.toLocaleDateString('en-PH', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</Typography>
-        <IconButton size="small" onClick={() => shift(1)} aria-label="Next month"><ChevronRight /></IconButton>
-        <Button size="small" onClick={() => setMonth(today.slice(0, 7))} sx={{ textTransform: 'none' }}>Today</Button>
-        <Typography sx={{ ml: 'auto', fontSize: '0.75rem', color: '#94a3b8' }}>Cancelled hearings are not shown</Typography>
-      </Box>
-      <Box sx={{ overflowX: 'auto' }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(96px, 1fr))', gap: 0.5, minWidth: 700 }}>
-          {WEEKDAYS.map(d => <Typography key={d} sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textAlign: 'center' }}>{d}</Typography>)}
-          {cells.map((d, i) => (
-            <Box key={i} sx={{ minHeight: 92, border: '1px solid', borderColor: d === today ? '#0369a1' : '#e2e8f0', borderRadius: 1.5, p: 0.5, bgcolor: d ? '#fff' : '#f8fafc' }}>
-              {d && <Typography sx={{ fontSize: '0.72rem', fontWeight: d === today ? 800 : 600, color: d === today ? '#0369a1' : '#64748b' }}>{Number(d.slice(8))}</Typography>}
-              {d && (byDay.get(d) ?? []).map(r => (
-                <Box key={r.id} component="button" onClick={() => onOpen(r)}
-                  sx={{ display: 'block', width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', borderRadius: 1, px: 0.5, py: 0.25, mt: 0.25,
-                    bgcolor: `${STATUS_COLOR[r.status]}14`, color: STATUS_COLOR[r.status], fontSize: '0.68rem', fontWeight: 700, fontFamily: 'inherit',
-                    '&:focus-visible': { outline: `2px solid ${STATUS_COLOR[r.status]}` } }}>
-                  {formatHearingTime(r.scheduledAt)} H{r.hearingNumber} · {r.case.caseNumber}
-                </Box>
-              ))}
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    </Box>
   );
 }

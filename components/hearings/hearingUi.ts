@@ -3,7 +3,7 @@
  * and the colours each status reads in.
  */
 import type { HearingStatus, Attendance, NoticeStatus } from '@/lib/hearings';
-import type { Eligibility } from '@/lib/hearings';
+import type { Eligibility, ScheduleConflict } from '@/lib/hearings';
 
 export const NAVY = '#0c1e46';
 
@@ -55,9 +55,14 @@ export async function getJson<T>(url: string): Promise<T> {
 export async function send<T = unknown>(url: string, method: string, body: unknown): Promise<T> {
   const res = await fetch(url, { method, credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error ?? 'Could not save');
+  // A schedule conflict carries the clashing hearings, for the warning and "go ahead" choice.
+  if (!res.ok) throw Object.assign(new Error(json.error ?? 'Could not save'), { status: res.status, conflicts: (json.conflicts ?? null) as ScheduleConflict[] | null });
   return json.data as T;
 }
 
 /** Today in Philippine time, for a date input's minimum. */
 export const todayPh = () => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+
+/** The conflicts a failed save came back with, if that is why it failed. */
+export const conflictsOf = (e: unknown): ScheduleConflict[] | null =>
+  e instanceof Error && Array.isArray((e as Error & { conflicts?: unknown }).conflicts) ? (e as Error & { conflicts: ScheduleConflict[] }).conflicts : null;

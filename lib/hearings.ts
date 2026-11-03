@@ -281,6 +281,7 @@ export const HEARING_EVENT_LABELS: Record<string, string> = {
   request_declined: 'Request for a new date declined',
   attachment_added: 'Attachment added',
   reminder: 'Reminder sent',
+  attention: 'Officials alerted',
 };
 
 /**
@@ -342,3 +343,46 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
 };
 
 export const RESCHEDULE_REQUESTS_PER_HEARING = 3;
+
+// ── Scheduling checks ────────────────────────────────────────────────────────
+
+/** How far ahead a hearing may be set. */
+export const MAX_DAYS_AHEAD = 365;
+
+/**
+ * Why this date and time cannot hold a hearing, or null. A time already gone
+ * (a few minutes' grace for the form), or one more than a year ahead, is
+ * not a schedule.
+ */
+export function scheduleTimeRefusal(at: Date | null, now = new Date()): string | null {
+  if (!at || Number.isNaN(at.getTime())) return 'Choose a valid hearing date and time.';
+  if (at.getTime() < now.getTime() - 5 * 60_000) return 'That date and time have already passed. Choose a later time.';
+  if (at.getTime() > now.getTime() + MAX_DAYS_AHEAD * 86_400_000) return `A hearing can be set up to ${MAX_DAYS_AHEAD} days ahead.`;
+  return null;
+}
+
+/** Two hearings conflict when they start closer together than one slot. */
+export const overlaps = (a: Date | string, b: Date | string, slotMinutes: number) =>
+  Math.abs(new Date(a).getTime() - new Date(b).getTime()) < slotMinutes * 60_000;
+
+/** The same venue, however it was typed. */
+export const sameVenue = (a: string | null | undefined, b: string | null | undefined) =>
+  (a || 'Barangay Hall').trim().toLowerCase().replace(/\s+/g, ' ') === (b || 'Barangay Hall').trim().toLowerCase().replace(/\s+/g, ' ');
+
+export interface ScheduleConflict {
+  kind: 'official' | 'venue';
+  message: string;
+  /** The other hearing's reference - only when the official may view it. */
+  reference: string | null;
+  scheduledAt: string;
+}
+
+/** The calendar's status filter: "scheduled" covers every live state but a new date. */
+export const CALENDAR_STATUS_GROUPS = {
+  scheduled: { label: 'Scheduled', statuses: ['SCHEDULED', 'NOTICE_ISSUED', 'ACKNOWLEDGED'] },
+  rescheduled: { label: 'Rescheduled', statuses: ['RESCHEDULED'] },
+  completed: { label: 'Completed', statuses: ['COMPLETED'] },
+  cancelled: { label: 'Cancelled', statuses: ['CANCELLED'] },
+  draft: { label: 'Draft', statuses: ['DRAFT'] },
+} as const;
+export type CalendarStatusGroup = keyof typeof CALENDAR_STATUS_GROUPS;

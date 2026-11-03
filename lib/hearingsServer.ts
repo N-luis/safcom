@@ -14,8 +14,10 @@ import { requireAuth, errorResponse } from './auth';
 import { canSeeVawc } from './caseAccess';
 import { loadActor, BLOTTER_ROLES, VAWC_DESK_ROLES, isVawcType, type Actor } from './reporterAccess';
 import { noStore } from './caseRecordsServer';
-import { hearingEligibility, phInstant, VAWC_HEARING_REFUSAL, type Eligibility } from './hearings';
-import { BARANGAY_CONTEXT, EMERGENCY_CONTACTS } from './safecommConfig';
+import {
+  hearingEligibility, phInstant, formatHearingWhen, sameVenue, OPEN_STATUSES, VAWC_HEARING_REFUSAL, type Eligibility, type ScheduleConflict,
+} from './hearings';
+import { BARANGAY_CONTEXT, EMERGENCY_CONTACTS, HEARING_SLOT_MINUTES } from './safecommConfig';
 import type { NoticeInput } from './hearingNoticePdf';
 
 export { noStore };
@@ -207,6 +209,8 @@ export const scheduleFields = {
   /** Accepted as one ISO instant instead of date + time. */
   scheduledAt: z.string().datetime({ offset: true }).optional(),
   venue: z.string().trim().max(200).optional(),
+  /** The official saw the conflict warning and chose to go ahead. */
+  confirmConflicts: z.boolean().optional(),
 };
 
 
@@ -255,3 +259,47 @@ export const pdfResponse = (bytes: Uint8Array, filename: string, inline = false)
   'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${filename.replace(/[^A-Za-z0-9._-]/g, '_')}"`,
   'Cache-Control': 'no-store, private', 'X-Content-Type-Options': 'nosniff',
 } });
+
+// ── Schedule conflicts ───────────────────────────────────────────────────────
+
+/**
+ * Other open hearings (drafts included) that this date and time would clash
+ * with: the same official, or the same venue, within one slot
+ * (HEARING_SLOT_MINUTES). Nothing is moved - the official is told, and
+ * decides. A hearing the official may not view is described without its
+ * reference.
+ */
+export async function findConflicts(actor: Actor, p: { at: Date; venue: string | null; officialId: string | null; excludeId?: string | null }): Promise<ScheduleConflict[]> {
+  const slot = HEARING_SLOT_MINUTES * 60_000;
+  const rows = await prisma.caseHearing.findMany({
+    where: {
+      status: { in: [...OPEN_STATUSES] },
+      scheduledAt: { gt: new Date(p.at.getTime() - slot), lt: new Date(p.at.getTime() + slot) },
+      ...(p.excludeId && { id: { not: p.excludeId } }),
+    },
+    select: { id: true, reference: true, scheduledAt: true, venue: true, assignedOfficialId: true,
+      assignedOfficial: { select: { name: true } }, case: { select: { caseType: true, assignedToId: true } } },
+    orderBy: { scheduledAt: 'asc' },
+  });
+  const out: ScheduleConflict[] = [];
+  for (const r of rows) {
+    const visible = decideHearingAccess(actor, r.case, r.assignedOfficialId === actor.id).view;
+    const ref = visible ? r.reference : null;
+    const at = formatHearingWhen(r.scheduledAt);
+    if (p.officialId && r.assignedOfficialId === p.officialId) {
+      out.push({ kind: 'official', reference: ref, scheduledAt: r.scheduledAt.toISOString(),
+        message: `${r.assignedOfficial?.name ?? 'The assigned official'} already has a hearing at ${at}${ref ? ` (${ref})` : ''}.` });
+    }
+    if (sameVenue(r.venue, p.venue)) {
+      out.push({ kind: 'venue', reference: ref, scheduledAt: r.scheduledAt.toISOString(),
+        message: `${r.venue || 'Barangay Hall'} is already reserved at ${at}${ref ? ` for ${ref}` : ' for another hearing'}.` });
+    }
+  }
+  return out;
+}
+
+/** The answer when conflicts were found and the official has not chosen to go ahead. */
+export const conflictResponse = (conflicts: ScheduleConflict[]) => noStore({
+  success: false, code: 'schedule_conflict', conflicts,
+  error: `Scheduling conflict: ${conflicts[0].message}${conflicts.length > 1 ? ` (and ${conflicts.length - 1} more)` : ''} Nothing was changed.`,
+}, 409);

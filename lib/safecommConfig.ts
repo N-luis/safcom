@@ -88,3 +88,34 @@ export function isUndisclosedGender(value: string | null | undefined): boolean {
   const v = (value ?? '').trim().toLowerCase();
   return v === '' || v === 'prefer not to say' || v === 'not specified';
 }
+
+// ── Hearings ─────────────────────────────────────────────────────────────────
+// Server-side settings (no NEXT_PUBLIC_ prefix): read by the hearing routes
+// and the reminder job, never shipped to the browser.
+
+export function parseHours(raw: string | undefined, fallback: number[]): number[] {
+  const hours = (raw ?? '').split(',').map(s => Number(s.trim())).filter(n => Number.isFinite(n) && n > 0 && n <= 24 * 14);
+  return hours.length ? [...new Set(hours)].sort((a, b) => b - a) : fallback;
+}
+
+/**
+ * How many hours before a hearing the reminders go out, e.g. "72,24" for
+ * three days and one day before. Each lead time is sent once per date.
+ */
+export const HEARING_REMINDER_HOURS = parseHours(process.env.HEARING_REMINDER_HOURS, [24]);
+
+/**
+ * How long a hearing holds its official and its venue, for conflict checks.
+ * Two hearings closer together than this, with the same official or in the
+ * same venue, are a conflict.
+ */
+export const HEARING_SLOT_MINUTES = (() => {
+  const n = Number(process.env.HEARING_SLOT_MINUTES);
+  return Number.isFinite(n) && n >= 15 && n <= 480 ? n : 60;
+})();
+
+/**
+ * How close to the hearing the officials are alerted that no notice has been
+ * issued to the complainant yet.
+ */
+export const HEARING_NOTICE_ALERT_HOURS = parseHours(process.env.HEARING_NOTICE_ALERT_HOURS, [48])[0];

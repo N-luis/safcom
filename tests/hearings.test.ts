@@ -15,6 +15,8 @@ import {
   hearingEligibility, hearingRefusal, nextHearingNumber, statusFromNotices, residentHearingMessage, phDay, KP_KEYS,
 } from '../lib/hearings';
 import { decideHearingAccess } from '../lib/hearingsServer';
+import { parseHours } from '../lib/safecommConfig';
+import { GET as conflictsGET } from '../app/api/hearings/conflicts/route';
 import { GET as caseHearingsGET, POST as caseHearingsPOST } from '../app/api/cases/[id]/hearings/route';
 import { PATCH as hearingPATCH } from '../app/api/cases/[id]/hearings/[hid]/route';
 import { GET as noticePreview, POST as noticePOST } from '../app/api/cases/[id]/hearings/[hid]/notices/route';
@@ -143,6 +145,8 @@ async function main() {
     const today = phDay(new Date());
     const future = new Date(Date.now() + 5 * 86_400_000);
     const futureDay = phDay(future);
+    // A hearing's day "arrives": set its time just past, as the clock would.
+    const arrive = (hid: string) => prisma.caseHearing.update({ where: { id: hid }, data: { scheduledAt: new Date(Date.now() - 2 * 60_000) } });
 
     // ── 14. VAWC protection ──
     console.log('\nVAWC cases stay out of ordinary hearings');
@@ -268,7 +272,7 @@ async function main() {
     ok('an official declines it, with an answer the complainant sees', dec.status === 200
       && (await resident()).upcoming.find((h: Body) => h.id === H1)?.requests[0]?.reviewNote === 'Please attend; the respondent travels far.');
     const q2 = await rpost(H1, { action: 'reschedule', reason: 'I am still unable to attend that day, sorry' });
-    const newAt = { date: today, time: '00:05' };
+    const newAt = { date: futureDay, time: '11:00' };
     const appr = await patch(K.id, H1, B.cookie, { action: 'reschedule', ...newAt, reason: 'At the complainant\'s request', requestId: q2.body.data.id });
     const h1now = await prisma.caseHearing.findUnique({ where: { id: H1 }, include: { notices: true, requests: true } });
     ok('an official approves it by setting the new date', appr.status === 200 && h1now?.status === 'RESCHEDULED' && h1now.rescheduleCount === 1
@@ -278,6 +282,8 @@ async function main() {
 
     // ── 9, 10. Attendance, proceedings, outcome ──
     console.log('\nAttendance, proceedings and outcome');
+    ok('a hearing cannot be recorded as held before its day', (await patch(K.id, H1, B.cookie, { action: 'complete', outcome: 'CONTINUED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT' })).status === 409);
+    await arrive(H1);
     const H2tooEarly = await create(K.id, B.cookie, { hearingNumber: 2, date: futureDay, time: '09:00' });
     ok('hearing 2 cannot be created while hearing 1 is open', H2tooEarly.status === 422);
     ok('no outcome without attendance', (await patch(K.id, H1, B.cookie, { action: 'complete', outcome: 'CONTINUED' })).status === 400);
@@ -305,18 +311,20 @@ async function main() {
     console.log('\nHearing 2 - Follow-up Hearing');
     const d2 = await detail(K.id);
     ok('the previous record is there for hearing 2, with the proposed date', d2.next === 2 && d2.hearings[0].nextHearingAt && phDay(d2.hearings[0].nextHearingAt) === futureDay);
-    const h2r = await create(K.id, B.cookie, { hearingNumber: 2, date: today, time: '00:10', respondentPartyId: respondent.id });
+    const h2r = await create(K.id, B.cookie, { hearingNumber: 2, date: futureDay, time: '09:00', respondentPartyId: respondent.id });
     ok('Hearing 2 scheduled', h2r.status === 201 && h2r.body.data.status === 'SCHEDULED', `${h2r.status} ${h2r.body.error ?? ''}`);
     const H2 = h2r.body.data.id as string;
+    await arrive(H2);
     ok('hearing 3 waits for hearing 2', (await create(K.id, B.cookie, { hearingNumber: 3, date: futureDay, time: '09:00' })).status === 422);
     ok('Hearing 2 held - continued', (await patch(K.id, H2, B.cookie, { action: 'complete', outcome: 'CONTINUED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT',
       agreements: 'Respondent agreed to lower the volume after 10 PM; to be confirmed at hearing 3.' })).status === 200);
 
     // ── 3. Hearing 3 ──
     console.log('\nHearing 3 - Further Proceeding');
-    const h3r = await create(K.id, B.cookie, { hearingNumber: 3, date: today, time: '00:15', respondentPartyId: respondent.id });
+    const h3r = await create(K.id, B.cookie, { hearingNumber: 3, date: futureDay, time: '10:00', respondentPartyId: respondent.id });
     ok('Hearing 3 scheduled', h3r.status === 201, `${h3r.status} ${h3r.body.error ?? ''}`);
     const H3 = h3r.body.data.id as string;
+    await arrive(H3);
     const d3 = await detail(K.id);
     ok('hearing 3 has hearings 1 and 2 on record beside it', d3.hearings.length === 3 && d3.hearings.filter((h: Body) => h.status === 'COMPLETED').length === 2);
     ok('no next hearing date after hearing 3', (await patch(K.id, H3, B.cookie, { action: 'complete', outcome: 'CONTINUED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT', nextHearingDate: futureDay })).status === 400);
@@ -332,7 +340,7 @@ async function main() {
       'resident_intent', 'reschedule_requested', 'request_declined', 'request_approved', 'rescheduled', 'attendance', 'proceedings_note', 'attachment_added', 'outcome']
       .every(x => kinds.includes(x)), kinds.join(','));
     const resch = ev.find(e => e.kind === 'rescheduled');
-    ok('the old date is kept beside the new one', (resch?.before as Body)?.scheduledAt === new Date(h1r.body.data.scheduledAt).toISOString() && phDay((resch?.after as Body).scheduledAt) === today);
+    ok('the old date is kept beside the new one', (resch?.before as Body)?.scheduledAt === new Date(h1r.body.data.scheduledAt).toISOString() && phDay((resch?.after as Body).scheduledAt) === futureDay);
     ok('both proceedings notes are kept, by whom', ev.filter(e => e.kind === 'proceedings_note').length === 2 && new Set(ev.filter(e => e.kind === 'proceedings_note').map(e => e.actorId)).size === 2);
     let blocked = false;
     try { await prisma.caseHearingEvent.update({ where: { id: ev[0].id }, data: { note: 'rewritten' } }); } catch { blocked = true; }
@@ -353,7 +361,7 @@ async function main() {
     ok('cancelled, with the reason', (await patch(K2.id, c1.body.data.id, B.cookie, { action: 'cancel', reason: 'Complainant withdrew before the hearing' })).status === 200);
     const k2feed = (await feed()).filter(f => f.caseId === K2.id);
     ok('the complainant is told it was cancelled - not why', k2feed.some(f => /Hearing 1 was cancelled/.test(f.message)) && !k2feed.some(f => /withdrew/.test(f.message)));
-    const c2 = await create(K2.id, B.cookie, { hearingNumber: 1, date: phDay(new Date(Date.now() + 3 * 3_600_000)), time: phDay(new Date(Date.now() + 3 * 3_600_000)) === today ? '23:59' : '01:00' });
+    const c2 = await create(K2.id, B.cookie, { hearingNumber: 1, date: futureDay, time: '16:00' });
     ok('a cancelled hearing may be replaced, under its own reference', c2.status === 201 && c2.body.data.reference === `HRG-${K2.caseNumber}-H1-2`, `${c2.status} ${c2.body.error ?? ''}`);
     const lB = (await json(await listGET(req('/api/hearings', B.cookie)))).body.data;
     ok('the list holds the officer\'s hearings', lB.rows.filter((r: Body) => r.case.id === K.id).length === 3 && lB.rows.some((r: Body) => r.case.id === K2.id));
@@ -364,8 +372,65 @@ async function main() {
     const lS = await json(await listGET(req('/api/hearings', S.cookie)));
     ok('the system administrator can view the list but not create', lS.status === 200 && lS.body.data.canCreate === false);
 
+    // ── 1, 4. The calendar: views, hearing numbers, filters ──
+    console.log('\nCalendar views and filters');
+    const cal = async (cookie: string, qs: string) => (await json(await listGET(req(`/api/hearings?${qs}`, cookie)))).body.data;
+    const ids = (d: Body) => d.rows.map((r: Body) => r.id) as string[];
+    const C1 = c1.body.data.id as string, C2 = c2.body.data.id as string;
+    const dayV = await cal(B.cookie, `from=${futureDay}&to=${futureDay}`);
+    ok('day view: that day\'s hearings, cancelled ones still traceable', ids(dayV).includes(C2) && ids(dayV).includes(C1) && !ids(dayV).includes(H1));
+    const weekV = await cal(B.cookie, `from=${phDay(new Date(future.getTime() - 3 * 86_400_000))}&to=${phDay(new Date(future.getTime() + 3 * 86_400_000))}`);
+    ok('week view: the week around it', ids(weekV).includes(C2) && !ids(weekV).includes(H1));
+    const monthV = await cal(B.cookie, `from=${today}&to=${phDay(new Date(Date.now() + 40 * 86_400_000))}`);
+    ok('month view: hearings 1, 2 and 3 of the case, with what each event shows', [1, 2, 3].every(n => monthV.rows.some((r: Body) => r.case.id === K.id && r.hearingNumber === n))
+      && monthV.rows.every((r: Body) => r.case.caseNumber && r.scheduledAt && 'venue' in r && 'official' in r && r.status));
+    const upV = await cal(B.cookie, `from=${today}&status=scheduled,rescheduled`);
+    ok('upcoming list: still to happen only', ids(upV).includes(C2) && !ids(upV).includes(C1) && !ids(upV).includes(H1));
+    ok('filter: cancelled', ids(await cal(C.cookie, `status=cancelled&q=${K2.caseNumber}`)).join() === C1);
+    ok('filter: completed, Hearing 2 and 3', (await cal(C.cookie, `status=completed&number=2,3&q=${K.caseNumber}`)).rows.map((r: Body) => r.hearingNumber).sort().join() === '2,3');
+    ok('filter: assigned officer', ids(await cal(C.cookie, `official=${B2.id}`)).includes(C1) && !ids(await cal(C.cookie, `official=${B2.id}`)).includes(C2));
+    ok('filter: blotter category', ids(await cal(C.cookie, 'category=Noise%20Complaint')).includes(C2));
+    ok('a VAWC category shows nothing, even to the captain', (await cal(C.cookie, 'category=Domestic%20Violence')).rows.length === 0);
+    const opts = (await cal(C.cookie, '')).filters;
+    ok('the filter choices hold no VAWC category, and the officers presiding', !opts.categories.some((c: string) => /Violence|Abuse|VAWC/.test(c)) && opts.officials.some((o: Body) => o.id === B2.id));
+    ok('calendar permissions: another officer sees only what they preside over', !ids(await cal(B2.cookie, `from=${today}`)).includes(C2));
+    ok('the VAWC desk has no hearing calendar', (await json(await listGET(req(`/api/hearings?from=${today}`, V.cookie)))).status === 403);
+
+    // ── 5, 6. Creating and editing a schedule; conflicts ──
+    console.log('\nSchedule conflicts');
+    const K3 = await mkCase({ assignedToId: B2.id });
+    await prisma.assessmentHistory.create({ data: { caseId: K3.id, kind: 'category_confirm', caseType: 'Noise Complaint', rationale: {}, actorId: B2.id } });
+    await prisma.caseKpReview.create({ data: { caseId: K3.id, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: allChecks, reviewedById: B2.id } });
+    const near = { hearingNumber: 1, date: futureDay, time: '16:30' };
+    ok('a time already passed is refused', (await create(K3.id, B2.cookie, { ...near, date: today, time: '00:00' })).status === 400 || phDay(new Date()) !== today);
+    ok('more than a year ahead is refused', (await create(K3.id, B2.cookie, { ...near, date: phDay(new Date(Date.now() + 400 * 86_400_000)) })).status === 400);
+    const vc = await create(K3.id, B2.cookie, near);
+    ok('a venue already reserved at that time: refused, and nothing saved', vc.status === 409 && vc.body.code === 'schedule_conflict' && vc.body.conflicts.some((c: Body) => c.kind === 'venue')
+      && await prisma.caseHearing.count({ where: { caseId: K3.id } }) === 0, JSON.stringify(vc.body).slice(0, 200));
+    ok('another officer\'s hearing is described without its reference', vc.body.conflicts.every((c: Body) => c.reference === null) && !JSON.stringify(vc.body).includes(K2.caseNumber));
+    const oc = await create(K3.id, B2.cookie, { ...near, venue: 'Purok 3 covered court', assignedOfficialId: B.id });
+    ok('an official already busy at that time: refused', oc.status === 409 && oc.body.conflicts.some((c: Body) => c.kind === 'official') && !oc.body.conflicts.some((c: Body) => c.kind === 'venue'));
+    const k3 = await create(K3.id, B2.cookie, { ...near, venue: 'Purok 3 covered court' });
+    ok('another venue and official: scheduled', k3.status === 201, `${k3.status} ${k3.body.error ?? ''}`);
+    const K3H = k3.body.data.id as string;
+    const chk = (cookie: string, qs: string) => conflictsGET(req(`/api/hearings/conflicts?${qs}`, cookie)).then(json);
+    const pre = await chk(C.cookie, `date=${futureDay}&time=16:15&venue=barangay%20hall&officialId=${B.id}`);
+    ok('the live check finds both clashes, with references the captain may see', pre.status === 200 && pre.body.data.conflicts.some((c: Body) => c.kind === 'official' && c.reference === c2.body.data.reference)
+      && pre.body.data.conflicts.some((c: Body) => c.kind === 'venue'));
+    ok('the live check flags an invalid time', (await chk(C.cookie, `date=2020-01-01&time=09:00`)).body.data.valid === false);
+    ok('the live check is not for residents or the VAWC desk', (await chk(R1.cookie, `date=${futureDay}&time=09:00`)).status === 401 && (await chk(V.cookie, `date=${futureDay}&time=09:00`)).status === 403);
+    const moveIn = await patch(K3.id, K3H, B2.cookie, { action: 'reschedule', date: futureDay, time: '16:00', venue: 'Barangay Hall', reason: 'Hall is free after all' });
+    const k3After = await prisma.caseHearing.findUnique({ where: { id: K3H } });
+    ok('a new date into a reserved slot is refused, and the hearing keeps its date', moveIn.status === 409 && phDay(k3After!.scheduledAt) === futureDay && k3After!.venue === 'Purok 3 covered court');
+    const forced = await patch(K3.id, K3H, B2.cookie, { action: 'reschedule', date: futureDay, time: '16:00', venue: 'Barangay Hall', reason: 'Two rooms in the hall', confirmConflicts: true });
+    const forcedEv = await prisma.caseHearingEvent.findFirst({ where: { hearingId: K3H, kind: 'rescheduled' }, orderBy: { createdAt: 'desc' } });
+    ok('going ahead knowingly is recorded with the conflict, the old schedule and who did it', forced.status === 200 && ((forcedEv?.after as Body)?.conflictsAccepted ?? []).length > 0
+      && (forcedEv?.before as Body)?.venue === 'Purok 3 covered court' && forcedEv?.actorId === B2.id);
+    ok('the other hearing is never moved', (await prisma.caseHearing.findUnique({ where: { id: C2 } }))!.scheduledAt.getTime() === new Date(c2.body.data.scheduledAt).getTime());
+
     // ── Reminders ──
     console.log('\nReminders');
+    ok('the reminder schedule is configurable', parseHours('72,24', [24]).join() === '72,24' && parseHours('nonsense', [24]).join() === '24' && parseHours('0,-3', [24]).join() === '24');
     process.env.CRON_SECRET = `${TAG}-secret`;
     const cron = () => cronGET(req(`/api/cron/hearing-reminders?key=${TAG}-secret`, '')).then(json);
     await prisma.caseHearing.update({ where: { id: c2.body.data.id }, data: { scheduledAt: new Date(Date.now() + 3 * 3_600_000) } });
@@ -375,12 +440,19 @@ async function main() {
     ok('...once', await prisma.caseHearingEvent.count({ where: { hearingId: c2.body.data.id, kind: 'reminder' } }) === 1);
     ok('the complainant gets the reminder', (await feed()).some(f => f.caseId === K2.id && /Reminder: Hearing 1/.test(f.message)));
     ok('without the secret, nothing runs', (await cronGET(req('/api/cron/hearing-reminders?key=wrong', '')).then(json)).status === 401);
+    ok('the officials are alerted once that the complainant\'s notice is not issued', await prisma.caseHearingEvent.count({ where: { hearingId: C2, kind: 'attention' } }) === 1
+      && await prisma.notification.count({ where: { caseId: K2.id, title: { startsWith: 'Hearing needs attention' } } }) >= 1);
+    await prisma.caseHearing.update({ where: { id: K3H }, data: { scheduledAt: new Date(Date.now() - 3 * 3_600_000) } });
+    await cron(); await cron();
+    ok('a hearing whose time passed with nothing recorded is flagged once', await prisma.caseHearingEvent.count({ where: { hearingId: K3H, kind: 'attention' } }) === 1);
+    ok('the complainant is not shown the officials\' alerts', !(await feed()).some(f => /needs attention|not been issued/.test(f.message)));
 
     // ── 15. Analytics ──
     console.log('\nAnalytics');
     const after = (await getA('hearings', C.cookie, 'scope=blotter')).body.data;
     const dd = (k: string) => after[k] - before[k];
-    ok('total, completed, rescheduled, cancelled and upcoming move with the records', dd('totalScheduled') === 5 && dd('completed') === 3 && dd('rescheduled') === 1
+    // H1-H3, c1 (cancelled), c2 and K3's hearing (past its time now, so not upcoming).
+    ok('total, completed, rescheduled, cancelled and upcoming move with the records', dd('totalScheduled') === 6 && dd('completed') === 3 && dd('rescheduled') === 2
       && dd('cancelled') === 1 && dd('upcomingCount') === 1, JSON.stringify({ t: dd('totalScheduled'), c: dd('completed'), r: dd('rescheduled'), x: dd('cancelled'), u: dd('upcomingCount') }));
     ok('the Hearing 1, 2 and 3 distribution', after.byNumber[0].completed - before.byNumber[0].completed === 1 && after.byNumber[1].completed - before.byNumber[1].completed === 1
       && after.byNumber[2].completed - before.byNumber[2].completed === 1 && after.byNumber[0].cancelled - before.byNumber[0].cancelled === 1);

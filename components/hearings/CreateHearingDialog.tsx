@@ -8,9 +8,10 @@ import {
 } from '@mui/material';
 import { Gavel } from '@mui/icons-material';
 import toast from 'react-hot-toast';
-import { HEARING_TITLES, phDay, phTime } from '@/lib/hearings';
+import { HEARING_TITLES, phDay, phTime, type ScheduleConflict } from '@/lib/hearings';
+import ConflictWarnings, { ConflictList } from './ConflictWarnings';
 import KpReviewForm from './KpReviewForm';
-import { NAVY, getJson, send, todayPh, type CaseHearingsData } from './hearingUi';
+import { NAVY, getJson, send, todayPh, conflictsOf, type CaseHearingsData } from './hearingUi';
 
 interface CandidateCase {
   id: string; caseNumber: string; caseType: string; status: string; next: number | null; refusal: string | null;
@@ -24,8 +25,10 @@ interface CandidateCase {
  * cannot have a hearing, and the reason is said. The hearing number is
  * always the next one - nothing is created ahead.
  */
-export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCreated, classificationHref }: {
+export default function CreateHearingDialog({ caseId: fixedCase, initialDate, onClose, onCreated, classificationHref }: {
   caseId?: string; onClose: () => void; onCreated: (caseId: string) => void;
+  /** A day picked on the calendar (YYYY-MM-DD). */
+  initialDate?: string;
   /** Where an official confirms the category, when it is not yet verified. */
   classificationHref?: (caseId: string) => string;
 }) {
@@ -48,12 +51,14 @@ export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCrea
   const [instructions, setInstructions] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState<'draft' | 'schedule' | null>(null);
+  // Set when the server found a clash: shown with the choice to go ahead.
+  const [clash, setClash] = useState<{ conflicts: ScheduleConflict[]; asDraft: boolean } | null>(null);
 
   // Defaults from the case: the proposed date from the last hearing, the first person reported.
   const proposed = useMemo(() => d?.hearings.filter(h => h.status === 'COMPLETED').at(-1)?.nextHearingAt ?? null, [d]);
   const firstRespondent = d?.parties.respondents[0]?.id ?? '';
   const lastOfficial = d?.hearings.filter(h => h.status !== 'CANCELLED').at(-1)?.assignedOfficialId ?? '';
-  const date = dateIn ?? (proposed ? phDay(proposed) : '');
+  const date = dateIn ?? (initialDate && initialDate >= todayPh() ? initialDate : proposed ? phDay(proposed) : '');
   const time = timeIn ?? (proposed && phTime(proposed) !== '00:00' ? phTime(proposed) : '09:00');
   const official = officialIn ?? lastOfficial;
   const respondent = respondentIn ?? firstRespondent;
@@ -61,21 +66,26 @@ export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCrea
   const next = d?.next ?? null;
   const ready = Boolean(d && d.canEdit && d.eligibility.eligible && next && !d.blocked);
 
-  const save = async (asDraft: boolean) => {
+  const save = async (asDraft: boolean, confirmConflicts = false) => {
     if (!caseId || !next) return;
     if (!date || !time) { toast.error('Choose the hearing date and time'); return; }
     setSaving(asDraft ? 'draft' : 'schedule');
     try {
       await send(`/api/cases/${caseId}/hearings`, 'POST', {
-        hearingNumber: next, date, time, venue: venue.trim() || undefined, asDraft,
+        hearingNumber: next, date, time, venue: venue.trim() || undefined, asDraft, confirmConflicts,
         assignedOfficialId: official || null,
         complainantPartyId: complainant === 'reporter' ? null : complainant,
         respondentPartyId: respondent || null,
         residentInstructions: instructions.trim() || undefined, notes: notes.trim() || undefined,
       });
       toast.success(asDraft ? `Hearing ${next} saved as a draft` : `Hearing ${next} scheduled`);
+      setClash(null);
       onCreated(caseId);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setSaving(null); }
+    } catch (e) {
+      const conflicts = conflictsOf(e);
+      if (conflicts) setClash({ conflicts, asDraft });
+      else toast.error(e instanceof Error ? e.message : 'Could not save');
+    } finally { setSaving(null); }
   };
 
   return (
@@ -137,12 +147,12 @@ export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCrea
 
             {ready && next && (
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
-                <TextField size="small" type="date" label="Hearing date *" value={date} onChange={e => setDate(e.target.value)}
+                <TextField size="small" type="date" label="Hearing date *" value={date} onChange={e => { setDate(e.target.value); setClash(null); }}
                   slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: todayPh() } }}
                   helperText={proposed ? `Proposed at hearing ${next - 1}: ${phDay(proposed)}` : ' '} />
-                <TextField size="small" type="time" label="Hearing time *" value={time} onChange={e => setTime(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} helperText="Philippine time" />
-                <TextField size="small" label="Venue *" value={venue} onChange={e => setVenue(e.target.value)} slotProps={{ htmlInput: { maxLength: 200 } }} />
-                <TextField select size="small" label="Assigned official" value={official} onChange={e => setOfficial(e.target.value)}
+                <TextField size="small" type="time" label="Hearing time *" value={time} onChange={e => { setTime(e.target.value); setClash(null); }} slotProps={{ inputLabel: { shrink: true } }} helperText="Philippine time" />
+                <TextField size="small" label="Venue *" value={venue} onChange={e => { setVenue(e.target.value); setClash(null); }} slotProps={{ htmlInput: { maxLength: 200 } }} />
+                <TextField select size="small" label="Assigned official" value={official} onChange={e => { setOfficial(e.target.value); setClash(null); }}
                   helperText="Presides over or handles the hearing">
                   <MenuItem value=""><em>Me</em></MenuItem>
                   {d.officials.map(o => <MenuItem key={o.id} value={o.id}>{o.name}{o.role === 'admin' ? ' (Barangay Captain)' : ''}</MenuItem>)}
@@ -160,6 +170,10 @@ export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCrea
                   helperText="Shown to the complainant in My Hearings, with the standard instructions" />
                 <TextField size="small" multiline minRows={2} label="Internal note (officials only, optional)" value={notes}
                   onChange={e => setNotes(e.target.value)} slotProps={{ htmlInput: { maxLength: 1000 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+                <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
+                  {clash ? <ConflictList conflicts={clash.conflicts} footer="Nothing was saved. Change the time or venue, or schedule anyway if both hearings can really happen." />
+                    : <ConflictWarnings date={date} time={time} venue={venue} officialId={official || null} />}
+                </Box>
               </Box>
             )}
           </>
@@ -169,6 +183,11 @@ export default function CreateHearingDialog({ caseId: fixedCase, onClose, onCrea
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>Close</Button>
         {ready && (
           <>
+            {clash && (
+              <Button color="warning" variant="outlined" onClick={() => save(clash.asDraft, true)} disabled={saving !== null} sx={{ textTransform: 'none' }}>
+                {clash.asDraft ? 'Save draft anyway' : 'Schedule anyway'}
+              </Button>
+            )}
             <Button variant="outlined" onClick={() => save(true)} disabled={saving !== null} sx={{ textTransform: 'none' }}>
               {saving === 'draft' ? <CircularProgress size={16} /> : 'Save as draft'}
             </Button>

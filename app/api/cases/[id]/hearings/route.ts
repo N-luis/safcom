@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import {
   gateHearings, noStore, eligibilityOf, presidingOfficials, complainantName, respondentName, recordEvent, hearingActivity,
-  actorName, isUniqueViolation, scheduleFields, instantOf, checkPeople, type HearingCase,
+  actorName, isUniqueViolation, scheduleFields, instantOf, checkPeople, findConflicts, conflictResponse, type HearingCase,
 } from '@/lib/hearingsServer';
 import {
-  hearingRefusal, nextHearingNumber, hearingReference, isPastDay, formatHearingWhen, VAWC_HEARING_REFUSAL,
+  hearingRefusal, nextHearingNumber, hearingReference, scheduleTimeRefusal, formatHearingWhen, VAWC_HEARING_REFUSAL,
 } from '@/lib/hearings';
 import { isVawcType } from '@/lib/reporterAccess';
 
@@ -132,25 +132,31 @@ export async function POST(req: NextRequest, { params }: Params) {
     if (!eligibility.eligible) { await g.log('denied', 'not_eligible'); return noStore({ success: false, error: eligibility.reasons[0], eligibility }, 422); }
     const at = instantOf(d);
     if (!at) return errorResponse('Choose the hearing date and time', 400);
-    if (isPastDay(at)) return errorResponse('The hearing date has already passed. Choose today or a later date.', 400);
+    const timeRefusal = scheduleTimeRefusal(at);
+    if (timeRefusal) return errorResponse(timeRefusal, 400);
     const people = await checkPeople(id, d);
     if (people) return errorResponse(people, 400);
+    const venue = d.venue || 'Barangay Hall';
+    const officialId = d.assignedOfficialId ?? g.actor.id;
+    // Another hearing with the same official or in the same venue at that time: say so, change nothing.
+    const conflicts = await findConflicts(g.actor, { at, venue, officialId });
+    if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
 
     const by = await actorName(g.actor.id);
     const draft = d.asDraft === true;
-    const venue = d.venue || 'Barangay Hall';
     const attempt = existing.filter(h => h.hearingNumber === d.hearingNumber).length + 1;
     const hearing = await prisma.$transaction(async tx => {
       const h = await tx.caseHearing.create({ data: {
         caseId: id, reference: hearingReference(g.c.caseNumber, d.hearingNumber, attempt), hearingNumber: d.hearingNumber,
         scheduledAt: at, venue, status: draft ? 'DRAFT' : 'SCHEDULED',
         activeKey: `${id}:${d.hearingNumber}`, openKey: id,
-        assignedOfficialId: d.assignedOfficialId ?? g.actor.id,
+        assignedOfficialId: officialId,
         complainantPartyId: d.complainantPartyId ?? null, respondentPartyId: d.respondentPartyId ?? null,
         notes: d.notes || null, residentInstructions: d.residentInstructions || null,
         createdById: g.actor.id, updatedById: g.actor.id,
       } });
-      const snapshot = { hearingNumber: h.hearingNumber, scheduledAt: h.scheduledAt.toISOString(), venue: h.venue };
+      const snapshot = { hearingNumber: h.hearingNumber, scheduledAt: h.scheduledAt.toISOString(), venue: h.venue,
+        ...(conflicts.length && { conflictsAccepted: conflicts.map(c => c.message) }) };
       const e = await recordEvent(tx, { hearingId: h.id, caseId: id, kind: draft ? 'created' : 'scheduled', actorType: 'official', actorId: g.actor.id, after: snapshot });
       await hearingActivity(tx, e.id, id, g.actor.id, draft
         ? `Hearing ${h.hearingNumber} drafted by ${by} (not yet scheduled)`

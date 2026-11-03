@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import {
   gateHearings, noStore, eligibilityOf, recordEvent, hearingActivity, actorName, scheduleFields, instantOf, checkPeople,
+  findConflicts, conflictResponse,
 } from '@/lib/hearingsServer';
 import {
-  allowedFrom, isPastDay, hasDayArrived, phInstant, formatHearingWhen, HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES,
+  allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES,
   type HearingStatus,
 } from '@/lib/hearings';
 
@@ -33,8 +34,8 @@ const idOrNull = z.string().trim().min(1).max(64).nullable().optional();
 const schema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('update'), ...scheduleFields, assignedOfficialId: idOrNull, complainantPartyId: idOrNull, respondentPartyId: idOrNull,
     notes: z.string().trim().max(1000).optional(), residentInstructions: z.string().trim().max(600).optional() }),
-  z.object({ action: z.literal('schedule') }),
-  z.object({ action: z.literal('details'), assignedOfficialId: idOrNull, residentInstructions: z.string().trim().max(600).optional() }),
+  z.object({ action: z.literal('schedule'), confirmConflicts: z.boolean().optional() }),
+  z.object({ action: z.literal('details'), assignedOfficialId: idOrNull, residentInstructions: z.string().trim().max(600).optional(), confirmConflicts: z.boolean().optional() }),
   z.object({ action: z.literal('reschedule'), ...scheduleFields, reason: z.string().trim().min(3, 'Say why the date is changing').max(300), requestId: z.string().max(64).optional() }),
   z.object({ action: z.literal('attendance'), complainant: attendance.optional(), respondent: attendance.optional() }),
   z.object({ action: z.literal('proceedings'), note: z.string().trim().min(3, 'Write the proceedings note').max(3000) }),
@@ -76,9 +77,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (d.action === 'update') {
       const at = d.date || d.time || d.scheduledAt ? instantOf({ date: d.date ?? undefined, time: d.time ?? undefined, scheduledAt: d.scheduledAt }) : h.scheduledAt;
       if (!at) return errorResponse('Choose both the date and the time', 400);
-      if (isPastDay(at)) return errorResponse('The hearing date has already passed. Choose today or a later date.', 400);
+      const timeRefusal = scheduleTimeRefusal(at);
+      if (timeRefusal) return errorResponse(timeRefusal, 400);
       const people = await checkPeople(id, d);
       if (people) return errorResponse(people, 400);
+      const conflicts = await findConflicts(g.actor, { at, venue: d.venue ?? h.venue,
+        officialId: d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId, excludeId: hid });
+      if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
       const next = {
         scheduledAt: at, venue: d.venue ?? h.venue,
         assignedOfficialId: d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId,
@@ -103,7 +108,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     else if (d.action === 'schedule') {
       const eligibility = await eligibilityOf(g.c);
       if (!eligibility.eligible) return noStore({ success: false, error: eligibility.reasons[0], eligibility }, 422);
-      if (isPastDay(h.scheduledAt)) return errorResponse('The draft\'s date has already passed. Set a new date first.', 400);
+      if (scheduleTimeRefusal(h.scheduledAt)) return errorResponse('The draft\'s date and time have already passed. Set a new date first.', 400);
+      const conflicts = await findConflicts(g.actor, { at: h.scheduledAt, venue: h.venue, officialId: h.assignedOfficialId, excludeId: hid });
+      if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
       await prisma.$transaction(async tx => {
         await write(tx, { status: 'SCHEDULED' });
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'scheduled', actorType: 'official', actorId: me, after: snap(h.scheduledAt, h.venue) });
@@ -117,6 +124,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const official = d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId;
       const instructions = d.residentInstructions === undefined ? h.residentInstructions : d.residentInstructions || null;
       if (official === h.assignedOfficialId && instructions === h.residentInstructions) return noStore({ success: true, unchanged: true });
+      if (official && official !== h.assignedOfficialId) {
+        const conflicts = (await findConflicts(g.actor, { at: h.scheduledAt, venue: null, officialId: official, excludeId: hid })).filter(c => c.kind === 'official');
+        if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
+      }
       await prisma.$transaction(async tx => {
         await write(tx, { assignedOfficialId: official, residentInstructions: instructions });
         await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'updated', actorType: 'official', actorId: me,
@@ -132,9 +143,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     else if (d.action === 'reschedule') {
       const at = instantOf({ date: d.date, time: d.time, scheduledAt: d.scheduledAt });
       if (!at) return errorResponse('Choose the new date and time', 400);
-      if (isPastDay(at)) return errorResponse('The new date has already passed. Choose today or a later date.', 400);
+      const timeRefusal = scheduleTimeRefusal(at);
+      if (timeRefusal) return errorResponse(timeRefusal, 400);
       const venue = d.venue || h.venue;
       if (at.getTime() === h.scheduledAt.getTime() && venue === h.venue) return errorResponse('That is the date, time and venue already set.', 400);
+      const conflicts = await findConflicts(g.actor, { at, venue, officialId: h.assignedOfficialId, excludeId: hid });
+      if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
       const request = d.requestId ? await prisma.caseHearingRequest.findFirst({ where: { id: d.requestId, hearingId: hid, status: 'PENDING' } }) : null;
       if (d.requestId && !request) return errorResponse('That request is no longer waiting for a decision. Reload to see it.', 409);
       await prisma.$transaction(async tx => {
@@ -143,7 +157,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         // The notices for the old date no longer hold; new ones are issued for the new date.
         await tx.caseHearingNotice.updateMany({ where: { hearingId: hid, status: { not: 'SUPERSEDED' } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'rescheduled', actorType: 'official', actorId: me,
-          before: { scheduledAt: h.scheduledAt.toISOString(), venue: h.venue }, after: snap(at, venue), note: d.reason });
+          before: { scheduledAt: h.scheduledAt.toISOString(), venue: h.venue },
+          after: { ...snap(at, venue), ...(conflicts.length && { conflictsAccepted: conflicts.map(c => c.message) }) }, note: d.reason });
         await hearingActivity(tx, e.id, id, me, `Hearing ${N} moved to ${formatHearingWhen(at)} at ${venue ?? 'Barangay Hall'} by ${by} (was ${formatHearingWhen(h.scheduledAt)})`);
         if (request) {
           await tx.caseHearingRequest.update({ where: { id: request.id }, data: { status: 'APPROVED', pendingKey: null, reviewedById: me, reviewedAt: new Date(), reviewNote: null } });
