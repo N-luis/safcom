@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
       { caseType: { contains: search } },
     ];
   }
-  if (status) where.status = status;
+  // One status, or a comma-separated group ("Resolved,Closed") from the analytics cards.
+  if (status) where.status = status.includes(',') ? { in: status.split(',').map(s => s.trim()).filter(Boolean) } : status;
 
   // Progress filters for triage. "Overdue" is about the barangay's own response
   // time, not the resident's, so it keys off the last officer action.

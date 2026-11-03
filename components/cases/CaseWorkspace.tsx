@@ -27,6 +27,9 @@ import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
+import HearingsPanel from '@/components/cases/HearingsPanel';
+import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
+import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
 import { caseNumberLabel } from '@/lib/caseRecords';
 import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
@@ -969,6 +972,12 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}
           <CaseRecordsPanel caseId={id} onChanged={onSaved} />
+
+          {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
+          {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
+
+          {/* The letter confirming receipt of the report */}
+          <AcknowledgementPanel caseId={id} onChanged={onSaved} />
 
           {/* The case's other record types; the intake is at the top right */}
           <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />

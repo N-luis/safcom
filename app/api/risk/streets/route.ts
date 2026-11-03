@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { canSeeVawcStatistics } from '@/lib/caseAccess';
+import { parseRange } from '@/lib/analytics';
 import {
   matchStreet, levelFromRisks,
   type StreetRisk, type StreetRiskResponse,
@@ -33,15 +34,26 @@ export async function GET(req: NextRequest) {
   const maySeeVawc = canSeeVawcStatistics(auth.user.role);
   const scope = maySeeVawc ? requested : 'blotter';
 
-  const where =
+  const scopeWhere =
     scope === 'vawc' ? { caseType: { in: [...VAWC_TYPES] } }
       : scope === 'blotter' ? { caseType: { notIn: [...VAWC_TYPES] } }
         : {};
+  // The analytics filters: when it was filed, and one category. A category
+  // outside the scope simply matches nothing.
+  const { from, to } = parseRange(req.nextUrl.searchParams.get('from'), req.nextUrl.searchParams.get('to'));
+  const category = req.nextUrl.searchParams.get('category')?.trim() || null;
+  const where = {
+    AND: [
+      scopeWhere,
+      ...(category ? [{ caseType: category }] : []),
+      ...(from || to ? [{ filedAt: { ...(from && { gte: from }), ...(to && { lte: to }) } }] : []),
+    ],
+  };
 
   try {
     const cases = await prisma.case.findMany({
       where,
-      select: { barangay: true, riskLevel: true },
+      select: { barangay: true, riskLevel: true, caseType: true },
       take: 5000,
     });
 
@@ -52,7 +64,9 @@ export async function GET(req: NextRequest) {
     for (const c of cases) {
       const street = matchStreet(c.barangay);
       if (!street) {
-        unplacedValues.add((c.barangay ?? '').trim() || '(blank)');
+        // A typed-in place on a VAWC case can point at one household: it is
+        // counted, never listed.
+        if (!(VAWC_TYPES as readonly string[]).includes(c.caseType)) unplacedValues.add((c.barangay ?? '').trim() || '(blank)');
         continue;
       }
       placed += 1;

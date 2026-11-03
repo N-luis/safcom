@@ -140,6 +140,8 @@ model Case {
   parties          CaseParty[]
   safetyAssessment CaseSafetyAssessment?
   referrals        CaseReferral[]
+  hearings         CaseHearing[]
+  acknowledgement  AcknowledgementLetter?
 
   @@index([progressState])
 }
@@ -671,4 +673,54 @@ model OfficialIntakeRevision {
   createdAt   DateTime       @default(now())
 
   @@unique([intakeId, version])
+}
+
+/// A Katarungang Pambarangay hearing - mediation or conciliation of a blotter
+/// dispute. Never a VAWC case: those are not subject to barangay conciliation,
+/// and the server refuses one. Up to three hearings; a postponed hearing stays
+/// on record, and the same hearing is scheduled again as a new row.
+model CaseHearing {
+  id            String   @id @default(cuid())
+  caseId        String
+  case          Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// 1, 2 or 3
+  hearingNumber Int
+  scheduledAt   DateTime
+  venue         String?
+  /// SCHEDULED | COMPLETED | POSTPONED | CANCELLED
+  status        String   @default("SCHEDULED")
+  /// COMPLETED only: SETTLED | NOT_SETTLED | RESPONDENT_ABSENT | COMPLAINANT_ABSENT | REFERRED
+  outcome       String?
+  /// POSTPONED / CANCELLED: why.
+  statusReason  String?
+  notes         String?
+  createdById   String
+  updatedById   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([caseId])
+  @@index([status, scheduledAt])
+}
+
+/// The acknowledgement that a report was received - one per case. It confirms
+/// receipt only: no finding, no assessment, and on a VAWC case not even the
+/// category, since a letter can be read by someone other than the reporter.
+model AcknowledgementLetter {
+  id            String    @id @default(cuid())
+  caseId        String    @unique
+  case          Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  letterNumber  String    @unique
+  /// GENERATED (not yet given to the reporter) | ISSUED
+  status        String    @default("GENERATED")
+  /// The name the letter is addressed to, fixed when generated; "The Reporter" when anonymous.
+  recipient     String
+  generatedById String
+  generatedAt   DateTime  @default(now())
+  issuedById    String?
+  issuedAt      DateTime?
+  /// IN_PERSON | PRINTED_PICKUP | DIGITAL | OTHER
+  issueMethod   String?
+
+  @@index([status, generatedAt])
 }

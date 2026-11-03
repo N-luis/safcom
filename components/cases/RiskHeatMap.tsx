@@ -130,10 +130,19 @@ interface RiskHeatMapProps {
   accent?: string;
   /** Which cases colour the map - the module showing it. */
   scope?: 'all' | 'blotter' | 'vawc';
+  /** Analytics filters: filed from / to (YYYY-MM-DD, Philippine days) and one category. */
+  from?: string;
+  to?: string;
+  category?: string;
 }
 
+// A failed load is an error, not an empty map - "no incidents" and "could not
+// ask" must not look the same.
 const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then(r => (r.ok ? r.json() : null)).then(d => d?.data ?? null);
+  fetch(url, { credentials: 'include' }).then(r => {
+    if (!r.ok) throw new Error('Could not load');
+    return r.json();
+  }).then(d => d?.data ?? null);
 
 /**
  * Folds the per-street totals onto the map. A street can cover more than one
@@ -186,6 +195,7 @@ export default function RiskHeatMap({
   contextLabel = 'Geographic view',
   accent       = '#1d4ed8',
   scope        = 'all',
+  from, to, category,
 }: RiskHeatMapProps = {}) {
   const [filter, setFilter]           = useState<RiskLevel | 'All'>('All');
   const [hovered, setHovered]         = useState<Zone | null>(null);
@@ -194,8 +204,9 @@ export default function RiskHeatMap({
 
   // Re-reads while the officer is looking, so a case filed at the desk shows up
   // on the map without anyone reloading the page.
-  const { data: risk, isLoading } = useSWR<StreetRiskResponse | null>(
-    `/api/risk/streets?scope=${scope}`, fetcher, { refreshInterval: 30000, revalidateOnFocus: true },
+  const { data: risk, isLoading, error, mutate } = useSWR<StreetRiskResponse | null>(
+    `/api/risk/streets?${new URLSearchParams({ scope, ...(from && { from }), ...(to && { to }), ...(category && { category }) })}`,
+    fetcher, { refreshInterval: 30000, revalidateOnFocus: true },
   );
 
   const { zones: LIVE_ZONES, illZones: LIVE_AREAS } =
@@ -238,7 +249,7 @@ export default function RiskHeatMap({
 
   const totalIncidents = risk?.placed ?? 0;
   const unplaced = risk?.unplaced ?? 0;
-  const awaitingData = !isLoading && totalIncidents === 0;
+  const awaitingData = !isLoading && !error && totalIncidents === 0;
 
 
   return (
@@ -285,8 +296,12 @@ export default function RiskHeatMap({
           </Typography>
           <Chip label={contextLabel} size="small"
             sx={{ bgcolor: `${accent}14`, color: accent, fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
+          {error && (
+            <Chip label="Incident data could not be loaded - retry" size="small" onClick={() => void mutate()}
+              sx={{ bgcolor: '#fef2f2', color: '#b91c1c', fontWeight: 700, fontSize: '0.72rem', height: 22, cursor: 'pointer' }} />
+          )}
           {awaitingData && (
-            <Chip label="Awaiting incident data" size="small"
+            <Chip label="No incidents for these filters" size="small"
               sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.72rem', height: 22 }} />
           )}
           {unplaced > 0 && (

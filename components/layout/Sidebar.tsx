@@ -23,7 +23,7 @@ const mainNavItems = [
   { id: 'reports', label: 'Reports', icon: Assessment, path: '/reports' },
   { id: 'cases', label: 'Cases', icon: FolderOpen, path: '/cases' },
   { id: 'analytics', label: 'Analytics', icon: Analytics, path: '/analytics' },
-  { id: 'risk', label: 'Risk Prediction', icon: Warning, path: '/risk', hideForRoles: ['admin'] },
+  { id: 'risk', label: 'Analytics & Case Intelligence', icon: Warning, path: '/risk', hideForRoles: ['admin'] },
   { id: 'residents', label: 'Residents', icon: People, path: '/residents' },
   { id: 'users', label: 'User Management', icon: ManageAccounts, path: '/users', hideForRoles: ['admin'] },
   { id: 'messages', label: 'Messages', icon: Message, path: '/messages' },

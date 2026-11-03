@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/blotter-officer', exact: true },
   { id: 'cases', label: 'Case Management', icon: FolderOpen, path: '/blotter-officer/case-management' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
-  { id: 'ai', label: 'AI Risk Prediction', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
+  { id: 'ai', label: 'Analytics & Case Intelligence', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
   // Path kept as /reports so existing links still resolve; the page behind it
   // is now purely announcements.
   { id: 'announcements', label: 'Announcements', icon: Campaign, path: '/blotter-officer/reports' },

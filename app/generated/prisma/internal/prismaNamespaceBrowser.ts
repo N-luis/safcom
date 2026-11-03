@@ -72,7 +72,9 @@ export const ModelName = {
   AiUsage: 'AiUsage',
   ReporterAccessLog: 'ReporterAccessLog',
   OfficialIntake: 'OfficialIntake',
-  OfficialIntakeRevision: 'OfficialIntakeRevision'
+  OfficialIntakeRevision: 'OfficialIntakeRevision',
+  CaseHearing: 'CaseHearing',
+  AcknowledgementLetter: 'AcknowledgementLetter'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -532,6 +534,41 @@ export const OfficialIntakeRevisionScalarFieldEnum = {
 } as const
 
 export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisionScalarFieldEnum)[keyof typeof OfficialIntakeRevisionScalarFieldEnum]
+
+
+export const CaseHearingScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  hearingNumber: 'hearingNumber',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  status: 'status',
+  outcome: 'outcome',
+  statusReason: 'statusReason',
+  notes: 'notes',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseHearingScalarFieldEnum = (typeof CaseHearingScalarFieldEnum)[keyof typeof CaseHearingScalarFieldEnum]
+
+
+export const AcknowledgementLetterScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  letterNumber: 'letterNumber',
+  status: 'status',
+  recipient: 'recipient',
+  generatedById: 'generatedById',
+  generatedAt: 'generatedAt',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  issueMethod: 'issueMethod'
+} as const
+
+export type AcknowledgementLetterScalarFieldEnum = (typeof AcknowledgementLetterScalarFieldEnum)[keyof typeof AcknowledgementLetterScalarFieldEnum]
 
 
 export const SortOrder = {

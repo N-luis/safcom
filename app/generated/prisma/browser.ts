@@ -166,3 +166,18 @@ export type OfficialIntake = Prisma.OfficialIntakeModel
  * prisma/sql/003_official_intake.sql): who changed which items, and when.
  */
 export type OfficialIntakeRevision = Prisma.OfficialIntakeRevisionModel
+/**
+ * Model CaseHearing
+ * A Katarungang Pambarangay hearing - mediation or conciliation of a blotter
+ * dispute. Never a VAWC case: those are not subject to barangay conciliation,
+ * and the server refuses one. Up to three hearings; a postponed hearing stays
+ * on record, and the same hearing is scheduled again as a new row.
+ */
+export type CaseHearing = Prisma.CaseHearingModel
+/**
+ * Model AcknowledgementLetter
+ * The acknowledgement that a report was received - one per case. It confirms
+ * receipt only: no finding, no assessment, and on a VAWC case not even the
+ * category, since a letter can be read by someone other than the reporter.
+ */
+export type AcknowledgementLetter = Prisma.AcknowledgementLetterModel

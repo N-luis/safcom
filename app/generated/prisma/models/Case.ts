@@ -489,6 +489,8 @@ export type CaseWhereInput = {
   parties?: Prisma.CasePartyListRelationFilter
   safetyAssessment?: Prisma.XOR<Prisma.CaseSafetyAssessmentNullableScalarRelationFilter, Prisma.CaseSafetyAssessmentWhereInput> | null
   referrals?: Prisma.CaseReferralListRelationFilter
+  hearings?: Prisma.CaseHearingListRelationFilter
+  acknowledgement?: Prisma.XOR<Prisma.AcknowledgementLetterNullableScalarRelationFilter, Prisma.AcknowledgementLetterWhereInput> | null
 }
 
 export type CaseOrderByWithRelationInput = {
@@ -542,6 +544,8 @@ export type CaseOrderByWithRelationInput = {
   parties?: Prisma.CasePartyOrderByRelationAggregateInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentOrderByWithRelationInput
   referrals?: Prisma.CaseReferralOrderByRelationAggregateInput
+  hearings?: Prisma.CaseHearingOrderByRelationAggregateInput
+  acknowledgement?: Prisma.AcknowledgementLetterOrderByWithRelationInput
 }
 
 export type CaseWhereUniqueInput = Prisma.AtLeast<{
@@ -598,6 +602,8 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   parties?: Prisma.CasePartyListRelationFilter
   safetyAssessment?: Prisma.XOR<Prisma.CaseSafetyAssessmentNullableScalarRelationFilter, Prisma.CaseSafetyAssessmentWhereInput> | null
   referrals?: Prisma.CaseReferralListRelationFilter
+  hearings?: Prisma.CaseHearingListRelationFilter
+  acknowledgement?: Prisma.XOR<Prisma.AcknowledgementLetterNullableScalarRelationFilter, Prisma.AcknowledgementLetterWhereInput> | null
 }, "id" | "caseNumber">
 
 export type CaseOrderByWithAggregationInput = {
@@ -737,6 +743,8 @@ export type CaseCreateInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateInput = {
@@ -788,6 +796,8 @@ export type CaseUncheckedCreateInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUpdateInput = {
@@ -839,6 +849,8 @@ export type CaseUpdateInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateInput = {
@@ -890,6 +902,8 @@ export type CaseUncheckedUpdateInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateManyInput = {
@@ -1414,6 +1428,34 @@ export type CaseUpdateOneRequiredWithoutOfficialIntakeNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutOfficialIntakeInput, Prisma.CaseUpdateWithoutOfficialIntakeInput>, Prisma.CaseUncheckedUpdateWithoutOfficialIntakeInput>
 }
 
+export type CaseCreateNestedOneWithoutHearingsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutHearingsInput, Prisma.CaseUncheckedCreateWithoutHearingsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutHearingsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutHearingsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutHearingsInput, Prisma.CaseUncheckedCreateWithoutHearingsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutHearingsInput
+  upsert?: Prisma.CaseUpsertWithoutHearingsInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutHearingsInput, Prisma.CaseUpdateWithoutHearingsInput>, Prisma.CaseUncheckedUpdateWithoutHearingsInput>
+}
+
+export type CaseCreateNestedOneWithoutAcknowledgementInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutAcknowledgementInput, Prisma.CaseUncheckedCreateWithoutAcknowledgementInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutAcknowledgementInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutAcknowledgementNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutAcknowledgementInput, Prisma.CaseUncheckedCreateWithoutAcknowledgementInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutAcknowledgementInput
+  upsert?: Prisma.CaseUpsertWithoutAcknowledgementInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutAcknowledgementInput, Prisma.CaseUpdateWithoutAcknowledgementInput>, Prisma.CaseUncheckedUpdateWithoutAcknowledgementInput>
+}
+
 export type CaseCreateWithoutAssignedToInput = {
   id?: string
   caseNumber: string
@@ -1462,6 +1504,8 @@ export type CaseCreateWithoutAssignedToInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssignedToInput = {
@@ -1512,6 +1556,8 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssignedToInput = {
@@ -1631,6 +1677,8 @@ export type CaseCreateWithoutPartiesInput = {
   assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutPartiesInput = {
@@ -1681,6 +1729,8 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutPartiesInput = {
@@ -1747,6 +1797,8 @@ export type CaseUpdateWithoutPartiesInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutPartiesInput = {
@@ -1797,6 +1849,8 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutSafetyAssessmentInput = {
@@ -1847,6 +1901,8 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
@@ -1897,6 +1953,8 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutSafetyAssessmentInput = {
@@ -1963,6 +2021,8 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
@@ -2013,6 +2073,8 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutReferralsInput = {
@@ -2063,6 +2125,8 @@ export type CaseCreateWithoutReferralsInput = {
   assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutReferralsInput = {
@@ -2113,6 +2177,8 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutReferralsInput = {
@@ -2179,6 +2245,8 @@ export type CaseUpdateWithoutReferralsInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutReferralsInput = {
@@ -2229,6 +2297,8 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAssessmentInput = {
@@ -2279,6 +2349,8 @@ export type CaseCreateWithoutAssessmentInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssessmentInput = {
@@ -2329,6 +2401,8 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssessmentInput = {
@@ -2395,6 +2469,8 @@ export type CaseUpdateWithoutAssessmentInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssessmentInput = {
@@ -2445,6 +2521,8 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAttachmentsInput = {
@@ -2495,6 +2573,8 @@ export type CaseCreateWithoutAttachmentsInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAttachmentsInput = {
@@ -2545,6 +2625,8 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAttachmentsInput = {
@@ -2611,6 +2693,8 @@ export type CaseUpdateWithoutAttachmentsInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAttachmentsInput = {
@@ -2661,6 +2745,8 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutResidentInput = {
@@ -2711,6 +2797,8 @@ export type CaseCreateWithoutResidentInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutResidentInput = {
@@ -2761,6 +2849,8 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutResidentInput = {
@@ -2837,6 +2927,8 @@ export type CaseCreateWithoutActivitiesInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutActivitiesInput = {
@@ -2887,6 +2979,8 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutActivitiesInput = {
@@ -2953,6 +3047,8 @@ export type CaseUpdateWithoutActivitiesInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutActivitiesInput = {
@@ -3003,6 +3099,8 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutNotificationsInput = {
@@ -3053,6 +3151,8 @@ export type CaseCreateWithoutNotificationsInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutNotificationsInput = {
@@ -3103,6 +3203,8 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutNotificationsInput = {
@@ -3169,6 +3271,8 @@ export type CaseUpdateWithoutNotificationsInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutNotificationsInput = {
@@ -3219,6 +3323,8 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutFollowUpsInput = {
@@ -3269,6 +3375,8 @@ export type CaseCreateWithoutFollowUpsInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutFollowUpsInput = {
@@ -3319,6 +3427,8 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutFollowUpsInput = {
@@ -3385,6 +3495,8 @@ export type CaseUpdateWithoutFollowUpsInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutFollowUpsInput = {
@@ -3435,6 +3547,8 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutIntakeInput = {
@@ -3485,6 +3599,8 @@ export type CaseCreateWithoutIntakeInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutIntakeInput = {
@@ -3535,6 +3651,8 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutIntakeInput = {
@@ -3601,6 +3719,8 @@ export type CaseUpdateWithoutIntakeInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutIntakeInput = {
@@ -3651,6 +3771,8 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAssessmentHistoryInput = {
@@ -3701,6 +3823,8 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
@@ -3751,6 +3875,8 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssessmentHistoryInput = {
@@ -3817,6 +3943,8 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
@@ -3867,6 +3995,8 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutOfficialIntakeInput = {
@@ -3917,6 +4047,8 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
@@ -3967,6 +4099,8 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutOfficialIntakeInput = {
@@ -4033,6 +4167,8 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
@@ -4083,6 +4219,456 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutHearingsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  witnessInfo?: string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutHearingsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  witnessInfo?: string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeUncheckedCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutHearingsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutHearingsInput, Prisma.CaseUncheckedCreateWithoutHearingsInput>
+}
+
+export type CaseUpsertWithoutHearingsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutHearingsInput, Prisma.CaseUncheckedUpdateWithoutHearingsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutHearingsInput, Prisma.CaseUncheckedCreateWithoutHearingsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutHearingsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutHearingsInput, Prisma.CaseUncheckedUpdateWithoutHearingsInput>
+}
+
+export type CaseUpdateWithoutHearingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutHearingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutAcknowledgementInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  witnessInfo?: string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutAcknowledgementInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  witnessInfo?: string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeUncheckedCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutAcknowledgementInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutAcknowledgementInput, Prisma.CaseUncheckedCreateWithoutAcknowledgementInput>
+}
+
+export type CaseUpsertWithoutAcknowledgementInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutAcknowledgementInput, Prisma.CaseUncheckedUpdateWithoutAcknowledgementInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutAcknowledgementInput, Prisma.CaseUncheckedCreateWithoutAcknowledgementInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutAcknowledgementInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutAcknowledgementInput, Prisma.CaseUncheckedUpdateWithoutAcknowledgementInput>
+}
+
+export type CaseUpdateWithoutAcknowledgementInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyAssignedToInput = {
@@ -4172,6 +4758,8 @@ export type CaseUpdateWithoutAssignedToInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssignedToInput = {
@@ -4222,6 +4810,8 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
@@ -4350,6 +4940,8 @@ export type CaseUpdateWithoutResidentInput = {
   parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutResidentInput = {
@@ -4400,6 +4992,8 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
   safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutResidentInput = {
@@ -4454,6 +5048,7 @@ export type CaseCountOutputType = {
   assessmentHistory: number
   parties: number
   referrals: number
+  hearings: number
 }
 
 export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4464,6 +5059,7 @@ export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   assessmentHistory?: boolean | CaseCountOutputTypeCountAssessmentHistoryArgs
   parties?: boolean | CaseCountOutputTypeCountPartiesArgs
   referrals?: boolean | CaseCountOutputTypeCountReferralsArgs
+  hearings?: boolean | CaseCountOutputTypeCountHearingsArgs
 }
 
 /**
@@ -4525,6 +5121,13 @@ export type CaseCountOutputTypeCountReferralsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.CaseReferralWhereInput
 }
 
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountHearingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingWhereInput
+}
+
 
 export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4577,6 +5180,8 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   parties?: boolean | Prisma.Case$partiesArgs<ExtArgs>
   safetyAssessment?: boolean | Prisma.Case$safetyAssessmentArgs<ExtArgs>
   referrals?: boolean | Prisma.Case$referralsArgs<ExtArgs>
+  hearings?: boolean | Prisma.Case$hearingsArgs<ExtArgs>
+  acknowledgement?: boolean | Prisma.Case$acknowledgementArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
 
@@ -4719,6 +5324,8 @@ export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   parties?: boolean | Prisma.Case$partiesArgs<ExtArgs>
   safetyAssessment?: boolean | Prisma.Case$safetyAssessmentArgs<ExtArgs>
   referrals?: boolean | Prisma.Case$referralsArgs<ExtArgs>
+  hearings?: boolean | Prisma.Case$hearingsArgs<ExtArgs>
+  acknowledgement?: boolean | Prisma.Case$acknowledgementArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4749,6 +5356,8 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     parties: Prisma.$CasePartyPayload<ExtArgs>[]
     safetyAssessment: Prisma.$CaseSafetyAssessmentPayload<ExtArgs> | null
     referrals: Prisma.$CaseReferralPayload<ExtArgs>[]
+    hearings: Prisma.$CaseHearingPayload<ExtArgs>[]
+    acknowledgement: Prisma.$AcknowledgementLetterPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -5282,6 +5891,8 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   parties<T extends Prisma.Case$partiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$partiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePartyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   safetyAssessment<T extends Prisma.Case$safetyAssessmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$safetyAssessmentArgs<ExtArgs>>): Prisma.Prisma__CaseSafetyAssessmentClient<runtime.Types.Result.GetResult<Prisma.$CaseSafetyAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   referrals<T extends Prisma.Case$referralsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$referralsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  hearings<T extends Prisma.Case$hearingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$hearingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  acknowledgement<T extends Prisma.Case$acknowledgementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$acknowledgementArgs<ExtArgs>>): Prisma.Prisma__AcknowledgementLetterClient<runtime.Types.Result.GetResult<Prisma.$AcknowledgementLetterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6028,6 +6639,49 @@ export type Case$referralsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CaseReferralScalarFieldEnum | Prisma.CaseReferralScalarFieldEnum[]
+}
+
+/**
+ * Case.hearings
+ */
+export type Case$hearingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearing
+   */
+  select?: Prisma.CaseHearingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearing
+   */
+  omit?: Prisma.CaseHearingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingWhereInput
+  orderBy?: Prisma.CaseHearingOrderByWithRelationInput | Prisma.CaseHearingOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
+}
+
+/**
+ * Case.acknowledgement
+ */
+export type Case$acknowledgementArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AcknowledgementLetter
+   */
+  select?: Prisma.AcknowledgementLetterSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AcknowledgementLetter
+   */
+  omit?: Prisma.AcknowledgementLetterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AcknowledgementLetterInclude<ExtArgs> | null
+  where?: Prisma.AcknowledgementLetterWhereInput
 }
 
 /**

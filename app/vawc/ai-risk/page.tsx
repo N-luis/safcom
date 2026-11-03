@@ -1,13 +1,12 @@
 'use client';
 
-import RiskAnalytics from '@/components/cases/RiskAnalytics';
+import AnalyticsModule from '@/components/analytics/AnalyticsModule';
 
 /**
- * The VAWC desk's risk board, scoped to its own caseload.
+ * Analytics & Case Intelligence for the VAWC desk, scoped to its own caseload.
  *
- * The API refuses `scope=vawc` to anyone those cases are hidden from, so
- * these figures never reach the blotter.
+ * The API narrows the scope by role, so these figures never reach the blotter.
  */
-export default function VawcRiskPage() {
-  return <RiskAnalytics scope="vawc" basePath="/vawc/cases" />;
+export default function VawcAnalyticsPage() {
+  return <AnalyticsModule scope="vawc" caseBase={{ BLOTTER: null, VAWC: '/vawc/cases' }} />;
 }

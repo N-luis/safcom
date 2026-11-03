@@ -405,7 +405,9 @@ export const ModelName = {
   AiUsage: 'AiUsage',
   ReporterAccessLog: 'ReporterAccessLog',
   OfficialIntake: 'OfficialIntake',
-  OfficialIntakeRevision: 'OfficialIntakeRevision'
+  OfficialIntakeRevision: 'OfficialIntakeRevision',
+  CaseHearing: 'CaseHearing',
+  AcknowledgementLetter: 'AcknowledgementLetter'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision"
+    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "acknowledgementLetter"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2053,6 +2055,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CaseHearing: {
+      payload: Prisma.$CaseHearingPayload<ExtArgs>
+      fields: Prisma.CaseHearingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseHearingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseHearingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseHearingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseHearingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        findMany: {
+          args: Prisma.CaseHearingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>[]
+        }
+        create: {
+          args: Prisma.CaseHearingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        createMany: {
+          args: Prisma.CaseHearingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseHearingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseHearingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        update: {
+          args: Prisma.CaseHearingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseHearingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseHearingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseHearingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseHearingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseHearingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseHearing>
+        }
+        groupBy: {
+          args: Prisma.CaseHearingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseHearingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingCountAggregateOutputType> | number
+        }
+      }
+    }
+    AcknowledgementLetter: {
+      payload: Prisma.$AcknowledgementLetterPayload<ExtArgs>
+      fields: Prisma.AcknowledgementLetterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AcknowledgementLetterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AcknowledgementLetterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        findFirst: {
+          args: Prisma.AcknowledgementLetterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AcknowledgementLetterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        findMany: {
+          args: Prisma.AcknowledgementLetterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>[]
+        }
+        create: {
+          args: Prisma.AcknowledgementLetterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        createMany: {
+          args: Prisma.AcknowledgementLetterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AcknowledgementLetterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>[]
+        }
+        delete: {
+          args: Prisma.AcknowledgementLetterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        update: {
+          args: Prisma.AcknowledgementLetterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        deleteMany: {
+          args: Prisma.AcknowledgementLetterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AcknowledgementLetterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AcknowledgementLetterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>[]
+        }
+        upsert: {
+          args: Prisma.AcknowledgementLetterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcknowledgementLetterPayload>
+        }
+        aggregate: {
+          args: Prisma.AcknowledgementLetterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAcknowledgementLetter>
+        }
+        groupBy: {
+          args: Prisma.AcknowledgementLetterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcknowledgementLetterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AcknowledgementLetterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcknowledgementLetterCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2535,6 +2685,41 @@ export const OfficialIntakeRevisionScalarFieldEnum = {
 export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisionScalarFieldEnum)[keyof typeof OfficialIntakeRevisionScalarFieldEnum]
 
 
+export const CaseHearingScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  hearingNumber: 'hearingNumber',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  status: 'status',
+  outcome: 'outcome',
+  statusReason: 'statusReason',
+  notes: 'notes',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseHearingScalarFieldEnum = (typeof CaseHearingScalarFieldEnum)[keyof typeof CaseHearingScalarFieldEnum]
+
+
+export const AcknowledgementLetterScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  letterNumber: 'letterNumber',
+  status: 'status',
+  recipient: 'recipient',
+  generatedById: 'generatedById',
+  generatedAt: 'generatedAt',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  issueMethod: 'issueMethod'
+} as const
+
+export type AcknowledgementLetterScalarFieldEnum = (typeof AcknowledgementLetterScalarFieldEnum)[keyof typeof AcknowledgementLetterScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2811,6 +2996,8 @@ export type GlobalOmitConfig = {
   reporterAccessLog?: Prisma.ReporterAccessLogOmit
   officialIntake?: Prisma.OfficialIntakeOmit
   officialIntakeRevision?: Prisma.OfficialIntakeRevisionOmit
+  caseHearing?: Prisma.CaseHearingOmit
+  acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
 }
 
 /* Types for Logging */

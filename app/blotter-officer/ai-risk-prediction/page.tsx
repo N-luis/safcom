@@ -1,7 +1,8 @@
 'use client';
 
-import RiskAnalytics from '@/components/cases/RiskAnalytics';
+import AnalyticsModule from '@/components/analytics/AnalyticsModule';
 
-export default function BlotterRiskPage() {
-  return <RiskAnalytics scope="all" basePath="/blotter-officer/case-management" />;
+/** Analytics & Case Intelligence for the blotter desk - its own caseload. */
+export default function BlotterAnalyticsPage() {
+  return <AnalyticsModule scope="blotter" caseBase={{ BLOTTER: '/blotter-officer/case-management', VAWC: null }} />;
 }
