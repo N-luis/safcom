@@ -168,47 +168,11 @@ export function categoryVerdict(rows: { kind: string; caseType: string | null; p
 
 // ── Hearings ─────────────────────────────────────────────────────────────────
 
-export const HEARING_STATUSES = {
-  SCHEDULED: 'Scheduled', COMPLETED: 'Completed', POSTPONED: 'Postponed', CANCELLED: 'Cancelled',
-} as const;
-export type HearingStatus = keyof typeof HEARING_STATUSES;
-
-export const HEARING_OUTCOMES = {
-  SETTLED: 'Settled - amicable settlement',
-  NOT_SETTLED: 'Not settled',
-  RESPONDENT_ABSENT: 'Respondent did not appear',
-  COMPLAINANT_ABSENT: 'Complainant did not appear',
-  REFERRED: 'Referred elsewhere',
-} as const;
-export type HearingOutcome = keyof typeof HEARING_OUTCOMES;
-
-export const MAX_HEARINGS = 3;
-
-/**
- * Why a hearing cannot be scheduled on this case, or null. A VAWC case is
- * never mediated or conciliated at the barangay; one hearing at a time; a
- * hearing follows the one before it; three at most.
- */
-export function hearingRefusal(caseType: string, existing: { hearingNumber: number; status: string; outcome?: string | null }[], hearingNumber: number): string | null {
-  if (isVawc(caseType)) {
-    return 'VAWC cases are not subject to barangay mediation or conciliation. Record interventions and referrals instead.';
-  }
-  if (!Number.isInteger(hearingNumber) || hearingNumber < 1 || hearingNumber > MAX_HEARINGS) return `A case has hearings 1 to ${MAX_HEARINGS} only.`;
-  if (existing.some(h => h.status === 'SCHEDULED')) return 'This case already has a scheduled hearing. Complete, postpone or cancel it first.';
-  if (existing.some(h => h.hearingNumber === hearingNumber && h.status === 'COMPLETED')) return `Hearing ${hearingNumber} has already been held.`;
-  if (hearingNumber > 1 && !existing.some(h => h.hearingNumber === hearingNumber - 1 && h.status === 'COMPLETED')) {
-    return `Hearing ${hearingNumber - 1} must be held first.`;
-  }
-  if (existing.some(h => h.status === 'COMPLETED' && h.outcome === 'SETTLED')) return 'This dispute was already settled at a hearing.';
-  return null;
-}
-
-/** The hearing to schedule next: one after the last held, and never past three. */
-export function nextHearingNumber(existing: { hearingNumber: number; status: string }[]): number | null {
-  const held = existing.filter(h => h.status === 'COMPLETED').map(h => h.hearingNumber);
-  const next = held.length ? Math.max(...held) + 1 : 1;
-  return next > MAX_HEARINGS ? null : next;
-}
+// The hearing rules live with Hearing Management; kept importable from here.
+export {
+  HEARING_STATUSES, HEARING_OUTCOMES, MAX_HEARINGS, hearingRefusal, nextHearingNumber,
+  type HearingStatus, type HearingOutcome,
+} from './hearings';
 
 // ── Acknowledgement letters ──────────────────────────────────────────────────
 

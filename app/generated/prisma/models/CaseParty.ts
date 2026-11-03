@@ -292,6 +292,8 @@ export type CasePartyWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
+  hearingsAsComplainant?: Prisma.CaseHearingListRelationFilter
+  hearingsAsRespondent?: Prisma.CaseHearingListRelationFilter
 }
 
 export type CasePartyOrderByWithRelationInput = {
@@ -310,6 +312,8 @@ export type CasePartyOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
+  hearingsAsComplainant?: Prisma.CaseHearingOrderByRelationAggregateInput
+  hearingsAsRespondent?: Prisma.CaseHearingOrderByRelationAggregateInput
 }
 
 export type CasePartyWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +335,8 @@ export type CasePartyWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
+  hearingsAsComplainant?: Prisma.CaseHearingListRelationFilter
+  hearingsAsRespondent?: Prisma.CaseHearingListRelationFilter
 }, "id">
 
 export type CasePartyOrderByWithAggregationInput = {
@@ -390,6 +396,8 @@ export type CasePartyCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutPartiesInput
+  hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
+  hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
 }
 
 export type CasePartyUncheckedCreateInput = {
@@ -407,6 +415,8 @@ export type CasePartyUncheckedCreateInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
 }
 
 export type CasePartyUpdateInput = {
@@ -424,6 +434,8 @@ export type CasePartyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
+  hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
+  hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
 }
 
 export type CasePartyUncheckedUpdateInput = {
@@ -441,6 +453,8 @@ export type CasePartyUncheckedUpdateInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
 }
 
 export type CasePartyCreateManyInput = {
@@ -562,6 +576,11 @@ export type CasePartySumOrderByAggregateInput = {
   age?: Prisma.SortOrder
 }
 
+export type CasePartyNullableScalarRelationFilter = {
+  is?: Prisma.CasePartyWhereInput | null
+  isNot?: Prisma.CasePartyWhereInput | null
+}
+
 export type CasePartyCreateNestedManyWithoutCaseInput = {
   create?: Prisma.XOR<Prisma.CasePartyCreateWithoutCaseInput, Prisma.CasePartyUncheckedCreateWithoutCaseInput> | Prisma.CasePartyCreateWithoutCaseInput[] | Prisma.CasePartyUncheckedCreateWithoutCaseInput[]
   connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutCaseInput | Prisma.CasePartyCreateOrConnectWithoutCaseInput[]
@@ -612,6 +631,38 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CasePartyCreateNestedOneWithoutHearingsAsComplainantInput = {
+  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsComplainantInput>
+  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutHearingsAsComplainantInput
+  connect?: Prisma.CasePartyWhereUniqueInput
+}
+
+export type CasePartyCreateNestedOneWithoutHearingsAsRespondentInput = {
+  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsRespondentInput>
+  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutHearingsAsRespondentInput
+  connect?: Prisma.CasePartyWhereUniqueInput
+}
+
+export type CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput = {
+  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsComplainantInput>
+  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutHearingsAsComplainantInput
+  upsert?: Prisma.CasePartyUpsertWithoutHearingsAsComplainantInput
+  disconnect?: Prisma.CasePartyWhereInput | boolean
+  delete?: Prisma.CasePartyWhereInput | boolean
+  connect?: Prisma.CasePartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CasePartyUpdateToOneWithWhereWithoutHearingsAsComplainantInput, Prisma.CasePartyUpdateWithoutHearingsAsComplainantInput>, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput>
+}
+
+export type CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput = {
+  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsRespondentInput>
+  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutHearingsAsRespondentInput
+  upsert?: Prisma.CasePartyUpsertWithoutHearingsAsRespondentInput
+  disconnect?: Prisma.CasePartyWhereInput | boolean
+  delete?: Prisma.CasePartyWhereInput | boolean
+  connect?: Prisma.CasePartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CasePartyUpdateToOneWithWhereWithoutHearingsAsRespondentInput, Prisma.CasePartyUpdateWithoutHearingsAsRespondentInput>, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput>
+}
+
 export type CasePartyCreateWithoutCaseInput = {
   id?: string
   role: string
@@ -626,6 +677,8 @@ export type CasePartyCreateWithoutCaseInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
+  hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
 }
 
 export type CasePartyUncheckedCreateWithoutCaseInput = {
@@ -642,6 +695,8 @@ export type CasePartyUncheckedCreateWithoutCaseInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
 }
 
 export type CasePartyCreateOrConnectWithoutCaseInput = {
@@ -690,6 +745,182 @@ export type CasePartyScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
 }
 
+export type CasePartyCreateWithoutHearingsAsComplainantInput = {
+  id?: string
+  role: string
+  fullName?: string | null
+  age?: number | null
+  address?: string | null
+  contactNumber?: string | null
+  relationship?: string | null
+  dependentsAffected?: string | null
+  details?: string | null
+  source?: string
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutPartiesInput
+  hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
+}
+
+export type CasePartyUncheckedCreateWithoutHearingsAsComplainantInput = {
+  id?: string
+  caseId: string
+  role: string
+  fullName?: string | null
+  age?: number | null
+  address?: string | null
+  contactNumber?: string | null
+  relationship?: string | null
+  dependentsAffected?: string | null
+  details?: string | null
+  source?: string
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
+}
+
+export type CasePartyCreateOrConnectWithoutHearingsAsComplainantInput = {
+  where: Prisma.CasePartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsComplainantInput>
+}
+
+export type CasePartyCreateWithoutHearingsAsRespondentInput = {
+  id?: string
+  role: string
+  fullName?: string | null
+  age?: number | null
+  address?: string | null
+  contactNumber?: string | null
+  relationship?: string | null
+  dependentsAffected?: string | null
+  details?: string | null
+  source?: string
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutPartiesInput
+  hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
+}
+
+export type CasePartyUncheckedCreateWithoutHearingsAsRespondentInput = {
+  id?: string
+  caseId: string
+  role: string
+  fullName?: string | null
+  age?: number | null
+  address?: string | null
+  contactNumber?: string | null
+  relationship?: string | null
+  dependentsAffected?: string | null
+  details?: string | null
+  source?: string
+  updatedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
+}
+
+export type CasePartyCreateOrConnectWithoutHearingsAsRespondentInput = {
+  where: Prisma.CasePartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsRespondentInput>
+}
+
+export type CasePartyUpsertWithoutHearingsAsComplainantInput = {
+  update: Prisma.XOR<Prisma.CasePartyUpdateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput>
+  create: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsComplainantInput>
+  where?: Prisma.CasePartyWhereInput
+}
+
+export type CasePartyUpdateToOneWithWhereWithoutHearingsAsComplainantInput = {
+  where?: Prisma.CasePartyWhereInput
+  data: Prisma.XOR<Prisma.CasePartyUpdateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput>
+}
+
+export type CasePartyUpdateWithoutHearingsAsComplainantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
+  hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
+}
+
+export type CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
+}
+
+export type CasePartyUpsertWithoutHearingsAsRespondentInput = {
+  update: Prisma.XOR<Prisma.CasePartyUpdateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput>
+  create: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsRespondentInput>
+  where?: Prisma.CasePartyWhereInput
+}
+
+export type CasePartyUpdateToOneWithWhereWithoutHearingsAsRespondentInput = {
+  where?: Prisma.CasePartyWhereInput
+  data: Prisma.XOR<Prisma.CasePartyUpdateWithoutHearingsAsRespondentInput, Prisma.CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput>
+}
+
+export type CasePartyUpdateWithoutHearingsAsRespondentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
+  hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
+}
+
+export type CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
+}
+
 export type CasePartyCreateManyCaseInput = {
   id?: string
   role: string
@@ -720,6 +951,8 @@ export type CasePartyUpdateWithoutCaseInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
+  hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
 }
 
 export type CasePartyUncheckedUpdateWithoutCaseInput = {
@@ -736,6 +969,8 @@ export type CasePartyUncheckedUpdateWithoutCaseInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
+  hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
 }
 
 export type CasePartyUncheckedUpdateManyWithoutCaseInput = {
@@ -755,6 +990,44 @@ export type CasePartyUncheckedUpdateManyWithoutCaseInput = {
 }
 
 
+/**
+ * Count Type CasePartyCountOutputType
+ */
+
+export type CasePartyCountOutputType = {
+  hearingsAsComplainant: number
+  hearingsAsRespondent: number
+}
+
+export type CasePartyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  hearingsAsComplainant?: boolean | CasePartyCountOutputTypeCountHearingsAsComplainantArgs
+  hearingsAsRespondent?: boolean | CasePartyCountOutputTypeCountHearingsAsRespondentArgs
+}
+
+/**
+ * CasePartyCountOutputType without action
+ */
+export type CasePartyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CasePartyCountOutputType
+   */
+  select?: Prisma.CasePartyCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CasePartyCountOutputType without action
+ */
+export type CasePartyCountOutputTypeCountHearingsAsComplainantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingWhereInput
+}
+
+/**
+ * CasePartyCountOutputType without action
+ */
+export type CasePartyCountOutputTypeCountHearingsAsRespondentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingWhereInput
+}
+
 
 export type CasePartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -772,6 +1045,9 @@ export type CasePartySelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  hearingsAsComplainant?: boolean | Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>
+  hearingsAsRespondent?: boolean | Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>
+  _count?: boolean | Prisma.CasePartyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseParty"]>
 
 export type CasePartySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -830,6 +1106,9 @@ export type CasePartySelectScalar = {
 export type CasePartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "role" | "fullName" | "age" | "address" | "contactNumber" | "relationship" | "dependentsAffected" | "details" | "source" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseParty"]>
 export type CasePartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  hearingsAsComplainant?: boolean | Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>
+  hearingsAsRespondent?: boolean | Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>
+  _count?: boolean | Prisma.CasePartyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CasePartyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
@@ -842,6 +1121,8 @@ export type $CasePartyPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "CaseParty"
   objects: {
     case: Prisma.$CasePayload<ExtArgs>
+    hearingsAsComplainant: Prisma.$CaseHearingPayload<ExtArgs>[]
+    hearingsAsRespondent: Prisma.$CaseHearingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1268,6 +1549,8 @@ readonly fields: CasePartyFieldRefs;
 export interface Prisma__CasePartyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   case<T extends Prisma.CaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  hearingsAsComplainant<T extends Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  hearingsAsRespondent<T extends Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1709,6 +1992,54 @@ export type CasePartyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many CaseParties to delete.
    */
   limit?: number
+}
+
+/**
+ * CaseParty.hearingsAsComplainant
+ */
+export type CaseParty$hearingsAsComplainantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearing
+   */
+  select?: Prisma.CaseHearingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearing
+   */
+  omit?: Prisma.CaseHearingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingWhereInput
+  orderBy?: Prisma.CaseHearingOrderByWithRelationInput | Prisma.CaseHearingOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
+}
+
+/**
+ * CaseParty.hearingsAsRespondent
+ */
+export type CaseParty$hearingsAsRespondentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearing
+   */
+  select?: Prisma.CaseHearingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearing
+   */
+  omit?: Prisma.CaseHearingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingWhereInput
+  orderBy?: Prisma.CaseHearingOrderByWithRelationInput | Prisma.CaseHearingOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
 }
 
 /**

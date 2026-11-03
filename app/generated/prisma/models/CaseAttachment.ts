@@ -42,6 +42,7 @@ export type CaseAttachmentMinAggregateOutputType = {
   id: string | null
   caseId: string | null
   followUpId: string | null
+  hearingId: string | null
   filename: string | null
   mimeType: string | null
   size: number | null
@@ -53,6 +54,7 @@ export type CaseAttachmentMaxAggregateOutputType = {
   id: string | null
   caseId: string | null
   followUpId: string | null
+  hearingId: string | null
   filename: string | null
   mimeType: string | null
   size: number | null
@@ -64,6 +66,7 @@ export type CaseAttachmentCountAggregateOutputType = {
   id: number
   caseId: number
   followUpId: number
+  hearingId: number
   filename: number
   mimeType: number
   size: number
@@ -85,6 +88,7 @@ export type CaseAttachmentMinAggregateInputType = {
   id?: true
   caseId?: true
   followUpId?: true
+  hearingId?: true
   filename?: true
   mimeType?: true
   size?: true
@@ -96,6 +100,7 @@ export type CaseAttachmentMaxAggregateInputType = {
   id?: true
   caseId?: true
   followUpId?: true
+  hearingId?: true
   filename?: true
   mimeType?: true
   size?: true
@@ -107,6 +112,7 @@ export type CaseAttachmentCountAggregateInputType = {
   id?: true
   caseId?: true
   followUpId?: true
+  hearingId?: true
   filename?: true
   mimeType?: true
   size?: true
@@ -205,6 +211,7 @@ export type CaseAttachmentGroupByOutputType = {
   id: string
   caseId: string
   followUpId: string | null
+  hearingId: string | null
   filename: string
   mimeType: string
   size: number
@@ -239,6 +246,7 @@ export type CaseAttachmentWhereInput = {
   id?: Prisma.StringFilter<"CaseAttachment"> | string
   caseId?: Prisma.StringFilter<"CaseAttachment"> | string
   followUpId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  hearingId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   filename?: Prisma.StringFilter<"CaseAttachment"> | string
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
@@ -246,12 +254,14 @@ export type CaseAttachmentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"CaseAttachment"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   followUp?: Prisma.XOR<Prisma.CaseFollowUpNullableScalarRelationFilter, Prisma.CaseFollowUpWhereInput> | null
+  hearing?: Prisma.XOR<Prisma.CaseHearingNullableScalarRelationFilter, Prisma.CaseHearingWhereInput> | null
 }
 
 export type CaseAttachmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
+  hearingId?: Prisma.SortOrderInput | Prisma.SortOrder
   filename?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
@@ -259,6 +269,7 @@ export type CaseAttachmentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
   followUp?: Prisma.CaseFollowUpOrderByWithRelationInput
+  hearing?: Prisma.CaseHearingOrderByWithRelationInput
 }
 
 export type CaseAttachmentWhereUniqueInput = Prisma.AtLeast<{
@@ -268,6 +279,7 @@ export type CaseAttachmentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CaseAttachmentWhereInput | Prisma.CaseAttachmentWhereInput[]
   caseId?: Prisma.StringFilter<"CaseAttachment"> | string
   followUpId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  hearingId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   filename?: Prisma.StringFilter<"CaseAttachment"> | string
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
@@ -275,12 +287,14 @@ export type CaseAttachmentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"CaseAttachment"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   followUp?: Prisma.XOR<Prisma.CaseFollowUpNullableScalarRelationFilter, Prisma.CaseFollowUpWhereInput> | null
+  hearing?: Prisma.XOR<Prisma.CaseHearingNullableScalarRelationFilter, Prisma.CaseHearingWhereInput> | null
 }, "id">
 
 export type CaseAttachmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
+  hearingId?: Prisma.SortOrderInput | Prisma.SortOrder
   filename?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
@@ -300,6 +314,7 @@ export type CaseAttachmentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CaseAttachment"> | string
   caseId?: Prisma.StringWithAggregatesFilter<"CaseAttachment"> | string
   followUpId?: Prisma.StringNullableWithAggregatesFilter<"CaseAttachment"> | string | null
+  hearingId?: Prisma.StringNullableWithAggregatesFilter<"CaseAttachment"> | string | null
   filename?: Prisma.StringWithAggregatesFilter<"CaseAttachment"> | string
   mimeType?: Prisma.StringWithAggregatesFilter<"CaseAttachment"> | string
   size?: Prisma.IntWithAggregatesFilter<"CaseAttachment"> | number
@@ -316,12 +331,14 @@ export type CaseAttachmentCreateInput = {
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
   followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
+  hearing?: Prisma.CaseHearingCreateNestedOneWithoutAttachmentsInput
 }
 
 export type CaseAttachmentUncheckedCreateInput = {
   id?: string
   caseId: string
   followUpId?: string | null
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -338,12 +355,14 @@ export type CaseAttachmentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
   followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
+  hearing?: Prisma.CaseHearingUpdateOneWithoutAttachmentsNestedInput
 }
 
 export type CaseAttachmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -355,6 +374,7 @@ export type CaseAttachmentCreateManyInput = {
   id?: string
   caseId: string
   followUpId?: string | null
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -375,6 +395,7 @@ export type CaseAttachmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -396,6 +417,7 @@ export type CaseAttachmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
+  hearingId?: Prisma.SortOrder
   filename?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
@@ -411,6 +433,7 @@ export type CaseAttachmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
+  hearingId?: Prisma.SortOrder
   filename?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
@@ -422,6 +445,7 @@ export type CaseAttachmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
+  hearingId?: Prisma.SortOrder
   filename?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
@@ -521,6 +545,48 @@ export type CaseAttachmentUncheckedUpdateManyWithoutFollowUpNestedInput = {
   deleteMany?: Prisma.CaseAttachmentScalarWhereInput | Prisma.CaseAttachmentScalarWhereInput[]
 }
 
+export type CaseAttachmentCreateNestedManyWithoutHearingInput = {
+  create?: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput> | Prisma.CaseAttachmentCreateWithoutHearingInput[] | Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput[]
+  connectOrCreate?: Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput | Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput[]
+  createMany?: Prisma.CaseAttachmentCreateManyHearingInputEnvelope
+  connect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+}
+
+export type CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput = {
+  create?: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput> | Prisma.CaseAttachmentCreateWithoutHearingInput[] | Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput[]
+  connectOrCreate?: Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput | Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput[]
+  createMany?: Prisma.CaseAttachmentCreateManyHearingInputEnvelope
+  connect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+}
+
+export type CaseAttachmentUpdateManyWithoutHearingNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput> | Prisma.CaseAttachmentCreateWithoutHearingInput[] | Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput[]
+  connectOrCreate?: Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput | Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput[]
+  upsert?: Prisma.CaseAttachmentUpsertWithWhereUniqueWithoutHearingInput | Prisma.CaseAttachmentUpsertWithWhereUniqueWithoutHearingInput[]
+  createMany?: Prisma.CaseAttachmentCreateManyHearingInputEnvelope
+  set?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  disconnect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  delete?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  connect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  update?: Prisma.CaseAttachmentUpdateWithWhereUniqueWithoutHearingInput | Prisma.CaseAttachmentUpdateWithWhereUniqueWithoutHearingInput[]
+  updateMany?: Prisma.CaseAttachmentUpdateManyWithWhereWithoutHearingInput | Prisma.CaseAttachmentUpdateManyWithWhereWithoutHearingInput[]
+  deleteMany?: Prisma.CaseAttachmentScalarWhereInput | Prisma.CaseAttachmentScalarWhereInput[]
+}
+
+export type CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput> | Prisma.CaseAttachmentCreateWithoutHearingInput[] | Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput[]
+  connectOrCreate?: Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput | Prisma.CaseAttachmentCreateOrConnectWithoutHearingInput[]
+  upsert?: Prisma.CaseAttachmentUpsertWithWhereUniqueWithoutHearingInput | Prisma.CaseAttachmentUpsertWithWhereUniqueWithoutHearingInput[]
+  createMany?: Prisma.CaseAttachmentCreateManyHearingInputEnvelope
+  set?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  disconnect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  delete?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  connect?: Prisma.CaseAttachmentWhereUniqueInput | Prisma.CaseAttachmentWhereUniqueInput[]
+  update?: Prisma.CaseAttachmentUpdateWithWhereUniqueWithoutHearingInput | Prisma.CaseAttachmentUpdateWithWhereUniqueWithoutHearingInput[]
+  updateMany?: Prisma.CaseAttachmentUpdateManyWithWhereWithoutHearingInput | Prisma.CaseAttachmentUpdateManyWithWhereWithoutHearingInput[]
+  deleteMany?: Prisma.CaseAttachmentScalarWhereInput | Prisma.CaseAttachmentScalarWhereInput[]
+}
+
 export type CaseAttachmentCreateWithoutCaseInput = {
   id?: string
   filename: string
@@ -529,11 +595,13 @@ export type CaseAttachmentCreateWithoutCaseInput = {
   data: runtime.Bytes
   createdAt?: Date | string
   followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
+  hearing?: Prisma.CaseHearingCreateNestedOneWithoutAttachmentsInput
 }
 
 export type CaseAttachmentUncheckedCreateWithoutCaseInput = {
   id?: string
   followUpId?: string | null
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -574,6 +642,7 @@ export type CaseAttachmentScalarWhereInput = {
   id?: Prisma.StringFilter<"CaseAttachment"> | string
   caseId?: Prisma.StringFilter<"CaseAttachment"> | string
   followUpId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  hearingId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   filename?: Prisma.StringFilter<"CaseAttachment"> | string
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
@@ -589,11 +658,13 @@ export type CaseAttachmentCreateWithoutFollowUpInput = {
   data: runtime.Bytes
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
+  hearing?: Prisma.CaseHearingCreateNestedOneWithoutAttachmentsInput
 }
 
 export type CaseAttachmentUncheckedCreateWithoutFollowUpInput = {
   id?: string
   caseId: string
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -627,9 +698,58 @@ export type CaseAttachmentUpdateManyWithWhereWithoutFollowUpInput = {
   data: Prisma.XOR<Prisma.CaseAttachmentUpdateManyMutationInput, Prisma.CaseAttachmentUncheckedUpdateManyWithoutFollowUpInput>
 }
 
+export type CaseAttachmentCreateWithoutHearingInput = {
+  id?: string
+  filename: string
+  mimeType: string
+  size: number
+  data: runtime.Bytes
+  createdAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
+  followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
+}
+
+export type CaseAttachmentUncheckedCreateWithoutHearingInput = {
+  id?: string
+  caseId: string
+  followUpId?: string | null
+  filename: string
+  mimeType: string
+  size: number
+  data: runtime.Bytes
+  createdAt?: Date | string
+}
+
+export type CaseAttachmentCreateOrConnectWithoutHearingInput = {
+  where: Prisma.CaseAttachmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput>
+}
+
+export type CaseAttachmentCreateManyHearingInputEnvelope = {
+  data: Prisma.CaseAttachmentCreateManyHearingInput | Prisma.CaseAttachmentCreateManyHearingInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseAttachmentUpsertWithWhereUniqueWithoutHearingInput = {
+  where: Prisma.CaseAttachmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseAttachmentUpdateWithoutHearingInput, Prisma.CaseAttachmentUncheckedUpdateWithoutHearingInput>
+  create: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutHearingInput, Prisma.CaseAttachmentUncheckedCreateWithoutHearingInput>
+}
+
+export type CaseAttachmentUpdateWithWhereUniqueWithoutHearingInput = {
+  where: Prisma.CaseAttachmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseAttachmentUpdateWithoutHearingInput, Prisma.CaseAttachmentUncheckedUpdateWithoutHearingInput>
+}
+
+export type CaseAttachmentUpdateManyWithWhereWithoutHearingInput = {
+  where: Prisma.CaseAttachmentScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseAttachmentUpdateManyMutationInput, Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingInput>
+}
+
 export type CaseAttachmentCreateManyCaseInput = {
   id?: string
   followUpId?: string | null
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -645,11 +765,13 @@ export type CaseAttachmentUpdateWithoutCaseInput = {
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
+  hearing?: Prisma.CaseHearingUpdateOneWithoutAttachmentsNestedInput
 }
 
 export type CaseAttachmentUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -660,6 +782,7 @@ export type CaseAttachmentUncheckedUpdateWithoutCaseInput = {
 export type CaseAttachmentUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -670,6 +793,7 @@ export type CaseAttachmentUncheckedUpdateManyWithoutCaseInput = {
 export type CaseAttachmentCreateManyFollowUpInput = {
   id?: string
   caseId: string
+  hearingId?: string | null
   filename: string
   mimeType: string
   size: number
@@ -685,11 +809,13 @@ export type CaseAttachmentUpdateWithoutFollowUpInput = {
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
+  hearing?: Prisma.CaseHearingUpdateOneWithoutAttachmentsNestedInput
 }
 
 export type CaseAttachmentUncheckedUpdateWithoutFollowUpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -700,6 +826,51 @@ export type CaseAttachmentUncheckedUpdateWithoutFollowUpInput = {
 export type CaseAttachmentUncheckedUpdateManyWithoutFollowUpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filename?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CaseAttachmentCreateManyHearingInput = {
+  id?: string
+  caseId: string
+  followUpId?: string | null
+  filename: string
+  mimeType: string
+  size: number
+  data: runtime.Bytes
+  createdAt?: Date | string
+}
+
+export type CaseAttachmentUpdateWithoutHearingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  filename?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
+  followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
+}
+
+export type CaseAttachmentUncheckedUpdateWithoutHearingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filename?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CaseAttachmentUncheckedUpdateManyWithoutHearingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filename?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
@@ -713,6 +884,7 @@ export type CaseAttachmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   caseId?: boolean
   followUpId?: boolean
+  hearingId?: boolean
   filename?: boolean
   mimeType?: boolean
   size?: boolean
@@ -720,12 +892,14 @@ export type CaseAttachmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }, ExtArgs["result"]["caseAttachment"]>
 
 export type CaseAttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
   followUpId?: boolean
+  hearingId?: boolean
   filename?: boolean
   mimeType?: boolean
   size?: boolean
@@ -733,12 +907,14 @@ export type CaseAttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }, ExtArgs["result"]["caseAttachment"]>
 
 export type CaseAttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
   followUpId?: boolean
+  hearingId?: boolean
   filename?: boolean
   mimeType?: boolean
   size?: boolean
@@ -746,12 +922,14 @@ export type CaseAttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }, ExtArgs["result"]["caseAttachment"]>
 
 export type CaseAttachmentSelectScalar = {
   id?: boolean
   caseId?: boolean
   followUpId?: boolean
+  hearingId?: boolean
   filename?: boolean
   mimeType?: boolean
   size?: boolean
@@ -759,18 +937,21 @@ export type CaseAttachmentSelectScalar = {
   createdAt?: boolean
 }
 
-export type CaseAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "followUpId" | "filename" | "mimeType" | "size" | "data" | "createdAt", ExtArgs["result"]["caseAttachment"]>
+export type CaseAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "followUpId" | "hearingId" | "filename" | "mimeType" | "size" | "data" | "createdAt", ExtArgs["result"]["caseAttachment"]>
 export type CaseAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }
 export type CaseAttachmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }
 export type CaseAttachmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
+  hearing?: boolean | Prisma.CaseAttachment$hearingArgs<ExtArgs>
 }
 
 export type $CaseAttachmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -778,6 +959,7 @@ export type $CaseAttachmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     case: Prisma.$CasePayload<ExtArgs>
     followUp: Prisma.$CaseFollowUpPayload<ExtArgs> | null
+    hearing: Prisma.$CaseHearingPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -786,6 +968,11 @@ export type $CaseAttachmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * Set when the photo came with a follow-up rather than the original report.
      */
     followUpId: string | null
+    /**
+     * Set when an official attached it to a hearing record - officials only,
+     * never shown to a resident.
+     */
+    hearingId: string | null
     filename: string
     mimeType: string
     size: number
@@ -1187,6 +1374,7 @@ export interface Prisma__CaseAttachmentClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   case<T extends Prisma.CaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   followUp<T extends Prisma.CaseAttachment$followUpArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseAttachment$followUpArgs<ExtArgs>>): Prisma.Prisma__CaseFollowUpClient<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  hearing<T extends Prisma.CaseAttachment$hearingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseAttachment$hearingArgs<ExtArgs>>): Prisma.Prisma__CaseHearingClient<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1219,6 +1407,7 @@ export interface CaseAttachmentFieldRefs {
   readonly id: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly caseId: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly followUpId: Prisma.FieldRef<"CaseAttachment", 'String'>
+  readonly hearingId: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly filename: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly mimeType: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly size: Prisma.FieldRef<"CaseAttachment", 'Int'>
@@ -1641,6 +1830,25 @@ export type CaseAttachment$followUpArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.CaseFollowUpInclude<ExtArgs> | null
   where?: Prisma.CaseFollowUpWhereInput
+}
+
+/**
+ * CaseAttachment.hearing
+ */
+export type CaseAttachment$hearingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearing
+   */
+  select?: Prisma.CaseHearingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearing
+   */
+  omit?: Prisma.CaseHearingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingWhereInput
 }
 
 /**

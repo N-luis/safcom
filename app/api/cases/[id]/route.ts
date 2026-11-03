@@ -40,6 +40,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         // `select` on purpose: including the row would carry every photo's
         // bytes in the case detail response.
         attachments: {
+          // The report's own evidence. Hearing attachments are listed with the hearing.
+          where: { hearingId: null },
           orderBy: { createdAt: 'asc' },
           select: { id: true, filename: true, mimeType: true, size: true, createdAt: true },
         },

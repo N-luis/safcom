@@ -407,6 +407,10 @@ export const ModelName = {
   OfficialIntake: 'OfficialIntake',
   OfficialIntakeRevision: 'OfficialIntakeRevision',
   CaseHearing: 'CaseHearing',
+  CaseHearingNotice: 'CaseHearingNotice',
+  CaseHearingEvent: 'CaseHearingEvent',
+  CaseHearingRequest: 'CaseHearingRequest',
+  CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter'
 } as const
 
@@ -423,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "acknowledgementLetter"
+    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2129,6 +2133,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CaseHearingNotice: {
+      payload: Prisma.$CaseHearingNoticePayload<ExtArgs>
+      fields: Prisma.CaseHearingNoticeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseHearingNoticeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseHearingNoticeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        findFirst: {
+          args: Prisma.CaseHearingNoticeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseHearingNoticeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        findMany: {
+          args: Prisma.CaseHearingNoticeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>[]
+        }
+        create: {
+          args: Prisma.CaseHearingNoticeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        createMany: {
+          args: Prisma.CaseHearingNoticeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseHearingNoticeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>[]
+        }
+        delete: {
+          args: Prisma.CaseHearingNoticeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        update: {
+          args: Prisma.CaseHearingNoticeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseHearingNoticeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseHearingNoticeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseHearingNoticeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseHearingNoticeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingNoticePayload>
+        }
+        aggregate: {
+          args: Prisma.CaseHearingNoticeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseHearingNotice>
+        }
+        groupBy: {
+          args: Prisma.CaseHearingNoticeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingNoticeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseHearingNoticeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingNoticeCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseHearingEvent: {
+      payload: Prisma.$CaseHearingEventPayload<ExtArgs>
+      fields: Prisma.CaseHearingEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseHearingEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseHearingEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseHearingEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseHearingEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        findMany: {
+          args: Prisma.CaseHearingEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>[]
+        }
+        create: {
+          args: Prisma.CaseHearingEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        createMany: {
+          args: Prisma.CaseHearingEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseHearingEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseHearingEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        update: {
+          args: Prisma.CaseHearingEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseHearingEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseHearingEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseHearingEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseHearingEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseHearingEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseHearingEvent>
+        }
+        groupBy: {
+          args: Prisma.CaseHearingEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseHearingEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseHearingRequest: {
+      payload: Prisma.$CaseHearingRequestPayload<ExtArgs>
+      fields: Prisma.CaseHearingRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseHearingRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseHearingRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseHearingRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseHearingRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        findMany: {
+          args: Prisma.CaseHearingRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>[]
+        }
+        create: {
+          args: Prisma.CaseHearingRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        createMany: {
+          args: Prisma.CaseHearingRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseHearingRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseHearingRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        update: {
+          args: Prisma.CaseHearingRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseHearingRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseHearingRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseHearingRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseHearingRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseHearingRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseHearingRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseHearingRequest>
+        }
+        groupBy: {
+          args: Prisma.CaseHearingRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseHearingRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseHearingRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseKpReview: {
+      payload: Prisma.$CaseKpReviewPayload<ExtArgs>
+      fields: Prisma.CaseKpReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseKpReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseKpReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseKpReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseKpReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        findMany: {
+          args: Prisma.CaseKpReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>[]
+        }
+        create: {
+          args: Prisma.CaseKpReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        createMany: {
+          args: Prisma.CaseKpReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseKpReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseKpReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        update: {
+          args: Prisma.CaseKpReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseKpReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseKpReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseKpReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseKpReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseKpReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseKpReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseKpReview>
+        }
+        groupBy: {
+          args: Prisma.CaseKpReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseKpReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseKpReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseKpReviewCountAggregateOutputType> | number
+        }
+      }
+    }
     AcknowledgementLetter: {
       payload: Prisma.$AcknowledgementLetterPayload<ExtArgs>
       fields: Prisma.AcknowledgementLetterFieldRefs
@@ -2397,6 +2697,7 @@ export const CaseAttachmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
   followUpId: 'followUpId',
+  hearingId: 'hearingId',
   filename: 'filename',
   mimeType: 'mimeType',
   size: 'size',
@@ -2696,13 +2997,34 @@ export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisi
 export const CaseHearingScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
+  reference: 'reference',
   hearingNumber: 'hearingNumber',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
   status: 'status',
+  activeKey: 'activeKey',
+  openKey: 'openKey',
+  assignedOfficialId: 'assignedOfficialId',
+  complainantPartyId: 'complainantPartyId',
+  respondentPartyId: 'respondentPartyId',
+  complainantAttendance: 'complainantAttendance',
+  respondentAttendance: 'respondentAttendance',
   outcome: 'outcome',
+  agreements: 'agreements',
+  outcomeSummary: 'outcomeSummary',
+  nextAction: 'nextAction',
+  nextHearingAt: 'nextHearingAt',
+  residentInstructions: 'residentInstructions',
   statusReason: 'statusReason',
   notes: 'notes',
+  rescheduleCount: 'rescheduleCount',
+  residentIntent: 'residentIntent',
+  residentIntentAt: 'residentIntentAt',
+  reminderSentAt: 'reminderSentAt',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
   createdById: 'createdById',
   updatedById: 'updatedById',
   createdAt: 'createdAt',
@@ -2710,6 +3032,81 @@ export const CaseHearingScalarFieldEnum = {
 } as const
 
 export type CaseHearingScalarFieldEnum = (typeof CaseHearingScalarFieldEnum)[keyof typeof CaseHearingScalarFieldEnum]
+
+
+export const CaseHearingNoticeScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  noticeNumber: 'noticeNumber',
+  recipientRole: 'recipientRole',
+  recipientName: 'recipientName',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  status: 'status',
+  issueMethod: 'issueMethod',
+  generatedById: 'generatedById',
+  generatedAt: 'generatedAt',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  deliveryRecordedById: 'deliveryRecordedById',
+  deliveryRecordedAt: 'deliveryRecordedAt',
+  deliveryNote: 'deliveryNote',
+  acknowledgedAt: 'acknowledgedAt',
+  acknowledgedVia: 'acknowledgedVia',
+  supersededAt: 'supersededAt'
+} as const
+
+export type CaseHearingNoticeScalarFieldEnum = (typeof CaseHearingNoticeScalarFieldEnum)[keyof typeof CaseHearingNoticeScalarFieldEnum]
+
+
+export const CaseHearingEventScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseHearingEventScalarFieldEnum = (typeof CaseHearingEventScalarFieldEnum)[keyof typeof CaseHearingEventScalarFieldEnum]
+
+
+export const CaseHearingRequestScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  reason: 'reason',
+  preferredSchedule: 'preferredSchedule',
+  status: 'status',
+  pendingKey: 'pendingKey',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseHearingRequestScalarFieldEnum = (typeof CaseHearingRequestScalarFieldEnum)[keyof typeof CaseHearingRequestScalarFieldEnum]
+
+
+export const CaseKpReviewScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  decision: 'decision',
+  caseType: 'caseType',
+  checklist: 'checklist',
+  note: 'note',
+  reviewedById: 'reviewedById',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseKpReviewScalarFieldEnum = (typeof CaseKpReviewScalarFieldEnum)[keyof typeof CaseKpReviewScalarFieldEnum]
 
 
 export const AcknowledgementLetterScalarFieldEnum = {
@@ -3005,6 +3402,10 @@ export type GlobalOmitConfig = {
   officialIntake?: Prisma.OfficialIntakeOmit
   officialIntakeRevision?: Prisma.OfficialIntakeRevisionOmit
   caseHearing?: Prisma.CaseHearingOmit
+  caseHearingNotice?: Prisma.CaseHearingNoticeOmit
+  caseHearingEvent?: Prisma.CaseHearingEventOmit
+  caseHearingRequest?: Prisma.CaseHearingRequestOmit
+  caseKpReview?: Prisma.CaseKpReviewOmit
   acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
 }
 

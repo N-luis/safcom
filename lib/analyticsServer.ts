@@ -199,26 +199,32 @@ export async function hearingManagement(ctx: AnalyticsContext) {
   const inRange = ctx.from || ctx.to ? { scheduledAt: { ...(ctx.from && { gte: ctx.from }), ...(ctx.to && { lte: ctx.to }) } } : {};
   const blotterInScope = ctx.scope !== 'vawc';
 
-  // Held and postponed hearings follow the date range; a scheduled one is
-  // counted whatever its date, as it is still to come (or overdue).
-  const [hearings, upcoming, scheduledByNumber] = blotterInScope ? await Promise.all([
+  // Every count follows the date range, on the hearing's date, except the
+  // upcoming ones: a hearing still to come is counted whatever the range.
+  // Drafts are not hearings yet and are left out.
+  const LIVE = ['SCHEDULED', 'NOTICE_ISSUED', 'ACKNOWLEDGED', 'RESCHEDULED'];
+  const [hearings, upcoming] = blotterInScope ? await Promise.all([
     prisma.caseHearing.findMany({
-      where: { case: blotterRows, ...inRange, status: { in: ['COMPLETED', 'POSTPONED'] } },
-      select: { hearingNumber: true, status: true, outcome: true, scheduledAt: true },
+      where: { case: blotterRows, ...inRange, status: { not: 'DRAFT' } },
+      select: { hearingNumber: true, status: true, outcome: true, scheduledAt: true, rescheduleCount: true },
     }),
     prisma.caseHearing.findMany({
-      where: { case: blotterRows, status: 'SCHEDULED' },
-      orderBy: { scheduledAt: 'asc' }, take: 20,
-      select: { id: true, hearingNumber: true, scheduledAt: true, venue: true,
+      where: { case: blotterRows, status: { in: LIVE } },
+      orderBy: { scheduledAt: 'asc' }, take: 1000,
+      select: { id: true, hearingNumber: true, scheduledAt: true, venue: true, status: true,
         case: { select: { id: true, caseNumber: true, caseType: true } } },
     }),
-    prisma.caseHearing.groupBy({ by: ['hearingNumber'], where: { case: blotterRows, status: 'SCHEDULED' }, _count: true }),
-  ]) : [[], [], []];
+  ]) : [[], []];
+  const count = (f: (h: (typeof hearings)[number]) => boolean, n?: number) => hearings.filter(h => (n === undefined || h.hearingNumber === n) && f(h)).length;
+  const isUpcoming = (h: { status: string; scheduledAt: Date }) => LIVE.includes(h.status) && h.scheduledAt >= now;
   const byNumber = [1, 2, 3].map(n => ({
     hearing: n,
-    scheduled: scheduledByNumber.find(g => g.hearingNumber === n)?._count ?? 0,
-    completed: hearings.filter(h => h.hearingNumber === n && h.status === 'COMPLETED').length,
-    postponed: hearings.filter(h => h.hearingNumber === n && h.status === 'POSTPONED').length,
+    total: count(() => true, n),
+    // Still to come, whatever the range.
+    scheduled: upcoming.filter(h => h.hearingNumber === n && h.scheduledAt >= now).length,
+    completed: count(h => h.status === 'COMPLETED', n),
+    rescheduled: count(h => h.rescheduleCount > 0, n),
+    cancelled: count(h => h.status === 'CANCELLED', n),
   }));
 
   // The VAWC desk's own track: referrals, interventions and follow-ups -
@@ -240,11 +246,15 @@ export async function hearingManagement(ctx: AnalyticsContext) {
   return {
     applicable: blotterInScope,
     byNumber,
-    upcoming: upcoming.filter(h => h.scheduledAt >= now).map(h => ({ ...h, case: { ...h.case, desk: deskOf(h.case.caseType) } })),
+    upcoming: upcoming.filter(isUpcoming).slice(0, 20).map(h => ({ ...h, case: { ...h.case, desk: deskOf(h.case.caseType) } })),
     overdue: upcoming.filter(h => h.scheduledAt < now).length,
-    completed: hearings.filter(h => h.status === 'COMPLETED').length,
-    settled: hearings.filter(h => h.status === 'COMPLETED' && h.outcome === 'SETTLED').length,
-    postponed: hearings.filter(h => h.status === 'POSTPONED').length,
+    // Hearings set for a date in the range (drafts aside), and what became of them.
+    totalScheduled: hearings.length,
+    upcomingCount: upcoming.filter(isUpcoming).length,
+    completed: count(h => h.status === 'COMPLETED'),
+    settled: count(h => h.status === 'COMPLETED' && h.outcome === 'SETTLED'),
+    rescheduled: count(h => h.rescheduleCount > 0),
+    cancelled: count(h => h.status === 'CANCELLED'),
     vawc,
     range: { from: ctx.from, to: ctx.to },
   };

@@ -70,11 +70,21 @@ export async function GET(req: NextRequest) {
       : [];
     const entryById = new Map(entries.map(e => [e.id, e]));
 
+    // The hearing events those activities are about, bound to the same cases.
+    const eventIds = activities.filter(a => a.entityType === 'CaseHearingEvent' && a.entityId).map(a => a.entityId as string);
+    const events = eventIds.length > 0
+      ? await prisma.caseHearingEvent.findMany({
+          where: { id: { in: eventIds }, caseId: { in: caseIds } },
+          select: { id: true, kind: true, after: true },
+        })
+      : [];
+    const eventById = new Map(events.map(e => [e.id, e]));
+
     const caseUpdates = activities.flatMap(a => {
       const linked = a.entityType === 'CaseFollowUp' ? entryById.get(a.entityId ?? '') ?? null : undefined;
       // Linked to an entry that is not there any more: nothing to tell.
       if (linked === null) return [];
-      const notice = residentNotice(a, linked);
+      const notice = residentNotice(a, linked, a.entityType === 'CaseHearingEvent' ? eventById.get(a.entityId ?? '') ?? null : null);
       return notice ? [{ ...a, notice }] : [];
     });
 

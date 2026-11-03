@@ -388,15 +388,33 @@ function Hearings({ query, rangeLabel, open, canOpen }: { query: string; rangeLa
           {data.applicable && (
             <>
               <Grid container spacing={1.5} sx={{ mb: 2 }}>
-                {data.byNumber.map((h: Data) => (
-                  <Grid key={h.hearing} size={{ xs: 4, md: 2 }}>
-                    <Tile label={`Hearing ${h.hearing}`} value={h.completed} hint={`held · ${h.scheduled} scheduled`} color="#0369a1" />
-                  </Grid>
-                ))}
-                <Grid size={{ xs: 4, md: 2 }}><Tile label="Upcoming" value={data.upcoming.length} hint="Scheduled ahead" color="#0f766e" /></Grid>
-                <Grid size={{ xs: 4, md: 2 }}><Tile label="Completed" value={data.completed} hint={`${data.settled} settled`} color="#15803d" /></Grid>
-                <Grid size={{ xs: 4, md: 2 }}><Tile label="Postponed" value={data.postponed} hint={rangeLabel} color="#a16207" /></Grid>
+                <Grid size={{ xs: 6, md: 2.4 }}><Tile label="Total scheduled" value={data.totalScheduled} hint={rangeLabel} color="#0369a1" /></Grid>
+                <Grid size={{ xs: 6, md: 2.4 }}><Tile label="Upcoming" value={data.upcomingCount} hint="Still to come, any range" color="#0f766e" /></Grid>
+                <Grid size={{ xs: 4, md: 2.4 }}><Tile label="Completed" value={data.completed} hint={`${data.settled} settled`} color="#15803d" /></Grid>
+                <Grid size={{ xs: 4, md: 2.4 }}><Tile label="Rescheduled" value={data.rescheduled} hint={rangeLabel} color="#b45309" /></Grid>
+                <Grid size={{ xs: 4, md: 2.4 }}><Tile label="Cancelled" value={data.cancelled} hint={rangeLabel} color="#64748b" /></Grid>
               </Grid>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.75 }}>Hearing 1, 2 and 3</Typography>
+              <Box sx={{ display: 'grid', gap: 0.75, mb: 2 }}>
+                {data.byNumber.map((h: Data) => {
+                  const max = Math.max(1, ...data.byNumber.map((x: Data) => x.total));
+                  return (
+                    <Box key={h.hearing} sx={{ display: 'grid', gridTemplateColumns: { xs: '76px 1fr', sm: '90px 1fr 260px' }, gap: 1, alignItems: 'center' }}>
+                      <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: NAVY }}>Hearing {h.hearing}</Typography>
+                      <Box sx={{ height: 14, bgcolor: '#f1f5f9', borderRadius: 1, overflow: 'hidden', display: 'flex' }} role="img"
+                        aria-label={`Hearing ${h.hearing}: ${h.total} in range, ${h.completed} completed, ${h.cancelled} cancelled`}>
+                        <Box sx={{ width: `${(h.completed / max) * 100}%`, bgcolor: '#15803d' }} />
+                        <Box sx={{ width: `${((h.total - h.completed - h.cancelled) / max) * 100}%`, bgcolor: '#0369a1' }} />
+                        <Box sx={{ width: `${(h.cancelled / max) * 100}%`, bgcolor: '#cbd5e1' }} />
+                      </Box>
+                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b', gridColumn: { xs: '2', sm: 'auto' }, fontVariantNumeric: 'tabular-nums' }}>
+                        {h.total} in range · {h.completed} held · {h.scheduled} upcoming · {h.rescheduled} rescheduled · {h.cancelled} cancelled
+                      </Typography>
+                    </Box>
+                  );
+                })}
+                <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Green: held · blue: still open · grey: cancelled. Drafts are not counted, and VAWC interventions never are.</Typography>
+              </Box>
               {data.overdue > 0 && (
                 <Alert severity="warning" sx={{ mb: 1.5, borderRadius: 2 }}>
                   {data.overdue} hearing{data.overdue === 1 ? ' is' : 's are'} past {data.overdue === 1 ? 'its' : 'their'} date and still marked scheduled - record whether {data.overdue === 1 ? 'it was' : 'they were'} held.

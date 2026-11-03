@@ -124,7 +124,7 @@ async function main() {
       aiReading: { used: true, model: 'test', assessment: { status: 'COMPLETED', recommendedNextAction: 'Schedule a talk with both households.', urgentHumanReview: false } } } as never });
     const b3 = await mkCase({ status: 'Resolved', riskLevel: 'Critical' });
     const b4 = await mkCase({ riskLevel: 'Low', informationCompleteness: 'SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT' });
-    await prisma.assessmentHistory.create({ data: { caseId: b4.id, kind: 'category_confirm', riskLevel: 'Low', caseType: 'Noise Complaint', rationale: {} } });
+    await prisma.assessmentHistory.create({ data: { caseId: b4.id, kind: 'category_confirm', riskLevel: 'Low', caseType: 'Noise Complaint', rationale: {}, actorId: B.id } });
     const b5 = await mkCase({ status: 'Pending Resolution', informationCompleteness: 'INSUFFICIENT', triageStatus: 'NEEDS_FOLLOW_UP',
       filedAt: new Date(Date.now() - 60 * 86_400_000) });
     await prisma.assessmentHistory.create({ data: { caseId: b5.id, kind: 'category_change', caseType: 'Noise Complaint', previousCaseType: 'Domestic Violence', rationale: {} } });
@@ -184,23 +184,30 @@ async function main() {
     console.log('\nHearing management');
     const hear = (id: string, cookie: string, body: Body) => hearingsPOST(req(`/api/cases/${id}/hearings`, cookie, 'POST', body), params(id)).then(json);
     const soon = new Date(Date.now() + 3 * 86_400_000).toISOString();
-    ok('the first hearing needs the conciliation confirmation', (await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: soon })).status === 422);
-    const h1 = await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: soon, venue: 'Barangay hall', kpConfirmed: true });
+    const refused = await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: soon });
+    ok('no hearing before an official reviews eligibility', refused.status === 422 && /review/i.test(refused.body.error ?? ''), refused.body.error);
+    await prisma.caseKpReview.create({ data: { caseId: b4.id, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: {}, reviewedById: B.id } });
+    // Today, so it can be recorded as held straight away.
+    const h1 = await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: new Date().toISOString(), venue: 'Barangay hall' });
     ok('hearing 1 is scheduled', h1.status === 201, `${h1.status} ${h1.body.error ?? ''}`);
-    ok('hearing 2 cannot be scheduled while 1 is pending', (await hear(b4.id, B.cookie, { hearingNumber: 2, scheduledAt: soon })).status === 422);
+    ok('hearing 2 cannot be scheduled while 1 is open', (await hear(b4.id, B.cookie, { hearingNumber: 2, scheduledAt: soon })).status === 422);
     const patch = (id: string, hid: string, body: Body) => hearingPATCH(req(`/api/cases/${id}/hearings/${hid}`, B.cookie, 'PATCH', body), { params: Promise.resolve({ id, hid }) }).then(json);
-    ok('hearing 1 held, not settled', (await patch(b4.id, h1.body.data.id, { action: 'complete', outcome: 'NOT_SETTLED' })).status === 200);
+    const held = await patch(b4.id, h1.body.data.id, { action: 'complete', outcome: 'NOT_SETTLED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT' });
+    ok('hearing 1 held, not settled', held.status === 200, `${held.status} ${held.body.error ?? ''}`);
     ok('a held hearing is final', (await patch(b4.id, h1.body.data.id, { action: 'cancel', reason: 'changed mind' })).status === 409);
     const h2 = await hear(b4.id, B.cookie, { hearingNumber: 2, scheduledAt: soon });
     ok('hearing 2 is scheduled', h2.status === 201);
-    ok('postponed with a new date', (await patch(b4.id, h2.body.data.id, { action: 'postpone', reason: 'Respondent is ill', newDate: new Date(Date.now() + 7 * 86_400_000).toISOString() })).status === 200);
+    ok('given a new date', (await patch(b4.id, h2.body.data.id, { action: 'reschedule', reason: 'Respondent is ill', scheduledAt: new Date(Date.now() + 7 * 86_400_000).toISOString() })).status === 200);
     const list = (await json(await hearingsGET(req(`/api/cases/${b4.id}/hearings`, B.cookie), params(b4.id)))).body.data;
-    ok('the postponement stays on record beside the new date', list.hearings.length === 3 && list.hearings.filter((h: Body) => h.hearingNumber === 2).length === 2);
+    const h2row = list.hearings.find((h: Body) => h.hearingNumber === 2);
+    ok('one record per hearing, the old date kept in its history', list.hearings.length === 2 && h2row?.rescheduleCount === 1
+      && h2row.events.some((e: Body) => e.kind === 'rescheduled' && e.before?.scheduledAt === soon));
     await prisma.case.update({ where: { id: v1.id }, data: { assignedToId: V.id } });
-    ok('a VAWC case is refused a hearing', (await hear(v1.id, V.cookie, { hearingNumber: 1, scheduledAt: soon, kpConfirmed: true })).status === 422);
+    ok('a VAWC case is refused a hearing', (await hear(v1.id, V.cookie, { hearingNumber: 1, scheduledAt: soon })).status === 422);
     const hb = (await get('hearings', B.cookie, 'scope=blotter')).body.data;
-    ok('hearing 1 held, hearing 2 postponed, one upcoming', hb.byNumber[0].completed - before.hearB.byNumber[0].completed === 1
-      && hb.postponed - before.hearB.postponed === 1 && hb.upcoming.some((h: Body) => h.case.id === b4.id && h.hearingNumber === 2));
+    ok('hearing 1 held, hearing 2 rescheduled, one upcoming', hb.byNumber[0].completed - before.hearB.byNumber[0].completed === 1
+      && hb.rescheduled - before.hearB.rescheduled === 1 && hb.upcomingCount - before.hearB.upcomingCount === 1
+      && hb.upcoming.some((h: Body) => h.case.id === b4.id && h.hearingNumber === 2), JSON.stringify({ r: hb.rescheduled, u: hb.upcomingCount }));
     const hToday = (await get('hearings', B.cookie, `scope=blotter&${today}`)).body.data;
     ok('a hearing set for next week counts as scheduled under a "today" filter', hToday.byNumber[1].scheduled >= 1
       && hToday.upcoming.some((h: Body) => h.case.id === b4.id));

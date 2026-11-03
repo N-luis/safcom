@@ -28,6 +28,7 @@ model User {
   receivedMessages      Message[]           @relation("ReceivedMessages")
   caseFollowUps         CaseFollowUp[]
   assessmentActions     AssessmentHistory[] @relation("AssessmentActor")
+  presidedHearings      CaseHearing[]       @relation("HearingOfficial")
 }
 
 model Case {
@@ -147,6 +148,7 @@ model Case {
   referrals        CaseReferral[]
   hearings         CaseHearing[]
   acknowledgement  AcknowledgementLetter?
+  kpReviews        CaseKpReview[]
 
   @@index([progressState])
 }
@@ -156,26 +158,28 @@ model Case {
 /// reporter's account and never linked to a resident by matching names - the
 /// three may be the same person, or not, and only what was said is recorded.
 model CaseParty {
-  id                 String   @id @default(cuid())
-  caseId             String
-  case               Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id                    String        @id @default(cuid())
+  caseId                String
+  case                  Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
   /// AFFECTED | REPORTED
-  role               String
-  fullName           String?
-  age                Int?
-  address            String?
+  role                  String
+  fullName              String?
+  age                   Int?
+  address               String?
   /// AFFECTED only: how to reach the victim-survivor, for the VAWC desk.
-  contactNumber      String?
+  contactNumber         String?
   /// AFFECTED: to the reporter. REPORTED: to the person affected.
-  relationship       String?
+  relationship          String?
   /// AFFECTED: children or dependents who may be affected - yes | no | unknown.
-  dependentsAffected String?
-  details            String?
+  dependentsAffected    String?
+  details               String?
   /// reporter | official - who supplied this record.
-  source             String   @default("reporter")
-  updatedById        String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  source                String        @default("reporter")
+  updatedById           String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  hearingsAsComplainant CaseHearing[] @relation("HearingComplainant")
+  hearingsAsRespondent  CaseHearing[] @relation("HearingRespondent")
 
   @@index([caseId])
 }
@@ -281,6 +285,10 @@ model CaseAttachment {
   /// Set when the photo came with a follow-up rather than the original report.
   followUpId String?
   followUp   CaseFollowUp? @relation(fields: [followUpId], references: [id], onDelete: Cascade)
+  /// Set when an official attached it to a hearing record - officials only,
+  /// never shown to a resident.
+  hearingId  String?
+  hearing    CaseHearing?  @relation(fields: [hearingId], references: [id], onDelete: Cascade)
   filename   String
   mimeType   String
   size       Int
@@ -691,30 +699,193 @@ model OfficialIntakeRevision {
 
 /// A Katarungang Pambarangay hearing - mediation or conciliation of a blotter
 /// dispute. Never a VAWC case: those are not subject to barangay conciliation,
-/// and the server refuses one. Up to three hearings; a postponed hearing stays
-/// on record, and the same hearing is scheduled again as a new row.
+/// and the server refuses one. Hearings 1 to 3, each scheduled by an official
+/// only when the one before it calls for it (lib/hearings.ts).
+///
+/// One row per hearing. A new date is a change to that row, and every change -
+/// the old date beside the new one, each notice, attendance, note and outcome -
+/// is kept in CaseHearingEvent, which cannot be rewritten.
 model CaseHearing {
-  id            String   @id @default(cuid())
-  caseId        String
-  case          Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id                    String     @id @default(cuid())
+  caseId                String
+  case                  Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// The hearing's own reference: HRG-<case number>-<hearing number>, with a
+  /// suffix when a cancelled hearing is replaced.
+  reference             String     @unique
   /// 1, 2 or 3
-  hearingNumber Int
-  scheduledAt   DateTime
-  venue         String?
-  /// SCHEDULED | COMPLETED | POSTPONED | CANCELLED
-  status        String   @default("SCHEDULED")
-  /// COMPLETED only: SETTLED | NOT_SETTLED | RESPONDENT_ABSENT | COMPLAINANT_ABSENT | REFERRED
-  outcome       String?
-  /// POSTPONED / CANCELLED: why.
-  statusReason  String?
-  notes         String?
-  createdById   String
-  updatedById   String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  hearingNumber         Int
+  /// Date and time, as one instant (shown in Philippine time).
+  scheduledAt           DateTime
+  venue                 String?
+  /// DRAFT | SCHEDULED | NOTICE_ISSUED | ACKNOWLEDGED | RESCHEDULED | COMPLETED | CANCELLED.
+  /// Where the hearing stands - not what came of it (outcome) and not the case's status.
+  status                String     @default("DRAFT")
+  /// "<caseId>:<number>" while the hearing is not cancelled, null after: no
+  /// case has two live records of the same hearing.
+  activeKey             String?    @unique
+  /// "<caseId>" while the hearing is open (not completed or cancelled): one
+  /// open hearing per case at a time.
+  openKey               String?    @unique
+  /// Who presides or handles it.
+  assignedOfficialId    String?
+  assignedOfficial      User?      @relation("HearingOfficial", fields: [assignedOfficialId], references: [id], onDelete: SetNull)
+  /// The parties, by their records on the case - never by name. A null
+  /// complainant is the reporter who filed the case.
+  complainantPartyId    String?
+  complainantParty      CaseParty? @relation("HearingComplainant", fields: [complainantPartyId], references: [id], onDelete: SetNull)
+  respondentPartyId     String?
+  respondentParty       CaseParty? @relation("HearingRespondent", fields: [respondentPartyId], references: [id], onDelete: SetNull)
+  /// PRESENT | ABSENT | EXCUSED | NOT_RECORDED - recorded by an official only.
+  complainantAttendance String     @default("NOT_RECORDED")
+  respondentAttendance  String     @default("NOT_RECORDED")
+  /// lib/hearings.ts HEARING_OUTCOMES, recorded when the hearing is held.
+  outcome               String?
+  /// What was agreed or what developed (officials only).
+  agreements            String?
+  /// A short outcome summary the complainant may read in My Hearings.
+  outcomeSummary        String?
+  /// The case's next step, as the official records it.
+  nextAction            String?
+  /// The proposed date of the next hearing, when one is to follow.
+  nextHearingAt         DateTime?
+  /// Extra instructions for the complainant (what to bring, where to go).
+  residentInstructions  String?
+  /// The reason for the latest cancellation or new date.
+  statusReason          String?
+  /// An internal note made when scheduling (officials only).
+  notes                 String?
+  rescheduleCount       Int        @default(0)
+  /// The complainant's own answer - WILL_ATTEND | CANNOT_ATTEND. Theirs, not
+  /// the official attendance record.
+  residentIntent        String?
+  residentIntentAt      DateTime?
+  /// Stamped when the "hearing is approaching" reminder goes out; cleared on a new date.
+  reminderSentAt        DateTime?
+  completedAt           DateTime?
+  completedById         String?
+  cancelledAt           DateTime?
+  cancelledById         String?
+  createdById           String
+  updatedById           String
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  notices     CaseHearingNotice[]
+  events      CaseHearingEvent[]
+  requests    CaseHearingRequest[]
+  attachments CaseAttachment[]
 
   @@index([caseId])
   @@index([status, scheduledAt])
+  @@index([assignedOfficialId])
+}
+
+/// A hearing notice to one party. Generating one does not deliver it: it is
+/// GENERATED until an official records it as issued, and delivered or
+/// acknowledged only when that is recorded (or the complainant acknowledges
+/// it in SafeComm). A new date supersedes the notices for the old one.
+model CaseHearingNotice {
+  id                   String      @id @default(cuid())
+  hearingId            String
+  hearing              CaseHearing @relation(fields: [hearingId], references: [id], onDelete: Cascade)
+  caseId               String
+  /// HN-<case number>-<hearing number>-<C|R><sequence>
+  noticeNumber         String      @unique
+  /// COMPLAINANT | RESPONDENT
+  recipientRole        String
+  /// As it stood in the case records when the notice was generated.
+  recipientName        String
+  /// The date, time and venue this notice is for.
+  scheduledAt          DateTime
+  venue                String?
+  /// GENERATED | ISSUED | DELIVERED | UNDELIVERED | ACKNOWLEDGED | SUPERSEDED
+  status               String      @default("GENERATED")
+  /// IN_PERSON | SERVED | SAFECOMM | OTHER
+  issueMethod          String?
+  generatedById        String
+  generatedAt          DateTime    @default(now())
+  issuedById           String?
+  issuedAt             DateTime?
+  deliveryRecordedById String?
+  deliveryRecordedAt   DateTime?
+  deliveryNote         String?
+  acknowledgedAt       DateTime?
+  /// RESIDENT_APP (the complainant, in SafeComm) | RECORDED (an official, from a signed receipt)
+  acknowledgedVia      String?
+  supersededAt         DateTime?
+
+  @@index([hearingId])
+  @@index([caseId])
+}
+
+/// Everything that happened to a hearing, in order: scheduled, new date (old
+/// and new), notices, attendance, proceedings notes, outcome, the
+/// complainant's acknowledgement and requests. Insert-only - a trigger
+/// (prisma/sql/006_hearing_management.sql) refuses any change to a row.
+model CaseHearingEvent {
+  id        String      @id @default(cuid())
+  hearingId String
+  hearing   CaseHearing @relation(fields: [hearingId], references: [id], onDelete: Cascade)
+  caseId    String
+  /// lib/hearings.ts HEARING_EVENT_KINDS
+  kind      String
+  /// official | resident | system
+  actorType String
+  actorId   String?
+  /// What changed: the value before and after, where there is one.
+  before    Json?
+  after     Json?
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([hearingId, createdAt])
+  @@index([caseId, createdAt])
+}
+
+/// A complainant's request for a new date. It changes nothing on its own: an
+/// official approves it (and sets the new date) or declines it.
+model CaseHearingRequest {
+  id                String      @id @default(cuid())
+  hearingId         String
+  hearing           CaseHearing @relation(fields: [hearingId], references: [id], onDelete: Cascade)
+  caseId            String
+  residentId        String
+  reason            String
+  /// The dates or times that would suit them, in their own words.
+  preferredSchedule String?
+  /// PENDING | APPROVED | DECLINED
+  status            String      @default("PENDING")
+  /// "<hearingId>" while pending: one open request per hearing.
+  pendingKey        String?     @unique
+  reviewedById      String?
+  reviewedAt        DateTime?
+  /// The official's answer, which the complainant sees.
+  reviewNote        String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([hearingId])
+  @@index([status, createdAt])
+}
+
+/// An official's review of whether a case may go to Katarungang Pambarangay
+/// proceedings. Kept as history; the latest governs, and only while the case
+/// still has the category it was reviewed under. Insert-only, like the events.
+model CaseKpReview {
+  id           String   @id @default(cuid())
+  caseId       String
+  case         Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// ELIGIBLE | NOT_ELIGIBLE
+  decision     String
+  /// The verified category the review was made under.
+  caseType     String
+  /// lib/hearings.ts KP_CHECKLIST answers: { key: true | false }
+  checklist    Json
+  note         String?
+  reviewedById String
+  createdAt    DateTime @default(now())
+
+  @@index([caseId, createdAt])
 }
 
 /// The acknowledgement that a report was received - one per case. It confirms

@@ -194,10 +194,43 @@ export type OfficialIntakeRevision = Prisma.OfficialIntakeRevisionModel
  * Model CaseHearing
  * A Katarungang Pambarangay hearing - mediation or conciliation of a blotter
  * dispute. Never a VAWC case: those are not subject to barangay conciliation,
- * and the server refuses one. Up to three hearings; a postponed hearing stays
- * on record, and the same hearing is scheduled again as a new row.
+ * and the server refuses one. Hearings 1 to 3, each scheduled by an official
+ * only when the one before it calls for it (lib/hearings.ts).
+ * 
+ * One row per hearing. A new date is a change to that row, and every change -
+ * the old date beside the new one, each notice, attendance, note and outcome -
+ * is kept in CaseHearingEvent, which cannot be rewritten.
  */
 export type CaseHearing = Prisma.CaseHearingModel
+/**
+ * Model CaseHearingNotice
+ * A hearing notice to one party. Generating one does not deliver it: it is
+ * GENERATED until an official records it as issued, and delivered or
+ * acknowledged only when that is recorded (or the complainant acknowledges
+ * it in SafeComm). A new date supersedes the notices for the old one.
+ */
+export type CaseHearingNotice = Prisma.CaseHearingNoticeModel
+/**
+ * Model CaseHearingEvent
+ * Everything that happened to a hearing, in order: scheduled, new date (old
+ * and new), notices, attendance, proceedings notes, outcome, the
+ * complainant's acknowledgement and requests. Insert-only - a trigger
+ * (prisma/sql/006_hearing_management.sql) refuses any change to a row.
+ */
+export type CaseHearingEvent = Prisma.CaseHearingEventModel
+/**
+ * Model CaseHearingRequest
+ * A complainant's request for a new date. It changes nothing on its own: an
+ * official approves it (and sets the new date) or declines it.
+ */
+export type CaseHearingRequest = Prisma.CaseHearingRequestModel
+/**
+ * Model CaseKpReview
+ * An official's review of whether a case may go to Katarungang Pambarangay
+ * proceedings. Kept as history; the latest governs, and only while the case
+ * still has the category it was reviewed under. Insert-only, like the events.
+ */
+export type CaseKpReview = Prisma.CaseKpReviewModel
 /**
  * Model AcknowledgementLetter
  * The acknowledgement that a report was received - one per case. It confirms

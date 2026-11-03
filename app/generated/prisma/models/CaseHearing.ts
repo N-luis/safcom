@@ -16,8 +16,12 @@ import type * as Prisma from "../internal/prismaNamespace"
  * Model CaseHearing
  * A Katarungang Pambarangay hearing - mediation or conciliation of a blotter
  * dispute. Never a VAWC case: those are not subject to barangay conciliation,
- * and the server refuses one. Up to three hearings; a postponed hearing stays
- * on record, and the same hearing is scheduled again as a new row.
+ * and the server refuses one. Hearings 1 to 3, each scheduled by an official
+ * only when the one before it calls for it (lib/hearings.ts).
+ * 
+ * One row per hearing. A new date is a change to that row, and every change -
+ * the old date beside the new one, each notice, attendance, note and outcome -
+ * is kept in CaseHearingEvent, which cannot be rewritten.
  */
 export type CaseHearingModel = runtime.Types.Result.DefaultSelection<Prisma.$CaseHearingPayload>
 
@@ -31,22 +35,45 @@ export type AggregateCaseHearing = {
 
 export type CaseHearingAvgAggregateOutputType = {
   hearingNumber: number | null
+  rescheduleCount: number | null
 }
 
 export type CaseHearingSumAggregateOutputType = {
   hearingNumber: number | null
+  rescheduleCount: number | null
 }
 
 export type CaseHearingMinAggregateOutputType = {
   id: string | null
   caseId: string | null
+  reference: string | null
   hearingNumber: number | null
   scheduledAt: Date | null
   venue: string | null
   status: string | null
+  activeKey: string | null
+  openKey: string | null
+  assignedOfficialId: string | null
+  complainantPartyId: string | null
+  respondentPartyId: string | null
+  complainantAttendance: string | null
+  respondentAttendance: string | null
   outcome: string | null
+  agreements: string | null
+  outcomeSummary: string | null
+  nextAction: string | null
+  nextHearingAt: Date | null
+  residentInstructions: string | null
   statusReason: string | null
   notes: string | null
+  rescheduleCount: number | null
+  residentIntent: string | null
+  residentIntentAt: Date | null
+  reminderSentAt: Date | null
+  completedAt: Date | null
+  completedById: string | null
+  cancelledAt: Date | null
+  cancelledById: string | null
   createdById: string | null
   updatedById: string | null
   createdAt: Date | null
@@ -56,13 +83,34 @@ export type CaseHearingMinAggregateOutputType = {
 export type CaseHearingMaxAggregateOutputType = {
   id: string | null
   caseId: string | null
+  reference: string | null
   hearingNumber: number | null
   scheduledAt: Date | null
   venue: string | null
   status: string | null
+  activeKey: string | null
+  openKey: string | null
+  assignedOfficialId: string | null
+  complainantPartyId: string | null
+  respondentPartyId: string | null
+  complainantAttendance: string | null
+  respondentAttendance: string | null
   outcome: string | null
+  agreements: string | null
+  outcomeSummary: string | null
+  nextAction: string | null
+  nextHearingAt: Date | null
+  residentInstructions: string | null
   statusReason: string | null
   notes: string | null
+  rescheduleCount: number | null
+  residentIntent: string | null
+  residentIntentAt: Date | null
+  reminderSentAt: Date | null
+  completedAt: Date | null
+  completedById: string | null
+  cancelledAt: Date | null
+  cancelledById: string | null
   createdById: string | null
   updatedById: string | null
   createdAt: Date | null
@@ -72,13 +120,34 @@ export type CaseHearingMaxAggregateOutputType = {
 export type CaseHearingCountAggregateOutputType = {
   id: number
   caseId: number
+  reference: number
   hearingNumber: number
   scheduledAt: number
   venue: number
   status: number
+  activeKey: number
+  openKey: number
+  assignedOfficialId: number
+  complainantPartyId: number
+  respondentPartyId: number
+  complainantAttendance: number
+  respondentAttendance: number
   outcome: number
+  agreements: number
+  outcomeSummary: number
+  nextAction: number
+  nextHearingAt: number
+  residentInstructions: number
   statusReason: number
   notes: number
+  rescheduleCount: number
+  residentIntent: number
+  residentIntentAt: number
+  reminderSentAt: number
+  completedAt: number
+  completedById: number
+  cancelledAt: number
+  cancelledById: number
   createdById: number
   updatedById: number
   createdAt: number
@@ -89,22 +158,45 @@ export type CaseHearingCountAggregateOutputType = {
 
 export type CaseHearingAvgAggregateInputType = {
   hearingNumber?: true
+  rescheduleCount?: true
 }
 
 export type CaseHearingSumAggregateInputType = {
   hearingNumber?: true
+  rescheduleCount?: true
 }
 
 export type CaseHearingMinAggregateInputType = {
   id?: true
   caseId?: true
+  reference?: true
   hearingNumber?: true
   scheduledAt?: true
   venue?: true
   status?: true
+  activeKey?: true
+  openKey?: true
+  assignedOfficialId?: true
+  complainantPartyId?: true
+  respondentPartyId?: true
+  complainantAttendance?: true
+  respondentAttendance?: true
   outcome?: true
+  agreements?: true
+  outcomeSummary?: true
+  nextAction?: true
+  nextHearingAt?: true
+  residentInstructions?: true
   statusReason?: true
   notes?: true
+  rescheduleCount?: true
+  residentIntent?: true
+  residentIntentAt?: true
+  reminderSentAt?: true
+  completedAt?: true
+  completedById?: true
+  cancelledAt?: true
+  cancelledById?: true
   createdById?: true
   updatedById?: true
   createdAt?: true
@@ -114,13 +206,34 @@ export type CaseHearingMinAggregateInputType = {
 export type CaseHearingMaxAggregateInputType = {
   id?: true
   caseId?: true
+  reference?: true
   hearingNumber?: true
   scheduledAt?: true
   venue?: true
   status?: true
+  activeKey?: true
+  openKey?: true
+  assignedOfficialId?: true
+  complainantPartyId?: true
+  respondentPartyId?: true
+  complainantAttendance?: true
+  respondentAttendance?: true
   outcome?: true
+  agreements?: true
+  outcomeSummary?: true
+  nextAction?: true
+  nextHearingAt?: true
+  residentInstructions?: true
   statusReason?: true
   notes?: true
+  rescheduleCount?: true
+  residentIntent?: true
+  residentIntentAt?: true
+  reminderSentAt?: true
+  completedAt?: true
+  completedById?: true
+  cancelledAt?: true
+  cancelledById?: true
   createdById?: true
   updatedById?: true
   createdAt?: true
@@ -130,13 +243,34 @@ export type CaseHearingMaxAggregateInputType = {
 export type CaseHearingCountAggregateInputType = {
   id?: true
   caseId?: true
+  reference?: true
   hearingNumber?: true
   scheduledAt?: true
   venue?: true
   status?: true
+  activeKey?: true
+  openKey?: true
+  assignedOfficialId?: true
+  complainantPartyId?: true
+  respondentPartyId?: true
+  complainantAttendance?: true
+  respondentAttendance?: true
   outcome?: true
+  agreements?: true
+  outcomeSummary?: true
+  nextAction?: true
+  nextHearingAt?: true
+  residentInstructions?: true
   statusReason?: true
   notes?: true
+  rescheduleCount?: true
+  residentIntent?: true
+  residentIntentAt?: true
+  reminderSentAt?: true
+  completedAt?: true
+  completedById?: true
+  cancelledAt?: true
+  cancelledById?: true
   createdById?: true
   updatedById?: true
   createdAt?: true
@@ -233,13 +367,34 @@ export type CaseHearingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type CaseHearingGroupByOutputType = {
   id: string
   caseId: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date
   venue: string | null
   status: string
+  activeKey: string | null
+  openKey: string | null
+  assignedOfficialId: string | null
+  complainantPartyId: string | null
+  respondentPartyId: string | null
+  complainantAttendance: string
+  respondentAttendance: string
   outcome: string | null
+  agreements: string | null
+  outcomeSummary: string | null
+  nextAction: string | null
+  nextHearingAt: Date | null
+  residentInstructions: string | null
   statusReason: string | null
   notes: string | null
+  rescheduleCount: number
+  residentIntent: string | null
+  residentIntentAt: Date | null
+  reminderSentAt: Date | null
+  completedAt: Date | null
+  completedById: string | null
+  cancelledAt: Date | null
+  cancelledById: string | null
   createdById: string
   updatedById: string
   createdAt: Date
@@ -272,39 +427,98 @@ export type CaseHearingWhereInput = {
   NOT?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
   id?: Prisma.StringFilter<"CaseHearing"> | string
   caseId?: Prisma.StringFilter<"CaseHearing"> | string
+  reference?: Prisma.StringFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   status?: Prisma.StringFilter<"CaseHearing"> | string
+  activeKey?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  openKey?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  assignedOfficialId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  respondentPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantAttendance?: Prisma.StringFilter<"CaseHearing"> | string
+  respondentAttendance?: Prisma.StringFilter<"CaseHearing"> | string
   outcome?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  agreements?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  outcomeSummary?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextAction?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextHearingAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  residentInstructions?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   statusReason?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   notes?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  rescheduleCount?: Prisma.IntFilter<"CaseHearing"> | number
+  residentIntent?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  residentIntentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  cancelledById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   createdById?: Prisma.StringFilter<"CaseHearing"> | string
   updatedById?: Prisma.StringFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
+  assignedOfficial?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  complainantParty?: Prisma.XOR<Prisma.CasePartyNullableScalarRelationFilter, Prisma.CasePartyWhereInput> | null
+  respondentParty?: Prisma.XOR<Prisma.CasePartyNullableScalarRelationFilter, Prisma.CasePartyWhereInput> | null
+  notices?: Prisma.CaseHearingNoticeListRelationFilter
+  events?: Prisma.CaseHearingEventListRelationFilter
+  requests?: Prisma.CaseHearingRequestListRelationFilter
+  attachments?: Prisma.CaseAttachmentListRelationFilter
 }
 
 export type CaseHearingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  openKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedOfficialId?: Prisma.SortOrderInput | Prisma.SortOrder
+  complainantPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  respondentPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  complainantAttendance?: Prisma.SortOrder
+  respondentAttendance?: Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  agreements?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextAction?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextHearingAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+  residentIntent?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentIntentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
+  assignedOfficial?: Prisma.UserOrderByWithRelationInput
+  complainantParty?: Prisma.CasePartyOrderByWithRelationInput
+  respondentParty?: Prisma.CasePartyOrderByWithRelationInput
+  notices?: Prisma.CaseHearingNoticeOrderByRelationAggregateInput
+  events?: Prisma.CaseHearingEventOrderByRelationAggregateInput
+  requests?: Prisma.CaseHearingRequestOrderByRelationAggregateInput
+  attachments?: Prisma.CaseAttachmentOrderByRelationAggregateInput
 }
 
 export type CaseHearingWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  reference?: string
+  activeKey?: string
+  openKey?: string
   AND?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
   OR?: Prisma.CaseHearingWhereInput[]
   NOT?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
@@ -313,26 +527,72 @@ export type CaseHearingWhereUniqueInput = Prisma.AtLeast<{
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   status?: Prisma.StringFilter<"CaseHearing"> | string
+  assignedOfficialId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  respondentPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantAttendance?: Prisma.StringFilter<"CaseHearing"> | string
+  respondentAttendance?: Prisma.StringFilter<"CaseHearing"> | string
   outcome?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  agreements?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  outcomeSummary?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextAction?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextHearingAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  residentInstructions?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   statusReason?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   notes?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  rescheduleCount?: Prisma.IntFilter<"CaseHearing"> | number
+  residentIntent?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  residentIntentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  cancelledById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   createdById?: Prisma.StringFilter<"CaseHearing"> | string
   updatedById?: Prisma.StringFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
-}, "id">
+  assignedOfficial?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  complainantParty?: Prisma.XOR<Prisma.CasePartyNullableScalarRelationFilter, Prisma.CasePartyWhereInput> | null
+  respondentParty?: Prisma.XOR<Prisma.CasePartyNullableScalarRelationFilter, Prisma.CasePartyWhereInput> | null
+  notices?: Prisma.CaseHearingNoticeListRelationFilter
+  events?: Prisma.CaseHearingEventListRelationFilter
+  requests?: Prisma.CaseHearingRequestListRelationFilter
+  attachments?: Prisma.CaseAttachmentListRelationFilter
+}, "id" | "reference" | "activeKey" | "openKey">
 
 export type CaseHearingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  openKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedOfficialId?: Prisma.SortOrderInput | Prisma.SortOrder
+  complainantPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  respondentPartyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  complainantAttendance?: Prisma.SortOrder
+  respondentAttendance?: Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  agreements?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextAction?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextHearingAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+  residentIntent?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentIntentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -350,13 +610,34 @@ export type CaseHearingScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CaseHearingScalarWhereWithAggregatesInput | Prisma.CaseHearingScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   caseId?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
+  reference?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntWithAggregatesFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
+  activeKey?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  openKey?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  assignedOfficialId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  complainantPartyId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  respondentPartyId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  complainantAttendance?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
+  respondentAttendance?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   outcome?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  agreements?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  outcomeSummary?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  nextAction?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  nextHearingAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearing"> | Date | string | null
+  residentInstructions?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
   statusReason?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  rescheduleCount?: Prisma.IntWithAggregatesFilter<"CaseHearing"> | number
+  residentIntent?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  residentIntentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearing"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearing"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearing"> | Date | string | null
+  completedById?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearing"> | Date | string | null
+  cancelledById?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
   createdById?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   updatedById?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearing"> | Date | string
@@ -365,78 +646,199 @@ export type CaseHearingScalarWhereWithAggregatesInput = {
 
 export type CaseHearingCreateInput = {
   id?: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
 }
 
 export type CaseHearingUncheckedCreateInput = {
   id?: string
   caseId: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
 }
 
 export type CaseHearingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
 }
 
 export type CaseHearingUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
 }
 
 export type CaseHearingCreateManyInput = {
   id?: string
   caseId: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
@@ -445,13 +847,31 @@ export type CaseHearingCreateManyInput = {
 
 export type CaseHearingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -461,13 +881,34 @@ export type CaseHearingUpdateManyMutationInput = {
 export type CaseHearingUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -484,16 +925,42 @@ export type CaseHearingOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CaseHearingNullableScalarRelationFilter = {
+  is?: Prisma.CaseHearingWhereInput | null
+  isNot?: Prisma.CaseHearingWhereInput | null
+}
+
 export type CaseHearingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
+  openKey?: Prisma.SortOrder
+  assignedOfficialId?: Prisma.SortOrder
+  complainantPartyId?: Prisma.SortOrder
+  respondentPartyId?: Prisma.SortOrder
+  complainantAttendance?: Prisma.SortOrder
+  respondentAttendance?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  agreements?: Prisma.SortOrder
+  outcomeSummary?: Prisma.SortOrder
+  nextAction?: Prisma.SortOrder
+  nextHearingAt?: Prisma.SortOrder
+  residentInstructions?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+  residentIntent?: Prisma.SortOrder
+  residentIntentAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledById?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -502,18 +969,40 @@ export type CaseHearingCountOrderByAggregateInput = {
 
 export type CaseHearingAvgOrderByAggregateInput = {
   hearingNumber?: Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
 }
 
 export type CaseHearingMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
+  openKey?: Prisma.SortOrder
+  assignedOfficialId?: Prisma.SortOrder
+  complainantPartyId?: Prisma.SortOrder
+  respondentPartyId?: Prisma.SortOrder
+  complainantAttendance?: Prisma.SortOrder
+  respondentAttendance?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  agreements?: Prisma.SortOrder
+  outcomeSummary?: Prisma.SortOrder
+  nextAction?: Prisma.SortOrder
+  nextHearingAt?: Prisma.SortOrder
+  residentInstructions?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+  residentIntent?: Prisma.SortOrder
+  residentIntentAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledById?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -523,13 +1012,34 @@ export type CaseHearingMaxOrderByAggregateInput = {
 export type CaseHearingMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
+  openKey?: Prisma.SortOrder
+  assignedOfficialId?: Prisma.SortOrder
+  complainantPartyId?: Prisma.SortOrder
+  respondentPartyId?: Prisma.SortOrder
+  complainantAttendance?: Prisma.SortOrder
+  respondentAttendance?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  agreements?: Prisma.SortOrder
+  outcomeSummary?: Prisma.SortOrder
+  nextAction?: Prisma.SortOrder
+  nextHearingAt?: Prisma.SortOrder
+  residentInstructions?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+  residentIntent?: Prisma.SortOrder
+  residentIntentAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledById?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -538,6 +1048,54 @@ export type CaseHearingMinOrderByAggregateInput = {
 
 export type CaseHearingSumOrderByAggregateInput = {
   hearingNumber?: Prisma.SortOrder
+  rescheduleCount?: Prisma.SortOrder
+}
+
+export type CaseHearingScalarRelationFilter = {
+  is?: Prisma.CaseHearingWhereInput
+  isNot?: Prisma.CaseHearingWhereInput
+}
+
+export type CaseHearingCreateNestedManyWithoutAssignedOfficialInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput> | Prisma.CaseHearingCreateWithoutAssignedOfficialInput[] | Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput | Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput[]
+  createMany?: Prisma.CaseHearingCreateManyAssignedOfficialInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput> | Prisma.CaseHearingCreateWithoutAssignedOfficialInput[] | Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput | Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput[]
+  createMany?: Prisma.CaseHearingCreateManyAssignedOfficialInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingUpdateManyWithoutAssignedOfficialNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput> | Prisma.CaseHearingCreateWithoutAssignedOfficialInput[] | Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput | Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutAssignedOfficialInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutAssignedOfficialInput[]
+  createMany?: Prisma.CaseHearingCreateManyAssignedOfficialInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutAssignedOfficialInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutAssignedOfficialInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutAssignedOfficialInput | Prisma.CaseHearingUpdateManyWithWhereWithoutAssignedOfficialInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput> | Prisma.CaseHearingCreateWithoutAssignedOfficialInput[] | Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput | Prisma.CaseHearingCreateOrConnectWithoutAssignedOfficialInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutAssignedOfficialInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutAssignedOfficialInput[]
+  createMany?: Prisma.CaseHearingCreateManyAssignedOfficialInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutAssignedOfficialInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutAssignedOfficialInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutAssignedOfficialInput | Prisma.CaseHearingUpdateManyWithWhereWithoutAssignedOfficialInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
 }
 
 export type CaseHearingCreateNestedManyWithoutCaseInput = {
@@ -582,34 +1140,372 @@ export type CaseHearingUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
 }
 
-export type CaseHearingCreateWithoutCaseInput = {
+export type CaseHearingCreateNestedManyWithoutComplainantPartyInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput> | Prisma.CaseHearingCreateWithoutComplainantPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput | Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyComplainantPartyInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingCreateNestedManyWithoutRespondentPartyInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput> | Prisma.CaseHearingCreateWithoutRespondentPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput | Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyRespondentPartyInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput> | Prisma.CaseHearingCreateWithoutComplainantPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput | Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyComplainantPartyInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput> | Prisma.CaseHearingCreateWithoutRespondentPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput | Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyRespondentPartyInputEnvelope
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+}
+
+export type CaseHearingUpdateManyWithoutComplainantPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput> | Prisma.CaseHearingCreateWithoutComplainantPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput | Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutComplainantPartyInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutComplainantPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyComplainantPartyInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutComplainantPartyInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutComplainantPartyInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutComplainantPartyInput | Prisma.CaseHearingUpdateManyWithWhereWithoutComplainantPartyInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+}
+
+export type CaseHearingUpdateManyWithoutRespondentPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput> | Prisma.CaseHearingCreateWithoutRespondentPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput | Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutRespondentPartyInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutRespondentPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyRespondentPartyInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutRespondentPartyInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutRespondentPartyInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutRespondentPartyInput | Prisma.CaseHearingUpdateManyWithWhereWithoutRespondentPartyInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput> | Prisma.CaseHearingCreateWithoutComplainantPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput | Prisma.CaseHearingCreateOrConnectWithoutComplainantPartyInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutComplainantPartyInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutComplainantPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyComplainantPartyInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutComplainantPartyInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutComplainantPartyInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutComplainantPartyInput | Prisma.CaseHearingUpdateManyWithWhereWithoutComplainantPartyInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput> | Prisma.CaseHearingCreateWithoutRespondentPartyInput[] | Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput[]
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput | Prisma.CaseHearingCreateOrConnectWithoutRespondentPartyInput[]
+  upsert?: Prisma.CaseHearingUpsertWithWhereUniqueWithoutRespondentPartyInput | Prisma.CaseHearingUpsertWithWhereUniqueWithoutRespondentPartyInput[]
+  createMany?: Prisma.CaseHearingCreateManyRespondentPartyInputEnvelope
+  set?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  delete?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  connect?: Prisma.CaseHearingWhereUniqueInput | Prisma.CaseHearingWhereUniqueInput[]
+  update?: Prisma.CaseHearingUpdateWithWhereUniqueWithoutRespondentPartyInput | Prisma.CaseHearingUpdateWithWhereUniqueWithoutRespondentPartyInput[]
+  updateMany?: Prisma.CaseHearingUpdateManyWithWhereWithoutRespondentPartyInput | Prisma.CaseHearingUpdateManyWithWhereWithoutRespondentPartyInput[]
+  deleteMany?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+}
+
+export type CaseHearingCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+}
+
+export type CaseHearingUpdateOneWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.CaseHearingUpsertWithoutAttachmentsInput
+  disconnect?: Prisma.CaseHearingWhereInput | boolean
+  delete?: Prisma.CaseHearingWhereInput | boolean
+  connect?: Prisma.CaseHearingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseHearingUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.CaseHearingUpdateWithoutAttachmentsInput>, Prisma.CaseHearingUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type CaseHearingCreateNestedOneWithoutNoticesInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutNoticesInput, Prisma.CaseHearingUncheckedCreateWithoutNoticesInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutNoticesInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+}
+
+export type CaseHearingUpdateOneRequiredWithoutNoticesNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutNoticesInput, Prisma.CaseHearingUncheckedCreateWithoutNoticesInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutNoticesInput
+  upsert?: Prisma.CaseHearingUpsertWithoutNoticesInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseHearingUpdateToOneWithWhereWithoutNoticesInput, Prisma.CaseHearingUpdateWithoutNoticesInput>, Prisma.CaseHearingUncheckedUpdateWithoutNoticesInput>
+}
+
+export type CaseHearingCreateNestedOneWithoutEventsInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutEventsInput, Prisma.CaseHearingUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutEventsInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+}
+
+export type CaseHearingUpdateOneRequiredWithoutEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutEventsInput, Prisma.CaseHearingUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutEventsInput
+  upsert?: Prisma.CaseHearingUpsertWithoutEventsInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseHearingUpdateToOneWithWhereWithoutEventsInput, Prisma.CaseHearingUpdateWithoutEventsInput>, Prisma.CaseHearingUncheckedUpdateWithoutEventsInput>
+}
+
+export type CaseHearingCreateNestedOneWithoutRequestsInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRequestsInput, Prisma.CaseHearingUncheckedCreateWithoutRequestsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRequestsInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+}
+
+export type CaseHearingUpdateOneRequiredWithoutRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingCreateWithoutRequestsInput, Prisma.CaseHearingUncheckedCreateWithoutRequestsInput>
+  connectOrCreate?: Prisma.CaseHearingCreateOrConnectWithoutRequestsInput
+  upsert?: Prisma.CaseHearingUpsertWithoutRequestsInput
+  connect?: Prisma.CaseHearingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseHearingUpdateToOneWithWhereWithoutRequestsInput, Prisma.CaseHearingUpdateWithoutRequestsInput>, Prisma.CaseHearingUncheckedUpdateWithoutRequestsInput>
+}
+
+export type CaseHearingCreateWithoutAssignedOfficialInput = {
   id?: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutAssignedOfficialInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutAssignedOfficialInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput>
+}
+
+export type CaseHearingCreateManyAssignedOfficialInputEnvelope = {
+  data: Prisma.CaseHearingCreateManyAssignedOfficialInput | Prisma.CaseHearingCreateManyAssignedOfficialInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseHearingUpsertWithWhereUniqueWithoutAssignedOfficialInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedUpdateWithoutAssignedOfficialInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedCreateWithoutAssignedOfficialInput>
+}
+
+export type CaseHearingUpdateWithWhereUniqueWithoutAssignedOfficialInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutAssignedOfficialInput, Prisma.CaseHearingUncheckedUpdateWithoutAssignedOfficialInput>
+}
+
+export type CaseHearingUpdateManyWithWhereWithoutAssignedOfficialInput = {
+  where: Prisma.CaseHearingScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateManyMutationInput, Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialInput>
+}
+
+export type CaseHearingScalarWhereInput = {
+  AND?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+  OR?: Prisma.CaseHearingScalarWhereInput[]
+  NOT?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
+  id?: Prisma.StringFilter<"CaseHearing"> | string
+  caseId?: Prisma.StringFilter<"CaseHearing"> | string
+  reference?: Prisma.StringFilter<"CaseHearing"> | string
+  hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
+  scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
+  venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  status?: Prisma.StringFilter<"CaseHearing"> | string
+  activeKey?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  openKey?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  assignedOfficialId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  respondentPartyId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  complainantAttendance?: Prisma.StringFilter<"CaseHearing"> | string
+  respondentAttendance?: Prisma.StringFilter<"CaseHearing"> | string
+  outcome?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  agreements?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  outcomeSummary?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextAction?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  nextHearingAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  residentInstructions?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  statusReason?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  notes?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  rescheduleCount?: Prisma.IntFilter<"CaseHearing"> | number
+  residentIntent?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  residentIntentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"CaseHearing"> | Date | string | null
+  cancelledById?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
+  createdById?: Prisma.StringFilter<"CaseHearing"> | string
+  updatedById?: Prisma.StringFilter<"CaseHearing"> | string
+  createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
+}
+
+export type CaseHearingCreateWithoutCaseInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
 }
 
 export type CaseHearingUncheckedCreateWithoutCaseInput = {
   id?: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
 }
 
 export type CaseHearingCreateOrConnectWithoutCaseInput = {
@@ -638,34 +1534,1104 @@ export type CaseHearingUpdateManyWithWhereWithoutCaseInput = {
   data: Prisma.XOR<Prisma.CaseHearingUpdateManyMutationInput, Prisma.CaseHearingUncheckedUpdateManyWithoutCaseInput>
 }
 
-export type CaseHearingScalarWhereInput = {
-  AND?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
-  OR?: Prisma.CaseHearingScalarWhereInput[]
-  NOT?: Prisma.CaseHearingScalarWhereInput | Prisma.CaseHearingScalarWhereInput[]
-  id?: Prisma.StringFilter<"CaseHearing"> | string
-  caseId?: Prisma.StringFilter<"CaseHearing"> | string
-  hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
-  scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
-  venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
-  status?: Prisma.StringFilter<"CaseHearing"> | string
-  outcome?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
-  statusReason?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
-  notes?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
-  createdById?: Prisma.StringFilter<"CaseHearing"> | string
-  updatedById?: Prisma.StringFilter<"CaseHearing"> | string
-  createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
-}
-
-export type CaseHearingCreateManyCaseInput = {
+export type CaseHearingCreateWithoutComplainantPartyInput = {
   id?: string
+  reference: string
   hearingNumber: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
   outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
   statusReason?: string | null
   notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutComplainantPartyInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutComplainantPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput>
+}
+
+export type CaseHearingCreateManyComplainantPartyInputEnvelope = {
+  data: Prisma.CaseHearingCreateManyComplainantPartyInput | Prisma.CaseHearingCreateManyComplainantPartyInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseHearingCreateWithoutRespondentPartyInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutRespondentPartyInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutRespondentPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput>
+}
+
+export type CaseHearingCreateManyRespondentPartyInputEnvelope = {
+  data: Prisma.CaseHearingCreateManyRespondentPartyInput | Prisma.CaseHearingCreateManyRespondentPartyInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseHearingUpsertWithWhereUniqueWithoutComplainantPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedUpdateWithoutComplainantPartyInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedCreateWithoutComplainantPartyInput>
+}
+
+export type CaseHearingUpdateWithWhereUniqueWithoutComplainantPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutComplainantPartyInput, Prisma.CaseHearingUncheckedUpdateWithoutComplainantPartyInput>
+}
+
+export type CaseHearingUpdateManyWithWhereWithoutComplainantPartyInput = {
+  where: Prisma.CaseHearingScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateManyMutationInput, Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyInput>
+}
+
+export type CaseHearingUpsertWithWhereUniqueWithoutRespondentPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedUpdateWithoutRespondentPartyInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedCreateWithoutRespondentPartyInput>
+}
+
+export type CaseHearingUpdateWithWhereUniqueWithoutRespondentPartyInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutRespondentPartyInput, Prisma.CaseHearingUncheckedUpdateWithoutRespondentPartyInput>
+}
+
+export type CaseHearingUpdateManyWithWhereWithoutRespondentPartyInput = {
+  where: Prisma.CaseHearingScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateManyMutationInput, Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyInput>
+}
+
+export type CaseHearingCreateWithoutAttachmentsInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutAttachmentsInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type CaseHearingUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.CaseHearingWhereInput
+}
+
+export type CaseHearingUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.CaseHearingWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutAttachmentsInput, Prisma.CaseHearingUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type CaseHearingUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingCreateWithoutNoticesInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutNoticesInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutNoticesInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutNoticesInput, Prisma.CaseHearingUncheckedCreateWithoutNoticesInput>
+}
+
+export type CaseHearingUpsertWithoutNoticesInput = {
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutNoticesInput, Prisma.CaseHearingUncheckedUpdateWithoutNoticesInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutNoticesInput, Prisma.CaseHearingUncheckedCreateWithoutNoticesInput>
+  where?: Prisma.CaseHearingWhereInput
+}
+
+export type CaseHearingUpdateToOneWithWhereWithoutNoticesInput = {
+  where?: Prisma.CaseHearingWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutNoticesInput, Prisma.CaseHearingUncheckedUpdateWithoutNoticesInput>
+}
+
+export type CaseHearingUpdateWithoutNoticesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutNoticesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingCreateWithoutEventsInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutEventsInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutEventsInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutEventsInput, Prisma.CaseHearingUncheckedCreateWithoutEventsInput>
+}
+
+export type CaseHearingUpsertWithoutEventsInput = {
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutEventsInput, Prisma.CaseHearingUncheckedUpdateWithoutEventsInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutEventsInput, Prisma.CaseHearingUncheckedCreateWithoutEventsInput>
+  where?: Prisma.CaseHearingWhereInput
+}
+
+export type CaseHearingUpdateToOneWithWhereWithoutEventsInput = {
+  where?: Prisma.CaseHearingWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutEventsInput, Prisma.CaseHearingUncheckedUpdateWithoutEventsInput>
+}
+
+export type CaseHearingUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingCreateWithoutRequestsInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case: Prisma.CaseCreateNestedOneWithoutHearingsInput
+  assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
+  complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
+  respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
+  notices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingUncheckedCreateWithoutRequestsInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
+  events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
+}
+
+export type CaseHearingCreateOrConnectWithoutRequestsInput = {
+  where: Prisma.CaseHearingWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutRequestsInput, Prisma.CaseHearingUncheckedCreateWithoutRequestsInput>
+}
+
+export type CaseHearingUpsertWithoutRequestsInput = {
+  update: Prisma.XOR<Prisma.CaseHearingUpdateWithoutRequestsInput, Prisma.CaseHearingUncheckedUpdateWithoutRequestsInput>
+  create: Prisma.XOR<Prisma.CaseHearingCreateWithoutRequestsInput, Prisma.CaseHearingUncheckedCreateWithoutRequestsInput>
+  where?: Prisma.CaseHearingWhereInput
+}
+
+export type CaseHearingUpdateToOneWithWhereWithoutRequestsInput = {
+  where?: Prisma.CaseHearingWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingUpdateWithoutRequestsInput, Prisma.CaseHearingUncheckedUpdateWithoutRequestsInput>
+}
+
+export type CaseHearingUpdateWithoutRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingCreateManyAssignedOfficialInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CaseHearingUpdateWithoutAssignedOfficialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutAssignedOfficialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutAssignedOfficialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CaseHearingCreateManyCaseInput = {
+  id?: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
   createdById: string
   updatedById: string
   createdAt?: Date | string
@@ -674,156 +2640,778 @@ export type CaseHearingCreateManyCaseInput = {
 
 export type CaseHearingUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
 }
 
 export type CaseHearingUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
 }
 
 export type CaseHearingUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
   outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type CaseHearingCreateManyComplainantPartyInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  respondentPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CaseHearingCreateManyRespondentPartyInput = {
+  id?: string
+  caseId: string
+  reference: string
+  hearingNumber: number
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  activeKey?: string | null
+  openKey?: string | null
+  assignedOfficialId?: string | null
+  complainantPartyId?: string | null
+  complainantAttendance?: string
+  respondentAttendance?: string
+  outcome?: string | null
+  agreements?: string | null
+  outcomeSummary?: string | null
+  nextAction?: string | null
+  nextHearingAt?: Date | string | null
+  residentInstructions?: string | null
+  statusReason?: string | null
+  notes?: string | null
+  rescheduleCount?: number
+  residentIntent?: string | null
+  residentIntentAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelledById?: string | null
+  createdById: string
+  updatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CaseHearingUpdateWithoutComplainantPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutComplainantPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutComplainantPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  respondentPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CaseHearingUpdateWithoutRespondentPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
+  assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
+  complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
+  notices?: Prisma.CaseHearingNoticeUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateWithoutRespondentPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
+  events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
+  requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
+}
+
+export type CaseHearingUncheckedUpdateManyWithoutRespondentPartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedOfficialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantPartyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complainantAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  respondentAttendance?: Prisma.StringFieldUpdateOperationsInput | string
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agreements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextHearingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  residentIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentIntentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type CaseHearingCountOutputType
+ */
+
+export type CaseHearingCountOutputType = {
+  notices: number
+  events: number
+  requests: number
+  attachments: number
+}
+
+export type CaseHearingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  notices?: boolean | CaseHearingCountOutputTypeCountNoticesArgs
+  events?: boolean | CaseHearingCountOutputTypeCountEventsArgs
+  requests?: boolean | CaseHearingCountOutputTypeCountRequestsArgs
+  attachments?: boolean | CaseHearingCountOutputTypeCountAttachmentsArgs
+}
+
+/**
+ * CaseHearingCountOutputType without action
+ */
+export type CaseHearingCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearingCountOutputType
+   */
+  select?: Prisma.CaseHearingCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CaseHearingCountOutputType without action
+ */
+export type CaseHearingCountOutputTypeCountNoticesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingNoticeWhereInput
+}
+
+/**
+ * CaseHearingCountOutputType without action
+ */
+export type CaseHearingCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingEventWhereInput
+}
+
+/**
+ * CaseHearingCountOutputType without action
+ */
+export type CaseHearingCountOutputTypeCountRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingRequestWhereInput
+}
+
+/**
+ * CaseHearingCountOutputType without action
+ */
+export type CaseHearingCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseAttachmentWhereInput
+}
 
 
 export type CaseHearingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
+  reference?: boolean
   hearingNumber?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
+  activeKey?: boolean
+  openKey?: boolean
+  assignedOfficialId?: boolean
+  complainantPartyId?: boolean
+  respondentPartyId?: boolean
+  complainantAttendance?: boolean
+  respondentAttendance?: boolean
   outcome?: boolean
+  agreements?: boolean
+  outcomeSummary?: boolean
+  nextAction?: boolean
+  nextHearingAt?: boolean
+  residentInstructions?: boolean
   statusReason?: boolean
   notes?: boolean
+  rescheduleCount?: boolean
+  residentIntent?: boolean
+  residentIntentAt?: boolean
+  reminderSentAt?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  cancelledAt?: boolean
+  cancelledById?: boolean
   createdById?: boolean
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
+  notices?: boolean | Prisma.CaseHearing$noticesArgs<ExtArgs>
+  events?: boolean | Prisma.CaseHearing$eventsArgs<ExtArgs>
+  requests?: boolean | Prisma.CaseHearing$requestsArgs<ExtArgs>
+  attachments?: boolean | Prisma.CaseHearing$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.CaseHearingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearing"]>
 
 export type CaseHearingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
+  reference?: boolean
   hearingNumber?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
+  activeKey?: boolean
+  openKey?: boolean
+  assignedOfficialId?: boolean
+  complainantPartyId?: boolean
+  respondentPartyId?: boolean
+  complainantAttendance?: boolean
+  respondentAttendance?: boolean
   outcome?: boolean
+  agreements?: boolean
+  outcomeSummary?: boolean
+  nextAction?: boolean
+  nextHearingAt?: boolean
+  residentInstructions?: boolean
   statusReason?: boolean
   notes?: boolean
+  rescheduleCount?: boolean
+  residentIntent?: boolean
+  residentIntentAt?: boolean
+  reminderSentAt?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  cancelledAt?: boolean
+  cancelledById?: boolean
   createdById?: boolean
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearing"]>
 
 export type CaseHearingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   caseId?: boolean
+  reference?: boolean
   hearingNumber?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
+  activeKey?: boolean
+  openKey?: boolean
+  assignedOfficialId?: boolean
+  complainantPartyId?: boolean
+  respondentPartyId?: boolean
+  complainantAttendance?: boolean
+  respondentAttendance?: boolean
   outcome?: boolean
+  agreements?: boolean
+  outcomeSummary?: boolean
+  nextAction?: boolean
+  nextHearingAt?: boolean
+  residentInstructions?: boolean
   statusReason?: boolean
   notes?: boolean
+  rescheduleCount?: boolean
+  residentIntent?: boolean
+  residentIntentAt?: boolean
+  reminderSentAt?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  cancelledAt?: boolean
+  cancelledById?: boolean
   createdById?: boolean
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearing"]>
 
 export type CaseHearingSelectScalar = {
   id?: boolean
   caseId?: boolean
+  reference?: boolean
   hearingNumber?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
+  activeKey?: boolean
+  openKey?: boolean
+  assignedOfficialId?: boolean
+  complainantPartyId?: boolean
+  respondentPartyId?: boolean
+  complainantAttendance?: boolean
+  respondentAttendance?: boolean
   outcome?: boolean
+  agreements?: boolean
+  outcomeSummary?: boolean
+  nextAction?: boolean
+  nextHearingAt?: boolean
+  residentInstructions?: boolean
   statusReason?: boolean
   notes?: boolean
+  rescheduleCount?: boolean
+  residentIntent?: boolean
+  residentIntentAt?: boolean
+  reminderSentAt?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  cancelledAt?: boolean
+  cancelledById?: boolean
   createdById?: boolean
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "hearingNumber" | "scheduledAt" | "venue" | "status" | "outcome" | "statusReason" | "notes" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearing"]>
+export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "hearingNumber" | "scheduledAt" | "venue" | "status" | "activeKey" | "openKey" | "assignedOfficialId" | "complainantPartyId" | "respondentPartyId" | "complainantAttendance" | "respondentAttendance" | "outcome" | "agreements" | "outcomeSummary" | "nextAction" | "nextHearingAt" | "residentInstructions" | "statusReason" | "notes" | "rescheduleCount" | "residentIntent" | "residentIntentAt" | "reminderSentAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearing"]>
 export type CaseHearingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
+  notices?: boolean | Prisma.CaseHearing$noticesArgs<ExtArgs>
+  events?: boolean | Prisma.CaseHearing$eventsArgs<ExtArgs>
+  requests?: boolean | Prisma.CaseHearing$requestsArgs<ExtArgs>
+  attachments?: boolean | Prisma.CaseHearing$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.CaseHearingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CaseHearingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
 }
 export type CaseHearingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
+  assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
+  complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
+  respondentParty?: boolean | Prisma.CaseHearing$respondentPartyArgs<ExtArgs>
 }
 
 export type $CaseHearingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CaseHearing"
   objects: {
     case: Prisma.$CasePayload<ExtArgs>
+    assignedOfficial: Prisma.$UserPayload<ExtArgs> | null
+    complainantParty: Prisma.$CasePartyPayload<ExtArgs> | null
+    respondentParty: Prisma.$CasePartyPayload<ExtArgs> | null
+    notices: Prisma.$CaseHearingNoticePayload<ExtArgs>[]
+    events: Prisma.$CaseHearingEventPayload<ExtArgs>[]
+    requests: Prisma.$CaseHearingRequestPayload<ExtArgs>[]
+    attachments: Prisma.$CaseAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     caseId: string
     /**
+     * The hearing's own reference: HRG-<case number>-<hearing number>, with a
+     * suffix when a cancelled hearing is replaced.
+     */
+    reference: string
+    /**
      * 1, 2 or 3
      */
     hearingNumber: number
+    /**
+     * Date and time, as one instant (shown in Philippine time).
+     */
     scheduledAt: Date
     venue: string | null
     /**
-     * SCHEDULED | COMPLETED | POSTPONED | CANCELLED
+     * DRAFT | SCHEDULED | NOTICE_ISSUED | ACKNOWLEDGED | RESCHEDULED | COMPLETED | CANCELLED.
+     * Where the hearing stands - not what came of it (outcome) and not the case's status.
      */
     status: string
     /**
-     * COMPLETED only: SETTLED | NOT_SETTLED | RESPONDENT_ABSENT | COMPLAINANT_ABSENT | REFERRED
+     * "<caseId>:<number>" while the hearing is not cancelled, null after: no
+     * case has two live records of the same hearing.
+     */
+    activeKey: string | null
+    /**
+     * "<caseId>" while the hearing is open (not completed or cancelled): one
+     * open hearing per case at a time.
+     */
+    openKey: string | null
+    /**
+     * Who presides or handles it.
+     */
+    assignedOfficialId: string | null
+    /**
+     * The parties, by their records on the case - never by name. A null
+     * complainant is the reporter who filed the case.
+     */
+    complainantPartyId: string | null
+    respondentPartyId: string | null
+    /**
+     * PRESENT | ABSENT | EXCUSED | NOT_RECORDED - recorded by an official only.
+     */
+    complainantAttendance: string
+    respondentAttendance: string
+    /**
+     * lib/hearings.ts HEARING_OUTCOMES, recorded when the hearing is held.
      */
     outcome: string | null
     /**
-     * POSTPONED / CANCELLED: why.
+     * What was agreed or what developed (officials only).
+     */
+    agreements: string | null
+    /**
+     * A short outcome summary the complainant may read in My Hearings.
+     */
+    outcomeSummary: string | null
+    /**
+     * The case's next step, as the official records it.
+     */
+    nextAction: string | null
+    /**
+     * The proposed date of the next hearing, when one is to follow.
+     */
+    nextHearingAt: Date | null
+    /**
+     * Extra instructions for the complainant (what to bring, where to go).
+     */
+    residentInstructions: string | null
+    /**
+     * The reason for the latest cancellation or new date.
      */
     statusReason: string | null
+    /**
+     * An internal note made when scheduling (officials only).
+     */
     notes: string | null
+    rescheduleCount: number
+    /**
+     * The complainant's own answer - WILL_ATTEND | CANNOT_ATTEND. Theirs, not
+     * the official attendance record.
+     */
+    residentIntent: string | null
+    residentIntentAt: Date | null
+    /**
+     * Stamped when the "hearing is approaching" reminder goes out; cleared on a new date.
+     */
+    reminderSentAt: Date | null
+    completedAt: Date | null
+    completedById: string | null
+    cancelledAt: Date | null
+    cancelledById: string | null
     createdById: string
     updatedById: string
     createdAt: Date
@@ -1223,6 +3811,13 @@ readonly fields: CaseHearingFieldRefs;
 export interface Prisma__CaseHearingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   case<T extends Prisma.CaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  assignedOfficial<T extends Prisma.CaseHearing$assignedOfficialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  complainantParty<T extends Prisma.CaseHearing$complainantPartyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$complainantPartyArgs<ExtArgs>>): Prisma.Prisma__CasePartyClient<runtime.Types.Result.GetResult<Prisma.$CasePartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  respondentParty<T extends Prisma.CaseHearing$respondentPartyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$respondentPartyArgs<ExtArgs>>): Prisma.Prisma__CasePartyClient<runtime.Types.Result.GetResult<Prisma.$CasePartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  notices<T extends Prisma.CaseHearing$noticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$noticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  events<T extends Prisma.CaseHearing$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  requests<T extends Prisma.CaseHearing$requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.CaseHearing$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearing$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1254,13 +3849,34 @@ export interface Prisma__CaseHearingClient<T, Null = never, ExtArgs extends runt
 export interface CaseHearingFieldRefs {
   readonly id: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly caseId: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly reference: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly hearingNumber: Prisma.FieldRef<"CaseHearing", 'Int'>
   readonly scheduledAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
   readonly venue: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly status: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly activeKey: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly openKey: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly assignedOfficialId: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly complainantPartyId: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly respondentPartyId: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly complainantAttendance: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly respondentAttendance: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly outcome: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly agreements: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly outcomeSummary: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly nextAction: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly nextHearingAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly residentInstructions: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly statusReason: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly notes: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly rescheduleCount: Prisma.FieldRef<"CaseHearing", 'Int'>
+  readonly residentIntent: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly residentIntentAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly reminderSentAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly completedAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly completedById: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly cancelledAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly cancelledById: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly createdById: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly updatedById: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
@@ -1663,6 +4279,159 @@ export type CaseHearingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many CaseHearings to delete.
    */
   limit?: number
+}
+
+/**
+ * CaseHearing.assignedOfficial
+ */
+export type CaseHearing$assignedOfficialArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * CaseHearing.complainantParty
+ */
+export type CaseHearing$complainantPartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseParty
+   */
+  select?: Prisma.CasePartySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseParty
+   */
+  omit?: Prisma.CasePartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CasePartyInclude<ExtArgs> | null
+  where?: Prisma.CasePartyWhereInput
+}
+
+/**
+ * CaseHearing.respondentParty
+ */
+export type CaseHearing$respondentPartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseParty
+   */
+  select?: Prisma.CasePartySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseParty
+   */
+  omit?: Prisma.CasePartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CasePartyInclude<ExtArgs> | null
+  where?: Prisma.CasePartyWhereInput
+}
+
+/**
+ * CaseHearing.notices
+ */
+export type CaseHearing$noticesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearingNotice
+   */
+  select?: Prisma.CaseHearingNoticeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearingNotice
+   */
+  omit?: Prisma.CaseHearingNoticeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingNoticeInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingNoticeWhereInput
+  orderBy?: Prisma.CaseHearingNoticeOrderByWithRelationInput | Prisma.CaseHearingNoticeOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingNoticeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingNoticeScalarFieldEnum | Prisma.CaseHearingNoticeScalarFieldEnum[]
+}
+
+/**
+ * CaseHearing.events
+ */
+export type CaseHearing$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearingEvent
+   */
+  select?: Prisma.CaseHearingEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearingEvent
+   */
+  omit?: Prisma.CaseHearingEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingEventInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingEventWhereInput
+  orderBy?: Prisma.CaseHearingEventOrderByWithRelationInput | Prisma.CaseHearingEventOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingEventScalarFieldEnum | Prisma.CaseHearingEventScalarFieldEnum[]
+}
+
+/**
+ * CaseHearing.requests
+ */
+export type CaseHearing$requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearingRequest
+   */
+  select?: Prisma.CaseHearingRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearingRequest
+   */
+  omit?: Prisma.CaseHearingRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingRequestInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingRequestWhereInput
+  orderBy?: Prisma.CaseHearingRequestOrderByWithRelationInput | Prisma.CaseHearingRequestOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingRequestScalarFieldEnum | Prisma.CaseHearingRequestScalarFieldEnum[]
+}
+
+/**
+ * CaseHearing.attachments
+ */
+export type CaseHearing$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseAttachment
+   */
+  select?: Prisma.CaseAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseAttachment
+   */
+  omit?: Prisma.CaseAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseAttachmentInclude<ExtArgs> | null
+  where?: Prisma.CaseAttachmentWhereInput
+  orderBy?: Prisma.CaseAttachmentOrderByWithRelationInput | Prisma.CaseAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.CaseAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseAttachmentScalarFieldEnum | Prisma.CaseAttachmentScalarFieldEnum[]
 }
 
 /**

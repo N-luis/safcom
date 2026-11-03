@@ -1,3 +1,5 @@
+import { residentHearingMessage } from './hearings';
+
 export const RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY = 'resident_notifications_last_seen';
 
 /**
@@ -9,7 +11,7 @@ export const RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY = 'resident_notifications_last
  */
 export const RESIDENT_ACTIVITY_TYPES = [
   'case_filed', 'case', 'vawc_status_changed', 'category_changed', 'category_confirmed',
-  'assignment', 'follow_up',
+  'assignment', 'follow_up', 'hearing',
 ] as const;
 
 /** An official's follow-up entry, as the notice about it needs it. */
@@ -50,9 +52,19 @@ export interface ResidentNotice {
 export function residentNotice(
   activity: { type: string; message: string },
   followUp: LinkedFollowUp | null | undefined,
+  hearingEvent?: { kind: string; after: unknown } | null,
 ): ResidentNotice | null {
   const { type, message } = activity;
   if (!(RESIDENT_ACTIVITY_TYPES as readonly string[]).includes(type)) return null;
+
+  if (type === 'hearing') {
+    // Told from the hearing's own history, in words written for the
+    // complainant - never the desk's line, which names the official. Drafts,
+    // notes, attendance and the respondent's notice are not theirs to know.
+    if (!hearingEvent) return null;
+    const m = residentHearingMessage(hearingEvent);
+    return m ? { message: m, entryLabel: 'Hearing update' } : null;
+  }
 
   if (type === 'follow_up') {
     if (followUp) {

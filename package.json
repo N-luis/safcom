@@ -33,6 +33,7 @@
     "test:caserecords": "npx tsx --env-file=.env --conditions=react-server tests/caseRecords.test.ts",
     "test:analytics": "npx tsx --env-file=.env --conditions=react-server tests/analytics.test.ts",
     "test:blotterreport": "npx tsx --env-file=.env --conditions=react-server tests/blotterReport.test.ts",
+    "test:hearings": "npx tsx --env-file=.env --conditions=react-server tests/hearings.test.ts",
     "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
     "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts"
   },

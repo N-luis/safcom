@@ -10,7 +10,7 @@ import {
 import {
   Dashboard, FolderOpen, Category, Psychology, Campaign,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
-  Shield, Logout, Message, ArrowBack,
+  Shield, Logout, Message, ArrowBack, Gavel,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/blotter-officer', exact: true },
   { id: 'cases', label: 'Case Management', icon: FolderOpen, path: '/blotter-officer/case-management' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
+  { id: 'hearings', label: 'Hearing Management', icon: Gavel, path: '/blotter-officer/hearings' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
   // Path kept as /reports so existing links still resolve; the page behind it
   // is now purely announcements.

@@ -246,6 +246,7 @@ export type UserWhereInput = {
   receivedMessages?: Prisma.MessageListRelationFilter
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
   assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
+  presidedHearings?: Prisma.CaseHearingListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -269,6 +270,7 @@ export type UserOrderByWithRelationInput = {
   receivedMessages?: Prisma.MessageOrderByRelationAggregateInput
   caseFollowUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
   assessmentActions?: Prisma.AssessmentHistoryOrderByRelationAggregateInput
+  presidedHearings?: Prisma.CaseHearingOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -295,6 +297,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   receivedMessages?: Prisma.MessageListRelationFilter
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
   assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
+  presidedHearings?: Prisma.CaseHearingListRelationFilter
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -354,6 +357,7 @@ export type UserCreateInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -377,6 +381,7 @@ export type UserUncheckedCreateInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUpdateInput = {
@@ -400,6 +405,7 @@ export type UserUpdateInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -423,6 +429,7 @@ export type UserUncheckedUpdateInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -665,6 +672,22 @@ export type UserUpdateOneWithoutAssessmentActionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssessmentActionsInput, Prisma.UserUpdateWithoutAssessmentActionsInput>, Prisma.UserUncheckedUpdateWithoutAssessmentActionsInput>
 }
 
+export type UserCreateNestedOneWithoutPresidedHearingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPresidedHearingsInput, Prisma.UserUncheckedCreateWithoutPresidedHearingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPresidedHearingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutPresidedHearingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPresidedHearingsInput, Prisma.UserUncheckedCreateWithoutPresidedHearingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPresidedHearingsInput
+  upsert?: Prisma.UserUpsertWithoutPresidedHearingsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPresidedHearingsInput, Prisma.UserUpdateWithoutPresidedHearingsInput>, Prisma.UserUncheckedUpdateWithoutPresidedHearingsInput>
+}
+
 export type UserCreateWithoutAssignedCasesInput = {
   id?: string
   email: string
@@ -685,6 +708,7 @@ export type UserCreateWithoutAssignedCasesInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutAssignedCasesInput = {
@@ -707,6 +731,7 @@ export type UserUncheckedCreateWithoutAssignedCasesInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutAssignedCasesInput = {
@@ -745,6 +770,7 @@ export type UserUpdateWithoutAssignedCasesInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedCasesInput = {
@@ -767,6 +793,7 @@ export type UserUncheckedUpdateWithoutAssignedCasesInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutOverriddenAssessmentsInput = {
@@ -789,6 +816,7 @@ export type UserCreateWithoutOverriddenAssessmentsInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
@@ -811,6 +839,7 @@ export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutOverriddenAssessmentsInput = {
@@ -849,6 +878,7 @@ export type UserUpdateWithoutOverriddenAssessmentsInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
@@ -871,6 +901,7 @@ export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutCreatedReportsInput = {
@@ -893,6 +924,7 @@ export type UserCreateWithoutCreatedReportsInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutCreatedReportsInput = {
@@ -915,6 +947,7 @@ export type UserUncheckedCreateWithoutCreatedReportsInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutCreatedReportsInput = {
@@ -953,6 +986,7 @@ export type UserUpdateWithoutCreatedReportsInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedReportsInput = {
@@ -975,6 +1009,7 @@ export type UserUncheckedUpdateWithoutCreatedReportsInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutActivitiesInput = {
@@ -997,6 +1032,7 @@ export type UserCreateWithoutActivitiesInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutActivitiesInput = {
@@ -1019,6 +1055,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutActivitiesInput = {
@@ -1057,6 +1094,7 @@ export type UserUpdateWithoutActivitiesInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivitiesInput = {
@@ -1079,6 +1117,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutCaseFollowUpsInput = {
@@ -1101,6 +1140,7 @@ export type UserCreateWithoutCaseFollowUpsInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
@@ -1123,6 +1163,7 @@ export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutCaseFollowUpsInput = {
@@ -1161,6 +1202,7 @@ export type UserUpdateWithoutCaseFollowUpsInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
@@ -1183,6 +1225,7 @@ export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -1205,6 +1248,7 @@ export type UserCreateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -1227,6 +1271,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -1254,6 +1299,7 @@ export type UserCreateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -1276,6 +1322,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -1314,6 +1361,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -1336,6 +1384,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -1369,6 +1418,7 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -1391,6 +1441,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserCreateWithoutAssessmentActionsInput = {
@@ -1413,6 +1464,7 @@ export type UserCreateWithoutAssessmentActionsInput = {
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserUncheckedCreateWithoutAssessmentActionsInput = {
@@ -1435,6 +1487,7 @@ export type UserUncheckedCreateWithoutAssessmentActionsInput = {
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
 }
 
 export type UserCreateOrConnectWithoutAssessmentActionsInput = {
@@ -1473,6 +1526,7 @@ export type UserUpdateWithoutAssessmentActionsInput = {
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssessmentActionsInput = {
@@ -1495,6 +1549,115 @@ export type UserUncheckedUpdateWithoutAssessmentActionsInput = {
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+}
+
+export type UserCreateWithoutPresidedHearingsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutPresidedHearingsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutPresidedHearingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPresidedHearingsInput, Prisma.UserUncheckedCreateWithoutPresidedHearingsInput>
+}
+
+export type UserUpsertWithoutPresidedHearingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPresidedHearingsInput, Prisma.UserUncheckedUpdateWithoutPresidedHearingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPresidedHearingsInput, Prisma.UserUncheckedCreateWithoutPresidedHearingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPresidedHearingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPresidedHearingsInput, Prisma.UserUncheckedUpdateWithoutPresidedHearingsInput>
+}
+
+export type UserUpdateWithoutPresidedHearingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPresidedHearingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
 }
 
 
@@ -1511,6 +1674,7 @@ export type UserCountOutputType = {
   receivedMessages: number
   caseFollowUps: number
   assessmentActions: number
+  presidedHearings: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1522,6 +1686,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   receivedMessages?: boolean | UserCountOutputTypeCountReceivedMessagesArgs
   caseFollowUps?: boolean | UserCountOutputTypeCountCaseFollowUpsArgs
   assessmentActions?: boolean | UserCountOutputTypeCountAssessmentActionsArgs
+  presidedHearings?: boolean | UserCountOutputTypeCountPresidedHearingsArgs
 }
 
 /**
@@ -1590,6 +1755,13 @@ export type UserCountOutputTypeCountAssessmentActionsArgs<ExtArgs extends runtim
   where?: Prisma.AssessmentHistoryWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPresidedHearingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseHearingWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1612,6 +1784,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
   assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
+  presidedHearings?: boolean | Prisma.User$presidedHearingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1670,6 +1843,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
   assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
+  presidedHearings?: boolean | Prisma.User$presidedHearingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1686,6 +1860,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     receivedMessages: Prisma.$MessagePayload<ExtArgs>[]
     caseFollowUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
     assessmentActions: Prisma.$AssessmentHistoryPayload<ExtArgs>[]
+    presidedHearings: Prisma.$CaseHearingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2102,6 +2277,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   receivedMessages<T extends Prisma.User$receivedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   caseFollowUps<T extends Prisma.User$caseFollowUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$caseFollowUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessmentActions<T extends Prisma.User$assessmentActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assessmentActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  presidedHearings<T extends Prisma.User$presidedHearingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$presidedHearingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2725,6 +2901,30 @@ export type User$assessmentActionsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.AssessmentHistoryScalarFieldEnum | Prisma.AssessmentHistoryScalarFieldEnum[]
+}
+
+/**
+ * User.presidedHearings
+ */
+export type User$presidedHearingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseHearing
+   */
+  select?: Prisma.CaseHearingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseHearing
+   */
+  omit?: Prisma.CaseHearingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseHearingInclude<ExtArgs> | null
+  where?: Prisma.CaseHearingWhereInput
+  orderBy?: Prisma.CaseHearingOrderByWithRelationInput | Prisma.CaseHearingOrderByWithRelationInput[]
+  cursor?: Prisma.CaseHearingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
 }
 
 /**

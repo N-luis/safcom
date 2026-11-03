@@ -74,6 +74,10 @@ export const ModelName = {
   OfficialIntake: 'OfficialIntake',
   OfficialIntakeRevision: 'OfficialIntakeRevision',
   CaseHearing: 'CaseHearing',
+  CaseHearingNotice: 'CaseHearingNotice',
+  CaseHearingEvent: 'CaseHearingEvent',
+  CaseHearingRequest: 'CaseHearingRequest',
+  CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter'
 } as const
 
@@ -248,6 +252,7 @@ export const CaseAttachmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
   followUpId: 'followUpId',
+  hearingId: 'hearingId',
   filename: 'filename',
   mimeType: 'mimeType',
   size: 'size',
@@ -547,13 +552,34 @@ export type OfficialIntakeRevisionScalarFieldEnum = (typeof OfficialIntakeRevisi
 export const CaseHearingScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
+  reference: 'reference',
   hearingNumber: 'hearingNumber',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
   status: 'status',
+  activeKey: 'activeKey',
+  openKey: 'openKey',
+  assignedOfficialId: 'assignedOfficialId',
+  complainantPartyId: 'complainantPartyId',
+  respondentPartyId: 'respondentPartyId',
+  complainantAttendance: 'complainantAttendance',
+  respondentAttendance: 'respondentAttendance',
   outcome: 'outcome',
+  agreements: 'agreements',
+  outcomeSummary: 'outcomeSummary',
+  nextAction: 'nextAction',
+  nextHearingAt: 'nextHearingAt',
+  residentInstructions: 'residentInstructions',
   statusReason: 'statusReason',
   notes: 'notes',
+  rescheduleCount: 'rescheduleCount',
+  residentIntent: 'residentIntent',
+  residentIntentAt: 'residentIntentAt',
+  reminderSentAt: 'reminderSentAt',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
   createdById: 'createdById',
   updatedById: 'updatedById',
   createdAt: 'createdAt',
@@ -561,6 +587,81 @@ export const CaseHearingScalarFieldEnum = {
 } as const
 
 export type CaseHearingScalarFieldEnum = (typeof CaseHearingScalarFieldEnum)[keyof typeof CaseHearingScalarFieldEnum]
+
+
+export const CaseHearingNoticeScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  noticeNumber: 'noticeNumber',
+  recipientRole: 'recipientRole',
+  recipientName: 'recipientName',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  status: 'status',
+  issueMethod: 'issueMethod',
+  generatedById: 'generatedById',
+  generatedAt: 'generatedAt',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  deliveryRecordedById: 'deliveryRecordedById',
+  deliveryRecordedAt: 'deliveryRecordedAt',
+  deliveryNote: 'deliveryNote',
+  acknowledgedAt: 'acknowledgedAt',
+  acknowledgedVia: 'acknowledgedVia',
+  supersededAt: 'supersededAt'
+} as const
+
+export type CaseHearingNoticeScalarFieldEnum = (typeof CaseHearingNoticeScalarFieldEnum)[keyof typeof CaseHearingNoticeScalarFieldEnum]
+
+
+export const CaseHearingEventScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseHearingEventScalarFieldEnum = (typeof CaseHearingEventScalarFieldEnum)[keyof typeof CaseHearingEventScalarFieldEnum]
+
+
+export const CaseHearingRequestScalarFieldEnum = {
+  id: 'id',
+  hearingId: 'hearingId',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  reason: 'reason',
+  preferredSchedule: 'preferredSchedule',
+  status: 'status',
+  pendingKey: 'pendingKey',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseHearingRequestScalarFieldEnum = (typeof CaseHearingRequestScalarFieldEnum)[keyof typeof CaseHearingRequestScalarFieldEnum]
+
+
+export const CaseKpReviewScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  decision: 'decision',
+  caseType: 'caseType',
+  checklist: 'checklist',
+  note: 'note',
+  reviewedById: 'reviewedById',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseKpReviewScalarFieldEnum = (typeof CaseKpReviewScalarFieldEnum)[keyof typeof CaseKpReviewScalarFieldEnum]
 
 
 export const AcknowledgementLetterScalarFieldEnum = {
