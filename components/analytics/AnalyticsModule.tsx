@@ -18,7 +18,7 @@ import { REFERRAL_STATUSES, type ReferralStatus } from '@/lib/caseRecords';
 const RiskHeatMap = dynamic(() => import('@/components/cases/RiskHeatMap'), { ssr: false });
 
 /**
- * Analytics & Case Intelligence.
+ * Analytics.
  *
  * It shows what SafeComm already records - the Groq and risk-matrix
  * assessments made in the background at filing and on each re-run, the
@@ -162,7 +162,7 @@ export default function AnalyticsModule({ scope, caseBase }: AnalyticsModuleProp
       {/* ── Header ── */}
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap' }}>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: NAVY, letterSpacing: '-0.02em' }}>Analytics &amp; Case Intelligence</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: NAVY, letterSpacing: '-0.02em' }}>Analytics</Typography>
           <Chip size="small" icon={<AutoAwesome sx={{ fontSize: '14px !important' }} />} label="AI assessment runs in the background"
             sx={{ bgcolor: '#f0fdfa', color: '#0f766e', fontWeight: 700, fontSize: '0.74rem' }} />
         </Box>

@@ -8,7 +8,7 @@ import {
 import {
   Dashboard, Assessment, FolderOpen, Analytics, People, Message,
   Notifications, ChevronLeft, ChevronRight, Shield,
-  Logout, Circle, ManageAccounts, History, Warning, RecordVoiceOver,
+  Logout, Circle, ManageAccounts, History, RecordVoiceOver,
   MonitorHeart,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,8 +22,9 @@ const mainNavItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/dashboard' },
   { id: 'reports', label: 'Reports', icon: Assessment, path: '/reports' },
   { id: 'cases', label: 'Cases', icon: FolderOpen, path: '/cases' },
-  { id: 'analytics', label: 'Analytics', icon: Analytics, path: '/analytics' },
-  { id: 'risk', label: 'Analytics & Case Intelligence', icon: Warning, path: '/risk', hideForRoles: ['admin'] },
+  // One Analytics item: the case-analytics module. The older /analytics page
+  // is still there by its address, but not listed twice under one name.
+  { id: 'risk', label: 'Analytics', icon: Analytics, path: '/risk', hideForRoles: ['admin'] },
   { id: 'residents', label: 'Residents', icon: People, path: '/residents' },
   { id: 'users', label: 'User Management', icon: ManageAccounts, path: '/users', hideForRoles: ['admin'] },
   { id: 'messages', label: 'Messages', icon: Message, path: '/messages' },

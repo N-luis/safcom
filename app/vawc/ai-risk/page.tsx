@@ -3,7 +3,7 @@
 import AnalyticsModule from '@/components/analytics/AnalyticsModule';
 
 /**
- * Analytics & Case Intelligence for the VAWC desk, scoped to its own caseload.
+ * Analytics for the VAWC desk, scoped to its own caseload.
  *
  * The API narrows the scope by role, so these figures never reach the blotter.
  */

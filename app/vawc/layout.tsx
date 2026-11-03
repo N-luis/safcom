@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/vawc', exact: true },
   { id: 'cases', label: 'Case Monitoring', icon: FolderOpen, path: '/vawc/cases' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/vawc/case-classification' },
-  { id: 'ai', label: 'Analytics & Case Intelligence', icon: Psychology, path: '/vawc/ai-risk' },
+  { id: 'ai', label: 'Analytics', icon: Psychology, path: '/vawc/ai-risk' },
   { id: 'reports', label: 'Reports', icon: Assessment, path: '/vawc/reports' },
   { id: 'messages', label: 'Messages', icon: Message, path: '/vawc/messages' },
   { id: 'notifications', label: 'Notifications', icon: Notifications, path: '/vawc/notifications' },

@@ -1,5 +1,5 @@
 /**
- * The Analytics & Case Intelligence figures, read from the database.
+ * The Analytics figures, read from the database.
  *
  * Which cases a figure may draw on is decided here, per request, from the
  * caller's role - never from the page asking:

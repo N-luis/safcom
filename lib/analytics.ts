@@ -1,5 +1,5 @@
 /**
- * Analytics & Case Intelligence: how each figure is counted.
+ * Analytics: how each figure is counted.
  *
  * Every figure is read from what the system already records - the case's
  * workflow status, the triage status, the risk matrix and Groq results saved

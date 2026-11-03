@@ -5,7 +5,7 @@ import {
 } from '@/lib/analyticsServer';
 
 /**
- * Analytics & Case Intelligence - one section per request, so each part of
+ * Analytics - one section per request, so each part of
  * the page loads, fails and retries on its own.
  *
  *   /api/analytics/overview | priority | reporting | hearings | letters
