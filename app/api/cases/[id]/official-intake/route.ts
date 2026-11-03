@@ -5,9 +5,13 @@ import { requireAuth, errorResponse } from '@/lib/auth';
 import { loadActor } from '@/lib/reporterAccess';
 import {
   decideIntakeAccess, loadIntakeCase, intakeContext, startingAnswers, validateResponses, canonical, changedKeys,
-  logIntakeAccess, INTAKE_FORM_VERSION, type IntakeCase,
+  logIntakeAccess, type IntakeCase,
 } from '@/lib/officialIntake';
-import { missingForCompletion, type Responses } from '@/lib/officialIntakeForm';
+import { type Responses } from '@/lib/officialIntakeForm';
+import { formForType, formTypeForCase, missingIn, type FormDef } from '@/lib/intakeForms';
+
+/** The form this case's intake is - the stored one, or its desk's for a new one. */
+const formOf = (c: IntakeCase): FormDef => formForType(c.officialIntake?.formType ?? formTypeForCase(c.caseType));
 
 /**
  * The official intake for one case.
@@ -62,7 +66,7 @@ async function shape(c: IntakeCase) {
   const users = await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
   const name = (uid: string | null) => (uid && users.find(u => u.id === uid)?.name) || null;
   return {
-    id: i.id, status: i.status, version: i.version, formVersion: i.formVersion,
+    id: i.id, status: i.status, version: i.version, formVersion: i.formVersion, formType: formOf(c).type,
     responses: i.responses as Responses, prefilled: (i.prefilled ?? {}) as Record<string, string>,
     startedBy: name(i.startedById), updatedBy: name(i.updatedById), completedBy: name(i.completedById),
     completedAt: i.completedAt?.toISOString() ?? null, createdAt: i.createdAt.toISOString(), updatedAt: i.updatedAt.toISOString(),
@@ -78,7 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: {
       access: { view: g.access.view, edit: g.access.edit, message: g.access.message },
-      context: intakeContext(g.c), intake: await shape(g.c), formVersion: INTAKE_FORM_VERSION,
+      context: intakeContext(g.c), intake: await shape(g.c), formVersion: formOf(g.c).version, formType: formOf(g.c).type,
     } });
   } catch {
     return errorResponse('The intake could not be loaded right now.', 503);
@@ -91,13 +95,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if ('error' in g) return g.error;
   try {
     if (g.c.officialIntake) return noStore({ success: true, data: { intake: await shape(g.c), created: false } });
-    const { responses, prefilled } = startingAnswers(g.c, g.actor);
+    const def = formOf(g.c);
     const me = await prisma.user.findUnique({ where: { id: g.actor.id }, select: { name: true } });
+    const { responses, prefilled } = startingAnswers(g.c, { role: g.actor.role, name: me?.name ?? null }, def);
     try {
       await prisma.$transaction(async tx => {
         const intake = await tx.officialIntake.create({ data: {
           caseId: g.c.id, residentId: g.c.reporterIdentityWithheld ? null : g.c.residentId, status: 'DRAFT', version: 1,
-          formVersion: INTAKE_FORM_VERSION, responses: JSON.parse(JSON.stringify(responses)), prefilled,
+          formVersion: def.version, formType: def.type, responses: JSON.parse(JSON.stringify(responses)), prefilled,
           startedById: g.actor.id, updatedById: g.actor.id,
         } });
         await tx.officialIntakeRevision.create({ data: {
@@ -105,7 +110,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           changedKeys: Object.keys(responses), changedById: g.actor.id,
         } });
         await tx.activity.create({ data: {
-          type: 'intake', message: `Intake started (draft) by ${me?.name ?? 'an official'}`,
+          type: 'intake', message: `${def.title} started (draft) by ${me?.name ?? 'an official'}`,
           entityId: intake.id, entityType: 'OfficialIntake', userId: g.actor.id, caseId: g.c.id, color: '#0ea5e9',
         } });
       });
@@ -138,7 +143,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const current = g.c.officialIntake;
   if (!current) return errorResponse('Start the intake first', 409);
 
-  const valid = validateResponses(parsed.data.responses);
+  const def = formOf(g.c);
+  const valid = validateResponses(parsed.data.responses, def);
   if (!valid.ok) return errorResponse(valid.error, 400);
   const responses = valid.responses;
   const status = parsed.data.status;
@@ -146,7 +152,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return errorResponse('A completed intake stays completed; save your edits as an update', 422);
   }
   if (status === 'COMPLETED') {
-    const missing = missingForCompletion(responses);
+    const missing = missingIn(def, responses);
     if (missing.length) {
       return noStore({ success: false, error: 'Some items still need an answer, or N/A, Unknown or Declined',
         missing: missing.map(m => ({ key: m.key, no: m.no ?? null, label: m.label })) }, 422);
@@ -163,7 +169,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const me = await prisma.user.findUnique({ where: { id: g.actor.id }, select: { name: true } });
-    const changed = changedKeys(current.responses as Responses, responses);
+    const changed = changedKeys(current.responses as Responses, responses, def);
     const completing = status === 'COMPLETED' && current.status !== 'COMPLETED';
     const editingCompleted = current.status === 'COMPLETED';
     const dangerNow = responses.immediateDanger?.value === 'yes' && g.c.triageStatus !== 'URGENT_REVIEW';
@@ -184,7 +190,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (completing || editingCompleted) {
         await tx.activity.create({ data: {
           type: 'intake',
-          message: completing ? `Intake completed by ${me?.name ?? 'an official'}` : `Intake updated by ${me?.name ?? 'an official'} (version ${next}, ${changed.length} item${changed.length === 1 ? '' : 's'} changed)`,
+          message: completing ? `${def.title} completed by ${me?.name ?? 'an official'}` : `${def.title} updated by ${me?.name ?? 'an official'} (version ${next}, ${changed.length} item${changed.length === 1 ? '' : 's'} changed)`,
           entityId: current.id, entityType: 'OfficialIntake', userId: g.actor.id, caseId: g.c.id, color: completing ? '#16a34a' : '#0ea5e9',
         } });
       }
@@ -193,11 +199,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (dangerNow) {
         await tx.case.update({ where: { id: g.c.id }, data: { triageStatus: 'URGENT_REVIEW', requiresOfficerReview: true } });
         await tx.activity.create({ data: {
-          type: 'intake', message: `Immediate danger disclosed during intake - flagged for urgent review by ${me?.name ?? 'an official'}`,
+          type: 'intake', message: `Immediate danger recorded on the ${def.title} - flagged for urgent review by ${me?.name ?? 'an official'}`,
           entityId: current.id, entityType: 'OfficialIntake', userId: g.actor.id, caseId: g.c.id, color: '#dc2626',
         } });
         await tx.notification.create({ data: {
-          title: `Urgent: danger disclosed during intake for ${g.c.caseNumber}`,
+          title: `Urgent: danger recorded on the ${def.title} for ${g.c.caseNumber}`,
           message: 'An official recorded during the intake interview that someone is in immediate danger. Open the case now.',
           type: 'error', userId: null, caseId: g.c.id,
         } });

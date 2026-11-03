@@ -49,6 +49,10 @@ export type CaseSafetyAssessmentMinAggregateOutputType = {
   initialAction: string | null
   assistanceProvided: string | null
   protectionActions: string | null
+  safeContactConfirmed: string | null
+  preferredAssistance: string | null
+  followUpRequirements: string | null
+  safetyPlan: string | null
   followUpAt: Date | null
   version: number | null
   updatedById: string | null
@@ -69,6 +73,10 @@ export type CaseSafetyAssessmentMaxAggregateOutputType = {
   initialAction: string | null
   assistanceProvided: string | null
   protectionActions: string | null
+  safeContactConfirmed: string | null
+  preferredAssistance: string | null
+  followUpRequirements: string | null
+  safetyPlan: string | null
   followUpAt: Date | null
   version: number | null
   updatedById: string | null
@@ -89,6 +97,10 @@ export type CaseSafetyAssessmentCountAggregateOutputType = {
   initialAction: number
   assistanceProvided: number
   protectionActions: number
+  safeContactConfirmed: number
+  preferredAssistance: number
+  followUpRequirements: number
+  safetyPlan: number
   followUpAt: number
   version: number
   updatedById: number
@@ -119,6 +131,10 @@ export type CaseSafetyAssessmentMinAggregateInputType = {
   initialAction?: true
   assistanceProvided?: true
   protectionActions?: true
+  safeContactConfirmed?: true
+  preferredAssistance?: true
+  followUpRequirements?: true
+  safetyPlan?: true
   followUpAt?: true
   version?: true
   updatedById?: true
@@ -139,6 +155,10 @@ export type CaseSafetyAssessmentMaxAggregateInputType = {
   initialAction?: true
   assistanceProvided?: true
   protectionActions?: true
+  safeContactConfirmed?: true
+  preferredAssistance?: true
+  followUpRequirements?: true
+  safetyPlan?: true
   followUpAt?: true
   version?: true
   updatedById?: true
@@ -159,6 +179,10 @@ export type CaseSafetyAssessmentCountAggregateInputType = {
   initialAction?: true
   assistanceProvided?: true
   protectionActions?: true
+  safeContactConfirmed?: true
+  preferredAssistance?: true
+  followUpRequirements?: true
+  safetyPlan?: true
   followUpAt?: true
   version?: true
   updatedById?: true
@@ -266,6 +290,10 @@ export type CaseSafetyAssessmentGroupByOutputType = {
   initialAction: string | null
   assistanceProvided: string | null
   protectionActions: string | null
+  safeContactConfirmed: string | null
+  preferredAssistance: string | null
+  followUpRequirements: string | null
+  safetyPlan: string | null
   followUpAt: Date | null
   version: number
   updatedById: string
@@ -309,6 +337,10 @@ export type CaseSafetyAssessmentWhereInput = {
   initialAction?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   assistanceProvided?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   protectionActions?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  safeContactConfirmed?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  preferredAssistance?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  followUpRequirements?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  safetyPlan?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   followUpAt?: Prisma.DateTimeNullableFilter<"CaseSafetyAssessment"> | Date | string | null
   version?: Prisma.IntFilter<"CaseSafetyAssessment"> | number
   updatedById?: Prisma.StringFilter<"CaseSafetyAssessment"> | string
@@ -330,6 +362,10 @@ export type CaseSafetyAssessmentOrderByWithRelationInput = {
   initialAction?: Prisma.SortOrderInput | Prisma.SortOrder
   assistanceProvided?: Prisma.SortOrderInput | Prisma.SortOrder
   protectionActions?: Prisma.SortOrderInput | Prisma.SortOrder
+  safeContactConfirmed?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredAssistance?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpRequirements?: Prisma.SortOrderInput | Prisma.SortOrder
+  safetyPlan?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -354,6 +390,10 @@ export type CaseSafetyAssessmentWhereUniqueInput = Prisma.AtLeast<{
   initialAction?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   assistanceProvided?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   protectionActions?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  safeContactConfirmed?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  preferredAssistance?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  followUpRequirements?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
+  safetyPlan?: Prisma.StringNullableFilter<"CaseSafetyAssessment"> | string | null
   followUpAt?: Prisma.DateTimeNullableFilter<"CaseSafetyAssessment"> | Date | string | null
   version?: Prisma.IntFilter<"CaseSafetyAssessment"> | number
   updatedById?: Prisma.StringFilter<"CaseSafetyAssessment"> | string
@@ -375,6 +415,10 @@ export type CaseSafetyAssessmentOrderByWithAggregationInput = {
   initialAction?: Prisma.SortOrderInput | Prisma.SortOrder
   assistanceProvided?: Prisma.SortOrderInput | Prisma.SortOrder
   protectionActions?: Prisma.SortOrderInput | Prisma.SortOrder
+  safeContactConfirmed?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredAssistance?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpRequirements?: Prisma.SortOrderInput | Prisma.SortOrder
+  safetyPlan?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -403,6 +447,10 @@ export type CaseSafetyAssessmentScalarWhereWithAggregatesInput = {
   initialAction?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
   assistanceProvided?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
   protectionActions?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
+  safeContactConfirmed?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
+  preferredAssistance?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
+  followUpRequirements?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
+  safetyPlan?: Prisma.StringNullableWithAggregatesFilter<"CaseSafetyAssessment"> | string | null
   followUpAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseSafetyAssessment"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"CaseSafetyAssessment"> | number
   updatedById?: Prisma.StringWithAggregatesFilter<"CaseSafetyAssessment"> | string
@@ -422,6 +470,10 @@ export type CaseSafetyAssessmentCreateInput = {
   initialAction?: string | null
   assistanceProvided?: string | null
   protectionActions?: string | null
+  safeContactConfirmed?: string | null
+  preferredAssistance?: string | null
+  followUpRequirements?: string | null
+  safetyPlan?: string | null
   followUpAt?: Date | string | null
   version?: number
   updatedById: string
@@ -443,6 +495,10 @@ export type CaseSafetyAssessmentUncheckedCreateInput = {
   initialAction?: string | null
   assistanceProvided?: string | null
   protectionActions?: string | null
+  safeContactConfirmed?: string | null
+  preferredAssistance?: string | null
+  followUpRequirements?: string | null
+  safetyPlan?: string | null
   followUpAt?: Date | string | null
   version?: number
   updatedById: string
@@ -462,6 +518,10 @@ export type CaseSafetyAssessmentUpdateInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -483,6 +543,10 @@ export type CaseSafetyAssessmentUncheckedUpdateInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -503,6 +567,10 @@ export type CaseSafetyAssessmentCreateManyInput = {
   initialAction?: string | null
   assistanceProvided?: string | null
   protectionActions?: string | null
+  safeContactConfirmed?: string | null
+  preferredAssistance?: string | null
+  followUpRequirements?: string | null
+  safetyPlan?: string | null
   followUpAt?: Date | string | null
   version?: number
   updatedById: string
@@ -522,6 +590,10 @@ export type CaseSafetyAssessmentUpdateManyMutationInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -542,6 +614,10 @@ export type CaseSafetyAssessmentUncheckedUpdateManyInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -567,6 +643,10 @@ export type CaseSafetyAssessmentCountOrderByAggregateInput = {
   initialAction?: Prisma.SortOrder
   assistanceProvided?: Prisma.SortOrder
   protectionActions?: Prisma.SortOrder
+  safeContactConfirmed?: Prisma.SortOrder
+  preferredAssistance?: Prisma.SortOrder
+  followUpRequirements?: Prisma.SortOrder
+  safetyPlan?: Prisma.SortOrder
   followUpAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -591,6 +671,10 @@ export type CaseSafetyAssessmentMaxOrderByAggregateInput = {
   initialAction?: Prisma.SortOrder
   assistanceProvided?: Prisma.SortOrder
   protectionActions?: Prisma.SortOrder
+  safeContactConfirmed?: Prisma.SortOrder
+  preferredAssistance?: Prisma.SortOrder
+  followUpRequirements?: Prisma.SortOrder
+  safetyPlan?: Prisma.SortOrder
   followUpAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -611,6 +695,10 @@ export type CaseSafetyAssessmentMinOrderByAggregateInput = {
   initialAction?: Prisma.SortOrder
   assistanceProvided?: Prisma.SortOrder
   protectionActions?: Prisma.SortOrder
+  safeContactConfirmed?: Prisma.SortOrder
+  preferredAssistance?: Prisma.SortOrder
+  followUpRequirements?: Prisma.SortOrder
+  safetyPlan?: Prisma.SortOrder
   followUpAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -674,6 +762,10 @@ export type CaseSafetyAssessmentCreateWithoutCaseInput = {
   initialAction?: string | null
   assistanceProvided?: string | null
   protectionActions?: string | null
+  safeContactConfirmed?: string | null
+  preferredAssistance?: string | null
+  followUpRequirements?: string | null
+  safetyPlan?: string | null
   followUpAt?: Date | string | null
   version?: number
   updatedById: string
@@ -693,6 +785,10 @@ export type CaseSafetyAssessmentUncheckedCreateWithoutCaseInput = {
   initialAction?: string | null
   assistanceProvided?: string | null
   protectionActions?: string | null
+  safeContactConfirmed?: string | null
+  preferredAssistance?: string | null
+  followUpRequirements?: string | null
+  safetyPlan?: string | null
   followUpAt?: Date | string | null
   version?: number
   updatedById: string
@@ -728,6 +824,10 @@ export type CaseSafetyAssessmentUpdateWithoutCaseInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -747,6 +847,10 @@ export type CaseSafetyAssessmentUncheckedUpdateWithoutCaseInput = {
   initialAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistanceProvided?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   protectionActions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safeContactConfirmed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAssistance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpRequirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -769,6 +873,10 @@ export type CaseSafetyAssessmentSelect<ExtArgs extends runtime.Types.Extensions.
   initialAction?: boolean
   assistanceProvided?: boolean
   protectionActions?: boolean
+  safeContactConfirmed?: boolean
+  preferredAssistance?: boolean
+  followUpRequirements?: boolean
+  safetyPlan?: boolean
   followUpAt?: boolean
   version?: boolean
   updatedById?: boolean
@@ -790,6 +898,10 @@ export type CaseSafetyAssessmentSelectCreateManyAndReturn<ExtArgs extends runtim
   initialAction?: boolean
   assistanceProvided?: boolean
   protectionActions?: boolean
+  safeContactConfirmed?: boolean
+  preferredAssistance?: boolean
+  followUpRequirements?: boolean
+  safetyPlan?: boolean
   followUpAt?: boolean
   version?: boolean
   updatedById?: boolean
@@ -811,6 +923,10 @@ export type CaseSafetyAssessmentSelectUpdateManyAndReturn<ExtArgs extends runtim
   initialAction?: boolean
   assistanceProvided?: boolean
   protectionActions?: boolean
+  safeContactConfirmed?: boolean
+  preferredAssistance?: boolean
+  followUpRequirements?: boolean
+  safetyPlan?: boolean
   followUpAt?: boolean
   version?: boolean
   updatedById?: boolean
@@ -832,6 +948,10 @@ export type CaseSafetyAssessmentSelectScalar = {
   initialAction?: boolean
   assistanceProvided?: boolean
   protectionActions?: boolean
+  safeContactConfirmed?: boolean
+  preferredAssistance?: boolean
+  followUpRequirements?: boolean
+  safetyPlan?: boolean
   followUpAt?: boolean
   version?: boolean
   updatedById?: boolean
@@ -839,7 +959,7 @@ export type CaseSafetyAssessmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CaseSafetyAssessmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "immediateConcern" | "dependentsAffected" | "urgentAssistance" | "medicalNeeded" | "shelterNeeded" | "policeOrReferralNeeded" | "additionalConcerns" | "initialAction" | "assistanceProvided" | "protectionActions" | "followUpAt" | "version" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseSafetyAssessment"]>
+export type CaseSafetyAssessmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "immediateConcern" | "dependentsAffected" | "urgentAssistance" | "medicalNeeded" | "shelterNeeded" | "policeOrReferralNeeded" | "additionalConcerns" | "initialAction" | "assistanceProvided" | "protectionActions" | "safeContactConfirmed" | "preferredAssistance" | "followUpRequirements" | "safetyPlan" | "followUpAt" | "version" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseSafetyAssessment"]>
 export type CaseSafetyAssessmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -868,6 +988,16 @@ export type $CaseSafetyAssessmentPayload<ExtArgs extends runtime.Types.Extension
     initialAction: string | null
     assistanceProvided: string | null
     protectionActions: string | null
+    /**
+     * yes | no | unknown - a way to reach the victim-survivor has been confirmed safe.
+     */
+    safeContactConfirmed: string | null
+    preferredAssistance: string | null
+    followUpRequirements: string | null
+    /**
+     * Safety planning documentation.
+     */
+    safetyPlan: string | null
     followUpAt: Date | null
     version: number
     updatedById: string
@@ -1309,6 +1439,10 @@ export interface CaseSafetyAssessmentFieldRefs {
   readonly initialAction: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
   readonly assistanceProvided: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
   readonly protectionActions: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
+  readonly safeContactConfirmed: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
+  readonly preferredAssistance: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
+  readonly followUpRequirements: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
+  readonly safetyPlan: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>
   readonly followUpAt: Prisma.FieldRef<"CaseSafetyAssessment", 'DateTime'>
   readonly version: Prisma.FieldRef<"CaseSafetyAssessment", 'Int'>
   readonly updatedById: Prisma.FieldRef<"CaseSafetyAssessment", 'String'>

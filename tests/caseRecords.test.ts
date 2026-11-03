@@ -167,8 +167,15 @@ async function main() {
     console.log('\nThe form chosen and the report disagree');
     const m = await file({ reportPath: 'VAWC', description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit' });
     const mCase = await prisma.case.findUnique({ where: { id: m.body.data.id }, include: { intake: true } });
-    ok('filed where the content puts it, and flagged for an officer', mCase?.caseType === 'Noise Complaint' && mCase.requiresOfficerReview
+    // Filed on the confidential form: held on the VAWC desk until a VAWC
+    // officer confirms it, with the AI's own reading kept beside it.
+    ok('VAWC form, blotter content: held on the VAWC desk and flagged', mCase?.caseType === 'VAWC - Other' && mCase.requiresOfficerReview
+      && mCase.intake?.suggestedCaseCategory === 'Noise Complaint'
       && (mCase.intake?.reviewReasons as string[]).some(r => r.includes('VAWC Incident Report')));
+    const m2 = await file({ reportPath: 'BLOTTER', description: VAWC_TEXT, intakeNarrative: VAWC_TEXT, reportingRelationship: 'THIRD_PARTY', intakeAnswers: [], barangay: 'Ayukit' });
+    const m2Case = await prisma.case.findUnique({ where: { id: m2.body.data.id }, include: { intake: true } });
+    ok('Blotter form, VAWC content: filed on the VAWC desk at once, and flagged', ['Domestic Violence', 'Physical Abuse', 'VAWC - Other'].includes(m2Case?.caseType ?? '')
+      && Boolean(m2Case?.requiresOfficerReview) && (m2Case?.intake?.reviewReasons as string[]).some(r => r.includes('Blotter Incident Report')));
 
     // ── What a resident cannot do or see ──
     console.log('\nResidents');

@@ -13,9 +13,10 @@ import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 import { riskText } from '@/lib/triageLabels';
 import {
-  INTAKE_SECTIONS, MARKER_LABEL, appliesTo, isAnswered, missingForCompletion, optionsOf,
+  MARKER_LABEL, appliesTo, isAnswered, optionsOf,
   type Answer, type Item, type Marker, type Responses,
 } from '@/lib/officialIntakeForm';
+import { formForType, missingIn, type FormDef, type FormType } from '@/lib/intakeForms';
 
 /**
  * The official intake for one case (the barangay's intake form, sections
@@ -43,11 +44,12 @@ interface IntakeData {
   createdAt: string; updatedAt: string;
   revisions: { version: number; status: string; changedItems: number; by: string | null; at: string }[];
 }
-interface Loaded { access: { view: boolean; edit: boolean; message: string | null }; context: Context; intake: IntakeData | null }
+interface Loaded { access: { view: boolean; edit: boolean; message: string | null }; context: Context; intake: IntakeData | null; formType?: FormType }
 
-const STEPS = [
+/** The form's steps: the case from the records, its own sections, then the review. */
+const stepsFor = (form: FormDef) => [
   { key: 'case', title: '1. Case and Reporter Information' },
-  ...INTAKE_SECTIONS.map(s => ({ key: s.key, title: s.title })),
+  ...form.sections.map(s => ({ key: s.key, title: s.title })),
   { key: 'review', title: 'Review and Confirmation' },
 ];
 const RELATIONSHIP: Record<string, string> = {
@@ -69,6 +71,12 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const [missingKeys, setMissingKeys] = useState<string[]>([]);
   const [readOnly, setReadOnly] = useState(sp.get('view') === '1');
   const started = useRef(false);
+  // The VAWC intake on a VAWC case, the Blotter Report on a blotter case -
+  // as the server reports it, so a draft reopens as the form it was begun on.
+  const loadedType = loaded?.formType;
+  const form = useMemo(() => formForType(loadedType), [loadedType]);
+  const formTitle = form.title;
+  const STEPS = stepsFor(form);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/cases/${caseId}/official-intake`, { credentials: 'include', cache: 'no-store' });
@@ -87,8 +95,8 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
     const json = await res.json().catch(() => ({}));
     if (!res.ok) { toast.error(json.error ?? 'The intake could not be started'); started.current = false; return; }
     await load();
-    toast.success(json.data?.created ? 'Intake started' : 'This case already has an intake - it has been reopened');
-  }, [caseId, load]);
+    toast.success(json.data?.created ? `${formTitle} started` : `This case already has a ${formTitle.toLowerCase()} - it has been reopened`);
+  }, [caseId, load, formTitle]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -121,11 +129,11 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
    * confirmations: those need a real answer.
    */
   const bulkMarkable = (keys: string[]) => keys.filter(k => {
-    const it = INTAKE_SECTIONS.flatMap(s => s.items).find(i => i.key === k);
+    const it = form.byKey[k];
     return it && !it.proposed && it.type !== 'confirm';
   });
   const markRemainingNA = () => {
-    const keys = bulkMarkable(missingForCompletion(responses).map(i => i.key));
+    const keys = bulkMarkable(missingIn(form, responses).map(i => i.key));
     if (!keys.length) return;
     if (!window.confirm(`Mark ${keys.length} unanswered item${keys.length === 1 ? '' : 's'} as N/A?\n\nOnly do this for items that do not apply to this client. Items that were not asked should be answered, or marked Unknown or Declined instead. You can still change any of them before completing.`)) return;
     setResponses(r => ({ ...r, ...Object.fromEntries(keys.map(k => [k, { marker: 'na' as Marker }])) }));
@@ -137,7 +145,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const save = async (status: 'DRAFT' | 'COMPLETED') => {
     if (!intake || saving) return;
     if (status === 'COMPLETED') {
-      const missing = missingForCompletion(responses);
+      const missing = missingIn(form, responses);
       if (missing.length) {
         setMissingKeys(missing.map(m => m.key));
         setStep(STEPS.length - 1);
@@ -175,7 +183,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const missingSet = useMemo(() => new Set(missingKeys), [missingKeys]);
   // On the review step, what still stands between this draft and completion -
   // shown before anyone presses Complete, not only after it is refused.
-  const stillMissing = useMemo(() => missingForCompletion(responses).map(i => i.key), [responses]);
+  const stillMissing = useMemo(() => missingIn(form, responses).map(i => i.key), [form, responses]);
 
   if (loadError) {
     return (
@@ -191,7 +199,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
 
   const ctx = loaded.context;
   const current = STEPS[step];
-  const section = INTAKE_SECTIONS.find(s => s.key === current.key);
+  const section = form.sections.find(s => s.key === current.key);
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 3 }, maxWidth: 1000 }}>
@@ -199,7 +207,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
         <Button startIcon={<ArrowBack />} onClick={leave} sx={{ color: '#64748b', minHeight: 40 }}>Case #{ctx.case.caseNumber}</Button>
         <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46' }}>Intake Form</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46' }}>{form.title}</Typography>
           <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>
             CONFIDENTIAL · {!intake ? 'Not started' : completed ? `Completed${intake.completedBy ? ` by ${intake.completedBy}` : ''}` : 'Draft - not completed'}
             {intake ? ` · version ${intake.version} · last saved ${when(intake.updatedAt)}${intake.updatedBy ? ` by ${intake.updatedBy}` : ''}` : ''}
@@ -241,7 +249,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
       {/* Progress */}
       <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 2 }} role="tablist" aria-label="Intake sections">
         {STEPS.map((s, i) => {
-          const sec = INTAKE_SECTIONS.find(x => x.key === s.key);
+          const sec = form.sections.find(x => x.key === s.key);
           const gaps = sec ? sec.items.filter(it => missingSet.has(it.key)).length : 0;
           return (
             <Chip key={s.key} role="tab" aria-selected={i === step} label={`${s.title}${gaps ? ` (${gaps})` : ''}`} onClick={() => setStep(i)}
@@ -261,7 +269,8 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
         {section && (
           <>
             {section.note && <Alert severity="info" sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>{section.note}</Alert>}
-            {section.key === 'A' && (
+            {/* The VAWC interview's own caution; the Blotter Report has none of its sensitive questions. */}
+            {section.key === 'A' && form.type === 'VAWC_INTAKE' && (
               <Alert severity="warning" icon={<WarningAmber />} sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>
                 Before asking sensitive questions, confirm the client can speak safely and privately. They may decline any question.
               </Alert>
@@ -282,7 +291,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
                   ) : null} />
               ))}
             </Box>
-            {section.key === 'safety' && responses.immediateDanger?.value === 'yes' && (
+            {section.items.some(i => i.key === 'immediateDanger') && responses.immediateDanger?.value === 'yes' && (
               <Alert severity="error" icon={<Phone />} sx={{ mt: 2, borderRadius: 2 }}>
                 <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', mb: 0.5 }}>Follow the urgent-response workflow now.</Typography>
                 <Typography sx={{ fontSize: '0.82rem', mb: 1 }}>
@@ -315,7 +324,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
           </Alert>
         )}
         {current.key === 'review' && (
-          <ReviewSection responses={responses} missing={completed ? missingSet : new Set([...missingSet, ...stillMissing])} onJump={key => setStep(STEPS.findIndex(s => INTAKE_SECTIONS.find(x => x.key === s.key)?.items.some(i => i.key === key)))}
+          <ReviewSection form={form} responses={responses} missing={completed ? missingSet : new Set([...missingSet, ...stillMissing])} onJump={key => setStep(STEPS.findIndex(s => form.sections.find(x => x.key === s.key)?.items.some(i => i.key === key)))}
             intake={intake} />
         )}
       </CardContent></Card>
@@ -574,7 +583,8 @@ function display(item: Item, a?: Answer): string {
   }
 }
 
-function ReviewSection({ responses, missing, onJump, intake }: {
+function ReviewSection({ form, responses, missing, onJump, intake }: {
+  form: FormDef;
   responses: Responses; missing: Set<string>; onJump: (key: string) => void; intake: IntakeData | null;
 }) {
   return (
@@ -582,7 +592,7 @@ function ReviewSection({ responses, missing, onJump, intake }: {
       <Alert severity="info" sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>
         Check every answer with the client before completing. Completing does not investigate, resolve or close the case, and does not change the original report.
       </Alert>
-      {INTAKE_SECTIONS.map(s => (
+      {form.sections.map(s => (
         <Box key={s.key} sx={{ mb: 2 }}>
           <Typography sx={{ fontWeight: 800, fontSize: '0.9rem', color: '#0c1e46', mb: 0.5 }}>{s.title}</Typography>
           {s.items.filter(i => appliesTo(i, responses) !== 'hidden').map(i => (

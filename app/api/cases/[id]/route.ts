@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         intake: true,
         // The official intake's state only - never its answers, which are
         // served (and logged) by /official-intake to those allowed to see them.
-        officialIntake: { select: { id: true, status: true, version: true, updatedAt: true, completedAt: true } },
+        officialIntake: { select: { id: true, status: true, version: true, updatedAt: true, completedAt: true, formType: true } },
         assessmentHistory: {
           orderBy: { createdAt: 'asc' },
           include: { actor: { select: { name: true, role: true } } },

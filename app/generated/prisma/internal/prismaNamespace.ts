@@ -2297,6 +2297,9 @@ export const CaseScalarFieldEnum = {
   reportingChannel: 'reportingChannel',
   incidentDate: 'incidentDate',
   incidentTimeApprox: 'incidentTimeApprox',
+  resolutionType: 'resolutionType',
+  resolutionSummary: 'resolutionSummary',
+  resolvedById: 'resolvedById',
   witnessInfo: 'witnessInfo'
 } as const
 
@@ -2336,6 +2339,10 @@ export const CaseSafetyAssessmentScalarFieldEnum = {
   initialAction: 'initialAction',
   assistanceProvided: 'assistanceProvided',
   protectionActions: 'protectionActions',
+  safeContactConfirmed: 'safeContactConfirmed',
+  preferredAssistance: 'preferredAssistance',
+  followUpRequirements: 'followUpRequirements',
+  safetyPlan: 'safetyPlan',
   followUpAt: 'followUpAt',
   version: 'version',
   updatedById: 'updatedById',
@@ -2658,6 +2665,7 @@ export const OfficialIntakeScalarFieldEnum = {
   status: 'status',
   version: 'version',
   formVersion: 'formVersion',
+  formType: 'formType',
   responses: 'responses',
   prefilled: 'prefilled',
   startedById: 'startedById',

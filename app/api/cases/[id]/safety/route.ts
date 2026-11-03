@@ -35,6 +35,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         initialAction: answers.initialAction ?? null,
         assistanceProvided: answers.assistanceProvided ?? null,
         protectionActions: answers.protectionActions ?? null,
+        safeContactConfirmed: answers.safeContactConfirmed ?? null,
+        preferredAssistance: answers.preferredAssistance ?? null,
+        followUpRequirements: answers.followUpRequirements ?? null,
+        safetyPlan: answers.safetyPlan ?? null,
         followUpAt: followUpAt ? new Date(followUpAt) : null,
         updatedById: g.actor.id,
       };

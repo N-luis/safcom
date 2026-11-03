@@ -109,7 +109,7 @@ export const incidentDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use t
 export const SAFETY_QUESTIONS = [
   { key: 'immediateConcern', label: 'Is there an immediate safety concern?' },
   { key: 'dependentsAffected', label: 'Are children or dependents potentially affected?' },
-  { key: 'urgentAssistance', label: 'Is urgent assistance required?' },
+  { key: 'urgentAssistance', label: 'Is immediate assistance requested or required?' },
   { key: 'medicalNeeded', label: 'Is medical assistance needed?' },
   { key: 'shelterNeeded', label: 'Is safe accommodation needed?' },
   { key: 'policeOrReferralNeeded', label: 'Is police assistance or another referral needed?' },
@@ -128,6 +128,11 @@ export const safetyAssessmentSchema = z.object({
   initialAction: text(1000),
   assistanceProvided: text(1000),
   protectionActions: text(1000),
+  /** Optional, unlike the six above: "not recorded" is allowed here. */
+  safeContactConfirmed: answer.optional(),
+  preferredAssistance: text(500),
+  followUpRequirements: text(1000),
+  safetyPlan: text(2000),
   followUpAt: z.string().datetime({ offset: true }).optional().or(z.literal('').transform(() => undefined)),
   /** The version the officer started from - a save over someone else's is refused. */
   expectedVersion: z.number().int().min(0),
@@ -192,4 +197,40 @@ export function referralRefusal(agency: ReferralAgency, caseType: string): strin
   return agency === 'LUPON'
     ? 'VAWC cases are not referred to the Lupon for mediation or conciliation. Refer to the PNP Women and Children Protection Desk, social welfare or health services instead.'
     : 'That referral is not available for this case.';
+}
+
+// ── Resolution ───────────────────────────────────────────────────────────────
+
+/**
+ * How a case was resolved or closed. The two desks differ: a blotter dispute
+ * can end in an amicable settlement at the barangay; a VAWC case cannot - it
+ * is never mediated - so it has no such option, and the server refuses one.
+ */
+export const RESOLUTION_TYPES = {
+  SETTLED: { label: 'Amicable settlement at the barangay', desks: ['BLOTTER'] },
+  CERTIFICATE_TO_FILE: { label: 'Not settled - certification to file action issued', desks: ['BLOTTER'] },
+  ACTION_COMPLETED: { label: 'Resolved by barangay action', desks: ['BLOTTER', 'VAWC'] },
+  SERVICES_PROVIDED: { label: 'Assistance and interventions completed', desks: ['VAWC'] },
+  REFERRED: { label: 'Referred to another office, which now handles it', desks: ['BLOTTER', 'VAWC'] },
+  WITHDRAWN: { label: 'Withdrawn by the complainant / reporter', desks: ['BLOTTER', 'VAWC'] },
+  OTHER: { label: 'Other - see the summary', desks: ['BLOTTER', 'VAWC'] },
+} as const satisfies Record<string, { label: string; desks: readonly ReportPath[] }>;
+export type ResolutionType = keyof typeof RESOLUTION_TYPES;
+
+export function resolutionTypesFor(path: ReportPath): ResolutionType[] {
+  return (Object.keys(RESOLUTION_TYPES) as ResolutionType[])
+    .filter(k => (RESOLUTION_TYPES[k].desks as readonly string[]).includes(path));
+}
+
+export const resolutionSchema = z.object({
+  type: z.enum(Object.keys(RESOLUTION_TYPES) as [ResolutionType, ...ResolutionType[]]),
+  summary: z.string().trim().min(5, 'Say briefly how it was resolved').max(2000),
+});
+
+/** Why this resolution cannot be recorded on this case, or null. */
+export function resolutionRefusal(type: ResolutionType, caseType: string): string | null {
+  if ((RESOLUTION_TYPES[type].desks as readonly string[]).includes(pathOfType(caseType))) return null;
+  return type === 'SETTLED' || type === 'CERTIFICATE_TO_FILE'
+    ? 'VAWC cases are not settled through barangay mediation or conciliation. Choose another outcome.'
+    : 'That outcome is not available for this case.';
 }

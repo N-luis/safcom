@@ -134,6 +134,11 @@ model Case {
   /// reporter's own approximation ("around 9 PM"), never made exact.
   incidentDate       DateTime? @db.Date
   incidentTimeApprox String?
+  /// How the case was resolved or closed (lib/caseRecords RESOLUTION_TYPES),
+  /// recorded with the status change; resolvedAt is set there too.
+  resolutionType     String?
+  resolutionSummary  String?
+  resolvedById       String?
   /// Who saw it, as the reporter described them.
   witnessInfo        String?
 
@@ -192,6 +197,12 @@ model CaseSafetyAssessment {
   initialAction          String?
   assistanceProvided     String?
   protectionActions      String?
+  /// yes | no | unknown - a way to reach the victim-survivor has been confirmed safe.
+  safeContactConfirmed   String?
+  preferredAssistance    String?
+  followUpRequirements   String?
+  /// Safety planning documentation.
+  safetyPlan             String?
   followUpAt             DateTime?
   version                Int       @default(1)
   updatedById            String
@@ -646,6 +657,9 @@ model OfficialIntake {
   /// repeated or stale submission cannot overwrite a newer one.
   version       Int                      @default(1)
   formVersion   String
+  /// Which form: VAWC_INTAKE (the barangay VAWC intake form) or BLOTTER_REPORT.
+  /// Fixed when started, so a draft always reopens as the form it was begun on.
+  formType      String                   @default("VAWC_INTAKE")
   /// Item key -> answer (value, "specify" text, or N/A / Unknown / Declined).
   responses     Json
   /// Which answers were filled in from records at the start, and from where.

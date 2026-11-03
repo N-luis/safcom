@@ -3,8 +3,10 @@ import { prisma } from './prisma';
 import { canSeeVawc } from './caseAccess';
 import { BLOTTER_ROLES, VAWC_DESK_ROLES, OVERSIGHT_ROLES, isVawcType, type Actor } from './reporterAccess';
 import {
-  ALL_ITEMS, ITEM_BY_KEY, optionsOf, INTAKE_FORM_VERSION, type Answer, type Item, type Responses,
+  optionsOf, INTAKE_FORM_VERSION, type Answer, type Item, type Responses,
 } from './officialIntakeForm';
+import { FORMS, type FormDef } from './intakeForms';
+import { BLOTTER_CATEGORIES } from './classificationSchema';
 
 /**
  * The official intake on the server: who may see or fill it, the first
@@ -21,7 +23,10 @@ import {
  *     can see (logged); may fill it in on a blotter case, or on a VAWC case
  *     assigned to them - VAWC is stricter.
  *   - A VAWC case is "not found" to anyone outside the VAWC desk and
- *     oversight. Residents never reach this - the endpoints are staff-only.
+ *     the captain. Residents never reach this - the endpoints are staff-only.
+ *
+ * THE FORM follows the desk (lib/intakeForms): the VAWC intake form on a VAWC
+ * case, the Barangay Blotter Report on a blotter case.
  */
 
 export interface IntakeAccess {
@@ -67,6 +72,10 @@ export async function loadIntakeCase(caseId: string) {
       description: true, barangay: true, locationLabel: true, municipality: true, province: true, filedAt: true,
       assignedToId: true, residentId: true, residentName: true,
       reportingRelationship: true, affectedPersonNote: true, reporterIdentityWithheld: true,
+      contactPreference: true, incidentDate: true, incidentTimeApprox: true,
+      parties: { where: { role: 'REPORTED' }, orderBy: { updatedAt: 'desc' },
+        select: { source: true, fullName: true, age: true, address: true, relationship: true, details: true } },
+      attachments: { select: { id: true }, take: 1 },
       assignedTo: { select: { name: true } },
       intake: { select: { narrative: true } },
       resident: { select: { id: true, residentNumber: true, firstName: true, lastName: true, age: true, gender: true,
@@ -141,7 +150,8 @@ const todayInManila = () => new Date(Date.now() + 8 * 3600_000).toISOString().sl
  * actually establishes: the victim-survivor's details come from the reporter
  * only when the reporter said the report is about themselves.
  */
-export function startingAnswers(c: IntakeCase, actor: { role: string }) {
+export function startingAnswers(c: IntakeCase, actor: { role: string; name?: string | null }, def: FormDef = FORMS.VAWC_INTAKE) {
+  if (def.type === 'BLOTTER_REPORT') return startingBlotterAnswers(c, actor);
   const responses: Responses = {};
   const prefilled: Record<string, string> = {};
   const set = (key: string, a: Answer, from: string) => { responses[key] = a; prefilled[key] = from; };
@@ -167,6 +177,64 @@ export function startingAnswers(c: IntakeCase, actor: { role: string }) {
   return { responses, prefilled };
 }
 
+const CONTACT_PREF: Record<string, string> = { call_ok: 'call_ok', text_first: 'text_first', no_phone: 'no_phone' };
+
+/**
+ * The Blotter Report's start: the complainant is the reporter on the case
+ * (never a name match), the person reported is what the report or an
+ * official recorded, and the rest comes from the case itself. Contact
+ * numbers are not copied in - they are revealed, and logged, through the
+ * Reporter Information panel.
+ */
+function startingBlotterAnswers(c: IntakeCase, actor: { name?: string | null }) {
+  const responses: Responses = {};
+  const prefilled: Record<string, string> = {};
+  const set = (key: string, a: Answer, from: string) => { responses[key] = a; prefilled[key] = from; };
+  const r = !c.reporterIdentityWithheld ? c.resident : null;
+  if (r) {
+    set('complainantName', { value: `${r.firstName} ${r.lastName}`.trim() }, 'registered resident profile');
+    if (r.age) set('complainantAge', { value: String(r.age) }, 'registered resident profile');
+    const address = [r.address?.trim(), r.barangay?.trim()].filter(Boolean).join(', ');
+    if (address) set('complainantAddress', { value: address.slice(0, 300) }, 'registered resident profile');
+  }
+  const rel = c.reportingRelationship ?? 'SELF';
+  if (rel === 'SELF' && !c.reporterIdentityWithheld) set('complainantRelationship', { value: 'directly_involved' }, 'reporting relationship on the case');
+  if (rel === 'THIRD_PARTY' || rel === 'ON_BEHALF') set('complainantRelationship', { value: 'for_another' }, 'reporting relationship on the case');
+  if (c.affectedPersonNote && rel !== 'SELF') set('complainantRelationshipNote', { value: c.affectedPersonNote.slice(0, 300) }, 'the report');
+  const pref = CONTACT_PREF[c.contactPreference ?? ''];
+  if (pref) set('preferredContact', { value: pref }, 'the report');
+
+  // The person reported: an official's record first, else the reporter's.
+  const p = c.parties.find(x => x.source === 'official') ?? c.parties.find(x => x.source === 'reporter');
+  if (p) {
+    const from = p.source === 'official' ? 'official record on the case' : 'the report';
+    if (p.fullName) set('respondentName', { value: p.fullName.slice(0, 300) }, from);
+    if (p.age !== null && p.age !== undefined) set('respondentAge', { value: String(p.age) }, from);
+    if (p.address) set('respondentAddress', { value: p.address.slice(0, 300) }, from);
+    if (p.relationship) set('respondentRelationship', { value: p.relationship.slice(0, 300) }, from);
+    if (p.details) set('respondentOther', { value: p.details }, from);
+  }
+
+  if (c.incidentDate) set('incidentDate', { value: c.incidentDate.toISOString().slice(0, 10) }, 'the report');
+  if (c.incidentTimeApprox) set('incidentTime', { value: c.incidentTimeApprox.slice(0, 300) }, 'the report');
+  const place = [c.barangay, c.locationLabel].filter(Boolean).join(' - ');
+  if (place) set('incidentLocation', { value: place.slice(0, 300) }, 'the report');
+  if (BLOTTER_CATEGORIES.some(k => k.category === c.caseType)) {
+    set('incidentCategory', c.caseType === 'Other' ? { value: 'Other', specify: { Other: 'To be confirmed' } } : { value: c.caseType }, 'case category');
+  }
+  set('narrative', { value: (c.intake?.narrative ?? c.description).slice(0, 8000) }, 'the original report');
+  if (c.attachments.length) set('attachments', { value: 'on_file' }, 'case attachments');
+
+  if (actor.name) set('receivingOfficer', { value: actor.name.slice(0, 300) }, 'your account');
+  const now = new Date(Date.now() + 8 * 3600_000).toISOString();
+  set('recordedDate', { value: now.slice(0, 10) }, 'today');
+  set('recordedTime', { value: now.slice(11, 16) }, 'now');
+  set('blotterReferenceNo', { value: c.caseNumber }, 'case record');
+  if (c.assignedTo?.name) set('assignedOfficer', { value: c.assignedTo.name.slice(0, 300) }, 'case record');
+  set('caseStatus', { value: c.status }, 'case record');
+  return { responses, prefilled };
+}
+
 // ─── Validation ──────────────────────────────────────────────────────────────
 
 const MAX_TEXT = 300;
@@ -174,11 +242,11 @@ const MAX_LONG = 8000;
 const str = (v: unknown, max: number) => typeof v === 'string' && v.length <= max;
 
 /** Checks every answer against its item; unknown items or values are refused, not dropped. */
-export function validateResponses(raw: unknown): { ok: true; responses: Responses } | { ok: false; error: string } {
+export function validateResponses(raw: unknown, def: FormDef = FORMS.VAWC_INTAKE): { ok: true; responses: Responses } | { ok: false; error: string } {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, error: 'Responses must be an object' };
   const out: Responses = {};
   for (const [key, a] of Object.entries(raw as Record<string, unknown>)) {
-    const item: Item | undefined = ITEM_BY_KEY[key];
+    const item: Item | undefined = def.byKey[key];
     if (!item) return { ok: false, error: `Unknown item: ${key.slice(0, 40)}` };
     if (!a || typeof a !== 'object' || Array.isArray(a)) return { ok: false, error: `Item ${item.no ?? item.key}: invalid answer` };
     const ans = a as Record<string, unknown>;
@@ -253,8 +321,8 @@ function sortDeep(x: unknown): unknown {
 }
 
 /** Which items an edit changed - for the revision record, never their content. */
-export function changedKeys(before: Responses, after: Responses): string[] {
-  return ALL_ITEMS.map(i => i.key).filter(k => JSON.stringify(sortDeep(before[k] ?? null)) !== JSON.stringify(sortDeep(after[k] ?? null)));
+export function changedKeys(before: Responses, after: Responses, def: FormDef = FORMS.VAWC_INTAKE): string[] {
+  return def.items.map(i => i.key).filter(k => JSON.stringify(sortDeep(before[k] ?? null)) !== JSON.stringify(sortDeep(after[k] ?? null)));
 }
 
 export { INTAKE_FORM_VERSION };

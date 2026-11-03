@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { formForType } from '@/lib/intakeForms';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, errorResponse } from '@/lib/auth';
 import { loadActor } from '@/lib/reporterAccess';
@@ -34,14 +35,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const ids = [actor.id, intake.completedById].filter((x): x is string => Boolean(x));
     const users = await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
     const name = (uid: string | null) => (uid && users.find(u => u.id === uid)?.name) || null;
+    const form = formForType(intake.formType);
     const bytes = await buildIntakePdf({
-      caseNumber: c.caseNumber, status: intake.status === 'COMPLETED' ? 'COMPLETED' : 'DRAFT', version: intake.version,
+      form, caseNumber: c.caseNumber, status: intake.status === 'COMPLETED' ? 'COMPLETED' : 'DRAFT', version: intake.version,
       responses: intake.responses as Responses, exportedBy: name(actor.id) ?? 'an official', exportedAt: new Date(),
       completedBy: name(intake.completedById), completedAt: intake.completedAt,
     });
     // Recorded before it is sent.
     await log('permitted', access.code);
-    const file = `Intake-${c.caseNumber.replace(/[^\w-]/g, '')}${intake.status === 'COMPLETED' ? '' : '-DRAFT'}.pdf`;
+    const file = `${form.type === 'BLOTTER_REPORT' ? 'BlotterReport' : 'Intake'}-${c.caseNumber.replace(/[^\w-]/g, '')}${intake.status === 'COMPLETED' ? '' : '-DRAFT'}.pdf`;
     return new NextResponse(Buffer.from(bytes), {
       status: 200,
       headers: {

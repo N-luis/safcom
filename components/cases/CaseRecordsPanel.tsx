@@ -11,8 +11,8 @@ import { Lock, PersonOutlined, HealthAndSafety, Share, Edit, Add, History, Warni
 import toast from 'react-hot-toast';
 import {
   REPORT_PATH_LABEL, REPORTING_CHANNELS, SAFETY_QUESTIONS, ANSWER_LABEL, YES_NO_UNKNOWN, REFERRAL_AGENCIES,
-  REFERRAL_STATUSES, referralAgenciesFor, type ReportPath, type ReportingChannel, type ReferralAgency, type ReferralStatus,
-  type YesNoUnknownAnswer,
+  REFERRAL_STATUSES, referralAgenciesFor, RESOLUTION_TYPES, type ReportPath, type ReportingChannel, type ReferralAgency, type ReferralStatus,
+  type YesNoUnknownAnswer, type ResolutionType,
 } from '@/lib/caseRecords';
 
 /**
@@ -34,6 +34,7 @@ interface Safety {
   immediateConcern: YesNoUnknownAnswer; dependentsAffected: YesNoUnknownAnswer; urgentAssistance: YesNoUnknownAnswer;
   medicalNeeded: YesNoUnknownAnswer; shelterNeeded: YesNoUnknownAnswer; policeOrReferralNeeded: YesNoUnknownAnswer;
   additionalConcerns: string | null; initialAction: string | null; assistanceProvided: string | null; protectionActions: string | null;
+  safeContactConfirmed: YesNoUnknownAnswer | null; preferredAssistance: string | null; followUpRequirements: string | null; safetyPlan: string | null;
   followUpAt: string | null; version: number; updatedBy: string | null; updatedAt: string;
 }
 interface Referral {
@@ -46,6 +47,7 @@ interface Records {
     caseNumber: string; caseNumberLabel: string; desk: ReportPath; reportPath: ReportPath | null;
     reportingChannel: ReportingChannel | null; incidentDate: string | null; incidentTimeApprox: string | null;
     witnessInfo: string | null; filedAt: string; reportingRelationship: string | null; affectedPersonNote: string | null;
+    resolution: { type: ResolutionType; summary: string | null; at: string | null; by: string | null } | null;
   };
   parties: Party[];
   safety: Safety | null;
@@ -204,8 +206,12 @@ function SafetyDialog({ caseId, start, onClose, onSaved }: { caseId: string; sta
   const [t, setT] = useState({
     additionalConcerns: start?.additionalConcerns ?? '', initialAction: start?.initialAction ?? '',
     assistanceProvided: start?.assistanceProvided ?? '', protectionActions: start?.protectionActions ?? '',
+    preferredAssistance: start?.preferredAssistance ?? '', followUpRequirements: start?.followUpRequirements ?? '',
+    safetyPlan: start?.safetyPlan ?? '',
     followUpAt: start?.followUpAt ? new Date(start.followUpAt).toISOString().slice(0, 16) : '',
   });
+  // Optional: an urgent case is recorded without waiting to confirm a safe contact.
+  const [safeContact, setSafeContact] = useState<string>(start?.safeContactConfirmed ?? '');
   const [saving, setSaving] = useState(false);
   const unanswered = SAFETY_QUESTIONS.filter(q => !a[q.key]);
   const save = async () => {
@@ -213,7 +219,7 @@ function SafetyDialog({ caseId, start, onClose, onSaved }: { caseId: string; sta
     setSaving(true);
     try {
       const out = await send(`/api/cases/${caseId}/safety`, 'PUT', {
-        ...a, ...t, followUpAt: t.followUpAt ? new Date(t.followUpAt).toISOString() : '', expectedVersion: start?.version ?? 0,
+        ...a, ...t, ...(safeContact && { safeContactConfirmed: safeContact }), followUpAt: t.followUpAt ? new Date(t.followUpAt).toISOString() : '', expectedVersion: start?.version ?? 0,
       });
       if (out.flaggedUrgent) toast.error('Flagged for urgent review - the desks have been notified', { duration: 6000 });
       else toast.success('Safety assessment saved');
@@ -244,10 +250,23 @@ function SafetyDialog({ caseId, start, onClose, onSaved }: { caseId: string; sta
             protocol now - do not wait for this form or for any AI result.
           </Alert>
         )}
+        <Box>
+          <Typography id="sq-safeContact" sx={{ fontSize: '0.86rem', fontWeight: 700, color: NAVY }}>Has a safe way to contact the victim-survivor been confirmed?</Typography>
+          <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>Optional - do not delay an urgent case for it.</Typography>
+          <RadioGroup row aria-labelledby="sq-safeContact" value={safeContact} onChange={e => setSafeContact(e.target.value)}>
+            {YES_NO_UNKNOWN.map(v => <FormControlLabel key={v} value={v} control={<Radio size="small" />} label={ANSWER_LABEL[v]} />)}
+          </RadioGroup>
+        </Box>
+        <TextField size="small" label="Preferred assistance" placeholder="What the victim-survivor asks for - e.g. counseling, medical check, shelter, legal help"
+          value={t.preferredAssistance} onChange={e => setT(p => ({ ...p, preferredAssistance: e.target.value }))} slotProps={{ htmlInput: { maxLength: 500 } }} />
         <TextField size="small" label="Additional safety concerns" multiline minRows={2} value={t.additionalConcerns} onChange={e => setT(p => ({ ...p, additionalConcerns: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
         <TextField size="small" label="Initial action taken" multiline minRows={2} value={t.initialAction} onChange={e => setT(p => ({ ...p, initialAction: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
         <TextField size="small" label="Assistance provided" multiline minRows={2} value={t.assistanceProvided} onChange={e => setT(p => ({ ...p, assistanceProvided: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
         <TextField size="small" label="Protection-related actions" multiline minRows={2} value={t.protectionActions} onChange={e => setT(p => ({ ...p, protectionActions: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
+        <TextField size="small" label="Safety planning" placeholder="The safety plan agreed with the victim-survivor - where to go, who to call, code words, documents to keep ready"
+          multiline minRows={3} value={t.safetyPlan} onChange={e => setT(p => ({ ...p, safetyPlan: e.target.value }))} slotProps={{ htmlInput: { maxLength: 2000 } }} />
+        <TextField size="small" label="Follow-up requirements" multiline minRows={2} value={t.followUpRequirements}
+          onChange={e => setT(p => ({ ...p, followUpRequirements: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
         <TextField size="small" label="Follow-up schedule" type="datetime-local" value={t.followUpAt} onChange={e => setT(p => ({ ...p, followUpAt: e.target.value }))} slotProps={{ inputLabel: { shrink: true } }} />
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 1.5 }}>
@@ -368,6 +387,13 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                 <Field name="Date of incident" value={r.incidentDate ? day(`${r.incidentDate}T00:00:00+08:00`) : null} />
                 <Field name="Approximate time" value={r.incidentTimeApprox} />
                 <Field name="Witnesses" value={r.witnessInfo} />
+                {r.resolution && (
+                  <>
+                    <Field name="Resolution" value={RESOLUTION_TYPES[r.resolution.type]?.label ?? r.resolution.type} />
+                    <Field name="How it was resolved" value={r.resolution.summary} />
+                    <Field name="Resolved" value={r.resolution.at ? `${when(r.resolution.at)}${r.resolution.by ? ` · ${r.resolution.by}` : ''}` : null} />
+                  </>
+                )}
                 {r.reportPath && r.reportPath !== r.desk && (
                   <Alert severity="warning" sx={{ mt: 0.5, borderRadius: 2, fontSize: '0.8rem' }}>
                     Filed on the {REPORT_PATH_LABEL[r.reportPath].title} form, but the report reads as a {vawc ? 'VAWC' : 'Blotter'} matter. Confirm the desk in the category review.
@@ -422,6 +448,10 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                           <Field name="Initial action" value={data.safety.initialAction} />
                           <Field name="Assistance provided" value={data.safety.assistanceProvided} />
                           <Field name="Protection actions" value={data.safety.protectionActions} />
+                          <Field name="Safe contact confirmed" value={data.safety.safeContactConfirmed ? ANSWER_LABEL[data.safety.safeContactConfirmed] : null} />
+                          <Field name="Preferred assistance" value={data.safety.preferredAssistance} />
+                          <Field name="Safety plan" value={data.safety.safetyPlan} />
+                          <Field name="Follow-up requirements" value={data.safety.followUpRequirements} />
                           <Field name="Follow-up" value={data.safety.followUpAt ? when(data.safety.followUpAt) : null} />
                         </Box>
                         <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8' }}>

@@ -29,6 +29,7 @@ export async function loadRecordsCase(caseId: string) {
       id: true, caseNumber: true, caseType: true, status: true, riskLevel: true, triageStatus: true,
       assignedToId: true, residentId: true, reportPath: true, reportingChannel: true,
       incidentDate: true, incidentTimeApprox: true, witnessInfo: true, filedAt: true,
+      resolutionType: true, resolutionSummary: true, resolvedById: true, resolvedAt: true,
       reportingRelationship: true, affectedPersonNote: true, reporterIdentityWithheld: true,
     },
   });

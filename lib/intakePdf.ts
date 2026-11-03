@@ -1,8 +1,9 @@
 import 'server-only';
 import { PDFDocument, StandardFonts, rgb, degrees, type PDFFont, type PDFPage } from 'pdf-lib';
 import {
-  INTAKE_SECTIONS, MARKER_LABEL, appliesTo, optionsOf, type Answer, type Item, type Option, type Responses,
+  MARKER_LABEL, appliesTo, optionsOf, type Answer, type Item, type Option, type Responses,
 } from './officialIntakeForm';
+import { FORMS, type FormDef } from './intakeForms';
 
 /**
  * The intake as a PDF laid out like the source form ("INTAKE FORM -
@@ -24,17 +25,12 @@ const BOTTOM = 70;
 const BLACK = rgb(0, 0, 0), GRAY = rgb(0.35, 0.35, 0.35), LIGHT = rgb(0.93, 0.93, 0.93), BAR = rgb(0.84, 0.84, 0.84);
 const RED = rgb(0.8, 0.1, 0.1), YELLOW = rgb(1, 0.95, 0.45);
 
-const INSTRUCTIONS = [
-  'Authorized personnel must fill out this form. Do not leave any fields blank. Write N/A for items that are not applicable.',
-  'Please check the option "Others" and use the space provided for answers that are not found in the selection.',
-  'Unless otherwise specified, always mark only one response field for each question.',
-  'Before beginning the interview, please be sure to remind your client that all information given will be kept confidential, and that they may choose to decline to answer any of the following questions.',
-  'Please feel free to add as many questions to this form as needed in your context but do not remove any.',
-  'For more information on how to fill out this form, please refer to the attached instructions in the user guide.',
-];
+// The instructions are part of each form (lib/intakeForms).
 const PRIVACY = 'Reminder: Unauthorized use of the forms may be subject to penalties as provided for by the provisions of the Data Privacy Act of 2012';
 
 export interface PdfInput {
+  /** Which form; the VAWC intake form when not given. */
+  form?: FormDef;
   caseNumber: string;
   status: 'DRAFT' | 'COMPLETED';
   version: number;
@@ -47,15 +43,17 @@ export interface PdfInput {
 
 export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`Intake Form - ${input.caseNumber}`);
+  const form = input.form ?? FORMS.VAWC_INTAKE;
+  pdf.setTitle(`${form.title} - ${input.caseNumber}`);
   pdf.setSubject('CONFIDENTIAL');
   pdf.setProducer('SafeComm');
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
   const r = input.responses;
-  const clientCode = text(r.clientCode) || '';
-  const incidentNo = text(r.incidentNo) || input.caseNumber;
+  const [boxA, boxAKey, boxB, boxBKey] = form.pdf.box;
+  const boxAValue = text(r[boxAKey]) || (boxAKey === 'blotterReferenceNo' ? input.caseNumber : '');
+  const boxBValue = text(r[boxBKey]) || (boxBKey === 'incidentNo' ? input.caseNumber : '');
 
   // Only characters the standard fonts can print; anything else becomes "?".
   const okChar = new Map<string, boolean>();
@@ -92,7 +90,7 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   let y = H - M;
   const pages: PDFPage[] = [page];
   const header = (first: boolean) => {
-    page.drawText('INTAKE FORM', { x: M, y: H - M - 14, size: 14, font: bold, color: BLACK });
+    page.drawText(clean(form.pdf.title), { x: M, y: H - M - 14, size: 14, font: bold, color: BLACK });
     const cw = bold.widthOfTextAtSize('CONFIDENTIAL', 13) + 16;
     page.drawRectangle({ x: W - M - cw, y: H - M - 20, width: cw, height: 22, color: YELLOW });
     page.drawText('CONFIDENTIAL', { x: W - M - cw + 8, y: H - M - 14, size: 13, font: bold, color: BLACK });
@@ -100,12 +98,13 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
       page.drawLine({ start: { x: M, y: H - M - 28 }, end: { x: W - M, y: H - M - 28 }, thickness: 1.5, color: BLACK });
       y = H - M - 40;
     } else {
-      // "1. Client Code / 2. Incident No" box, as on pages 2-5 of the form.
+      // The two-field box at the top of each later page - "1. Client Code /
+      // 2. Incident No" on the intake form, as on its pages 2-5.
       const bw = 250, bx = W - M - bw, by = H - M - 50;
       page.drawRectangle({ x: bx, y: by, width: bw, height: 22, borderColor: BLACK, borderWidth: 0.7 });
       page.drawLine({ start: { x: bx + bw / 2, y: by }, end: { x: bx + bw / 2, y: by + 22 }, thickness: 0.7, color: BLACK });
-      page.drawText(clean(`1. Client Code: ${clientCode}`).slice(0, 40), { x: bx + 4, y: by + 8, size: 7.5, font: bold });
-      page.drawText(clean(`2. Incident No: ${incidentNo}`).slice(0, 40), { x: bx + bw / 2 + 4, y: by + 8, size: 7.5, font: bold });
+      page.drawText(clean(`${boxA}: ${boxAValue}`).slice(0, 40), { x: bx + 4, y: by + 8, size: 7.5, font: bold });
+      page.drawText(clean(`${boxB}: ${boxBValue}`).slice(0, 40), { x: bx + bw / 2 + 4, y: by + 8, size: 7.5, font: bold });
       y = by - 12;
     }
   };
@@ -138,13 +137,13 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   header(true);
   // A draft says so at the top, in words, not only in the watermark.
   if (input.status === 'DRAFT') {
-    page.drawText('DRAFT - this intake has not been completed. Some items may still be unanswered.', { x: M, y: y + 2, size: 8, font: bold, color: RED });
+    page.drawText(clean(`DRAFT - this ${form.type === 'VAWC_INTAKE' ? 'intake' : form.title.toLowerCase()} has not been completed. Some items may still be unanswered.`), { x: M, y: y + 2, size: 8, font: bold, color: RED });
     y -= 12;
   }
 
   // ── Instructions box ──
   {
-    const lines = INSTRUCTIONS.flatMap((t, i) => wrap(t, font, 7.5, CW - 30).map((l, j) => ({ l, bullet: j === 0, red: i === 0 && j === 0 })));
+    const lines = form.pdf.instructions.flatMap((t, i) => wrap(t, font, 7.5, CW - 30).map((l, j) => ({ l, bullet: j === 0, red: i === 0 && j === 0 })));
     const h = 18 + lines.length * 9.5 + 6;
     page.drawRectangle({ x: M, y: y - h, width: CW, height: h, color: rgb(0.96, 0.96, 0.96), borderColor: GRAY, borderWidth: 0.7 });
     page.drawText('INSTRUCTIONS', { x: M + 8, y: y - 13, size: 8.5, font: bold });
@@ -287,8 +286,8 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
     }
   };
 
-  // ── Sections A-D ──
-  const official = INTAKE_SECTIONS.filter(s => !s.proposed);
+  // ── The form's own sections ──
+  const official = form.sections.filter(s => !s.proposed);
   for (const s of official) {
     y -= 8;
     sectionBar(s.title.toUpperCase());
@@ -310,12 +309,13 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
     });
     if (signed) page.drawText('(signed on the paper form)', { x: x + 50, y: y + 4, size: 7, font: italic, color: GRAY });
   };
-  sig(M + 10, '(Signature over printed name of the victim, parent, or guardian)', r.signatureClient?.value === 'yes');
-  sig(W - M - 230, '(Signature over printed name of the intake officer)', r.signatureOfficer?.value === 'yes');
+  const [sigA, sigB] = form.pdf.signatures;
+  sig(M + 10, sigA.caption, r[sigA.key]?.value === 'yes');
+  sig(W - M - 230, sigB.caption, r[sigB.key]?.value === 'yes');
   y -= 30;
 
   // ── Annex: SafeComm's safety check (not part of the form) ──
-  const annex = INTAKE_SECTIONS.find(s => s.proposed);
+  const annex = form.sections.find(s => s.proposed);
   if (annex && annex.items.some(i => r[i.key])) {
     y -= 10;
     sectionBar('ANNEX - SAFETY AND CONSENT CHECK (SafeComm addition, not part of the official form)');

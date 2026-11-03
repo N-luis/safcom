@@ -41,7 +41,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       }),
       prisma.caseReferral.findMany({ where: { caseId: id }, orderBy: { referredAt: 'desc' } }),
     ]);
-    const name = await names([...parties.map(p => p.updatedById), safety?.updatedById, ...safetyHistory.map(h => h.actorId), ...referrals.map(r => r.createdById)]);
+    const name = await names([...parties.map(p => p.updatedById), safety?.updatedById, ...safetyHistory.map(h => h.actorId), ...referrals.map(r => r.createdById), g.c.resolvedById]);
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: {
       access: { view: g.access.view, edit: g.access.edit, message: g.access.edit ? null : g.access.message },
@@ -51,6 +51,9 @@ export async function GET(req: NextRequest, { params }: Params) {
         incidentDate: g.c.incidentDate ? g.c.incidentDate.toISOString().slice(0, 10) : null,
         incidentTimeApprox: g.c.incidentTimeApprox, witnessInfo: g.c.witnessInfo, filedAt: g.c.filedAt,
         reportingRelationship: g.c.reportingRelationship, affectedPersonNote: g.c.affectedPersonNote,
+        resolution: g.c.resolutionType ? {
+          type: g.c.resolutionType, summary: g.c.resolutionSummary, at: g.c.resolvedAt, by: name(g.c.resolvedById),
+        } : null,
       },
       parties: parties.map(p => ({ ...p, updatedBy: name(p.updatedById) })),
       safety: safety ? { ...safety, updatedBy: name(safety.updatedById) } : null,

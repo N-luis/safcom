@@ -45,6 +45,7 @@ export type OfficialIntakeMinAggregateOutputType = {
   status: string | null
   version: number | null
   formVersion: string | null
+  formType: string | null
   startedById: string | null
   updatedById: string | null
   completedById: string | null
@@ -60,6 +61,7 @@ export type OfficialIntakeMaxAggregateOutputType = {
   status: string | null
   version: number | null
   formVersion: string | null
+  formType: string | null
   startedById: string | null
   updatedById: string | null
   completedById: string | null
@@ -75,6 +77,7 @@ export type OfficialIntakeCountAggregateOutputType = {
   status: number
   version: number
   formVersion: number
+  formType: number
   responses: number
   prefilled: number
   startedById: number
@@ -102,6 +105,7 @@ export type OfficialIntakeMinAggregateInputType = {
   status?: true
   version?: true
   formVersion?: true
+  formType?: true
   startedById?: true
   updatedById?: true
   completedById?: true
@@ -117,6 +121,7 @@ export type OfficialIntakeMaxAggregateInputType = {
   status?: true
   version?: true
   formVersion?: true
+  formType?: true
   startedById?: true
   updatedById?: true
   completedById?: true
@@ -132,6 +137,7 @@ export type OfficialIntakeCountAggregateInputType = {
   status?: true
   version?: true
   formVersion?: true
+  formType?: true
   responses?: true
   prefilled?: true
   startedById?: true
@@ -236,6 +242,7 @@ export type OfficialIntakeGroupByOutputType = {
   status: string
   version: number
   formVersion: string
+  formType: string
   responses: runtime.JsonValue
   prefilled: runtime.JsonValue | null
   startedById: string
@@ -276,6 +283,7 @@ export type OfficialIntakeWhereInput = {
   status?: Prisma.StringFilter<"OfficialIntake"> | string
   version?: Prisma.IntFilter<"OfficialIntake"> | number
   formVersion?: Prisma.StringFilter<"OfficialIntake"> | string
+  formType?: Prisma.StringFilter<"OfficialIntake"> | string
   responses?: Prisma.JsonFilter<"OfficialIntake">
   prefilled?: Prisma.JsonNullableFilter<"OfficialIntake">
   startedById?: Prisma.StringFilter<"OfficialIntake"> | string
@@ -295,6 +303,7 @@ export type OfficialIntakeOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   formVersion?: Prisma.SortOrder
+  formType?: Prisma.SortOrder
   responses?: Prisma.SortOrder
   prefilled?: Prisma.SortOrderInput | Prisma.SortOrder
   startedById?: Prisma.SortOrder
@@ -317,6 +326,7 @@ export type OfficialIntakeWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"OfficialIntake"> | string
   version?: Prisma.IntFilter<"OfficialIntake"> | number
   formVersion?: Prisma.StringFilter<"OfficialIntake"> | string
+  formType?: Prisma.StringFilter<"OfficialIntake"> | string
   responses?: Prisma.JsonFilter<"OfficialIntake">
   prefilled?: Prisma.JsonNullableFilter<"OfficialIntake">
   startedById?: Prisma.StringFilter<"OfficialIntake"> | string
@@ -336,6 +346,7 @@ export type OfficialIntakeOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   formVersion?: Prisma.SortOrder
+  formType?: Prisma.SortOrder
   responses?: Prisma.SortOrder
   prefilled?: Prisma.SortOrderInput | Prisma.SortOrder
   startedById?: Prisma.SortOrder
@@ -361,6 +372,7 @@ export type OfficialIntakeScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"OfficialIntake"> | string
   version?: Prisma.IntWithAggregatesFilter<"OfficialIntake"> | number
   formVersion?: Prisma.StringWithAggregatesFilter<"OfficialIntake"> | string
+  formType?: Prisma.StringWithAggregatesFilter<"OfficialIntake"> | string
   responses?: Prisma.JsonWithAggregatesFilter<"OfficialIntake">
   prefilled?: Prisma.JsonNullableWithAggregatesFilter<"OfficialIntake">
   startedById?: Prisma.StringWithAggregatesFilter<"OfficialIntake"> | string
@@ -377,6 +389,7 @@ export type OfficialIntakeCreateInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -396,6 +409,7 @@ export type OfficialIntakeUncheckedCreateInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -413,6 +427,7 @@ export type OfficialIntakeUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -432,6 +447,7 @@ export type OfficialIntakeUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -450,6 +466,7 @@ export type OfficialIntakeCreateManyInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -466,6 +483,7 @@ export type OfficialIntakeUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -483,6 +501,7 @@ export type OfficialIntakeUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -505,6 +524,7 @@ export type OfficialIntakeCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   formVersion?: Prisma.SortOrder
+  formType?: Prisma.SortOrder
   responses?: Prisma.SortOrder
   prefilled?: Prisma.SortOrder
   startedById?: Prisma.SortOrder
@@ -526,6 +546,7 @@ export type OfficialIntakeMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   formVersion?: Prisma.SortOrder
+  formType?: Prisma.SortOrder
   startedById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   completedById?: Prisma.SortOrder
@@ -541,6 +562,7 @@ export type OfficialIntakeMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   formVersion?: Prisma.SortOrder
+  formType?: Prisma.SortOrder
   startedById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   completedById?: Prisma.SortOrder
@@ -610,6 +632,7 @@ export type OfficialIntakeCreateWithoutCaseInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -627,6 +650,7 @@ export type OfficialIntakeUncheckedCreateWithoutCaseInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -660,6 +684,7 @@ export type OfficialIntakeUpdateWithoutCaseInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -677,6 +702,7 @@ export type OfficialIntakeUncheckedUpdateWithoutCaseInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -694,6 +720,7 @@ export type OfficialIntakeCreateWithoutRevisionsInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -712,6 +739,7 @@ export type OfficialIntakeUncheckedCreateWithoutRevisionsInput = {
   status?: string
   version?: number
   formVersion: string
+  formType?: string
   responses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById: string
@@ -744,6 +772,7 @@ export type OfficialIntakeUpdateWithoutRevisionsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -762,6 +791,7 @@ export type OfficialIntakeUncheckedUpdateWithoutRevisionsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   formVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   prefilled?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -810,6 +840,7 @@ export type OfficialIntakeSelect<ExtArgs extends runtime.Types.Extensions.Intern
   status?: boolean
   version?: boolean
   formVersion?: boolean
+  formType?: boolean
   responses?: boolean
   prefilled?: boolean
   startedById?: boolean
@@ -830,6 +861,7 @@ export type OfficialIntakeSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   version?: boolean
   formVersion?: boolean
+  formType?: boolean
   responses?: boolean
   prefilled?: boolean
   startedById?: boolean
@@ -848,6 +880,7 @@ export type OfficialIntakeSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   version?: boolean
   formVersion?: boolean
+  formType?: boolean
   responses?: boolean
   prefilled?: boolean
   startedById?: boolean
@@ -866,6 +899,7 @@ export type OfficialIntakeSelectScalar = {
   status?: boolean
   version?: boolean
   formVersion?: boolean
+  formType?: boolean
   responses?: boolean
   prefilled?: boolean
   startedById?: boolean
@@ -876,7 +910,7 @@ export type OfficialIntakeSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OfficialIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "residentId" | "status" | "version" | "formVersion" | "responses" | "prefilled" | "startedById" | "updatedById" | "completedById" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["officialIntake"]>
+export type OfficialIntakeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "residentId" | "status" | "version" | "formVersion" | "formType" | "responses" | "prefilled" | "startedById" | "updatedById" | "completedById" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["officialIntake"]>
 export type OfficialIntakeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   revisions?: boolean | Prisma.OfficialIntake$revisionsArgs<ExtArgs>
@@ -914,6 +948,11 @@ export type $OfficialIntakePayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     version: number
     formVersion: string
+    /**
+     * Which form: VAWC_INTAKE (the barangay VAWC intake form) or BLOTTER_REPORT.
+     * Fixed when started, so a draft always reopens as the form it was begun on.
+     */
+    formType: string
     /**
      * Item key -> answer (value, "specify" text, or N/A / Unknown / Declined).
      */
@@ -1359,6 +1398,7 @@ export interface OfficialIntakeFieldRefs {
   readonly status: Prisma.FieldRef<"OfficialIntake", 'String'>
   readonly version: Prisma.FieldRef<"OfficialIntake", 'Int'>
   readonly formVersion: Prisma.FieldRef<"OfficialIntake", 'String'>
+  readonly formType: Prisma.FieldRef<"OfficialIntake", 'String'>
   readonly responses: Prisma.FieldRef<"OfficialIntake", 'Json'>
   readonly prefilled: Prisma.FieldRef<"OfficialIntake", 'Json'>
   readonly startedById: Prisma.FieldRef<"OfficialIntake", 'String'>

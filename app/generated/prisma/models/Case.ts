@@ -73,6 +73,9 @@ export type CaseMinAggregateOutputType = {
   reportingChannel: string | null
   incidentDate: Date | null
   incidentTimeApprox: string | null
+  resolutionType: string | null
+  resolutionSummary: string | null
+  resolvedById: string | null
   witnessInfo: string | null
 }
 
@@ -113,6 +116,9 @@ export type CaseMaxAggregateOutputType = {
   reportingChannel: string | null
   incidentDate: Date | null
   incidentTimeApprox: string | null
+  resolutionType: string | null
+  resolutionSummary: string | null
+  resolvedById: string | null
   witnessInfo: string | null
 }
 
@@ -153,6 +159,9 @@ export type CaseCountAggregateOutputType = {
   reportingChannel: number
   incidentDate: number
   incidentTimeApprox: number
+  resolutionType: number
+  resolutionSummary: number
+  resolvedById: number
   witnessInfo: number
   _all: number
 }
@@ -205,6 +214,9 @@ export type CaseMinAggregateInputType = {
   reportingChannel?: true
   incidentDate?: true
   incidentTimeApprox?: true
+  resolutionType?: true
+  resolutionSummary?: true
+  resolvedById?: true
   witnessInfo?: true
 }
 
@@ -245,6 +257,9 @@ export type CaseMaxAggregateInputType = {
   reportingChannel?: true
   incidentDate?: true
   incidentTimeApprox?: true
+  resolutionType?: true
+  resolutionSummary?: true
+  resolvedById?: true
   witnessInfo?: true
 }
 
@@ -285,6 +300,9 @@ export type CaseCountAggregateInputType = {
   reportingChannel?: true
   incidentDate?: true
   incidentTimeApprox?: true
+  resolutionType?: true
+  resolutionSummary?: true
+  resolvedById?: true
   witnessInfo?: true
   _all?: true
 }
@@ -412,6 +430,9 @@ export type CaseGroupByOutputType = {
   reportingChannel: string | null
   incidentDate: Date | null
   incidentTimeApprox: string | null
+  resolutionType: string | null
+  resolutionSummary: string | null
+  resolvedById: string | null
   witnessInfo: string | null
   _count: CaseCountAggregateOutputType | null
   _avg: CaseAvgAggregateOutputType | null
@@ -475,6 +496,9 @@ export type CaseWhereInput = {
   reportingChannel?: Prisma.StringNullableFilter<"Case"> | string | null
   incidentDate?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   incidentTimeApprox?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionType?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
@@ -530,6 +554,9 @@ export type CaseOrderByWithRelationInput = {
   reportingChannel?: Prisma.SortOrderInput | Prisma.SortOrder
   incidentDate?: Prisma.SortOrderInput | Prisma.SortOrder
   incidentTimeApprox?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionType?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedTo?: Prisma.UserOrderByWithRelationInput
   resident?: Prisma.ResidentOrderByWithRelationInput
@@ -588,6 +615,9 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   reportingChannel?: Prisma.StringNullableFilter<"Case"> | string | null
   incidentDate?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   incidentTimeApprox?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionType?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
@@ -643,6 +673,9 @@ export type CaseOrderByWithAggregationInput = {
   reportingChannel?: Prisma.SortOrderInput | Prisma.SortOrder
   incidentDate?: Prisma.SortOrderInput | Prisma.SortOrder
   incidentTimeApprox?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionType?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSummary?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseCountOrderByAggregateInput
   _avg?: Prisma.CaseAvgOrderByAggregateInput
@@ -691,6 +724,9 @@ export type CaseScalarWhereWithAggregatesInput = {
   reportingChannel?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   incidentDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Case"> | Date | string | null
   incidentTimeApprox?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  resolutionType?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  resolutionSummary?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  resolvedById?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
 }
 
@@ -729,6 +765,9 @@ export type CaseCreateInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -784,6 +823,9 @@ export type CaseUncheckedCreateInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -835,6 +877,9 @@ export type CaseUpdateInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -890,6 +935,9 @@ export type CaseUncheckedUpdateInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -943,6 +991,9 @@ export type CaseCreateManyInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
 }
 
@@ -981,6 +1032,9 @@ export type CaseUpdateManyMutationInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1021,6 +1075,9 @@ export type CaseUncheckedUpdateManyInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1071,6 +1128,9 @@ export type CaseCountOrderByAggregateInput = {
   reportingChannel?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   incidentTimeApprox?: Prisma.SortOrder
+  resolutionType?: Prisma.SortOrder
+  resolutionSummary?: Prisma.SortOrder
+  resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
 }
 
@@ -1116,6 +1176,9 @@ export type CaseMaxOrderByAggregateInput = {
   reportingChannel?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   incidentTimeApprox?: Prisma.SortOrder
+  resolutionType?: Prisma.SortOrder
+  resolutionSummary?: Prisma.SortOrder
+  resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
 }
 
@@ -1156,6 +1219,9 @@ export type CaseMinOrderByAggregateInput = {
   reportingChannel?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   incidentTimeApprox?: Prisma.SortOrder
+  resolutionType?: Prisma.SortOrder
+  resolutionSummary?: Prisma.SortOrder
+  resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
 }
 
@@ -1491,6 +1557,9 @@ export type CaseCreateWithoutAssignedToInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1544,6 +1613,9 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -1626,6 +1698,9 @@ export type CaseScalarWhereInput = {
   reportingChannel?: Prisma.StringNullableFilter<"Case"> | string | null
   incidentDate?: Prisma.DateTimeNullableFilter<"Case"> | Date | string | null
   incidentTimeApprox?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionType?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
+  resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
 }
 
@@ -1664,6 +1739,9 @@ export type CaseCreateWithoutPartiesInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -1718,6 +1796,9 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -1784,6 +1865,9 @@ export type CaseUpdateWithoutPartiesInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -1838,6 +1922,9 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -1888,6 +1975,9 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -1942,6 +2032,9 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -2008,6 +2101,9 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -2062,6 +2158,9 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -2112,6 +2211,9 @@ export type CaseCreateWithoutReferralsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -2166,6 +2268,9 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -2232,6 +2337,9 @@ export type CaseUpdateWithoutReferralsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -2286,6 +2394,9 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -2336,6 +2447,9 @@ export type CaseCreateWithoutAssessmentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -2390,6 +2504,9 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -2456,6 +2573,9 @@ export type CaseUpdateWithoutAssessmentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -2510,6 +2630,9 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -2560,6 +2683,9 @@ export type CaseCreateWithoutAttachmentsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -2614,6 +2740,9 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -2680,6 +2809,9 @@ export type CaseUpdateWithoutAttachmentsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -2734,6 +2866,9 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -2784,6 +2919,9 @@ export type CaseCreateWithoutResidentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2837,6 +2975,9 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -2914,6 +3055,9 @@ export type CaseCreateWithoutActivitiesInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -2968,6 +3112,9 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3034,6 +3181,9 @@ export type CaseUpdateWithoutActivitiesInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -3088,6 +3238,9 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -3138,6 +3291,9 @@ export type CaseCreateWithoutNotificationsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -3192,6 +3348,9 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3258,6 +3417,9 @@ export type CaseUpdateWithoutNotificationsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -3312,6 +3474,9 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -3362,6 +3527,9 @@ export type CaseCreateWithoutFollowUpsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -3416,6 +3584,9 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -3482,6 +3653,9 @@ export type CaseUpdateWithoutFollowUpsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -3536,6 +3710,9 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -3586,6 +3763,9 @@ export type CaseCreateWithoutIntakeInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -3640,6 +3820,9 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -3706,6 +3889,9 @@ export type CaseUpdateWithoutIntakeInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -3760,6 +3946,9 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -3810,6 +3999,9 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -3864,6 +4056,9 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -3930,6 +4125,9 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -3984,6 +4182,9 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -4034,6 +4235,9 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -4088,6 +4292,9 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -4154,6 +4361,9 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -4208,6 +4418,9 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -4258,6 +4471,9 @@ export type CaseCreateWithoutHearingsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -4312,6 +4528,9 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -4378,6 +4597,9 @@ export type CaseUpdateWithoutHearingsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -4432,6 +4654,9 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -4482,6 +4707,9 @@ export type CaseCreateWithoutAcknowledgementInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
@@ -4536,6 +4764,9 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
@@ -4602,6 +4833,9 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
@@ -4656,6 +4890,9 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -4707,6 +4944,9 @@ export type CaseCreateManyAssignedToInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
 }
 
@@ -4745,6 +4985,9 @@ export type CaseUpdateWithoutAssignedToInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4798,6 +5041,9 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -4850,6 +5096,9 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -4889,6 +5138,9 @@ export type CaseCreateManyResidentInput = {
   reportingChannel?: string | null
   incidentDate?: Date | string | null
   incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
   witnessInfo?: string | null
 }
 
@@ -4927,6 +5179,9 @@ export type CaseUpdateWithoutResidentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4980,6 +5235,9 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
@@ -5032,6 +5290,9 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5166,6 +5427,9 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reportingChannel?: boolean
   incidentDate?: boolean
   incidentTimeApprox?: boolean
+  resolutionType?: boolean
+  resolutionSummary?: boolean
+  resolvedById?: boolean
   witnessInfo?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -5222,6 +5486,9 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   reportingChannel?: boolean
   incidentDate?: boolean
   incidentTimeApprox?: boolean
+  resolutionType?: boolean
+  resolutionSummary?: boolean
+  resolvedById?: boolean
   witnessInfo?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -5264,6 +5531,9 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   reportingChannel?: boolean
   incidentDate?: boolean
   incidentTimeApprox?: boolean
+  resolutionType?: boolean
+  resolutionSummary?: boolean
+  resolvedById?: boolean
   witnessInfo?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -5306,10 +5576,13 @@ export type CaseSelectScalar = {
   reportingChannel?: boolean
   incidentDate?: boolean
   incidentTimeApprox?: boolean
+  resolutionType?: boolean
+  resolutionSummary?: boolean
+  resolvedById?: boolean
   witnessInfo?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "witnessInfo", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -5480,6 +5753,13 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     incidentDate: Date | null
     incidentTimeApprox: string | null
+    /**
+     * How the case was resolved or closed (lib/caseRecords RESOLUTION_TYPES),
+     * recorded with the status change; resolvedAt is set there too.
+     */
+    resolutionType: string | null
+    resolutionSummary: string | null
+    resolvedById: string | null
     /**
      * Who saw it, as the reporter described them.
      */
@@ -5958,6 +6238,9 @@ export interface CaseFieldRefs {
   readonly reportingChannel: Prisma.FieldRef<"Case", 'String'>
   readonly incidentDate: Prisma.FieldRef<"Case", 'DateTime'>
   readonly incidentTimeApprox: Prisma.FieldRef<"Case", 'String'>
+  readonly resolutionType: Prisma.FieldRef<"Case", 'String'>
+  readonly resolutionSummary: Prisma.FieldRef<"Case", 'String'>
+  readonly resolvedById: Prisma.FieldRef<"Case", 'String'>
   readonly witnessInfo: Prisma.FieldRef<"Case", 'String'>
 }
     

@@ -62,7 +62,7 @@ export interface Answer {
 }
 export type Responses = Record<string, Answer>;
 
-const NAME_PARTS = [
+export const NAME_PARTS = [
   { key: 'last', label: 'Last Name' }, { key: 'first', label: 'First Name' },
   { key: 'middle', label: 'Middle Name' }, { key: 'extension', label: 'Extension' },
 ];
@@ -74,7 +74,7 @@ export const ADDRESS_PARTS = [
 const PLACE_PARTS = [{ key: 'city', label: 'City/Municipality' }, { key: 'province', label: 'Province' }, { key: 'region', label: 'Region' }];
 const LOCATION_PARTS = [{ key: 'barangay', label: 'Barangay' }, { key: 'city', label: 'City/Mun' }, { key: 'province', label: 'Province' }];
 
-const o = (value: string, label: string, specify?: 'required' | 'optional', specifyLabel?: string): Option => ({ value, label, specify, specifyLabel });
+export const o = (value: string, label: string, specify?: 'required' | 'optional', specifyLabel?: string): Option => ({ value, label, specify, specifyLabel });
 
 const RELIGION: Option[] = [
   o('roman_catholic', 'Roman Catholic'), o('islam', 'Islam'), o('evangelicals', 'Evangelicals'), o('protestant', 'Protestant'),

@@ -318,12 +318,21 @@ export async function POST(req: NextRequest) {
     const ir = intake.result;
 
     // The form chosen and the desk the report reads as can differ - someone
-    // may not know a partner's violence is a VAWC matter. The report is filed
-    // where its content puts it; the difference is for an officer to see.
+    // may not know a partner's violence is a VAWC matter. The difference is
+    // for an officer to see, and the report is never refused for it.
+    //   - Blotter form, reads as VAWC: filed on the VAWC desk, so it is
+    //     confidential at once.
+    //   - VAWC form, reads as Blotter: held on the VAWC desk as "VAWC - Other"
+    //     until a VAWC officer confirms the desk. The reporter chose the
+    //     confidential form; the blotter does not read it on the AI's word.
+    // The AI's own category stays on the intake record either way.
     const chosenPath = parsed.data.reportPath ?? null;
-    const pathMismatch = chosenPath && chosenPath !== pathOfType(caseType)
-      ? `Filed on the ${REPORT_PATH_LABEL[chosenPath].title} form, but the report reads as a ${pathOfType(caseType) === 'VAWC' ? 'VAWC' : 'Blotter'} matter (${caseType}); confirm the desk`
-      : null;
+    const heldConfidential = chosenPath === 'VAWC' && pathOfType(caseType) === 'BLOTTER';
+    const filedType = heldConfidential ? 'VAWC - Other' : caseType;
+    const pathMismatch = !chosenPath || chosenPath === pathOfType(caseType) ? null
+      : heldConfidential
+        ? `Filed on the VAWC Incident Report (confidential) form, but the report reads as a Blotter matter (${caseType}). Held on the VAWC desk until a VAWC officer confirms the desk - change the category to move it`
+        : `Filed on the ${REPORT_PATH_LABEL[chosenPath].title} form, but the report reads as a VAWC matter (${caseType}); filed on the VAWC desk - confirm the category`;
 
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
@@ -337,7 +346,7 @@ export async function POST(req: NextRequest) {
           reportingRelationship: relationship,
           affectedPersonNote: relationship === 'SELF' ? null : parsed.data.affectedPersonNote || null,
           reporterIdentityWithheld: anonymous,
-          caseType,
+          caseType: filedType,
           description: parsed.data.description,
           barangay,
           status: 'Open',
@@ -394,7 +403,7 @@ export async function POST(req: NextRequest) {
     // factors reached on their own: an officer reading the feed has to see the
     // same answer the case carries, and which rules put it there.
     const raised = ir.rulesApplied;
-    const activityMsg = `Resident filed case ${caseNumber}: ${caseType}${ir.classificationStatus === 'needs_review' ? ' (needs review)' : ''} — ${riskLevel ? `${riskLevel} risk (preliminary)` : 'risk undetermined'}, triage ${triageStatus.toLowerCase().replace(/_/g, ' ')}, `
+    const activityMsg = `Resident filed case ${caseNumber}: ${filedType}${ir.classificationStatus === 'needs_review' ? ' (needs review)' : ''} — ${riskLevel ? `${riskLevel} risk (preliminary)` : 'risk undetermined'}, triage ${triageStatus.toLowerCase().replace(/_/g, ' ')}, `
       + `information ${ir.informationCompleteness.toLowerCase().replace(/_/g, ' ')}`
       + `${raised.length ? ` (rule ${raised.join(', ')})` : ''}`
       + `${aiRisk.highRiskZone ? ' ⚠ HIGH-RISK ZONE' : ''}`;
@@ -519,7 +528,7 @@ export async function POST(req: NextRequest) {
             caseId: newCase.id,
             kind: 'preliminary',
             riskLevel,
-            caseType,
+            caseType: filedType,
             framework: ir.framework,
             matrixLevel: ir.matrixLevel,
             matrixLabel: ir.matrixLabel,

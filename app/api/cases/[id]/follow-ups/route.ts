@@ -7,6 +7,7 @@ import {
   OFFICER_ACTIONS, OFFICER_ACTION_LABELS, PROGRESS_STATES, sanitizeNote,
   MAX_NOTE_LENGTH, type ProgressState,
 } from '@/lib/followUps';
+import { resolutionSchema, resolutionRefusal } from '@/lib/caseRecords';
 
 const createSchema = z.object({
   type: z.enum(['note', 'investigation', 'intervention', 'evidence', 'status_change']).default('note'),
@@ -19,6 +20,8 @@ const createSchema = z.object({
   visibleToReporter: z.boolean().optional(),
   /// An officer may correct the progress a resident reported.
   progressState: z.enum(PROGRESS_STATES).optional(),
+  /// How it was resolved - with a change to Resolved or Closed only.
+  resolution: resolutionSchema.optional(),
 });
 
 /**
@@ -90,6 +93,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const { type, content, statusTo, outcome, action, visibleToReporter, progressState } = parsed.data;
     const statusFrom = existing.status;
     const statusChanged = !!statusTo && statusTo !== statusFrom;
+    const closing = statusChanged && (statusTo === 'Resolved' || statusTo === 'Closed');
+    const resolution = parsed.data.resolution;
+    if (resolution && !closing) return errorResponse('Resolution details go with a change to Resolved or Closed', 400);
+    if (resolution) {
+      // A VAWC case is never "settled" at the barangay - refused, not only hidden.
+      const refusal = resolutionRefusal(resolution.type, existing.caseType);
+      if (refusal) return errorResponse(refusal, 422);
+    }
 
     const note = sanitizeNote(content);
     const entryText = action ? `${OFFICER_ACTION_LABELS[action]}${note ? ` — ${note}` : ''}` : note;
@@ -125,6 +136,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const updateData: Record<string, unknown> = { status: statusTo };
       if (statusTo === 'Resolved' || statusTo === 'Closed') {
         updateData.resolvedAt = new Date();
+        if (resolution) {
+          updateData.resolutionType = resolution.type;
+          updateData.resolutionSummary = resolution.summary;
+          updateData.resolvedById = auth.user.userId;
+        }
       }
       await prisma.case.update({ where: { id }, data: updateData });
     }

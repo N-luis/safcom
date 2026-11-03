@@ -31,7 +31,7 @@ import HearingsPanel from '@/components/cases/HearingsPanel';
 import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
-import { caseNumberLabel } from '@/lib/caseRecords';
+import { caseNumberLabel, RESOLUTION_TYPES, resolutionTypesFor, pathOfType, type ResolutionType } from '@/lib/caseRecords';
 import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
 import { triageOf } from '@/lib/triageLabels';
 
@@ -87,7 +87,7 @@ interface CaseDetail {
   riskLevel: string | null;
   triageStatus?: string | null;
   /** The official intake's state - never its answers. */
-  officialIntake?: { id: string; status: string; version: number; updatedAt: string; completedAt: string | null } | null;
+  officialIntake?: { id: string; status: string; version: number; updatedAt: string; completedAt: string | null; formType?: string } | null;
   barangay: string;
   description: string;
   notes?: string | null;
@@ -337,7 +337,7 @@ function TimelineEntry({
           {entry.href && (
             <Button size="small" href={entry.href} startIcon={<OpenInNew sx={{ fontSize: 14 }} />}
               sx={{ mt: 0.5, px: 0, textTransform: 'none', fontWeight: 700, color }}>
-              Open intake
+              Open form
             </Button>
           )}
         </Paper>
@@ -358,9 +358,11 @@ function TimelineEntry({
 
 // ─── Add Follow-Up Form ───────────────────────────────────────────────────────
 
-function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note', startOpen = false }: {
+function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType = 'note', startOpen = false }: {
   caseId: string;
   currentStatus: string;
+  /** Which outcomes a closure may record - a VAWC case is never "settled". */
+  caseType: string;
   onSaved: () => void;
   /** Opened from a quick action ("Record Investigation Update"...) - remounted with these. */
   initialType?: string;
@@ -376,15 +378,21 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note',
   // correspondence, and on a VAWC case it may not be safe to send.
   const [share, setShare] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Closing a case records how it was resolved.
+  const [resolutionType, setResolutionType] = useState<ResolutionType | ''>('');
+  const [resolutionSummary, setResolutionSummary] = useState('');
+  const closing = updateStatus && (statusTo === 'Resolved' || statusTo === 'Closed') && statusTo !== currentStatus;
+  const resolutionMissing = closing && (!resolutionType || resolutionSummary.trim().length < 5);
 
-  const reset = () => { setType('note'); setContent(''); setUpdateStatus(false); setStatusTo(''); setOutcome(''); setShare(false); };
+  const reset = () => { setType('note'); setContent(''); setUpdateStatus(false); setStatusTo(''); setOutcome(''); setShare(false); setResolutionType(''); setResolutionSummary(''); };
 
   const submit = async () => {
     if (!content.trim()) return;
     setSaving(true);
     try {
-      const payload: Record<string, string | boolean> = { type, content: content.trim(), visibleToReporter: share };
+      const payload: Record<string, unknown> = { type, content: content.trim(), visibleToReporter: share };
       if (updateStatus && statusTo && statusTo !== currentStatus) payload.statusTo = statusTo;
+      if (closing && resolutionType) payload.resolution = { type: resolutionType, summary: resolutionSummary.trim() };
       if (outcome.trim()) payload.outcome = outcome.trim();
 
       const res = await fetch(`/api/cases/${caseId}/follow-ups`, {
@@ -502,6 +510,20 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note',
                     </Select>
                   </FormControl>
                 )}
+                {closing && (
+                  <Box sx={{ mt: 1.25, display: 'grid', gap: 1.25 }}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>How was it resolved? *</InputLabel>
+                      <Select value={resolutionType} label="How was it resolved? *" onChange={e => setResolutionType(e.target.value as ResolutionType)} sx={{ borderRadius: 2 }}>
+                        {resolutionTypesFor(pathOfType(caseType)).map(k => <MenuItem key={k} value={k}>{RESOLUTION_TYPES[k].label}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                    <TextField size="small" fullWidth multiline minRows={2} label="Resolution details *" value={resolutionSummary}
+                      onChange={e => setResolutionSummary(e.target.value)} slotProps={{ htmlInput: { maxLength: 2000 } }}
+                      placeholder="What was agreed or done, and by whom"
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                  </Box>
+                )}
               </Box>
 
               <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: share ? '#f0fdfa' : '#f8fafc', border: `1px solid ${share ? '#99f6e4' : '#f1f5f9'}`, mb: 1.5 }}>
@@ -523,7 +545,7 @@ function AddFollowUpForm({ caseId, currentStatus, onSaved, initialType = 'note',
                 </Button>
                 <Button
                   variant="contained"
-                  disabled={saving || !content.trim()}
+                  disabled={saving || !content.trim() || resolutionMissing}
                   onClick={submit}
                   startIcon={saving ? <CircularProgress size={14} color="inherit" /> : <Save />}
                   sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, flex: 2 }}
@@ -890,7 +912,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
         </Box>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
           {/* The official intake for this case: start, continue, view, edit, export */}
-          <IntakeFormButton caseId={id} basePath={basePath} intake={caseData.officialIntake ?? null} />
+          <IntakeFormButton caseId={id} basePath={basePath} intake={caseData.officialIntake ?? null} caseType={caseData.caseType} />
           <Tooltip title="View in full list">
             <Button
               variant="outlined" size="small"
@@ -1080,7 +1102,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
               {/* Add Follow-Up Form */}
               <Box ref={composerRef}>
-                <AddFollowUpForm key={composer.nonce} caseId={id} currentStatus={caseData.status} onSaved={onSaved}
+                <AddFollowUpForm key={composer.nonce} caseId={id} currentStatus={caseData.status} caseType={caseData.caseType} onSaved={onSaved}
                   initialType={composer.type} startOpen={composer.nonce > 0} />
               </Box>
 
