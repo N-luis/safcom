@@ -24,8 +24,8 @@ const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/blotter-officer', exact: true },
   { id: 'cases', label: 'Case Management', icon: FolderOpen, path: '/blotter-officer/case-management' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
-  // One entry for every hearing page: the records (with the Hearing 1, 2 and 3
-  // tabs) and the calendar are reached from inside it, and it stays highlighted on each.
+  // One entry for every hearing page: the records (with the KP stage tabs) and
+  // the calendar are reached from inside it, and it stays highlighted on each.
   { id: 'hearings', label: 'Hearing', icon: Gavel, path: '/blotter-officer/hearings' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
   // Path kept as /reports so existing links still resolve; the page behind it

@@ -81,8 +81,8 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
   return (
     <Box sx={{ p: { xs: 1.5, md: 3 }, maxWidth: 1400, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flex: 1, minWidth: 0 }}>
+          <Box sx={{ width: 40, height: 40, flexShrink: 0, borderRadius: 2, bgcolor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Gavel sx={{ color: '#0369a1' }} />
           </Box>
           <Box>
@@ -90,7 +90,7 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
             <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay proceedings for eligible blotter disputes: mediation, constitution of the Pangkat, conciliation. VAWC cases under RA 9262 are never heard here.</Typography>
           </Box>
         </Box>
-        <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexShrink: 0, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
           <Button variant="outlined" startIcon={<CalendarMonth />} href={`${basePath}/calendar`} sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
             Hearing Calendar
           </Button>
