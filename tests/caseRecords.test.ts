@@ -157,7 +157,8 @@ async function main() {
     const aff = vCase?.parties.find(p => p.role === 'AFFECTED'); const rep = vCase?.parties.find(p => p.role === 'REPORTED');
     ok('reporter, person affected and person reported are three separate records', vCase?.residentId === R.id
       && aff?.fullName === 'Maria Probe' && aff.age === 29 && aff.dependentsAffected === 'yes' && rep?.fullName === 'Pedro Probe');
-    ok('neither is linked to a resident account', !('residentId' in (aff ?? {})) && !('residentId' in (rep ?? {})));
+    // Filing never links a party to an account; only an official does, by the resident number.
+    ok('neither is linked to a resident account', aff?.residentId === null && rep?.residentId === null);
     const vSent = fake.sent.join('\n');
     ok('the AI was sent the actual narrative', vSent.includes('sinampal'));
     ok('a VAWC report is assessed against the VAWC matrix', /\] VAWC [^\n]*Level/.test(vSent) && !/\] BLOTTER [^\n]*Level/.test(vSent));

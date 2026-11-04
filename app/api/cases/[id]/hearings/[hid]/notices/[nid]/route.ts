@@ -2,15 +2,17 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
-import { gateHearings, noStore, recordEvent, hearingActivity, actorName } from '@/lib/hearingsServer';
-import { statusFromNotices, isLive, NOTICE_METHODS, NOTICE_RECIPIENTS, type NoticeMethod, type NoticeRecipient } from '@/lib/hearings';
+import { gateHearings, noStore, recordEvent, hearingActivity, actorName, hearingPartySelect, partyAccounts, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
+import { isLive, kpFormName, NOTICE_METHODS, NOTICE_RECIPIENTS, type NoticeMethod, type NoticeRecipient, type PartyRole } from '@/lib/hearings';
 
 /**
  * What happened to a notice, as an official records it:
  *   issue        given out (how), from generated
  *   delivery     delivered, or not delivered (with a note)
  *   acknowledge  the recipient's signed receipt
- * The hearing's status follows its notices (lib/hearings.ts statusFromNotices).
+ * The proceeding's status follows its notices to the parties
+ * (lib/hearings.ts statusFromNotices). A KP 11 notice to a Pangkat member
+ * is recorded the same way, and does not move the status.
  */
 
 const schema = z.discriminatedUnion('action', [
@@ -34,34 +36,39 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const d = parsed.data;
   try {
     const [h, n] = await Promise.all([
-      prisma.caseHearing.findUnique({ where: { id: hid } }),
+      prisma.caseHearing.findUnique({ where: { id: hid }, include: hearingPartySelect }),
       prisma.caseHearingNotice.findUnique({ where: { id: nid } }),
     ]);
     if (!h || h.caseId !== id || !n || n.hearingId !== hid) return errorResponse('Notice not found', 404);
-    if (!isLive(h.status)) return errorResponse('This hearing is no longer scheduled.', 409);
+    const member = n.recipientRole === 'PANGKAT_MEMBER';
+    if (member ? h.status === 'CANCELLED' : !isLive(h.status)) return errorResponse('This hearing is no longer scheduled.', 409);
     if (!FROM[d.action].includes(n.status)) return errorResponse(n.status === 'SUPERSEDED' ? 'This notice was replaced when the date changed.' : 'This notice is not at that step.', 409);
-    if (d.action === 'issue' && d.method === 'SAFECOMM' && (n.recipientRole !== 'COMPLAINANT' || !g.c.residentId)) {
-      return errorResponse('Only the complainant who filed through SafeComm can receive a notice in SafeComm.', 400);
+    const account = member ? null : partyAccounts(g.c, h)[n.recipientRole as PartyRole];
+    if (d.action === 'issue' && d.method === 'SAFECOMM' && !account) {
+      return errorResponse(member
+        ? 'A Pangkat member\'s notice is handed over or served - it is not delivered to a resident account.'
+        : `The ${NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase()} has no SafeComm account linked to this case. Hand the notice over or serve it, or link their account first.`, 400);
     }
     const by = await actorName(g.actor.id);
-    const who = NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase();
+    const who = member ? `Pangkat member ${n.recipientName}` : `the ${NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase()}`;
+    const form = kpFormName(n.formNo);
     const now = new Date();
     await prisma.$transaction(async tx => {
-      const data = d.action === 'issue' ? { status: 'ISSUED', issueMethod: d.method, issuedById: g.actor.id, issuedAt: now }
+      const data = d.action === 'issue'
+        ? { status: 'ISSUED', issueMethod: d.method, issuedById: g.actor.id, issuedAt: now,
+          ...(d.method === 'SAFECOMM' ? { channel: 'SAFECOMM_ACCOUNT', recipientResidentId: account } : { channel: 'OFFICER' }) }
         : d.action === 'delivery' ? { status: d.delivered ? 'DELIVERED' : 'UNDELIVERED', deliveryRecordedById: g.actor.id, deliveryRecordedAt: now, deliveryNote: d.note || null }
           : { status: 'ACKNOWLEDGED', acknowledgedAt: now, acknowledgedVia: 'RECORDED', deliveryRecordedById: g.actor.id, deliveryRecordedAt: now, deliveryNote: d.note || n.deliveryNote };
       const r = await tx.caseHearingNotice.updateMany({ where: { id: nid, status: n.status }, data });
       if (!r.count) throw new Error('changed');
       const kind = d.action === 'issue' ? 'notice_issued' : d.action === 'delivery' ? 'notice_delivery' : 'notice_acknowledged';
       const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind, actorType: 'official', actorId: g.actor.id,
-        before: { status: n.status }, after: { hearingNumber: h.hearingNumber, recipientRole: n.recipientRole, noticeNumber: n.noticeNumber, status: data.status,
-          ...(d.action === 'issue' && { method: d.method }) }, note: d.action === 'issue' ? null : d.note || null });
-      await hearingActivity(tx, e.id, id, g.actor.id, d.action === 'issue' ? `Notice ${n.noticeNumber} issued to the ${who} by ${by}`
-        : d.action === 'delivery' ? `Notice ${n.noticeNumber} recorded as ${d.delivered ? 'delivered' : 'not delivered'} by ${by}`
-          : `Notice ${n.noticeNumber}: the ${who}'s acknowledgement recorded by ${by}`);
-      const current = await tx.caseHearingNotice.findMany({ where: { hearingId: hid, status: { not: 'SUPERSEDED' } }, select: { status: true } });
-      const status = statusFromNotices(h, current);
-      if (status !== h.status) await tx.caseHearing.update({ where: { id: hid }, data: { status, updatedById: g.actor.id } });
+        before: { status: n.status }, after: { ...hearingSnap(h, n.scheduledAt, n.venue), formNo: n.formNo, recipientRole: n.recipientRole, noticeNumber: n.noticeNumber,
+          status: data.status, ...(d.action === 'issue' && { method: d.method }) }, note: d.action === 'issue' ? null : d.note || null });
+      await hearingActivity(tx, e.id, id, g.actor.id, d.action === 'issue' ? `${form} (${n.noticeNumber}) issued to ${who} by ${by}`
+        : d.action === 'delivery' ? `${form} (${n.noticeNumber}) recorded as ${d.delivered ? 'delivered' : 'not delivered'} by ${by}`
+          : `${form} (${n.noticeNumber}): ${who}'s acknowledgement recorded by ${by}`);
+      if (!member) await syncHearingStatus(tx, h, g.actor.id);
     });
     await g.log('permitted', g.access.code);
     return noStore({ success: true });

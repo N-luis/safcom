@@ -411,7 +411,9 @@ export const ModelName = {
   CaseHearingEvent: 'CaseHearingEvent',
   CaseHearingRequest: 'CaseHearingRequest',
   CaseKpReview: 'CaseKpReview',
-  AcknowledgementLetter: 'AcknowledgementLetter'
+  AcknowledgementLetter: 'AcknowledgementLetter',
+  CasePangkat: 'CasePangkat',
+  CasePangkatMember: 'CasePangkatMember'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -427,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter"
+    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2503,6 +2505,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CasePangkat: {
+      payload: Prisma.$CasePangkatPayload<ExtArgs>
+      fields: Prisma.CasePangkatFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CasePangkatFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CasePangkatFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        findFirst: {
+          args: Prisma.CasePangkatFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CasePangkatFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        findMany: {
+          args: Prisma.CasePangkatFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>[]
+        }
+        create: {
+          args: Prisma.CasePangkatCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        createMany: {
+          args: Prisma.CasePangkatCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CasePangkatCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>[]
+        }
+        delete: {
+          args: Prisma.CasePangkatDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        update: {
+          args: Prisma.CasePangkatUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        deleteMany: {
+          args: Prisma.CasePangkatDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CasePangkatUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CasePangkatUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>[]
+        }
+        upsert: {
+          args: Prisma.CasePangkatUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatPayload>
+        }
+        aggregate: {
+          args: Prisma.CasePangkatAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCasePangkat>
+        }
+        groupBy: {
+          args: Prisma.CasePangkatGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePangkatGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CasePangkatCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePangkatCountAggregateOutputType> | number
+        }
+      }
+    }
+    CasePangkatMember: {
+      payload: Prisma.$CasePangkatMemberPayload<ExtArgs>
+      fields: Prisma.CasePangkatMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CasePangkatMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CasePangkatMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.CasePangkatMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CasePangkatMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        findMany: {
+          args: Prisma.CasePangkatMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>[]
+        }
+        create: {
+          args: Prisma.CasePangkatMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        createMany: {
+          args: Prisma.CasePangkatMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CasePangkatMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.CasePangkatMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        update: {
+          args: Prisma.CasePangkatMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.CasePangkatMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CasePangkatMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CasePangkatMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.CasePangkatMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CasePangkatMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.CasePangkatMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCasePangkatMember>
+        }
+        groupBy: {
+          args: Prisma.CasePangkatMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePangkatMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CasePangkatMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CasePangkatMemberCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2620,7 +2770,10 @@ export const CasePartyScalarFieldEnum = {
   source: 'source',
   updatedById: 'updatedById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  residentId: 'residentId',
+  residentLinkedById: 'residentLinkedById',
+  residentLinkedAt: 'residentLinkedAt'
 } as const
 
 export type CasePartyScalarFieldEnum = (typeof CasePartyScalarFieldEnum)[keyof typeof CasePartyScalarFieldEnum]
@@ -2999,6 +3152,8 @@ export const CaseHearingScalarFieldEnum = {
   caseId: 'caseId',
   reference: 'reference',
   hearingNumber: 'hearingNumber',
+  stage: 'stage',
+  session: 'session',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
   status: 'status',
@@ -3039,7 +3194,12 @@ export const CaseHearingNoticeScalarFieldEnum = {
   hearingId: 'hearingId',
   caseId: 'caseId',
   noticeNumber: 'noticeNumber',
+  formNo: 'formNo',
   recipientRole: 'recipientRole',
+  recipientResidentId: 'recipientResidentId',
+  pangkatMemberId: 'pangkatMemberId',
+  channel: 'channel',
+  seenAt: 'seenAt',
   recipientName: 'recipientName',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
@@ -3081,6 +3241,7 @@ export const CaseHearingRequestScalarFieldEnum = {
   hearingId: 'hearingId',
   caseId: 'caseId',
   residentId: 'residentId',
+  requesterRole: 'requesterRole',
   reason: 'reason',
   preferredSchedule: 'preferredSchedule',
   status: 'status',
@@ -3123,6 +3284,38 @@ export const AcknowledgementLetterScalarFieldEnum = {
 } as const
 
 export type AcknowledgementLetterScalarFieldEnum = (typeof AcknowledgementLetterScalarFieldEnum)[keyof typeof AcknowledgementLetterScalarFieldEnum]
+
+
+export const CasePangkatScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  constitutionHearingId: 'constitutionHearingId',
+  constitutedAt: 'constitutedAt',
+  chairmanMemberId: 'chairmanMemberId',
+  secretaryMemberId: 'secretaryMemberId',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CasePangkatScalarFieldEnum = (typeof CasePangkatScalarFieldEnum)[keyof typeof CasePangkatScalarFieldEnum]
+
+
+export const CasePangkatMemberScalarFieldEnum = {
+  id: 'id',
+  pangkatId: 'pangkatId',
+  name: 'name',
+  chosenBy: 'chosenBy',
+  userId: 'userId',
+  addedById: 'addedById',
+  createdAt: 'createdAt',
+  removedAt: 'removedAt',
+  removedById: 'removedById',
+  removedReason: 'removedReason'
+} as const
+
+export type CasePangkatMemberScalarFieldEnum = (typeof CasePangkatMemberScalarFieldEnum)[keyof typeof CasePangkatMemberScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3407,6 +3600,8 @@ export type GlobalOmitConfig = {
   caseHearingRequest?: Prisma.CaseHearingRequestOmit
   caseKpReview?: Prisma.CaseKpReviewOmit
   acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
+  casePangkat?: Prisma.CasePangkatOmit
+  casePangkatMember?: Prisma.CasePangkatMemberOmit
 }
 
 /* Types for Logging */

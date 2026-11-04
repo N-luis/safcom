@@ -9,15 +9,15 @@ import {
 } from '@mui/material';
 import { Gavel, Add, Search, CalendarMonth, Refresh, WarningAmber } from '@mui/icons-material';
 import {
-  HEARING_STATUSES, HEARING_TITLES, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
-  type HearingStatus, type NoticeStatus, type Attendance,
+  HEARING_STATUSES, KP_STAGES, KP_STAGE_KEYS, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
+  type HearingStatus, type NoticeStatus, type Attendance, type KpStage,
 } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
 import HearingDetailsDialog from './HearingDetailsDialog';
 import { NAVY, STATUS_COLOR, NOTICE_COLOR, ATTENDANCE_COLOR, chipSx, getJson } from './hearingUi';
 
 interface Row {
-  id: string; reference: string; hearingNumber: number; scheduledAt: string; venue: string | null; status: HearingStatus; outcome: string | null;
+  id: string; reference: string; hearingNumber: number; stage: KpStage; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus; outcome: string | null;
   rescheduleCount: number; updatedAt: string;
   case: { id: string; caseNumber: string; caseType: string; status: string };
   complainant: string; respondent: string; official: { id: string; name: string } | null;
@@ -30,25 +30,29 @@ interface ListData {
   summary: { total: number; drafts: number; upcoming: number; overdue: number; noticesPending: number; completed: number; rescheduled: number; cancelled: number; pendingRequests: number };
 }
 
-const TAB_HINTS: Record<number, string> = {
-  1: 'Hearing 1 - Initial Hearing: pick an eligible case, set the date, time, venue and official, review the parties, issue notices, record attendance, proceedings and the outcome, then schedule Hearing 2 if the matter continues.',
-  2: 'Hearing 2 - Follow-up Hearing: read the previous hearing record, set the next proceeding, record attendance, notes, agreements or developments and the outcome, then schedule Hearing 3 if needed.',
-  3: 'Hearing 3 - Further Proceeding: with Hearings 1 and 2 on record, record the latest proceeding, attendance and outcome - settled, continued, referred or otherwise disposed of - and the case\'s next action.',
+/** The page slug of each stage: /blotter-officer/hearings/mediation, ... */
+export const STAGE_SLUGS: Record<KpStage, string> = { MEDIATION: 'mediation', CONSTITUTION: 'pangkat', CONCILIATION: 'conciliation' };
+
+const TAB_HINTS: Partial<Record<KpStage, string>> = {
+  MEDIATION: 'A. Mediation before the Punong Barangay: one schedule makes KP Form No. 8 (Notice of Hearing) for the complainant and KP Form No. 9 (Summons) for the respondent. Record attendance and the outcome. Without a settlement, the case goes to the constitution of the Pangkat.',
+  CONSTITUTION: 'B. Constitution of the Pangkat: KP Form No. 10 goes to both parties. Record the three members chosen, the chairman and the secretary, and give each member KP Form No. 11. Record the proceeding as held with "Pangkat constituted" to open conciliation.',
+  CONCILIATION: 'C. Conciliation before the Pangkat: KP Form No. 12 goes to both parties. Only after the Pangkat is constituted. Record attendance and the outcome - settlement, no settlement, further proceedings, or a certification to file action.',
 };
 
 /**
- * Hearing Management for officials: every hearing they may see, by hearing
- * number, with the record behind each one (the calendar is its own page,
- * HearingCalendar). Hearings are created one at a time, each only when the
- * one before it calls for it. Each tab is a page of its own, so the sidebar
- * can link to Hearing 1, 2 and 3 directly.
+ * Hearing Management for officials: every Katarungang Pambarangay
+ * proceeding they may see, by stage - mediation, constitution of the
+ * Pangkat, conciliation - with the record behind each one (the calendar is
+ * its own page, HearingCalendar). Proceedings are created one at a time,
+ * each only when the stage before it calls for it. Each stage tab is a page
+ * of its own, so it can be linked to directly.
  */
-export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', initialTab = 0 }: {
-  caseBase: string; basePath?: string; initialTab?: 0 | 1 | 2 | 3;
+export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', stage = null }: {
+  caseBase: string; basePath?: string; stage?: KpStage | null;
 }) {
   const router = useRouter();
-  const tab = initialTab;
-  const setTab = (v: number) => router.push(v ? `${basePath}/${v}` : basePath);
+  const tab = stage ?? 'ALL';
+  const setTab = (v: KpStage | 'ALL') => router.push(v === 'ALL' ? basePath : `${basePath}/${STAGE_SLUGS[v]}`);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
@@ -57,7 +61,7 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
   const [open, setOpen] = useState<{ caseId: string; hearingId: string } | null>(null);
 
   const params = new URLSearchParams();
-  if (tab >= 1 && tab <= 3) params.set('number', String(tab));
+  if (stage) params.set('stage', stage);
   if (status) params.set('status', status);
   if (from) params.set('from', from);
   if (to) params.set('to', to);
@@ -83,7 +87,7 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
           </Box>
           <Box>
             <Typography sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>Hearing Management</Typography>
-            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay hearings for eligible blotter disputes. VAWC cases under RA 9262 are never heard here.</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay proceedings for eligible blotter disputes: mediation, constitution of the Pangkat, conciliation. VAWC cases under RA 9262 are never heard here.</Typography>
           </Box>
         </Box>
         <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -118,11 +122,11 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
 
           <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
-              <Tab label="All hearings" sx={{ textTransform: 'none', fontWeight: 600 }} />
-              {[1, 2, 3].map(n => <Tab key={n} label={`Hearing ${n} - ${HEARING_TITLES[n]}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
+              <Tab value="ALL" label="All proceedings" sx={{ textTransform: 'none', fontWeight: 600 }} />
+              {KP_STAGE_KEYS.map(s => <Tab key={s} value={s} label={`${KP_STAGES[s].letter}. ${KP_STAGES[s].label}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
             </Tabs>
             <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
-              {TAB_HINTS[tab] && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>{TAB_HINTS[tab]}</Typography>}
+              {stage && TAB_HINTS[stage] && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>{TAB_HINTS[stage]}</Typography>}
               {(
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
                   <TextField size="small" placeholder="Case number or hearing ID" value={q} onChange={e => setQ(e.target.value)}
@@ -162,7 +166,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
     return (
       <Box sx={{ textAlign: 'center', py: 5 }}>
         <Gavel sx={{ fontSize: 36, color: '#cbd5e1' }} />
-        <Typography sx={{ color: '#64748b', fontSize: '0.88rem', mt: 1 }}>{filtered ? 'No hearing matches these filters.' : 'No hearings yet. Create Hearing 1 on an eligible case to start.'}</Typography>
+        <Typography sx={{ color: '#64748b', fontSize: '0.88rem', mt: 1 }}>{filtered ? 'No proceeding matches these filters.' : 'No proceedings here yet. Every case starts with mediation before the Punong Barangay - create it on an eligible case.'}</Typography>
       </Box>
     );
   }
@@ -171,7 +175,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
       <Table size="small" sx={{ minWidth: 980 }}>
         <TableHead>
           <TableRow sx={{ '& th': { fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' } }}>
-            <TableCell>Hearing ID</TableCell><TableCell>Case</TableCell><TableCell>Hearing</TableCell><TableCell>Date and time</TableCell>
+            <TableCell>Hearing ID</TableCell><TableCell>Case</TableCell><TableCell>Stage</TableCell><TableCell>Date and time</TableCell>
             <TableCell>Venue</TableCell><TableCell>Parties</TableCell><TableCell>Official</TableCell><TableCell>Status</TableCell>
             <TableCell>Notices</TableCell><TableCell>Attendance</TableCell><TableCell align="right" />
           </TableRow>
@@ -184,7 +188,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
                 <a href={`${caseBase}/${r.case.id}`} onClick={e => e.stopPropagation()} style={{ color: '#0369a1', fontWeight: 600 }}>{r.case.caseNumber}</a>
                 <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.case.caseType}</Typography>
               </TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Hearing {r.hearingNumber}</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>{r.title}</TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
                 {formatHearingDate(r.scheduledAt)}<br /><span style={{ color: '#64748b' }}>{formatHearingTime(r.scheduledAt)}</span>
                 {r.approaching && <Chip size="small" label="Within 48h" sx={{ ...chipSx('#b45309'), ml: 0.5 }} />}

@@ -149,6 +149,7 @@ model Case {
   hearings         CaseHearing[]
   acknowledgement  AcknowledgementLetter?
   kpReviews        CaseKpReview[]
+  pangkat          CasePangkat?
 
   @@index([progressState])
 }
@@ -180,8 +181,16 @@ model CaseParty {
   updatedAt             DateTime      @updatedAt
   hearingsAsComplainant CaseHearing[] @relation("HearingComplainant")
   hearingsAsRespondent  CaseHearing[] @relation("HearingRespondent")
+  /// The party's own SafeComm account, when they have one - linked by an
+  /// official from the resident number, never matched by name. Their hearing
+  /// notices are delivered there.
+  residentId            String?
+  resident              Resident?     @relation(fields: [residentId], references: [id], onDelete: SetNull)
+  residentLinkedById    String?
+  residentLinkedAt      DateTime?
 
   @@index([caseId])
+  @@index([residentId])
 }
 
 /// The officer's initial safety assessment. Officer-only; one per case, and
@@ -336,6 +345,10 @@ model Resident {
   registeredAt       DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
   cases              Case[]
+  /// Case records an official linked to this account (a respondent with a
+  /// SafeComm account, say) - by the resident number, never by name.
+  caseParties        CaseParty[]
+  hearingNotices     CaseHearingNotice[]
   verificationTokens EmailVerificationToken[]
   followUps          CaseFollowUp[]
 }
@@ -712,8 +725,14 @@ model CaseHearing {
   /// The hearing's own reference: HRG-<case number>-<hearing number>, with a
   /// suffix when a cancelled hearing is replaced.
   reference             String     @unique
-  /// 1, 2 or 3
+  /// The proceeding's order on the case: 1 for the first, and so on.
   hearingNumber         Int
+  /// The Katarungang Pambarangay stage (RA 7160 secs. 410-412):
+  /// MEDIATION before the Punong Barangay | CONSTITUTION of the Pangkat |
+  /// CONCILIATION before the Pangkat. lib/hearings.ts KP_STAGES.
+  stage                 String     @default("MEDIATION")
+  /// Which session of that stage this is (a mediation may need more than one).
+  session               Int        @default(1)
   /// Date and time, as one instant (shown in Philippine time).
   scheduledAt           DateTime
   venue                 String?
@@ -789,10 +808,21 @@ model CaseHearingNotice {
   hearingId            String
   hearing              CaseHearing @relation(fields: [hearingId], references: [id], onDelete: Cascade)
   caseId               String
-  /// HN-<case number>-<hearing number>-<C|R><sequence>
+  /// KP<form>-<case number>-<stage><session>-<C|R|PM><sequence>
   noticeNumber         String      @unique
-  /// COMPLAINANT | RESPONDENT
+  /// The KP form this notice is: 8, 9, 10, 11 or 12 (lib/hearings.ts KP_FORMS).
+  formNo               Int?
+  /// COMPLAINANT | RESPONDENT | PANGKAT_MEMBER
   recipientRole        String
+  /// The SafeComm account it was delivered to, when the recipient has one.
+  recipientResidentId  String?
+  recipientResident    Resident?   @relation(fields: [recipientResidentId], references: [id], onDelete: SetNull)
+  /// PANGKAT_MEMBER: which member.
+  pangkatMemberId      String?
+  /// How it reaches the recipient: SAFECOMM_ACCOUNT (in their account) | OFFICER (handed over or served).
+  channel              String?
+  /// When the recipient first opened it in SafeComm.
+  seenAt               DateTime?
   /// As it stood in the case records when the notice was generated.
   recipientName        String
   /// The date, time and venue this notice is for.
@@ -816,6 +846,7 @@ model CaseHearingNotice {
 
   @@index([hearingId])
   @@index([caseId])
+  @@index([recipientResidentId])
 }
 
 /// Everything that happened to a hearing, in order: scheduled, new date (old
@@ -850,12 +881,14 @@ model CaseHearingRequest {
   hearing           CaseHearing @relation(fields: [hearingId], references: [id], onDelete: Cascade)
   caseId            String
   residentId        String
+  /// Which party asked: COMPLAINANT | RESPONDENT.
+  requesterRole     String      @default("COMPLAINANT")
   reason            String
   /// The dates or times that would suit them, in their own words.
   preferredSchedule String?
   /// PENDING | APPROVED | DECLINED
   status            String      @default("PENDING")
-  /// "<hearingId>" while pending: one open request per hearing.
+  /// "<hearingId>:<role>" while pending: one open request per hearing and party.
   pendingKey        String?     @unique
   reviewedById      String?
   reviewedAt        DateTime?
@@ -908,4 +941,44 @@ model AcknowledgementLetter {
   issueMethod   String?
 
   @@index([status, generatedAt])
+}
+
+/// The Pangkat ng Tagapagkasundo constituted for one case (RA 7160 sec. 410(b)
+/// and 404): three members chosen from the Lupon, a chairman and a secretary
+/// from among them. One per case; constituted when the constitution
+/// proceeding is recorded as held with the Pangkat formed.
+model CasePangkat {
+  id                    String              @id @default(cuid())
+  caseId                String              @unique
+  case                  Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// The CONSTITUTION proceeding that formed it.
+  constitutionHearingId String?
+  constitutedAt         DateTime?
+  chairmanMemberId      String?
+  secretaryMemberId     String?
+  createdById           String
+  updatedById           String
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  members               CasePangkatMember[]
+}
+
+/// A Lupon member chosen for a case's Pangkat. Removed members are kept,
+/// with when and why, rather than deleted.
+model CasePangkatMember {
+  id            String      @id @default(cuid())
+  pangkatId     String
+  pangkat       CasePangkat @relation(fields: [pangkatId], references: [id], onDelete: Cascade)
+  name          String
+  /// How chosen: COMPLAINANT | RESPONDENT | BOTH_PARTIES | DRAWN_BY_LOT | PUNONG_BARANGAY
+  chosenBy      String
+  /// The member's SafeComm staff account, if they have one.
+  userId        String?
+  addedById     String
+  createdAt     DateTime    @default(now())
+  removedAt     DateTime?
+  removedById   String?
+  removedReason String?
+
+  @@index([pangkatId])
 }

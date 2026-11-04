@@ -30,6 +30,7 @@ export type CaseHearingRequestMinAggregateOutputType = {
   hearingId: string | null
   caseId: string | null
   residentId: string | null
+  requesterRole: string | null
   reason: string | null
   preferredSchedule: string | null
   status: string | null
@@ -46,6 +47,7 @@ export type CaseHearingRequestMaxAggregateOutputType = {
   hearingId: string | null
   caseId: string | null
   residentId: string | null
+  requesterRole: string | null
   reason: string | null
   preferredSchedule: string | null
   status: string | null
@@ -62,6 +64,7 @@ export type CaseHearingRequestCountAggregateOutputType = {
   hearingId: number
   caseId: number
   residentId: number
+  requesterRole: number
   reason: number
   preferredSchedule: number
   status: number
@@ -80,6 +83,7 @@ export type CaseHearingRequestMinAggregateInputType = {
   hearingId?: true
   caseId?: true
   residentId?: true
+  requesterRole?: true
   reason?: true
   preferredSchedule?: true
   status?: true
@@ -96,6 +100,7 @@ export type CaseHearingRequestMaxAggregateInputType = {
   hearingId?: true
   caseId?: true
   residentId?: true
+  requesterRole?: true
   reason?: true
   preferredSchedule?: true
   status?: true
@@ -112,6 +117,7 @@ export type CaseHearingRequestCountAggregateInputType = {
   hearingId?: true
   caseId?: true
   residentId?: true
+  requesterRole?: true
   reason?: true
   preferredSchedule?: true
   status?: true
@@ -201,6 +207,7 @@ export type CaseHearingRequestGroupByOutputType = {
   hearingId: string
   caseId: string
   residentId: string
+  requesterRole: string
   reason: string
   preferredSchedule: string | null
   status: string
@@ -238,6 +245,7 @@ export type CaseHearingRequestWhereInput = {
   hearingId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   caseId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   residentId?: Prisma.StringFilter<"CaseHearingRequest"> | string
+  requesterRole?: Prisma.StringFilter<"CaseHearingRequest"> | string
   reason?: Prisma.StringFilter<"CaseHearingRequest"> | string
   preferredSchedule?: Prisma.StringNullableFilter<"CaseHearingRequest"> | string | null
   status?: Prisma.StringFilter<"CaseHearingRequest"> | string
@@ -255,6 +263,7 @@ export type CaseHearingRequestOrderByWithRelationInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
+  requesterRole?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   preferredSchedule?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -276,6 +285,7 @@ export type CaseHearingRequestWhereUniqueInput = Prisma.AtLeast<{
   hearingId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   caseId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   residentId?: Prisma.StringFilter<"CaseHearingRequest"> | string
+  requesterRole?: Prisma.StringFilter<"CaseHearingRequest"> | string
   reason?: Prisma.StringFilter<"CaseHearingRequest"> | string
   preferredSchedule?: Prisma.StringNullableFilter<"CaseHearingRequest"> | string | null
   status?: Prisma.StringFilter<"CaseHearingRequest"> | string
@@ -292,6 +302,7 @@ export type CaseHearingRequestOrderByWithAggregationInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
+  requesterRole?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   preferredSchedule?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -314,6 +325,7 @@ export type CaseHearingRequestScalarWhereWithAggregatesInput = {
   hearingId?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
   caseId?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
   residentId?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
+  requesterRole?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
   reason?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
   preferredSchedule?: Prisma.StringNullableWithAggregatesFilter<"CaseHearingRequest"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"CaseHearingRequest"> | string
@@ -329,6 +341,7 @@ export type CaseHearingRequestCreateInput = {
   id?: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -346,6 +359,7 @@ export type CaseHearingRequestUncheckedCreateInput = {
   hearingId: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -361,6 +375,7 @@ export type CaseHearingRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -378,6 +393,7 @@ export type CaseHearingRequestUncheckedUpdateInput = {
   hearingId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -394,6 +410,7 @@ export type CaseHearingRequestCreateManyInput = {
   hearingId: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -409,6 +426,7 @@ export type CaseHearingRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -425,6 +443,7 @@ export type CaseHearingRequestUncheckedUpdateManyInput = {
   hearingId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -451,6 +470,7 @@ export type CaseHearingRequestCountOrderByAggregateInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
+  requesterRole?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   preferredSchedule?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -467,6 +487,7 @@ export type CaseHearingRequestMaxOrderByAggregateInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
+  requesterRole?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   preferredSchedule?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -483,6 +504,7 @@ export type CaseHearingRequestMinOrderByAggregateInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
+  requesterRole?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   preferredSchedule?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -540,6 +562,7 @@ export type CaseHearingRequestCreateWithoutHearingInput = {
   id?: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -555,6 +578,7 @@ export type CaseHearingRequestUncheckedCreateWithoutHearingInput = {
   id?: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -600,6 +624,7 @@ export type CaseHearingRequestScalarWhereInput = {
   hearingId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   caseId?: Prisma.StringFilter<"CaseHearingRequest"> | string
   residentId?: Prisma.StringFilter<"CaseHearingRequest"> | string
+  requesterRole?: Prisma.StringFilter<"CaseHearingRequest"> | string
   reason?: Prisma.StringFilter<"CaseHearingRequest"> | string
   preferredSchedule?: Prisma.StringNullableFilter<"CaseHearingRequest"> | string | null
   status?: Prisma.StringFilter<"CaseHearingRequest"> | string
@@ -615,6 +640,7 @@ export type CaseHearingRequestCreateManyHearingInput = {
   id?: string
   caseId: string
   residentId: string
+  requesterRole?: string
   reason: string
   preferredSchedule?: string | null
   status?: string
@@ -630,6 +656,7 @@ export type CaseHearingRequestUpdateWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -645,6 +672,7 @@ export type CaseHearingRequestUncheckedUpdateWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -660,6 +688,7 @@ export type CaseHearingRequestUncheckedUpdateManyWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   residentId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   preferredSchedule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -678,6 +707,7 @@ export type CaseHearingRequestSelect<ExtArgs extends runtime.Types.Extensions.In
   hearingId?: boolean
   caseId?: boolean
   residentId?: boolean
+  requesterRole?: boolean
   reason?: boolean
   preferredSchedule?: boolean
   status?: boolean
@@ -695,6 +725,7 @@ export type CaseHearingRequestSelectCreateManyAndReturn<ExtArgs extends runtime.
   hearingId?: boolean
   caseId?: boolean
   residentId?: boolean
+  requesterRole?: boolean
   reason?: boolean
   preferredSchedule?: boolean
   status?: boolean
@@ -712,6 +743,7 @@ export type CaseHearingRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.
   hearingId?: boolean
   caseId?: boolean
   residentId?: boolean
+  requesterRole?: boolean
   reason?: boolean
   preferredSchedule?: boolean
   status?: boolean
@@ -729,6 +761,7 @@ export type CaseHearingRequestSelectScalar = {
   hearingId?: boolean
   caseId?: boolean
   residentId?: boolean
+  requesterRole?: boolean
   reason?: boolean
   preferredSchedule?: boolean
   status?: boolean
@@ -740,7 +773,7 @@ export type CaseHearingRequestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CaseHearingRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hearingId" | "caseId" | "residentId" | "reason" | "preferredSchedule" | "status" | "pendingKey" | "reviewedById" | "reviewedAt" | "reviewNote" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearingRequest"]>
+export type CaseHearingRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hearingId" | "caseId" | "residentId" | "requesterRole" | "reason" | "preferredSchedule" | "status" | "pendingKey" | "reviewedById" | "reviewedAt" | "reviewNote" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearingRequest"]>
 export type CaseHearingRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
 }
@@ -761,6 +794,10 @@ export type $CaseHearingRequestPayload<ExtArgs extends runtime.Types.Extensions.
     hearingId: string
     caseId: string
     residentId: string
+    /**
+     * Which party asked: COMPLAINANT | RESPONDENT.
+     */
+    requesterRole: string
     reason: string
     /**
      * The dates or times that would suit them, in their own words.
@@ -771,7 +808,7 @@ export type $CaseHearingRequestPayload<ExtArgs extends runtime.Types.Extensions.
      */
     status: string
     /**
-     * "<hearingId>" while pending: one open request per hearing.
+     * "<hearingId>:<role>" while pending: one open request per hearing and party.
      */
     pendingKey: string | null
     reviewedById: string | null
@@ -1210,6 +1247,7 @@ export interface CaseHearingRequestFieldRefs {
   readonly hearingId: Prisma.FieldRef<"CaseHearingRequest", 'String'>
   readonly caseId: Prisma.FieldRef<"CaseHearingRequest", 'String'>
   readonly residentId: Prisma.FieldRef<"CaseHearingRequest", 'String'>
+  readonly requesterRole: Prisma.FieldRef<"CaseHearingRequest", 'String'>
   readonly reason: Prisma.FieldRef<"CaseHearingRequest", 'String'>
   readonly preferredSchedule: Prisma.FieldRef<"CaseHearingRequest", 'String'>
   readonly status: Prisma.FieldRef<"CaseHearingRequest", 'String'>

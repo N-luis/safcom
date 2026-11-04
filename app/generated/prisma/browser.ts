@@ -214,3 +214,17 @@ export type CaseKpReview = Prisma.CaseKpReviewModel
  * category, since a letter can be read by someone other than the reporter.
  */
 export type AcknowledgementLetter = Prisma.AcknowledgementLetterModel
+/**
+ * Model CasePangkat
+ * The Pangkat ng Tagapagkasundo constituted for one case (RA 7160 sec. 410(b)
+ * and 404): three members chosen from the Lupon, a chairman and a secretary
+ * from among them. One per case; constituted when the constitution
+ * proceeding is recorded as held with the Pangkat formed.
+ */
+export type CasePangkat = Prisma.CasePangkatModel
+/**
+ * Model CasePangkatMember
+ * A Lupon member chosen for a case's Pangkat. Removed members are kept,
+ * with when and why, rather than deleted.
+ */
+export type CasePangkatMember = Prisma.CasePangkatMemberModel

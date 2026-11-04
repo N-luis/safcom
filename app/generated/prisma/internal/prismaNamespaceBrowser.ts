@@ -78,7 +78,9 @@ export const ModelName = {
   CaseHearingEvent: 'CaseHearingEvent',
   CaseHearingRequest: 'CaseHearingRequest',
   CaseKpReview: 'CaseKpReview',
-  AcknowledgementLetter: 'AcknowledgementLetter'
+  AcknowledgementLetter: 'AcknowledgementLetter',
+  CasePangkat: 'CasePangkat',
+  CasePangkatMember: 'CasePangkatMember'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -175,7 +177,10 @@ export const CasePartyScalarFieldEnum = {
   source: 'source',
   updatedById: 'updatedById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  residentId: 'residentId',
+  residentLinkedById: 'residentLinkedById',
+  residentLinkedAt: 'residentLinkedAt'
 } as const
 
 export type CasePartyScalarFieldEnum = (typeof CasePartyScalarFieldEnum)[keyof typeof CasePartyScalarFieldEnum]
@@ -554,6 +559,8 @@ export const CaseHearingScalarFieldEnum = {
   caseId: 'caseId',
   reference: 'reference',
   hearingNumber: 'hearingNumber',
+  stage: 'stage',
+  session: 'session',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
   status: 'status',
@@ -594,7 +601,12 @@ export const CaseHearingNoticeScalarFieldEnum = {
   hearingId: 'hearingId',
   caseId: 'caseId',
   noticeNumber: 'noticeNumber',
+  formNo: 'formNo',
   recipientRole: 'recipientRole',
+  recipientResidentId: 'recipientResidentId',
+  pangkatMemberId: 'pangkatMemberId',
+  channel: 'channel',
+  seenAt: 'seenAt',
   recipientName: 'recipientName',
   scheduledAt: 'scheduledAt',
   venue: 'venue',
@@ -636,6 +648,7 @@ export const CaseHearingRequestScalarFieldEnum = {
   hearingId: 'hearingId',
   caseId: 'caseId',
   residentId: 'residentId',
+  requesterRole: 'requesterRole',
   reason: 'reason',
   preferredSchedule: 'preferredSchedule',
   status: 'status',
@@ -678,6 +691,38 @@ export const AcknowledgementLetterScalarFieldEnum = {
 } as const
 
 export type AcknowledgementLetterScalarFieldEnum = (typeof AcknowledgementLetterScalarFieldEnum)[keyof typeof AcknowledgementLetterScalarFieldEnum]
+
+
+export const CasePangkatScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  constitutionHearingId: 'constitutionHearingId',
+  constitutedAt: 'constitutedAt',
+  chairmanMemberId: 'chairmanMemberId',
+  secretaryMemberId: 'secretaryMemberId',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CasePangkatScalarFieldEnum = (typeof CasePangkatScalarFieldEnum)[keyof typeof CasePangkatScalarFieldEnum]
+
+
+export const CasePangkatMemberScalarFieldEnum = {
+  id: 'id',
+  pangkatId: 'pangkatId',
+  name: 'name',
+  chosenBy: 'chosenBy',
+  userId: 'userId',
+  addedById: 'addedById',
+  createdAt: 'createdAt',
+  removedAt: 'removedAt',
+  removedById: 'removedById',
+  removedReason: 'removedReason'
+} as const
+
+export type CasePangkatMemberScalarFieldEnum = (typeof CasePangkatMemberScalarFieldEnum)[keyof typeof CasePangkatMemberScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -17,8 +17,9 @@ import { canSeeVawc, canSeeVawcStatistics } from './caseAccess';
 import { VAWC_TYPES } from './vawcTypes';
 import {
   STATUS_GROUPS, CLOSED_STATUSES, parseRange, latestAi, emergencyReasons, isHighPriority, priorityOrder,
-  completenessOf, categoryVerdict, deskOf, type AnalyticsScope, type StatusGroup,
+  completenessOf, categoryVerdict, deskOf, KP_STAGES, KP_STAGE_KEYS, type AnalyticsScope, type StatusGroup,
 } from './analytics';
+import { sessionTitle } from './hearings';
 
 type Where = Record<string, unknown>;
 
@@ -206,25 +207,26 @@ export async function hearingManagement(ctx: AnalyticsContext) {
   const [hearings, upcoming] = blotterInScope ? await Promise.all([
     prisma.caseHearing.findMany({
       where: { case: blotterRows, ...inRange, status: { not: 'DRAFT' } },
-      select: { hearingNumber: true, status: true, outcome: true, scheduledAt: true, rescheduleCount: true },
+      select: { stage: true, status: true, outcome: true, scheduledAt: true, rescheduleCount: true },
     }),
     prisma.caseHearing.findMany({
       where: { case: blotterRows, status: { in: LIVE } },
       orderBy: { scheduledAt: 'asc' }, take: 1000,
-      select: { id: true, hearingNumber: true, scheduledAt: true, venue: true, status: true,
+      select: { id: true, hearingNumber: true, stage: true, session: true, scheduledAt: true, venue: true, status: true,
         case: { select: { id: true, caseNumber: true, caseType: true } } },
     }),
   ]) : [[], []];
-  const count = (f: (h: (typeof hearings)[number]) => boolean, n?: number) => hearings.filter(h => (n === undefined || h.hearingNumber === n) && f(h)).length;
+  const count = (f: (h: (typeof hearings)[number]) => boolean, stage?: string) => hearings.filter(h => (stage === undefined || h.stage === stage) && f(h)).length;
   const isUpcoming = (h: { status: string; scheduledAt: Date }) => LIVE.includes(h.status) && h.scheduledAt >= now;
-  const byNumber = [1, 2, 3].map(n => ({
-    hearing: n,
-    total: count(() => true, n),
+  // The Katarungang Pambarangay stages: mediation, constitution of the Pangkat, conciliation.
+  const byStage = KP_STAGE_KEYS.map(stage => ({
+    stage, label: KP_STAGES[stage].label,
+    total: count(() => true, stage),
     // Still to come, whatever the range.
-    scheduled: upcoming.filter(h => h.hearingNumber === n && h.scheduledAt >= now).length,
-    completed: count(h => h.status === 'COMPLETED', n),
-    rescheduled: count(h => h.rescheduleCount > 0, n),
-    cancelled: count(h => h.status === 'CANCELLED', n),
+    scheduled: upcoming.filter(h => h.stage === stage && h.scheduledAt >= now).length,
+    completed: count(h => h.status === 'COMPLETED', stage),
+    rescheduled: count(h => h.rescheduleCount > 0, stage),
+    cancelled: count(h => h.status === 'CANCELLED', stage),
   }));
 
   // The VAWC desk's own track: referrals, interventions and follow-ups -
@@ -245,8 +247,8 @@ export async function hearingManagement(ctx: AnalyticsContext) {
 
   return {
     applicable: blotterInScope,
-    byNumber,
-    upcoming: upcoming.filter(isUpcoming).slice(0, 20).map(h => ({ ...h, case: { ...h.case, desk: deskOf(h.case.caseType) } })),
+    byStage,
+    upcoming: upcoming.filter(isUpcoming).slice(0, 20).map(h => ({ ...h, title: sessionTitle(h.stage, h.session), case: { ...h.case, desk: deskOf(h.case.caseType) } })),
     overdue: upcoming.filter(h => h.scheduledAt < now).length,
     // Hearings set for a date in the range (drafts aside), and what became of them.
     totalScheduled: hearings.length,

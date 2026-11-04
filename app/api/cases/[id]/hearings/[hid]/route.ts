@@ -4,29 +4,35 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import {
   gateHearings, noStore, eligibilityOf, recordEvent, hearingActivity, actorName, scheduleFields, instantOf, checkPeople,
-  findConflicts, conflictResponse,
+  findConflicts, conflictResponse, hearingSnap, issueStageNotices, supersedePartyNotices, hearingPartySelect, loadPangkat, pangkatRefusal,
 } from '@/lib/hearingsServer';
 import {
-  allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES,
-  type HearingStatus,
+  allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, sessionTitle, outcomeLeadsTo, isKpStage,
+  HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES, STAGE_OUTCOMES, KP_STAGES, NOTICE_RECIPIENTS, type HearingStatus, type KpStage,
 } from '@/lib/hearings';
 
 /**
- * Everything an official does to one hearing. Each action is allowed only
+ * Everything an official does to one proceeding (mediation, constitution of
+ * the Pangkat, or conciliation). Each action is allowed only
  * from the statuses that make sense (lib/hearings.ts ALLOWED_FROM), and each
  * leaves a row in the hearing's history - a new date keeps the old one, a
  * note is added rather than edited, an outcome is recorded once.
  *
  *   update          edit a draft (date, time, venue, official, parties, notes)
- *   schedule        a draft becomes scheduled - the complainant is told
+ *   schedule        a draft becomes scheduled - the stage's KP notices are
+ *                   made for both parties, and each party is told
  *   details         the presiding official or the complainant's instructions
  *   reschedule      a new date, time or venue, with the reason (and the
- *                   complainant's request it answers, if any)
+ *                   party's request it answers, if any); the notices for
+ *                   the old date are replaced by new ones
  *   attendance      who appeared - recorded by an official only
  *   proceedings     add a proceedings note
- *   complete        held: outcome, agreements, summary for the complainant, next action
- *   cancel          with the reason
- *   decline_request decline a complainant's request for a new date
+ *   complete        held: the outcome the stage allows (STAGE_OUTCOMES),
+ *                   agreements, a summary for the parties, next action; a
+ *                   constitution held with the Pangkat formed records the
+ *                   Pangkat as constituted
+ *   cancel          with the reason - both parties are told
+ *   decline_request decline a party's request for a new date
  */
 
 const attendance = z.enum(['PRESENT', 'ABSENT', 'EXCUSED', 'NOT_RECORDED']);
@@ -44,7 +50,7 @@ const schema = z.discriminatedUnion('action', [
     nextHearingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     complainantAttendance: attendance.optional(), respondentAttendance: attendance.optional() }),
   z.object({ action: z.literal('cancel'), reason: z.string().trim().min(3, 'Say why it is cancelled').max(300) }),
-  z.object({ action: z.literal('decline_request'), requestId: z.string().max(64), note: z.string().trim().min(3, 'Tell the complainant why').max(300) }),
+  z.object({ action: z.literal('decline_request'), requestId: z.string().max(64), note: z.string().trim().min(3, 'Tell the party why').max(300) }),
 ]);
 
 class Conflict extends Error {}
@@ -65,8 +71,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
     const by = await actorName(g.actor.id);
     const me = g.actor.id;
-    const N = h.hearingNumber;
-    const snap = (at: Date, venue: string | null) => ({ hearingNumber: N, scheduledAt: at.toISOString(), venue });
+    const stage = (isKpStage(h.stage) ? h.stage : 'MEDIATION') as KpStage;
+    const T = sessionTitle(stage, h.session);
+    const snap = (at: Date, venue: string | null) => hearingSnap(h, at, venue);
+    /** The proceeding as it is inside the transaction, for its notices. */
+    const reread = (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => tx.caseHearing.findUniqueOrThrow({ where: { id: hid }, include: hearingPartySelect });
     // Every write is conditional on the hearing being as it was read.
     const guard = { id: hid, status: h.status, updatedAt: h.updatedAt };
     const write = async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0], data: Record<string, unknown>) => {
@@ -109,12 +118,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const eligibility = await eligibilityOf(g.c);
       if (!eligibility.eligible) return noStore({ success: false, error: eligibility.reasons[0], eligibility }, 422);
       if (scheduleTimeRefusal(h.scheduledAt)) return errorResponse('The draft\'s date and time have already passed. Set a new date first.', 400);
+      if (!h.respondentPartyId) return errorResponse('Choose the respondent first (edit the draft). The summons and notices are addressed to them.', 400);
       const conflicts = await findConflicts(g.actor, { at: h.scheduledAt, venue: h.venue, officialId: h.assignedOfficialId, excludeId: hid });
       if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
       await prisma.$transaction(async tx => {
         await write(tx, { status: 'SCHEDULED' });
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'scheduled', actorType: 'official', actorId: me, after: snap(h.scheduledAt, h.venue) });
-        await hearingActivity(tx, e.id, id, me, `Hearing ${N} scheduled for ${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'} by ${by}`);
+        await hearingActivity(tx, e.id, id, me, `${T} scheduled for ${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'} by ${by}`);
+        await issueStageNotices(tx, g.c, await reread(tx), me, by);
       });
     }
 
@@ -134,7 +145,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           before: { assignedOfficialId: h.assignedOfficialId, residentInstructions: h.residentInstructions },
           after: { assignedOfficialId: official, residentInstructions: instructions } });
         if (official && official !== h.assignedOfficialId && official !== me) {
-          await tx.notification.create({ data: { title: `You are assigned to Hearing ${N} on ${g.c.caseNumber}`,
+          await tx.notification.create({ data: { title: `You are assigned to the ${T.toLowerCase()} on ${g.c.caseNumber}`,
             message: `Set for ${formatHearingWhen(h.scheduledAt)}. Open Hearing Management for the details.`, type: 'info', userId: official, caseId: id } });
         }
       });
@@ -154,17 +165,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       await prisma.$transaction(async tx => {
         await write(tx, { scheduledAt: at, venue, status: 'RESCHEDULED', rescheduleCount: h.rescheduleCount + 1, statusReason: d.reason,
           reminderSentAt: null, residentIntent: null, residentIntentAt: null });
-        // The notices for the old date no longer hold; new ones are issued for the new date.
-        await tx.caseHearingNotice.updateMany({ where: { hearingId: hid, status: { not: 'SUPERSEDED' } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
+        // The notices for the old date no longer hold; new ones are made for the new date.
+        await supersedePartyNotices(tx, hid);
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'rescheduled', actorType: 'official', actorId: me,
           before: { scheduledAt: h.scheduledAt.toISOString(), venue: h.venue },
           after: { ...snap(at, venue), ...(conflicts.length && { conflictsAccepted: conflicts.map(c => c.message) }) }, note: d.reason });
-        await hearingActivity(tx, e.id, id, me, `Hearing ${N} moved to ${formatHearingWhen(at)} at ${venue ?? 'Barangay Hall'} by ${by} (was ${formatHearingWhen(h.scheduledAt)})`);
+        await hearingActivity(tx, e.id, id, me, `${T} moved to ${formatHearingWhen(at)} at ${venue ?? 'Barangay Hall'} by ${by} (was ${formatHearingWhen(h.scheduledAt)})`);
         if (request) {
           await tx.caseHearingRequest.update({ where: { id: request.id }, data: { status: 'APPROVED', pendingKey: null, reviewedById: me, reviewedAt: new Date(), reviewNote: null } });
-          const r = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'request_approved', actorType: 'official', actorId: me, after: { ...snap(at, venue), requestId: request.id } });
-          await hearingActivity(tx, r.id, id, me, `Complainant's request for a new date on Hearing ${N} approved by ${by}`);
+          const r = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'request_approved', actorType: 'official', actorId: me,
+            after: { ...snap(at, venue), requestId: request.id, requesterRole: request.requesterRole } });
+          await hearingActivity(tx, r.id, id, me, `The ${NOTICE_RECIPIENTS[request.requesterRole as 'COMPLAINANT' | 'RESPONDENT']?.toLowerCase() ?? 'party'}'s request for a new date on the ${T.toLowerCase()} approved by ${by}`);
         }
+        await issueStageNotices(tx, g.c, await reread(tx), me, by);
       });
     }
 
@@ -175,7 +188,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         await write(tx, next);
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'attendance', actorType: 'official', actorId: me,
           before: { complainantAttendance: h.complainantAttendance, respondentAttendance: h.respondentAttendance }, after: next });
-        await hearingActivity(tx, e.id, id, me, `Attendance recorded for Hearing ${N} by ${by}`);
+        await hearingActivity(tx, e.id, id, me, `Attendance recorded for the ${T.toLowerCase()} by ${by}`);
       });
     }
 
@@ -184,18 +197,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         // Touch the hearing so its "last updated" moves; the note itself is the event.
         await write(tx, {});
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'proceedings_note', actorType: 'official', actorId: me, note: d.note });
-        await hearingActivity(tx, e.id, id, me, `Proceedings note added to Hearing ${N} by ${by}`);
+        await hearingActivity(tx, e.id, id, me, `Proceedings note added to the ${T.toLowerCase()} by ${by}`);
       });
     }
 
     else if (d.action === 'complete') {
-      if (!hasDayArrived(h.scheduledAt)) return errorResponse(`Hearing ${N} is set for ${formatHearingWhen(h.scheduledAt)}. It can be recorded as held from that day.`, 409);
+      if (!hasDayArrived(h.scheduledAt)) return errorResponse(`The ${T.toLowerCase()} is set for ${formatHearingWhen(h.scheduledAt)}. It can be recorded as held from that day.`, 409);
+      if (!STAGE_OUTCOMES[stage].includes(d.outcome)) {
+        return errorResponse(`"${HEARING_OUTCOMES[d.outcome].label}" is not an outcome of the ${KP_STAGES[stage].label.toLowerCase()}.`, 400);
+      }
       const cA = d.complainantAttendance ?? h.complainantAttendance;
       const rA = d.respondentAttendance ?? h.respondentAttendance;
       if (cA === 'NOT_RECORDED' || rA === 'NOT_RECORDED') return errorResponse('Record who attended (complainant and respondent) before recording the outcome.', 400);
-      const ends = HEARING_OUTCOMES[d.outcome].ends;
-      if (d.nextHearingDate && (ends || N === 3)) {
-        return errorResponse(N === 3 ? 'Hearing 3 is the last hearing - record the next action instead of a next hearing date.' : 'This outcome ends the proceedings, so no next hearing date applies.', 400);
+      const constitutes = stage === 'CONSTITUTION' && d.outcome === 'PANGKAT_CONSTITUTED';
+      const pangkat = constitutes ? await loadPangkat(id) : null;
+      if (constitutes) {
+        const why = pangkatRefusal(pangkat);
+        if (why) return errorResponse(why, 400);
+      }
+      if (d.nextHearingDate && !outcomeLeadsTo(stage, d.outcome)) {
+        return errorResponse('This outcome ends the barangay proceedings, so no next hearing date applies. Record the next action instead.', 400);
       }
       const nextAt = d.nextHearingDate ? phInstant(d.nextHearingDate, '00:00') : null;
       if (d.nextHearingDate && (!nextAt || isPastDay(nextAt))) return errorResponse('The next hearing date must be today or later.', 400);
@@ -210,20 +231,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             before: { complainantAttendance: h.complainantAttendance, respondentAttendance: h.respondentAttendance }, after: { complainantAttendance: cA, respondentAttendance: rA } });
         }
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'outcome', actorType: 'official', actorId: me,
-          after: { hearingNumber: N, outcome: d.outcome, outcomeSummary: d.outcomeSummary || null, nextAction: d.nextAction || null, nextHearingAt: nextAt?.toISOString() ?? null } });
-        await hearingActivity(tx, e.id, id, me, `Hearing ${N} held - ${HEARING_OUTCOMES[d.outcome].label.toLowerCase()} (recorded by ${by})${d.nextAction ? `. Next action: ${d.nextAction}` : ''}`);
+          after: { ...snap(h.scheduledAt, h.venue), outcome: d.outcome, outcomeSummary: d.outcomeSummary || null, nextAction: d.nextAction || null,
+            nextHearingAt: nextAt?.toISOString() ?? null, leadsTo: outcomeLeadsTo(stage, d.outcome) } });
+        await hearingActivity(tx, e.id, id, me, `${T} held - ${HEARING_OUTCOMES[d.outcome].label.toLowerCase()} (recorded by ${by})${d.nextAction ? `. Next action: ${d.nextAction}` : ''}`);
+        if (constitutes && pangkat) {
+          const r = await tx.casePangkat.updateMany({ where: { id: pangkat.id, constitutedAt: null, updatedAt: pangkat.updatedAt },
+            data: { constitutedAt: new Date(), constitutionHearingId: hid, updatedById: me } });
+          if (!r.count) throw new Conflict();
+          const p = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'pangkat_constituted', actorType: 'official', actorId: me,
+            after: { members: pangkat.members.filter(m => !m.removedAt).map(m => m.id), chairmanMemberId: pangkat.chairmanMemberId, secretaryMemberId: pangkat.secretaryMemberId } });
+          await hearingActivity(tx, p.id, id, me, `Pangkat ng Tagapagkasundo constituted - recorded by ${by}`);
+        }
       });
     }
 
     else if (d.action === 'cancel') {
       await prisma.$transaction(async tx => {
         await write(tx, { status: 'CANCELLED', activeKey: null, openKey: null, statusReason: d.reason, cancelledAt: new Date(), cancelledById: me });
-        await tx.caseHearingNotice.updateMany({ where: { hearingId: hid, status: { not: 'SUPERSEDED' } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
+        await supersedePartyNotices(tx, hid);
         await tx.caseHearingRequest.updateMany({ where: { hearingId: hid, status: 'PENDING' },
           data: { status: 'DECLINED', pendingKey: null, reviewedById: me, reviewedAt: new Date(), reviewNote: 'The hearing was cancelled.' } });
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'cancelled', actorType: 'official', actorId: me,
-          before: { status: h.status }, after: { hearingNumber: N, wasDraft: h.status === 'DRAFT' }, note: d.reason });
-        await hearingActivity(tx, e.id, id, me, `Hearing ${N} cancelled by ${by}`);
+          before: { status: h.status }, after: { ...snap(h.scheduledAt, h.venue), wasDraft: h.status === 'DRAFT' }, note: d.reason });
+        await hearingActivity(tx, e.id, id, me, `${T} cancelled by ${by}`);
       });
     }
 
@@ -235,8 +265,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           data: { status: 'DECLINED', pendingKey: null, reviewedById: me, reviewedAt: new Date(), reviewNote: d.note } });
         if (!r.count) throw new Conflict();
         const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'request_declined', actorType: 'official', actorId: me,
-          after: { hearingNumber: N, reviewNote: d.note, requestId: request.id } });
-        await hearingActivity(tx, e.id, id, me, `Complainant's request for a new date on Hearing ${N} declined by ${by}`);
+          after: { ...snap(h.scheduledAt, h.venue), reviewNote: d.note, requestId: request.id, requesterRole: request.requesterRole } });
+        await hearingActivity(tx, e.id, id, me, `The ${NOTICE_RECIPIENTS[request.requesterRole as 'COMPLAINANT' | 'RESPONDENT']?.toLowerCase() ?? 'party'}'s request for a new date on the ${T.toLowerCase()} declined by ${by}`);
       });
     }
 

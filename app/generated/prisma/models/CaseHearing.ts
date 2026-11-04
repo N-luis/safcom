@@ -35,11 +35,13 @@ export type AggregateCaseHearing = {
 
 export type CaseHearingAvgAggregateOutputType = {
   hearingNumber: number | null
+  session: number | null
   rescheduleCount: number | null
 }
 
 export type CaseHearingSumAggregateOutputType = {
   hearingNumber: number | null
+  session: number | null
   rescheduleCount: number | null
 }
 
@@ -48,6 +50,8 @@ export type CaseHearingMinAggregateOutputType = {
   caseId: string | null
   reference: string | null
   hearingNumber: number | null
+  stage: string | null
+  session: number | null
   scheduledAt: Date | null
   venue: string | null
   status: string | null
@@ -85,6 +89,8 @@ export type CaseHearingMaxAggregateOutputType = {
   caseId: string | null
   reference: string | null
   hearingNumber: number | null
+  stage: string | null
+  session: number | null
   scheduledAt: Date | null
   venue: string | null
   status: string | null
@@ -122,6 +128,8 @@ export type CaseHearingCountAggregateOutputType = {
   caseId: number
   reference: number
   hearingNumber: number
+  stage: number
+  session: number
   scheduledAt: number
   venue: number
   status: number
@@ -158,11 +166,13 @@ export type CaseHearingCountAggregateOutputType = {
 
 export type CaseHearingAvgAggregateInputType = {
   hearingNumber?: true
+  session?: true
   rescheduleCount?: true
 }
 
 export type CaseHearingSumAggregateInputType = {
   hearingNumber?: true
+  session?: true
   rescheduleCount?: true
 }
 
@@ -171,6 +181,8 @@ export type CaseHearingMinAggregateInputType = {
   caseId?: true
   reference?: true
   hearingNumber?: true
+  stage?: true
+  session?: true
   scheduledAt?: true
   venue?: true
   status?: true
@@ -208,6 +220,8 @@ export type CaseHearingMaxAggregateInputType = {
   caseId?: true
   reference?: true
   hearingNumber?: true
+  stage?: true
+  session?: true
   scheduledAt?: true
   venue?: true
   status?: true
@@ -245,6 +259,8 @@ export type CaseHearingCountAggregateInputType = {
   caseId?: true
   reference?: true
   hearingNumber?: true
+  stage?: true
+  session?: true
   scheduledAt?: true
   venue?: true
   status?: true
@@ -369,6 +385,8 @@ export type CaseHearingGroupByOutputType = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage: string
+  session: number
   scheduledAt: Date
   venue: string | null
   status: string
@@ -429,6 +447,8 @@ export type CaseHearingWhereInput = {
   caseId?: Prisma.StringFilter<"CaseHearing"> | string
   reference?: Prisma.StringFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
+  stage?: Prisma.StringFilter<"CaseHearing"> | string
+  session?: Prisma.IntFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   status?: Prisma.StringFilter<"CaseHearing"> | string
@@ -474,6 +494,8 @@ export type CaseHearingOrderByWithRelationInput = {
   caseId?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -524,6 +546,8 @@ export type CaseHearingWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
   caseId?: Prisma.StringFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
+  stage?: Prisma.StringFilter<"CaseHearing"> | string
+  session?: Prisma.IntFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   status?: Prisma.StringFilter<"CaseHearing"> | string
@@ -567,6 +591,8 @@ export type CaseHearingOrderByWithAggregationInput = {
   caseId?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -612,6 +638,8 @@ export type CaseHearingScalarWhereWithAggregatesInput = {
   caseId?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   reference?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntWithAggregatesFilter<"CaseHearing"> | number
+  stage?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
+  session?: Prisma.IntWithAggregatesFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
@@ -648,6 +676,8 @@ export type CaseHearingCreateInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -690,6 +720,8 @@ export type CaseHearingUncheckedCreateInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -730,6 +762,8 @@ export type CaseHearingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -772,6 +806,8 @@ export type CaseHearingUncheckedUpdateInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -813,6 +849,8 @@ export type CaseHearingCreateManyInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -849,6 +887,8 @@ export type CaseHearingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -883,6 +923,8 @@ export type CaseHearingUncheckedUpdateManyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -935,6 +977,8 @@ export type CaseHearingCountOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -969,6 +1013,7 @@ export type CaseHearingCountOrderByAggregateInput = {
 
 export type CaseHearingAvgOrderByAggregateInput = {
   hearingNumber?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
 }
 
@@ -977,6 +1022,8 @@ export type CaseHearingMaxOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1014,6 +1061,8 @@ export type CaseHearingMinOrderByAggregateInput = {
   caseId?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   hearingNumber?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1048,6 +1097,7 @@ export type CaseHearingMinOrderByAggregateInput = {
 
 export type CaseHearingSumOrderByAggregateInput = {
   hearingNumber?: Prisma.SortOrder
+  session?: Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
 }
 
@@ -1286,6 +1336,8 @@ export type CaseHearingCreateWithoutAssignedOfficialInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1327,6 +1379,8 @@ export type CaseHearingUncheckedCreateWithoutAssignedOfficialInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1396,6 +1450,8 @@ export type CaseHearingScalarWhereInput = {
   caseId?: Prisma.StringFilter<"CaseHearing"> | string
   reference?: Prisma.StringFilter<"CaseHearing"> | string
   hearingNumber?: Prisma.IntFilter<"CaseHearing"> | number
+  stage?: Prisma.StringFilter<"CaseHearing"> | string
+  session?: Prisma.IntFilter<"CaseHearing"> | number
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   status?: Prisma.StringFilter<"CaseHearing"> | string
@@ -1432,6 +1488,8 @@ export type CaseHearingCreateWithoutCaseInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1472,6 +1530,8 @@ export type CaseHearingUncheckedCreateWithoutCaseInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1538,6 +1598,8 @@ export type CaseHearingCreateWithoutComplainantPartyInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1579,6 +1641,8 @@ export type CaseHearingUncheckedCreateWithoutComplainantPartyInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1628,6 +1692,8 @@ export type CaseHearingCreateWithoutRespondentPartyInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1669,6 +1735,8 @@ export type CaseHearingUncheckedCreateWithoutRespondentPartyInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1750,6 +1818,8 @@ export type CaseHearingCreateWithoutAttachmentsInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1791,6 +1861,8 @@ export type CaseHearingUncheckedCreateWithoutAttachmentsInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1846,6 +1918,8 @@ export type CaseHearingUpdateWithoutAttachmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1887,6 +1961,8 @@ export type CaseHearingUncheckedUpdateWithoutAttachmentsInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1926,6 +2002,8 @@ export type CaseHearingCreateWithoutNoticesInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -1967,6 +2045,8 @@ export type CaseHearingUncheckedCreateWithoutNoticesInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2022,6 +2102,8 @@ export type CaseHearingUpdateWithoutNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2063,6 +2145,8 @@ export type CaseHearingUncheckedUpdateWithoutNoticesInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2102,6 +2186,8 @@ export type CaseHearingCreateWithoutEventsInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2143,6 +2229,8 @@ export type CaseHearingUncheckedCreateWithoutEventsInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2198,6 +2286,8 @@ export type CaseHearingUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2239,6 +2329,8 @@ export type CaseHearingUncheckedUpdateWithoutEventsInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2278,6 +2370,8 @@ export type CaseHearingCreateWithoutRequestsInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2319,6 +2413,8 @@ export type CaseHearingUncheckedCreateWithoutRequestsInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2374,6 +2470,8 @@ export type CaseHearingUpdateWithoutRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2415,6 +2513,8 @@ export type CaseHearingUncheckedUpdateWithoutRequestsInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2455,6 +2555,8 @@ export type CaseHearingCreateManyAssignedOfficialInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2490,6 +2592,8 @@ export type CaseHearingUpdateWithoutAssignedOfficialInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2531,6 +2635,8 @@ export type CaseHearingUncheckedUpdateWithoutAssignedOfficialInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2571,6 +2677,8 @@ export type CaseHearingUncheckedUpdateManyWithoutAssignedOfficialInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2606,6 +2714,8 @@ export type CaseHearingCreateManyCaseInput = {
   id?: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2642,6 +2752,8 @@ export type CaseHearingUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2682,6 +2794,8 @@ export type CaseHearingUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2722,6 +2836,8 @@ export type CaseHearingUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2759,6 +2875,8 @@ export type CaseHearingCreateManyComplainantPartyInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2795,6 +2913,8 @@ export type CaseHearingCreateManyRespondentPartyInput = {
   caseId: string
   reference: string
   hearingNumber: number
+  stage?: string
+  session?: number
   scheduledAt: Date | string
   venue?: string | null
   status?: string
@@ -2830,6 +2950,8 @@ export type CaseHearingUpdateWithoutComplainantPartyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2871,6 +2993,8 @@ export type CaseHearingUncheckedUpdateWithoutComplainantPartyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2911,6 +3035,8 @@ export type CaseHearingUncheckedUpdateManyWithoutComplainantPartyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2946,6 +3072,8 @@ export type CaseHearingUpdateWithoutRespondentPartyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2987,6 +3115,8 @@ export type CaseHearingUncheckedUpdateWithoutRespondentPartyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3027,6 +3157,8 @@ export type CaseHearingUncheckedUpdateManyWithoutRespondentPartyInput = {
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   hearingNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  stage?: Prisma.StringFieldUpdateOperationsInput | string
+  session?: Prisma.IntFieldUpdateOperationsInput | number
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3121,6 +3253,8 @@ export type CaseHearingSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   caseId?: boolean
   reference?: boolean
   hearingNumber?: boolean
+  stage?: boolean
+  session?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
@@ -3167,6 +3301,8 @@ export type CaseHearingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   caseId?: boolean
   reference?: boolean
   hearingNumber?: boolean
+  stage?: boolean
+  session?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
@@ -3208,6 +3344,8 @@ export type CaseHearingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   caseId?: boolean
   reference?: boolean
   hearingNumber?: boolean
+  stage?: boolean
+  session?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
@@ -3249,6 +3387,8 @@ export type CaseHearingSelectScalar = {
   caseId?: boolean
   reference?: boolean
   hearingNumber?: boolean
+  stage?: boolean
+  session?: boolean
   scheduledAt?: boolean
   venue?: boolean
   status?: boolean
@@ -3281,7 +3421,7 @@ export type CaseHearingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "hearingNumber" | "scheduledAt" | "venue" | "status" | "activeKey" | "openKey" | "assignedOfficialId" | "complainantPartyId" | "respondentPartyId" | "complainantAttendance" | "respondentAttendance" | "outcome" | "agreements" | "outcomeSummary" | "nextAction" | "nextHearingAt" | "residentInstructions" | "statusReason" | "notes" | "rescheduleCount" | "residentIntent" | "residentIntentAt" | "reminderSentAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearing"]>
+export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "hearingNumber" | "stage" | "session" | "scheduledAt" | "venue" | "status" | "activeKey" | "openKey" | "assignedOfficialId" | "complainantPartyId" | "respondentPartyId" | "complainantAttendance" | "respondentAttendance" | "outcome" | "agreements" | "outcomeSummary" | "nextAction" | "nextHearingAt" | "residentInstructions" | "statusReason" | "notes" | "rescheduleCount" | "residentIntent" | "residentIntentAt" | "reminderSentAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearing"]>
 export type CaseHearingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
@@ -3327,9 +3467,19 @@ export type $CaseHearingPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     reference: string
     /**
-     * 1, 2 or 3
+     * The proceeding's order on the case: 1 for the first, and so on.
      */
     hearingNumber: number
+    /**
+     * The Katarungang Pambarangay stage (RA 7160 secs. 410-412):
+     * MEDIATION before the Punong Barangay | CONSTITUTION of the Pangkat |
+     * CONCILIATION before the Pangkat. lib/hearings.ts KP_STAGES.
+     */
+    stage: string
+    /**
+     * Which session of that stage this is (a mediation may need more than one).
+     */
+    session: number
     /**
      * Date and time, as one instant (shown in Philippine time).
      */
@@ -3851,6 +4001,8 @@ export interface CaseHearingFieldRefs {
   readonly caseId: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly reference: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly hearingNumber: Prisma.FieldRef<"CaseHearing", 'Int'>
+  readonly stage: Prisma.FieldRef<"CaseHearing", 'String'>
+  readonly session: Prisma.FieldRef<"CaseHearing", 'Int'>
   readonly scheduledAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
   readonly venue: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly status: Prisma.FieldRef<"CaseHearing", 'String'>

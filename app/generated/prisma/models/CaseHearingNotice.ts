@@ -23,8 +23,18 @@ export type CaseHearingNoticeModel = runtime.Types.Result.DefaultSelection<Prism
 
 export type AggregateCaseHearingNotice = {
   _count: CaseHearingNoticeCountAggregateOutputType | null
+  _avg: CaseHearingNoticeAvgAggregateOutputType | null
+  _sum: CaseHearingNoticeSumAggregateOutputType | null
   _min: CaseHearingNoticeMinAggregateOutputType | null
   _max: CaseHearingNoticeMaxAggregateOutputType | null
+}
+
+export type CaseHearingNoticeAvgAggregateOutputType = {
+  formNo: number | null
+}
+
+export type CaseHearingNoticeSumAggregateOutputType = {
+  formNo: number | null
 }
 
 export type CaseHearingNoticeMinAggregateOutputType = {
@@ -32,7 +42,12 @@ export type CaseHearingNoticeMinAggregateOutputType = {
   hearingId: string | null
   caseId: string | null
   noticeNumber: string | null
+  formNo: number | null
   recipientRole: string | null
+  recipientResidentId: string | null
+  pangkatMemberId: string | null
+  channel: string | null
+  seenAt: Date | null
   recipientName: string | null
   scheduledAt: Date | null
   venue: string | null
@@ -55,7 +70,12 @@ export type CaseHearingNoticeMaxAggregateOutputType = {
   hearingId: string | null
   caseId: string | null
   noticeNumber: string | null
+  formNo: number | null
   recipientRole: string | null
+  recipientResidentId: string | null
+  pangkatMemberId: string | null
+  channel: string | null
+  seenAt: Date | null
   recipientName: string | null
   scheduledAt: Date | null
   venue: string | null
@@ -78,7 +98,12 @@ export type CaseHearingNoticeCountAggregateOutputType = {
   hearingId: number
   caseId: number
   noticeNumber: number
+  formNo: number
   recipientRole: number
+  recipientResidentId: number
+  pangkatMemberId: number
+  channel: number
+  seenAt: number
   recipientName: number
   scheduledAt: number
   venue: number
@@ -98,12 +123,25 @@ export type CaseHearingNoticeCountAggregateOutputType = {
 }
 
 
+export type CaseHearingNoticeAvgAggregateInputType = {
+  formNo?: true
+}
+
+export type CaseHearingNoticeSumAggregateInputType = {
+  formNo?: true
+}
+
 export type CaseHearingNoticeMinAggregateInputType = {
   id?: true
   hearingId?: true
   caseId?: true
   noticeNumber?: true
+  formNo?: true
   recipientRole?: true
+  recipientResidentId?: true
+  pangkatMemberId?: true
+  channel?: true
+  seenAt?: true
   recipientName?: true
   scheduledAt?: true
   venue?: true
@@ -126,7 +164,12 @@ export type CaseHearingNoticeMaxAggregateInputType = {
   hearingId?: true
   caseId?: true
   noticeNumber?: true
+  formNo?: true
   recipientRole?: true
+  recipientResidentId?: true
+  pangkatMemberId?: true
+  channel?: true
+  seenAt?: true
   recipientName?: true
   scheduledAt?: true
   venue?: true
@@ -149,7 +192,12 @@ export type CaseHearingNoticeCountAggregateInputType = {
   hearingId?: true
   caseId?: true
   noticeNumber?: true
+  formNo?: true
   recipientRole?: true
+  recipientResidentId?: true
+  pangkatMemberId?: true
+  channel?: true
+  seenAt?: true
   recipientName?: true
   scheduledAt?: true
   venue?: true
@@ -206,6 +254,18 @@ export type CaseHearingNoticeAggregateArgs<ExtArgs extends runtime.Types.Extensi
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseHearingNoticeAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseHearingNoticeSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseHearingNoticeMinAggregateInputType
@@ -236,6 +296,8 @@ export type CaseHearingNoticeGroupByArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   _count?: CaseHearingNoticeCountAggregateInputType | true
+  _avg?: CaseHearingNoticeAvgAggregateInputType
+  _sum?: CaseHearingNoticeSumAggregateInputType
   _min?: CaseHearingNoticeMinAggregateInputType
   _max?: CaseHearingNoticeMaxAggregateInputType
 }
@@ -245,7 +307,12 @@ export type CaseHearingNoticeGroupByOutputType = {
   hearingId: string
   caseId: string
   noticeNumber: string
+  formNo: number | null
   recipientRole: string
+  recipientResidentId: string | null
+  pangkatMemberId: string | null
+  channel: string | null
+  seenAt: Date | null
   recipientName: string
   scheduledAt: Date
   venue: string | null
@@ -262,6 +329,8 @@ export type CaseHearingNoticeGroupByOutputType = {
   acknowledgedVia: string | null
   supersededAt: Date | null
   _count: CaseHearingNoticeCountAggregateOutputType | null
+  _avg: CaseHearingNoticeAvgAggregateOutputType | null
+  _sum: CaseHearingNoticeSumAggregateOutputType | null
   _min: CaseHearingNoticeMinAggregateOutputType | null
   _max: CaseHearingNoticeMaxAggregateOutputType | null
 }
@@ -289,7 +358,12 @@ export type CaseHearingNoticeWhereInput = {
   hearingId?: Prisma.StringFilter<"CaseHearingNotice"> | string
   caseId?: Prisma.StringFilter<"CaseHearingNotice"> | string
   noticeNumber?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  formNo?: Prisma.IntNullableFilter<"CaseHearingNotice"> | number | null
   recipientRole?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  recipientResidentId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  pangkatMemberId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  channel?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  seenAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
   recipientName?: Prisma.StringFilter<"CaseHearingNotice"> | string
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
@@ -306,6 +380,7 @@ export type CaseHearingNoticeWhereInput = {
   acknowledgedVia?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
   supersededAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
   hearing?: Prisma.XOR<Prisma.CaseHearingScalarRelationFilter, Prisma.CaseHearingWhereInput>
+  recipientResident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
 }
 
 export type CaseHearingNoticeOrderByWithRelationInput = {
@@ -313,7 +388,12 @@ export type CaseHearingNoticeOrderByWithRelationInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   noticeNumber?: Prisma.SortOrder
+  formNo?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientRole?: Prisma.SortOrder
+  recipientResidentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  pangkatMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  channel?: Prisma.SortOrderInput | Prisma.SortOrder
+  seenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientName?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -330,6 +410,7 @@ export type CaseHearingNoticeOrderByWithRelationInput = {
   acknowledgedVia?: Prisma.SortOrderInput | Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   hearing?: Prisma.CaseHearingOrderByWithRelationInput
+  recipientResident?: Prisma.ResidentOrderByWithRelationInput
 }
 
 export type CaseHearingNoticeWhereUniqueInput = Prisma.AtLeast<{
@@ -340,7 +421,12 @@ export type CaseHearingNoticeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CaseHearingNoticeWhereInput | Prisma.CaseHearingNoticeWhereInput[]
   hearingId?: Prisma.StringFilter<"CaseHearingNotice"> | string
   caseId?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  formNo?: Prisma.IntNullableFilter<"CaseHearingNotice"> | number | null
   recipientRole?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  recipientResidentId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  pangkatMemberId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  channel?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  seenAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
   recipientName?: Prisma.StringFilter<"CaseHearingNotice"> | string
   scheduledAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
   venue?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
@@ -357,6 +443,7 @@ export type CaseHearingNoticeWhereUniqueInput = Prisma.AtLeast<{
   acknowledgedVia?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
   supersededAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
   hearing?: Prisma.XOR<Prisma.CaseHearingScalarRelationFilter, Prisma.CaseHearingWhereInput>
+  recipientResident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
 }, "id" | "noticeNumber">
 
 export type CaseHearingNoticeOrderByWithAggregationInput = {
@@ -364,7 +451,12 @@ export type CaseHearingNoticeOrderByWithAggregationInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   noticeNumber?: Prisma.SortOrder
+  formNo?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientRole?: Prisma.SortOrder
+  recipientResidentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  pangkatMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  channel?: Prisma.SortOrderInput | Prisma.SortOrder
+  seenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientName?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -381,8 +473,10 @@ export type CaseHearingNoticeOrderByWithAggregationInput = {
   acknowledgedVia?: Prisma.SortOrderInput | Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseHearingNoticeCountOrderByAggregateInput
+  _avg?: Prisma.CaseHearingNoticeAvgOrderByAggregateInput
   _max?: Prisma.CaseHearingNoticeMaxOrderByAggregateInput
   _min?: Prisma.CaseHearingNoticeMinOrderByAggregateInput
+  _sum?: Prisma.CaseHearingNoticeSumOrderByAggregateInput
 }
 
 export type CaseHearingNoticeScalarWhereWithAggregatesInput = {
@@ -393,7 +487,12 @@ export type CaseHearingNoticeScalarWhereWithAggregatesInput = {
   hearingId?: Prisma.StringWithAggregatesFilter<"CaseHearingNotice"> | string
   caseId?: Prisma.StringWithAggregatesFilter<"CaseHearingNotice"> | string
   noticeNumber?: Prisma.StringWithAggregatesFilter<"CaseHearingNotice"> | string
+  formNo?: Prisma.IntNullableWithAggregatesFilter<"CaseHearingNotice"> | number | null
   recipientRole?: Prisma.StringWithAggregatesFilter<"CaseHearingNotice"> | string
+  recipientResidentId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearingNotice"> | string | null
+  pangkatMemberId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearingNotice"> | string | null
+  channel?: Prisma.StringNullableWithAggregatesFilter<"CaseHearingNotice"> | string | null
+  seenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseHearingNotice"> | Date | string | null
   recipientName?: Prisma.StringWithAggregatesFilter<"CaseHearingNotice"> | string
   scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearingNotice"> | Date | string
   venue?: Prisma.StringNullableWithAggregatesFilter<"CaseHearingNotice"> | string | null
@@ -415,7 +514,11 @@ export type CaseHearingNoticeCreateInput = {
   id?: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -432,6 +535,7 @@ export type CaseHearingNoticeCreateInput = {
   acknowledgedVia?: string | null
   supersededAt?: Date | string | null
   hearing: Prisma.CaseHearingCreateNestedOneWithoutNoticesInput
+  recipientResident?: Prisma.ResidentCreateNestedOneWithoutHearingNoticesInput
 }
 
 export type CaseHearingNoticeUncheckedCreateInput = {
@@ -439,7 +543,12 @@ export type CaseHearingNoticeUncheckedCreateInput = {
   hearingId: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  recipientResidentId?: string | null
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -461,7 +570,11 @@ export type CaseHearingNoticeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -478,6 +591,7 @@ export type CaseHearingNoticeUpdateInput = {
   acknowledgedVia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearing?: Prisma.CaseHearingUpdateOneRequiredWithoutNoticesNestedInput
+  recipientResident?: Prisma.ResidentUpdateOneWithoutHearingNoticesNestedInput
 }
 
 export type CaseHearingNoticeUncheckedUpdateInput = {
@@ -485,7 +599,12 @@ export type CaseHearingNoticeUncheckedUpdateInput = {
   hearingId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -508,7 +627,12 @@ export type CaseHearingNoticeCreateManyInput = {
   hearingId: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  recipientResidentId?: string | null
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -530,7 +654,11 @@ export type CaseHearingNoticeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -553,7 +681,12 @@ export type CaseHearingNoticeUncheckedUpdateManyInput = {
   hearingId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -586,7 +719,12 @@ export type CaseHearingNoticeCountOrderByAggregateInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   noticeNumber?: Prisma.SortOrder
+  formNo?: Prisma.SortOrder
   recipientRole?: Prisma.SortOrder
+  recipientResidentId?: Prisma.SortOrder
+  pangkatMemberId?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  seenAt?: Prisma.SortOrder
   recipientName?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
@@ -604,12 +742,21 @@ export type CaseHearingNoticeCountOrderByAggregateInput = {
   supersededAt?: Prisma.SortOrder
 }
 
+export type CaseHearingNoticeAvgOrderByAggregateInput = {
+  formNo?: Prisma.SortOrder
+}
+
 export type CaseHearingNoticeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   noticeNumber?: Prisma.SortOrder
+  formNo?: Prisma.SortOrder
   recipientRole?: Prisma.SortOrder
+  recipientResidentId?: Prisma.SortOrder
+  pangkatMemberId?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  seenAt?: Prisma.SortOrder
   recipientName?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
@@ -632,7 +779,12 @@ export type CaseHearingNoticeMinOrderByAggregateInput = {
   hearingId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
   noticeNumber?: Prisma.SortOrder
+  formNo?: Prisma.SortOrder
   recipientRole?: Prisma.SortOrder
+  recipientResidentId?: Prisma.SortOrder
+  pangkatMemberId?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  seenAt?: Prisma.SortOrder
   recipientName?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   venue?: Prisma.SortOrder
@@ -648,6 +800,52 @@ export type CaseHearingNoticeMinOrderByAggregateInput = {
   acknowledgedAt?: Prisma.SortOrder
   acknowledgedVia?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+}
+
+export type CaseHearingNoticeSumOrderByAggregateInput = {
+  formNo?: Prisma.SortOrder
+}
+
+export type CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput> | Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput[] | Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput[]
+  connectOrCreate?: Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput | Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput[]
+  createMany?: Prisma.CaseHearingNoticeCreateManyRecipientResidentInputEnvelope
+  connect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+}
+
+export type CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput> | Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput[] | Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput[]
+  connectOrCreate?: Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput | Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput[]
+  createMany?: Prisma.CaseHearingNoticeCreateManyRecipientResidentInputEnvelope
+  connect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+}
+
+export type CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput> | Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput[] | Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput[]
+  connectOrCreate?: Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput | Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput[]
+  upsert?: Prisma.CaseHearingNoticeUpsertWithWhereUniqueWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpsertWithWhereUniqueWithoutRecipientResidentInput[]
+  createMany?: Prisma.CaseHearingNoticeCreateManyRecipientResidentInputEnvelope
+  set?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  delete?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  connect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  update?: Prisma.CaseHearingNoticeUpdateWithWhereUniqueWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpdateWithWhereUniqueWithoutRecipientResidentInput[]
+  updateMany?: Prisma.CaseHearingNoticeUpdateManyWithWhereWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpdateManyWithWhereWithoutRecipientResidentInput[]
+  deleteMany?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
+}
+
+export type CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput> | Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput[] | Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput[]
+  connectOrCreate?: Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput | Prisma.CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput[]
+  upsert?: Prisma.CaseHearingNoticeUpsertWithWhereUniqueWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpsertWithWhereUniqueWithoutRecipientResidentInput[]
+  createMany?: Prisma.CaseHearingNoticeCreateManyRecipientResidentInputEnvelope
+  set?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  disconnect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  delete?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  connect?: Prisma.CaseHearingNoticeWhereUniqueInput | Prisma.CaseHearingNoticeWhereUniqueInput[]
+  update?: Prisma.CaseHearingNoticeUpdateWithWhereUniqueWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpdateWithWhereUniqueWithoutRecipientResidentInput[]
+  updateMany?: Prisma.CaseHearingNoticeUpdateManyWithWhereWithoutRecipientResidentInput | Prisma.CaseHearingNoticeUpdateManyWithWhereWithoutRecipientResidentInput[]
+  deleteMany?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
 }
 
 export type CaseHearingNoticeCreateNestedManyWithoutHearingInput = {
@@ -692,11 +890,43 @@ export type CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput = {
   deleteMany?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
 }
 
-export type CaseHearingNoticeCreateWithoutHearingInput = {
+export type CaseHearingNoticeCreateWithoutRecipientResidentInput = {
   id?: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
+  recipientName: string
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  issueMethod?: string | null
+  generatedById: string
+  generatedAt?: Date | string
+  issuedById?: string | null
+  issuedAt?: Date | string | null
+  deliveryRecordedById?: string | null
+  deliveryRecordedAt?: Date | string | null
+  deliveryNote?: string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedVia?: string | null
+  supersededAt?: Date | string | null
+  hearing: Prisma.CaseHearingCreateNestedOneWithoutNoticesInput
+}
+
+export type CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput = {
+  id?: string
+  hearingId: string
+  caseId: string
+  noticeNumber: string
+  formNo?: number | null
+  recipientRole: string
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -714,11 +944,100 @@ export type CaseHearingNoticeCreateWithoutHearingInput = {
   supersededAt?: Date | string | null
 }
 
+export type CaseHearingNoticeCreateOrConnectWithoutRecipientResidentInput = {
+  where: Prisma.CaseHearingNoticeWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput>
+}
+
+export type CaseHearingNoticeCreateManyRecipientResidentInputEnvelope = {
+  data: Prisma.CaseHearingNoticeCreateManyRecipientResidentInput | Prisma.CaseHearingNoticeCreateManyRecipientResidentInput[]
+  skipDuplicates?: boolean
+}
+
+export type CaseHearingNoticeUpsertWithWhereUniqueWithoutRecipientResidentInput = {
+  where: Prisma.CaseHearingNoticeWhereUniqueInput
+  update: Prisma.XOR<Prisma.CaseHearingNoticeUpdateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedUpdateWithoutRecipientResidentInput>
+  create: Prisma.XOR<Prisma.CaseHearingNoticeCreateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedCreateWithoutRecipientResidentInput>
+}
+
+export type CaseHearingNoticeUpdateWithWhereUniqueWithoutRecipientResidentInput = {
+  where: Prisma.CaseHearingNoticeWhereUniqueInput
+  data: Prisma.XOR<Prisma.CaseHearingNoticeUpdateWithoutRecipientResidentInput, Prisma.CaseHearingNoticeUncheckedUpdateWithoutRecipientResidentInput>
+}
+
+export type CaseHearingNoticeUpdateManyWithWhereWithoutRecipientResidentInput = {
+  where: Prisma.CaseHearingNoticeScalarWhereInput
+  data: Prisma.XOR<Prisma.CaseHearingNoticeUpdateManyMutationInput, Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentInput>
+}
+
+export type CaseHearingNoticeScalarWhereInput = {
+  AND?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
+  OR?: Prisma.CaseHearingNoticeScalarWhereInput[]
+  NOT?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
+  id?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  hearingId?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  caseId?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  noticeNumber?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  formNo?: Prisma.IntNullableFilter<"CaseHearingNotice"> | number | null
+  recipientRole?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  recipientResidentId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  pangkatMemberId?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  channel?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  seenAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+  recipientName?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  scheduledAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
+  venue?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  status?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  issueMethod?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  generatedById?: Prisma.StringFilter<"CaseHearingNotice"> | string
+  generatedAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
+  issuedById?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  issuedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+  deliveryRecordedById?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  deliveryRecordedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+  deliveryNote?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+  acknowledgedVia?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
+  supersededAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+}
+
+export type CaseHearingNoticeCreateWithoutHearingInput = {
+  id?: string
+  caseId: string
+  noticeNumber: string
+  formNo?: number | null
+  recipientRole: string
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
+  recipientName: string
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  issueMethod?: string | null
+  generatedById: string
+  generatedAt?: Date | string
+  issuedById?: string | null
+  issuedAt?: Date | string | null
+  deliveryRecordedById?: string | null
+  deliveryRecordedAt?: Date | string | null
+  deliveryNote?: string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedVia?: string | null
+  supersededAt?: Date | string | null
+  recipientResident?: Prisma.ResidentCreateNestedOneWithoutHearingNoticesInput
+}
+
 export type CaseHearingNoticeUncheckedCreateWithoutHearingInput = {
   id?: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  recipientResidentId?: string | null
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -762,37 +1081,124 @@ export type CaseHearingNoticeUpdateManyWithWhereWithoutHearingInput = {
   data: Prisma.XOR<Prisma.CaseHearingNoticeUpdateManyMutationInput, Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingInput>
 }
 
-export type CaseHearingNoticeScalarWhereInput = {
-  AND?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
-  OR?: Prisma.CaseHearingNoticeScalarWhereInput[]
-  NOT?: Prisma.CaseHearingNoticeScalarWhereInput | Prisma.CaseHearingNoticeScalarWhereInput[]
-  id?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  hearingId?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  caseId?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  noticeNumber?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  recipientRole?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  recipientName?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  scheduledAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
-  venue?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  status?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  issueMethod?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  generatedById?: Prisma.StringFilter<"CaseHearingNotice"> | string
-  generatedAt?: Prisma.DateTimeFilter<"CaseHearingNotice"> | Date | string
-  issuedById?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  issuedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
-  deliveryRecordedById?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  deliveryRecordedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
-  deliveryNote?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  acknowledgedAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
-  acknowledgedVia?: Prisma.StringNullableFilter<"CaseHearingNotice"> | string | null
-  supersededAt?: Prisma.DateTimeNullableFilter<"CaseHearingNotice"> | Date | string | null
+export type CaseHearingNoticeCreateManyRecipientResidentInput = {
+  id?: string
+  hearingId: string
+  caseId: string
+  noticeNumber: string
+  formNo?: number | null
+  recipientRole: string
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
+  recipientName: string
+  scheduledAt: Date | string
+  venue?: string | null
+  status?: string
+  issueMethod?: string | null
+  generatedById: string
+  generatedAt?: Date | string
+  issuedById?: string | null
+  issuedAt?: Date | string | null
+  deliveryRecordedById?: string | null
+  deliveryRecordedAt?: Date | string | null
+  deliveryNote?: string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedVia?: string | null
+  supersededAt?: Date | string | null
+}
+
+export type CaseHearingNoticeUpdateWithoutRecipientResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recipientName?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  issueMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRecordedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryRecordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedVia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hearing?: Prisma.CaseHearingUpdateOneRequiredWithoutNoticesNestedInput
+}
+
+export type CaseHearingNoticeUncheckedUpdateWithoutRecipientResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingId?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recipientName?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  issueMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRecordedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryRecordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedVia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  hearingId?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.StringFieldUpdateOperationsInput | string
+  noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recipientName?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  issueMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRecordedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryRecordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedVia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseHearingNoticeCreateManyHearingInput = {
   id?: string
   caseId: string
   noticeNumber: string
+  formNo?: number | null
   recipientRole: string
+  recipientResidentId?: string | null
+  pangkatMemberId?: string | null
+  channel?: string | null
+  seenAt?: Date | string | null
   recipientName: string
   scheduledAt: Date | string
   venue?: string | null
@@ -814,7 +1220,11 @@ export type CaseHearingNoticeUpdateWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -830,13 +1240,19 @@ export type CaseHearingNoticeUpdateWithoutHearingInput = {
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedVia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recipientResident?: Prisma.ResidentUpdateOneWithoutHearingNoticesNestedInput
 }
 
 export type CaseHearingNoticeUncheckedUpdateWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -858,7 +1274,12 @@ export type CaseHearingNoticeUncheckedUpdateManyWithoutHearingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.StringFieldUpdateOperationsInput | string
   noticeNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  formNo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recipientRole?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pangkatMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recipientName?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   venue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -883,7 +1304,12 @@ export type CaseHearingNoticeSelect<ExtArgs extends runtime.Types.Extensions.Int
   hearingId?: boolean
   caseId?: boolean
   noticeNumber?: boolean
+  formNo?: boolean
   recipientRole?: boolean
+  recipientResidentId?: boolean
+  pangkatMemberId?: boolean
+  channel?: boolean
+  seenAt?: boolean
   recipientName?: boolean
   scheduledAt?: boolean
   venue?: boolean
@@ -900,6 +1326,7 @@ export type CaseHearingNoticeSelect<ExtArgs extends runtime.Types.Extensions.Int
   acknowledgedVia?: boolean
   supersededAt?: boolean
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearingNotice"]>
 
 export type CaseHearingNoticeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -907,7 +1334,12 @@ export type CaseHearingNoticeSelectCreateManyAndReturn<ExtArgs extends runtime.T
   hearingId?: boolean
   caseId?: boolean
   noticeNumber?: boolean
+  formNo?: boolean
   recipientRole?: boolean
+  recipientResidentId?: boolean
+  pangkatMemberId?: boolean
+  channel?: boolean
+  seenAt?: boolean
   recipientName?: boolean
   scheduledAt?: boolean
   venue?: boolean
@@ -924,6 +1356,7 @@ export type CaseHearingNoticeSelectCreateManyAndReturn<ExtArgs extends runtime.T
   acknowledgedVia?: boolean
   supersededAt?: boolean
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearingNotice"]>
 
 export type CaseHearingNoticeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -931,7 +1364,12 @@ export type CaseHearingNoticeSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   hearingId?: boolean
   caseId?: boolean
   noticeNumber?: boolean
+  formNo?: boolean
   recipientRole?: boolean
+  recipientResidentId?: boolean
+  pangkatMemberId?: boolean
+  channel?: boolean
+  seenAt?: boolean
   recipientName?: boolean
   scheduledAt?: boolean
   venue?: boolean
@@ -948,6 +1386,7 @@ export type CaseHearingNoticeSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   acknowledgedVia?: boolean
   supersededAt?: boolean
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }, ExtArgs["result"]["caseHearingNotice"]>
 
 export type CaseHearingNoticeSelectScalar = {
@@ -955,7 +1394,12 @@ export type CaseHearingNoticeSelectScalar = {
   hearingId?: boolean
   caseId?: boolean
   noticeNumber?: boolean
+  formNo?: boolean
   recipientRole?: boolean
+  recipientResidentId?: boolean
+  pangkatMemberId?: boolean
+  channel?: boolean
+  seenAt?: boolean
   recipientName?: boolean
   scheduledAt?: boolean
   venue?: boolean
@@ -973,34 +1417,58 @@ export type CaseHearingNoticeSelectScalar = {
   supersededAt?: boolean
 }
 
-export type CaseHearingNoticeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hearingId" | "caseId" | "noticeNumber" | "recipientRole" | "recipientName" | "scheduledAt" | "venue" | "status" | "issueMethod" | "generatedById" | "generatedAt" | "issuedById" | "issuedAt" | "deliveryRecordedById" | "deliveryRecordedAt" | "deliveryNote" | "acknowledgedAt" | "acknowledgedVia" | "supersededAt", ExtArgs["result"]["caseHearingNotice"]>
+export type CaseHearingNoticeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hearingId" | "caseId" | "noticeNumber" | "formNo" | "recipientRole" | "recipientResidentId" | "pangkatMemberId" | "channel" | "seenAt" | "recipientName" | "scheduledAt" | "venue" | "status" | "issueMethod" | "generatedById" | "generatedAt" | "issuedById" | "issuedAt" | "deliveryRecordedById" | "deliveryRecordedAt" | "deliveryNote" | "acknowledgedAt" | "acknowledgedVia" | "supersededAt", ExtArgs["result"]["caseHearingNotice"]>
 export type CaseHearingNoticeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }
 export type CaseHearingNoticeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }
 export type CaseHearingNoticeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hearing?: boolean | Prisma.CaseHearingDefaultArgs<ExtArgs>
+  recipientResident?: boolean | Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>
 }
 
 export type $CaseHearingNoticePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CaseHearingNotice"
   objects: {
     hearing: Prisma.$CaseHearingPayload<ExtArgs>
+    recipientResident: Prisma.$ResidentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     hearingId: string
     caseId: string
     /**
-     * HN-<case number>-<hearing number>-<C|R><sequence>
+     * KP<form>-<case number>-<stage><session>-<C|R|PM><sequence>
      */
     noticeNumber: string
     /**
-     * COMPLAINANT | RESPONDENT
+     * The KP form this notice is: 8, 9, 10, 11 or 12 (lib/hearings.ts KP_FORMS).
+     */
+    formNo: number | null
+    /**
+     * COMPLAINANT | RESPONDENT | PANGKAT_MEMBER
      */
     recipientRole: string
+    /**
+     * The SafeComm account it was delivered to, when the recipient has one.
+     */
+    recipientResidentId: string | null
+    /**
+     * PANGKAT_MEMBER: which member.
+     */
+    pangkatMemberId: string | null
+    /**
+     * How it reaches the recipient: SAFECOMM_ACCOUNT (in their account) | OFFICER (handed over or served).
+     */
+    channel: string | null
+    /**
+     * When the recipient first opened it in SafeComm.
+     */
+    seenAt: Date | null
     /**
      * As it stood in the case records when the notice was generated.
      */
@@ -1426,6 +1894,7 @@ readonly fields: CaseHearingNoticeFieldRefs;
 export interface Prisma__CaseHearingNoticeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   hearing<T extends Prisma.CaseHearingDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearingDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseHearingClient<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  recipientResident<T extends Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseHearingNotice$recipientResidentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1459,7 +1928,12 @@ export interface CaseHearingNoticeFieldRefs {
   readonly hearingId: Prisma.FieldRef<"CaseHearingNotice", 'String'>
   readonly caseId: Prisma.FieldRef<"CaseHearingNotice", 'String'>
   readonly noticeNumber: Prisma.FieldRef<"CaseHearingNotice", 'String'>
+  readonly formNo: Prisma.FieldRef<"CaseHearingNotice", 'Int'>
   readonly recipientRole: Prisma.FieldRef<"CaseHearingNotice", 'String'>
+  readonly recipientResidentId: Prisma.FieldRef<"CaseHearingNotice", 'String'>
+  readonly pangkatMemberId: Prisma.FieldRef<"CaseHearingNotice", 'String'>
+  readonly channel: Prisma.FieldRef<"CaseHearingNotice", 'String'>
+  readonly seenAt: Prisma.FieldRef<"CaseHearingNotice", 'DateTime'>
   readonly recipientName: Prisma.FieldRef<"CaseHearingNotice", 'String'>
   readonly scheduledAt: Prisma.FieldRef<"CaseHearingNotice", 'DateTime'>
   readonly venue: Prisma.FieldRef<"CaseHearingNotice", 'String'>
@@ -1873,6 +2347,25 @@ export type CaseHearingNoticeDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many CaseHearingNotices to delete.
    */
   limit?: number
+}
+
+/**
+ * CaseHearingNotice.recipientResident
+ */
+export type CaseHearingNotice$recipientResidentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Resident
+   */
+  select?: Prisma.ResidentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Resident
+   */
+  omit?: Prisma.ResidentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResidentInclude<ExtArgs> | null
+  where?: Prisma.ResidentWhereInput
 }
 
 /**

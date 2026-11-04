@@ -170,8 +170,8 @@ export function categoryVerdict(rows: { kind: string; caseType: string | null; p
 
 // The hearing rules live with Hearing Management; kept importable from here.
 export {
-  HEARING_STATUSES, HEARING_OUTCOMES, MAX_HEARINGS, hearingRefusal, nextHearingNumber,
-  type HearingStatus, type HearingOutcome,
+  HEARING_STATUSES, HEARING_OUTCOMES, KP_STAGES, KP_STAGE_KEYS, hearingRefusal, nextStep,
+  type HearingStatus, type HearingOutcome, type KpStage,
 } from './hearings';
 
 // ── Acknowledgement letters ──────────────────────────────────────────────────

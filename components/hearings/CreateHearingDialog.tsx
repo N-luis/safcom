@@ -8,22 +8,24 @@ import {
 } from '@mui/material';
 import { Gavel } from '@mui/icons-material';
 import toast from 'react-hot-toast';
-import { HEARING_TITLES, phDay, phTime, type ScheduleConflict } from '@/lib/hearings';
+import { phDay, phTime, type ScheduleConflict } from '@/lib/hearings';
 import ConflictWarnings, { ConflictList } from './ConflictWarnings';
 import KpReviewForm from './KpReviewForm';
-import { NAVY, getJson, send, todayPh, conflictsOf, type CaseHearingsData } from './hearingUi';
+import { NAVY, getJson, send, todayPh, conflictsOf, type CaseHearingsData, type NextStep } from './hearingUi';
 
 interface CandidateCase {
-  id: string; caseNumber: string; caseType: string; status: string; next: number | null; refusal: string | null;
+  id: string; caseNumber: string; caseType: string; status: string; next: Omit<NextStep, 'label'> | null; refusal: string | null; hasRespondent: boolean;
   eligible: boolean; reasons: string[]; warnings: string[]; needsReview: boolean; categoryVerified: boolean;
 }
 
 /**
- * Create the next hearing on an eligible case. The case is chosen first (or
- * given), and its eligibility is shown before anything else: a VAWC case, a
- * case whose category is not verified, or one without an eligibility review
- * cannot have a hearing, and the reason is said. The hearing number is
- * always the next one - nothing is created ahead.
+ * Create the next Katarungang Pambarangay proceeding on an eligible case.
+ * The case is chosen first (or given), and its eligibility is shown before
+ * anything else: a VAWC case, a case whose category is not verified, or one
+ * without an eligibility review cannot have one, and the reason is said.
+ * The stage is always the case's next one - mediation, then the
+ * constitution of the Pangkat, then conciliation - and the dialog says
+ * which KP forms scheduling it will make, and how each party gets theirs.
  */
 export default function CreateHearingDialog({ caseId: fixedCase, initialDate, onClose, onCreated, classificationHref }: {
   caseId?: string; onClose: () => void; onCreated: (caseId: string) => void;
@@ -46,7 +48,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   const [timeIn, setTime] = useState<string | null>(null);
   const [venue, setVenue] = useState('Barangay Hall');
   const [officialIn, setOfficial] = useState<string | null>(null);
-  const [complainant, setComplainant] = useState<string>('reporter');
+  const [complainantIn, setComplainant] = useState<string | null>(null);
   const [respondentIn, setRespondent] = useState<string | null>(null);
   const [instructions, setInstructions] = useState('');
   const [notes, setNotes] = useState('');
@@ -57,11 +59,16 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   // Defaults from the case: the proposed date from the last hearing, the first person reported.
   const proposed = useMemo(() => d?.hearings.filter(h => h.status === 'COMPLETED').at(-1)?.nextHearingAt ?? null, [d]);
   const firstRespondent = d?.parties.respondents[0]?.id ?? '';
-  const lastOfficial = d?.hearings.filter(h => h.status !== 'CANCELLED').at(-1)?.assignedOfficialId ?? '';
+  const last = d?.hearings.filter(h => h.status !== 'CANCELLED').at(-1);
+  const lastOfficial = last?.assignedOfficialId ?? '';
   const date = dateIn ?? (initialDate && initialDate >= todayPh() ? initialDate : proposed ? phDay(proposed) : '');
   const time = timeIn ?? (proposed && phTime(proposed) !== '00:00' ? phTime(proposed) : '09:00');
   const official = officialIn ?? lastOfficial;
-  const respondent = respondentIn ?? firstRespondent;
+  // The parties carry over from the stage before: the same dispute, the same people.
+  const respondent = respondentIn ?? last?.respondent.partyId ?? firstRespondent;
+  const complainant = complainantIn ?? last?.complainant.partyId ?? 'reporter';
+  const cParty = d?.parties.complainants.find(p => (p.id ?? 'reporter') === complainant);
+  const rParty = d?.parties.respondents.find(p => p.id === respondent);
 
   const next = d?.next ?? null;
   const ready = Boolean(d && d.canEdit && d.eligibility.eligible && next && !d.blocked);
@@ -72,13 +79,13 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
     setSaving(asDraft ? 'draft' : 'schedule');
     try {
       await send(`/api/cases/${caseId}/hearings`, 'POST', {
-        hearingNumber: next, date, time, venue: venue.trim() || undefined, asDraft, confirmConflicts,
+        stage: next.stage, date, time, venue: venue.trim() || undefined, asDraft, confirmConflicts,
         assignedOfficialId: official || null,
         complainantPartyId: complainant === 'reporter' ? null : complainant,
         respondentPartyId: respondent || null,
         residentInstructions: instructions.trim() || undefined, notes: notes.trim() || undefined,
       });
-      toast.success(asDraft ? `Hearing ${next} saved as a draft` : `Hearing ${next} scheduled`);
+      toast.success(asDraft ? `${next.title} saved as a draft` : `${next.title} scheduled - ${next.forms.map(f => `KP Form No. ${f.formNo}`).filter((x, i, a) => a.indexOf(x) === i).join(' and ')} made for the parties`);
       setClash(null);
       onCreated(caseId);
     } catch (e) {
@@ -92,7 +99,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
     <Dialog open onClose={onClose} fullWidth maxWidth="md" fullScreen={mobile}>
       <DialogTitle sx={{ fontWeight: 800, color: NAVY, display: 'flex', alignItems: 'center', gap: 1 }}>
         <Gavel sx={{ color: '#0369a1' }} /> Create hearing
-        {next && d?.eligibility.eligible && <Chip size="small" label={`Hearing ${next} - ${HEARING_TITLES[next]}`} sx={{ ml: 1, fontWeight: 700, bgcolor: '#e0f2fe', color: '#0369a1' }} />}
+        {next && d?.eligibility.eligible && <Chip size="small" label={next.label + (next.session > 1 ? ` - session ${next.session}` : '')} sx={{ ml: 1, fontWeight: 700, bgcolor: '#e0f2fe', color: '#0369a1' }} />}
       </DialogTitle>
       <DialogContent dividers sx={{ display: 'grid', gap: 1.75 }}>
         {!fixedCase && (
@@ -111,7 +118,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
                   <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: NAVY }}>{o.caseNumber}</Typography>
                   <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{o.caseType}</Typography>
-                  <Chip size="small" label={o.eligible && !o.refusal ? `Ready for hearing ${o.next}` : 'Not eligible yet'}
+                  <Chip size="small" label={o.eligible && !o.refusal && o.next ? `Next: ${o.next.title}` : 'Not eligible yet'}
                     sx={{ ml: 'auto', height: 20, fontSize: '0.68rem', fontWeight: 700, bgcolor: o.eligible && !o.refusal ? '#dcfce7' : '#f1f5f9', color: o.eligible && !o.refusal ? '#15803d' : '#64748b' }} />
                 </Box>
               </li>
@@ -147,9 +154,23 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
 
             {ready && next && (
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                <Alert severity="info" icon={false} sx={{ gridColumn: { sm: '1 / -1' }, borderRadius: 2, fontSize: '0.8rem' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.5 }}>Scheduling makes these notices, for this one date and time</Typography>
+                  {next.forms.map(f => {
+                    const party = f.recipientRole === 'COMPLAINANT' ? cParty : rParty;
+                    return (
+                      <Box key={f.recipientRole}>
+                        <b>{f.name}</b> - to the {f.recipientRole.toLowerCase()}{party ? ` (${party.name})` : ''}:{' '}
+                        {party?.account ? 'delivered to their SafeComm account at once.' : 'no SafeComm account linked - an officer hands it over or serves it, and records the delivery.'}
+                      </Box>
+                    );
+                  })}
+                  {next.stage === 'CONSTITUTION' && <Box sx={{ mt: 0.5 }}>KP Form No. 11 goes to each Pangkat member once they are recorded on the proceeding.</Box>}
+                  <Box sx={{ mt: 0.5, color: '#64748b' }}>Nothing is sent by text message or email.</Box>
+                </Alert>
                 <TextField size="small" type="date" label="Hearing date *" value={date} onChange={e => { setDate(e.target.value); setClash(null); }}
                   slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: todayPh() } }}
-                  helperText={proposed ? `Proposed at hearing ${next - 1}: ${phDay(proposed)}` : ' '} />
+                  helperText={proposed ? `Proposed at the last proceeding: ${phDay(proposed)}` : ' '} />
                 <TextField size="small" type="time" label="Hearing time *" value={time} onChange={e => { setTime(e.target.value); setClash(null); }} slotProps={{ inputLabel: { shrink: true } }} helperText="Philippine time" />
                 <TextField size="small" label="Venue *" value={venue} onChange={e => { setVenue(e.target.value); setClash(null); }} slotProps={{ htmlInput: { maxLength: 200 } }} />
                 <TextField select size="small" label="Assigned official" value={official} onChange={e => { setOfficial(e.target.value); setClash(null); }}
@@ -161,13 +182,14 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                   {d.parties.complainants.map(p => <MenuItem key={p.id ?? 'reporter'} value={p.id ?? 'reporter'}>{p.name} - {p.label}</MenuItem>)}
                 </TextField>
                 <TextField select size="small" label="Respondent / other party" value={respondent} onChange={e => setRespondent(e.target.value)}
-                  helperText={d.parties.respondents.length ? 'From the people recorded on the case' : 'No person reported is recorded - add one in Case records'}>
-                  <MenuItem value=""><em>Not named yet</em></MenuItem>
+                  error={!d.parties.respondents.length}
+                  helperText={d.parties.respondents.length ? 'From the people recorded on the case - the summons and notices are addressed to them' : 'No person reported is recorded - add the respondent in Case records before scheduling (a draft can be saved)'}>
+                  <MenuItem value=""><em>Not named yet (draft only)</em></MenuItem>
                   {d.parties.respondents.map(p => <MenuItem key={p.id} value={p.id!}>{p.name} - {p.label}</MenuItem>)}
                 </TextField>
-                <TextField size="small" multiline minRows={2} label="Instructions for the complainant (optional)" value={instructions}
+                <TextField size="small" multiline minRows={2} label="Instructions for the parties (optional)" value={instructions}
                   onChange={e => setInstructions(e.target.value)} slotProps={{ htmlInput: { maxLength: 600 } }} sx={{ gridColumn: { sm: '1 / -1' } }}
-                  helperText="Shown to the complainant in My Hearings, with the standard instructions" />
+                  helperText="Shown to both parties in My Hearings & Notices, with the standard instructions" />
                 <TextField size="small" multiline minRows={2} label="Internal note (officials only, optional)" value={notes}
                   onChange={e => setNotes(e.target.value)} slotProps={{ htmlInput: { maxLength: 1000 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
                 <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
@@ -191,8 +213,8 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             <Button variant="outlined" onClick={() => save(true)} disabled={saving !== null} sx={{ textTransform: 'none' }}>
               {saving === 'draft' ? <CircularProgress size={16} /> : 'Save as draft'}
             </Button>
-            <Button variant="contained" onClick={() => save(false)} disabled={saving !== null} sx={{ textTransform: 'none', bgcolor: NAVY }}>
-              {saving === 'schedule' ? <CircularProgress size={16} color="inherit" /> : `Schedule hearing ${next}`}
+            <Button variant="contained" onClick={() => save(false)} disabled={saving !== null || !respondent} sx={{ textTransform: 'none', bgcolor: NAVY }}>
+              {saving === 'schedule' ? <CircularProgress size={16} color="inherit" /> : `Schedule ${next?.title.toLowerCase()}`}
             </Button>
           </>
         )}

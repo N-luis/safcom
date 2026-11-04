@@ -5,7 +5,7 @@ import { loadActor, BLOTTER_ROLES, VAWC_DESK_ROLES } from '@/lib/reporterAccess'
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { parseRange } from '@/lib/analytics';
 import { noStore, decideHearingAccess, complainantName, respondentName } from '@/lib/hearingsServer';
-import { HEARING_STATUSES, CALENDAR_STATUS_GROUPS, isLive, LIVE_NOTICE, type CalendarStatusGroup } from '@/lib/hearings';
+import { HEARING_STATUSES, CALENDAR_STATUS_GROUPS, isLive, isKpStage, sessionTitle, LIVE_NOTICE, type CalendarStatusGroup } from '@/lib/hearings';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
  *   system admin     the same, to view
  *   VAWC desk        none - RA 9262 cases are never heard at the barangay
  *
- * Filters: number=1,2,3; status=A,B (a hearing status or a calendar group -
+ * Filters: stage=MEDIATION,CONSTITUTION,CONCILIATION; status=A,B (a hearing status or a calendar group -
  * scheduled, rescheduled, completed, cancelled, draft); from/to (Philippine
  * days, on the hearing date); category (a blotter category); official (the
  * assigned officer's id); q (case number or hearing reference).
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
   if (!blotter && role !== 'admin' && role !== 'system_admin') return noStore({ success: false, error: 'Your role cannot view hearings.' }, 403);
 
   const sp = req.nextUrl.searchParams;
-  const numbers = (sp.get('number') ?? '').split(',').map(Number).filter(n => [1, 2, 3].includes(n));
+  const stages = (sp.get('stage') ?? '').split(',').map(s => s.trim()).filter(isKpStage);
   const statuses = [...new Set((sp.get('status') ?? '').split(',').map(s => s.trim()).flatMap(s =>
     s in CALENDAR_STATUS_GROUPS ? [...CALENDAR_STATUS_GROUPS[s as CalendarStatusGroup].statuses] as string[] : s in HEARING_STATUSES ? [s] : []))];
   // A VAWC category asked for here matches nothing: the scope below excludes them.
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       where: {
         AND: [
           scope,
-          numbers.length ? { hearingNumber: { in: numbers } } : {},
+          stages.length ? { stage: { in: stages } } : {},
           category ? { case: { caseType: category } } : {},
           official ? { assignedOfficialId: official } : {},
           statuses.length ? { status: { in: statuses } } : {},
@@ -83,7 +83,8 @@ export async function GET(req: NextRequest) {
       const access = decideHearingAccess(actor, h.case, h.assignedOfficialId === actor.id);
       const notice = (r: string) => h.notices.find(n => n.recipientRole === r)?.status ?? null;
       return {
-        id: h.id, reference: h.reference, hearingNumber: h.hearingNumber, scheduledAt: h.scheduledAt, venue: h.venue, status: h.status,
+        id: h.id, reference: h.reference, hearingNumber: h.hearingNumber, stage: h.stage, session: h.session, title: sessionTitle(h.stage, h.session),
+        scheduledAt: h.scheduledAt, venue: h.venue, status: h.status,
         outcome: h.outcome, rescheduleCount: h.rescheduleCount, updatedAt: h.updatedAt,
         case: { id: h.case.id, caseNumber: h.case.caseNumber, caseType: h.case.caseType, status: h.case.status },
         complainant: complainantName(h.case, h.complainantParty),
@@ -106,7 +107,7 @@ export async function GET(req: NextRequest) {
         drafts: count(r => r.status === 'DRAFT'),
         upcoming: count(r => isLive(r.status) && new Date(r.scheduledAt) >= now),
         overdue: count(r => r.overdue),
-        noticesPending: count(r => isLive(r.status) && !(LIVE_NOTICE as string[]).includes(r.notices.complainant ?? '')),
+        noticesPending: count(r => isLive(r.status) && [r.notices.complainant, r.notices.respondent].some(n => !(LIVE_NOTICE as string[]).includes(n ?? ''))),
         completed: count(r => r.status === 'COMPLETED'),
         rescheduled: count(r => r.rescheduleCount > 0),
         cancelled: count(r => r.status === 'CANCELLED'),

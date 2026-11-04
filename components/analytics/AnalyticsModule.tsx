@@ -394,15 +394,15 @@ function Hearings({ query, rangeLabel, open, canOpen }: { query: string; rangeLa
                 <Grid size={{ xs: 4, md: 2.4 }}><Tile label="Rescheduled" value={data.rescheduled} hint={rangeLabel} color="#b45309" /></Grid>
                 <Grid size={{ xs: 4, md: 2.4 }}><Tile label="Cancelled" value={data.cancelled} hint={rangeLabel} color="#64748b" /></Grid>
               </Grid>
-              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.75 }}>Hearing 1, 2 and 3</Typography>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.75 }}>By Katarungang Pambarangay stage</Typography>
               <Box sx={{ display: 'grid', gap: 0.75, mb: 2 }}>
-                {data.byNumber.map((h: Data) => {
-                  const max = Math.max(1, ...data.byNumber.map((x: Data) => x.total));
+                {data.byStage.map((h: Data) => {
+                  const max = Math.max(1, ...data.byStage.map((x: Data) => x.total));
                   return (
-                    <Box key={h.hearing} sx={{ display: 'grid', gridTemplateColumns: { xs: '76px 1fr', sm: '90px 1fr 260px' }, gap: 1, alignItems: 'center' }}>
-                      <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: NAVY }}>Hearing {h.hearing}</Typography>
+                    <Box key={h.stage} sx={{ display: 'grid', gridTemplateColumns: { xs: '110px 1fr', sm: '200px 1fr 260px' }, gap: 1, alignItems: 'center' }}>
+                      <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: NAVY }}>{h.label}</Typography>
                       <Box sx={{ height: 14, bgcolor: '#f1f5f9', borderRadius: 1, overflow: 'hidden', display: 'flex' }} role="img"
-                        aria-label={`Hearing ${h.hearing}: ${h.total} in range, ${h.completed} completed, ${h.cancelled} cancelled`}>
+                        aria-label={`${h.label}: ${h.total} in range, ${h.completed} completed, ${h.cancelled} cancelled`}>
                         <Box sx={{ width: `${(h.completed / max) * 100}%`, bgcolor: '#15803d' }} />
                         <Box sx={{ width: `${((h.total - h.completed - h.cancelled) / max) * 100}%`, bgcolor: '#0369a1' }} />
                         <Box sx={{ width: `${(h.cancelled / max) * 100}%`, bgcolor: '#cbd5e1' }} />
@@ -432,7 +432,7 @@ function Hearings({ query, rangeLabel, open, canOpen }: { query: string; rangeLa
                           bgcolor: '#fff', font: 'inherit', textAlign: 'left', cursor: openable ? 'pointer' : 'default', width: '100%',
                           '&:hover': openable ? { bgcolor: '#f8fafc' } : undefined, '&:focus-visible': { outline: '2px solid #0f766e' } }}>
                         <Typography sx={{ fontWeight: 800, color: NAVY, fontSize: '0.86rem', minWidth: 150 }}>{when(h.scheduledAt)}</Typography>
-                        <Chip size="small" label={`Hearing ${h.hearingNumber}`} sx={{ height: 22, fontWeight: 700, bgcolor: '#e0f2fe', color: '#0369a1' }} />
+                        <Chip size="small" label={h.title} sx={{ height: 22, fontWeight: 700, bgcolor: '#e0f2fe', color: '#0369a1' }} />
                         <Typography sx={{ fontSize: '0.84rem', color: '#334155' }}>#{h.case.caseNumber} · {h.case.caseType}</Typography>
                         {h.venue && <Typography sx={{ fontSize: '0.78rem', color: '#64748b', ml: 'auto' }}>{h.venue}</Typography>}
                       </Box>

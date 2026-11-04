@@ -15,10 +15,12 @@ import { canSeeVawc } from './caseAccess';
 import { loadActor, BLOTTER_ROLES, VAWC_DESK_ROLES, isVawcType, type Actor } from './reporterAccess';
 import { noStore } from './caseRecordsServer';
 import {
-  hearingEligibility, phInstant, formatHearingWhen, sameVenue, OPEN_STATUSES, VAWC_HEARING_REFUSAL, type Eligibility, type ScheduleConflict,
+  hearingEligibility, phInstant, formatHearingWhen, sameVenue, statusFromNotices, partyFormsFor, noticeNumber, kpFormName, sessionTitle, isKpStage,
+  OPEN_STATUSES, VAWC_HEARING_REFUSAL, NOTICE_RECIPIENTS, type Eligibility, type ScheduleConflict, type KpStage, type KpFormNo, type PartyRole,
 } from './hearings';
-import { BARANGAY_CONTEXT, EMERGENCY_CONTACTS, HEARING_SLOT_MINUTES } from './safecommConfig';
-import type { NoticeInput } from './hearingNoticePdf';
+import { VAWC_TYPES } from './vawcTypes';
+import { BARANGAY_CONTEXT, HEARING_SLOT_MINUTES } from './safecommConfig';
+import type { KpNoticeInput } from './kpNoticesPdf';
 
 export { noStore };
 
@@ -237,19 +239,154 @@ export async function checkPeople(caseId: string, d: { assignedOfficialId?: stri
   return null;
 }
 
+// ── The parties and their accounts ───────────────────────────────────────────
+
+/** The parties of one proceeding as the server needs them. */
+export const hearingPartySelect = {
+  complainantParty: { select: { id: true, fullName: true, residentId: true } },
+  respondentParty: { select: { id: true, fullName: true, residentId: true } },
+} as const;
+type PartyRef = { id: string; fullName: string | null; residentId: string | null } | null;
+
+/**
+ * Whose SafeComm account each side's notices go to. The complainant: the
+ * affected person's own linked account, else the reporter who filed the case
+ * (when the reporter is the complainant, or the person they filed for has no
+ * account). The respondent: only a linked account. Never matched by name.
+ */
+export function partyAccounts(c: { residentId: string | null }, h: { complainantParty: PartyRef; respondentParty: PartyRef }) {
+  return {
+    COMPLAINANT: h.complainantParty?.residentId ?? c.residentId ?? null,
+    RESPONDENT: h.respondentParty?.residentId ?? null,
+  } as Record<PartyRole, string | null>;
+}
+
+/**
+ * The proceedings a resident is a party to: as the complainant (their own
+ * linked party record, or the case they filed when no other account stands
+ * for the complainant) or as the respondent (a party record an official
+ * linked to their account). Never a draft, never a VAWC case.
+ */
+export function residentHearingWhere(residentId: string) {
+  return {
+    status: { not: 'DRAFT' },
+    case: { caseType: { notIn: [...VAWC_TYPES] } },
+    OR: [
+      { complainantParty: { residentId } },
+      { case: { residentId }, OR: [{ complainantPartyId: null }, { complainantParty: { residentId: null } }] },
+      { respondentParty: { residentId } },
+    ],
+  } satisfies Prisma.CaseHearingWhereInput;
+}
+/** Which side the resident is on in this proceeding. */
+export const partyRoleOf = (h: { respondentParty: { residentId: string | null } | null }, residentId: string): PartyRole =>
+  h.respondentParty?.residentId === residentId ? 'RESPONDENT' : 'COMPLAINANT';
+
+/** What every event about a proceeding carries, so a party's message can be told from it alone. */
+export const hearingSnap = (h: { hearingNumber: number; stage: string; session: number }, at: Date, venue: string | null) =>
+  ({ hearingNumber: h.hearingNumber, stage: h.stage, session: h.session, scheduledAt: at.toISOString(), venue });
+
+/** The Pangkat on a case, with every member recorded (removed ones too). */
+export async function loadPangkat(caseId: string, db: Prisma.TransactionClient = prisma) {
+  return db.casePangkat.findUnique({ where: { caseId }, include: { members: { orderBy: { createdAt: 'asc' } } } });
+}
+export const pangkatConstituted = (p: { constitutedAt: Date | null } | null) => Boolean(p?.constitutedAt);
+
+/**
+ * Why the Pangkat cannot be recorded as constituted yet, or null: three
+ * serving members (RA 7160 sec. 410(b)), and a chairman and a secretary
+ * chosen from among them (sec. 410(c)).
+ */
+export function pangkatRefusal(p: { chairmanMemberId: string | null; secretaryMemberId: string | null; members: { id: string; removedAt: Date | null }[] } | null): string | null {
+  const serving = (p?.members ?? []).filter(m => !m.removedAt);
+  if (serving.length < 3) return `Record the three Pangkat members first (${serving.length} of 3 recorded).`;
+  if (serving.length > 3) return 'A Pangkat has three members. Remove the extra member first.';
+  const ids = serving.map(m => m.id);
+  if (!p?.chairmanMemberId || !ids.includes(p.chairmanMemberId)) return 'Choose the Pangkat chairman from among its members.';
+  if (!p.secretaryMemberId || !ids.includes(p.secretaryMemberId)) return 'Choose the Pangkat secretary from among its members.';
+  if (p.chairmanMemberId === p.secretaryMemberId) return 'The chairman and the secretary must be different members.';
+  return null;
+}
+
 // ── Notices ──────────────────────────────────────────────────────────────────
 
-/** What a notice prints, from the hearing and the case as they are now. */
-export function noticeInputFor(c: HearingCase, h: { reference: string; hearingNumber: number; scheduledAt: Date; venue: string | null },
-  n: { noticeNumber: string | null; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; recipientName: string; scheduledAt?: Date; venue?: string | null; issuedAt: Date | null },
-  state: NoticeInput['state'], issuingOfficer: string | null): NoticeInput {
+type HearingForNotice = { id: string; caseId: string; reference: string; hearingNumber: number; stage: string; session: number; scheduledAt: Date; venue: string | null;
+  status: string; rescheduleCount: number; complainantParty: PartyRef; respondentParty: PartyRef };
+
+/**
+ * The stage's notices to the parties, made when a proceeding is scheduled or
+ * its date changes - one per party, for the one schedule: KP 8 and KP 9 for
+ * mediation, KP 10 to both for the constitution of the Pangkat, KP 12 to
+ * both for conciliation. A party with a SafeComm account gets theirs in the
+ * account at once (issued, channel SAFECOMM_ACCOUNT); for one without, the
+ * notice waits for an officer to hand it over or serve it (generated,
+ * channel OFFICER). Nothing is sent by text or email.
+ */
+export async function issueStageNotices(tx: Prisma.TransactionClient, c: HearingCase, h: HearingForNotice, actorId: string, by: string,
+  only?: PartyRole[]) {
+  const stage = (isKpStage(h.stage) ? h.stage : 'MEDIATION') as KpStage;
+  const accounts = partyAccounts(c, h);
+  const now = new Date();
+  const made = [];
+  for (const f of partyFormsFor(stage).filter(f => !only || only.includes(f.recipientRole))) {
+    const role = f.recipientRole;
+    const account = accounts[role];
+    const seq = (await tx.caseHearingNotice.count({ where: { hearingId: h.id, recipientRole: role } })) + 1;
+    const name = role === 'COMPLAINANT' ? complainantName(c, h.complainantParty) : respondentName(h.respondentParty);
+    const n = await tx.caseHearingNotice.create({ data: {
+      hearingId: h.id, caseId: h.caseId, formNo: f.formNo, recipientRole: role, recipientName: name,
+      noticeNumber: noticeNumber(h.reference, f.formNo, role, seq),
+      scheduledAt: h.scheduledAt, venue: h.venue, generatedById: actorId,
+      ...(account
+        ? { status: 'ISSUED', channel: 'SAFECOMM_ACCOUNT', recipientResidentId: account, issueMethod: 'SAFECOMM', issuedById: actorId, issuedAt: now }
+        : { status: 'GENERATED', channel: 'OFFICER' }),
+    } });
+    const after = { ...hearingSnap(h, h.scheduledAt, h.venue), formNo: f.formNo, recipientRole: role, noticeNumber: n.noticeNumber, channel: n.channel };
+    const e = await recordEvent(tx, { hearingId: h.id, caseId: h.caseId, kind: account ? 'notice_issued' : 'notice_generated', actorType: 'official', actorId,
+      after: account ? { ...after, method: 'SAFECOMM' } : after });
+    await hearingActivity(tx, e.id, h.caseId, actorId, account
+      ? `${kpFormName(f.formNo)} (${n.noticeNumber}) delivered to the ${NOTICE_RECIPIENTS[role].toLowerCase()}'s SafeComm account - ${sessionTitle(stage, h.session)}, by ${by}`
+      : `${kpFormName(f.formNo)} (${n.noticeNumber}) generated for the ${NOTICE_RECIPIENTS[role].toLowerCase()} - no SafeComm account, to be handed over or served by an officer`);
+    made.push(n);
+  }
+  await syncHearingStatus(tx, h, actorId);
+  return made;
+}
+
+/** The proceeding's status, from its notices to the parties (lib/hearings.ts statusFromNotices). */
+export async function syncHearingStatus(tx: Prisma.TransactionClient, h: { id: string; status: string; rescheduleCount: number }, actorId: string | null) {
+  const current = await tx.caseHearingNotice.findMany({ where: { hearingId: h.id, status: { not: 'SUPERSEDED' }, recipientRole: { not: 'PANGKAT_MEMBER' } }, select: { status: true } });
+  const status = statusFromNotices(h, current);
+  if (status !== h.status) await tx.caseHearing.update({ where: { id: h.id }, data: { status, ...(actorId && { updatedById: actorId }) } });
+  return status;
+}
+
+/** The notices to the parties that no longer hold - on a new date, or a cancellation. KP 11 stays: it is not about a date. */
+export const supersedePartyNotices = (tx: Prisma.TransactionClient, hearingId: string) =>
+  tx.caseHearingNotice.updateMany({ where: { hearingId, status: { not: 'SUPERSEDED' }, recipientRole: { not: 'PANGKAT_MEMBER' } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
+
+/** What a KP form prints, from the proceeding and the case as they are now. */
+export async function kpNoticeInputFor(c: HearingCase,
+  h: { reference: string; stage: string; scheduledAt: Date; venue: string | null; complainantParty: PartyRef; respondentParty: PartyRef },
+  n: { formNo: number | null; noticeNumber: string | null; recipientRole: string; recipientName: string; scheduledAt?: Date; venue?: string | null;
+    issuedAt: Date | null; generatedAt?: Date | null },
+  state: KpNoticeInput['state'], preparedBy: string | null): Promise<KpNoticeInput> {
+  const stage = isKpStage(h.stage) ? h.stage : 'MEDIATION';
+  const formNo = (n.formNo ?? (stage === 'MEDIATION' ? (n.recipientRole === 'RESPONDENT' ? 9 : 8) : stage === 'CONSTITUTION' ? 10 : 12)) as KpFormNo;
+  // KP 12 is signed by the Pangkat chairman: printed when recorded.
+  let signatoryName: string | null = null;
+  if (formNo === 12) {
+    const p = await loadPangkat(c.id);
+    signatoryName = p?.members.find(m => m.id === p.chairmanMemberId)?.name ?? null;
+  }
   return {
-    noticeNumber: n.noticeNumber, caseNumber: c.caseNumber, hearingReference: h.reference, hearingNumber: h.hearingNumber,
+    formNo, noticeNumber: n.noticeNumber, caseNumber: c.caseNumber, nature: c.caseType,
+    complainants: [complainantName(c, h.complainantParty)], respondents: [respondentName(h.respondentParty)],
+    recipient: n.recipientName, recipientRole: n.recipientRole as KpNoticeInput['recipientRole'], hearingReference: h.reference,
     // A stored notice prints the date it was made for, even after a new date.
     scheduledAt: n.scheduledAt ?? h.scheduledAt, venue: n.venue === undefined ? h.venue : n.venue,
-    recipient: n.recipientName, recipientRole: n.recipientRole, issuingOfficer, issuedAt: n.issuedAt,
+    datedAt: n.issuedAt ?? n.generatedAt ?? null, signatoryName, preparedBy,
     barangay: BARANGAY_CONTEXT.name, municipality: c.municipality || 'Bocaue', province: c.province || 'Bulacan',
-    officeContact: EMERGENCY_CONTACTS.find(x => /barangay/i.test(x.label))?.number ?? null,
     state,
   };
 }

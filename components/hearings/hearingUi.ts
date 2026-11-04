@@ -2,35 +2,49 @@
  * What the hearing screens share: the shapes the routes return, fetching,
  * and the colours each status reads in.
  */
-import type { HearingStatus, Attendance, NoticeStatus } from '@/lib/hearings';
+import type { HearingStatus, Attendance, NoticeStatus, KpStage, PangkatChosenBy } from '@/lib/hearings';
 import type { Eligibility, ScheduleConflict } from '@/lib/hearings';
 
 export const NAVY = '#0c1e46';
 
 export interface HearingNotice {
-  id: string; noticeNumber: string; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; recipientName: string; scheduledAt: string; venue: string | null;
+  id: string; noticeNumber: string; formNo: number | null; formName: string; recipientRole: 'COMPLAINANT' | 'RESPONDENT' | 'PANGKAT_MEMBER'; recipientName: string;
+  scheduledAt: string; venue: string | null; channel: 'SAFECOMM_ACCOUNT' | 'OFFICER' | null; seenAt: string | null; pangkatMemberId: string | null;
   status: NoticeStatus; issueMethod: string | null; generatedAt: string; generatedBy: string | null; issuedAt: string | null; issuedBy: string | null;
   deliveryRecordedAt: string | null; deliveryRecordedBy: string | null; deliveryNote: string | null;
   acknowledgedAt: string | null; acknowledgedVia: string | null; supersededAt: string | null;
 }
 export interface HearingEvent { id: string; kind: string; actorType: string; before: Record<string, unknown> | null; after: Record<string, unknown> | null; note: string | null; createdAt: string; by: string | null }
-export interface HearingRequest { id: string; reason: string; preferredSchedule: string | null; status: 'PENDING' | 'APPROVED' | 'DECLINED'; createdAt: string; reviewedAt: string | null; reviewNote: string | null; reviewedBy: string | null }
+export interface HearingRequest { id: string; requesterRole: 'COMPLAINANT' | 'RESPONDENT'; reason: string; preferredSchedule: string | null; status: 'PENDING' | 'APPROVED' | 'DECLINED'; createdAt: string; reviewedAt: string | null; reviewNote: string | null; reviewedBy: string | null }
 export interface Hearing {
-  id: string; caseId: string; reference: string; hearingNumber: number; scheduledAt: string; venue: string | null; status: HearingStatus;
+  id: string; caseId: string; reference: string; hearingNumber: number; stage: KpStage; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus;
   outcome: string | null; agreements: string | null; outcomeSummary: string | null; nextAction: string | null; nextHearingAt: string | null;
   residentInstructions: string | null; statusReason: string | null; notes: string | null; rescheduleCount: number;
   residentIntent: 'WILL_ATTEND' | 'CANNOT_ATTEND' | null; residentIntentAt: string | null;
   complainantAttendance: Attendance; respondentAttendance: Attendance;
   assignedOfficialId: string | null; assignedOfficial: { id: string; name: string } | null;
-  complainant: { partyId: string | null; name: string }; respondent: { partyId: string | null; name: string };
+  complainant: { partyId: string | null; name: string; hasAccount: boolean }; respondent: { partyId: string | null; name: string; hasAccount: boolean };
   notices: HearingNotice[]; events: HearingEvent[]; requests: HearingRequest[];
   attachments: { id: string; filename: string; mimeType: string; size: number; createdAt: string }[];
   createdAt: string; updatedAt: string; createdBy: string | null; completedAt: string | null; completedBy: string | null; cancelledAt: string | null; cancelledBy: string | null;
 }
-export interface PartyOption { id: string | null; name: string; label: string }
+export interface PartyOption {
+  id: string | null; name: string; label: string;
+  /** The SafeComm account the party is linked to (the reporter's own, for the reporter). */
+  account: { residentNumber: string | null; name: string | null; linkedAt: string | null; reporter?: boolean } | null;
+}
+export interface NextStep { stage: KpStage; session: number; label: string; title: string; forms: { formNo: number; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; name: string }[] }
+export interface PangkatMember {
+  id: string; name: string; chosenBy: PangkatChosenBy; userId: string | null; createdAt: string; addedBy: string | null;
+  removedAt: string | null; removedBy: string | null; removedReason: string | null;
+}
+export interface Pangkat {
+  id: string; constitutedAt: string | null; constitutionHearingId: string | null; chairmanMemberId: string | null; secretaryMemberId: string | null;
+  members: PangkatMember[];
+}
 export interface CaseHearingsData {
   case: { id: string; caseNumber: string; caseType: string; status: string; hasReporterAccount?: boolean };
-  hearings: Hearing[]; next: number | null; canEdit: boolean; accessMessage?: string | null; blocked: string | null; vawc?: boolean;
+  hearings: Hearing[]; next: NextStep | null; pangkat: Pangkat | null; canEdit: boolean; accessMessage?: string | null; blocked: string | null; vawc?: boolean;
   eligibility: Eligibility; parties: { complainants: PartyOption[]; respondents: PartyOption[] }; officials: { id: string; name: string; role: string }[];
 }
 

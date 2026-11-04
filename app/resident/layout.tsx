@@ -25,7 +25,7 @@ const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/resident', exact: true },
   { id: 'report', label: 'File a Report', icon: Assessment, path: '/resident/report-case' },
   { id: 'cases', label: 'My Cases', icon: FolderOpen, path: '/resident/my-cases' },
-  { id: 'hearings', label: 'My Hearings', icon: Gavel, path: '/resident/hearings', exact: true },
+  { id: 'hearings', label: 'My Hearings & Notices', icon: Gavel, path: '/resident/hearings', exact: true },
   { id: 'hearings-upcoming', label: 'Upcoming Hearings', icon: CalendarMonth, path: '/resident/hearings/upcoming' },
   { id: 'hearings-history', label: 'Hearing History', icon: History, path: '/resident/hearings/history' },
   { id: 'notifications', label: 'Notifications', icon: Notifications, path: '/resident/notifications' },

@@ -13,7 +13,7 @@ import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
 import {
-  groupOfStatus, parseRange, latestAi, emergencyReasons, isHighPriority, hearingRefusal, nextHearingNumber,
+  groupOfStatus, parseRange, latestAi, emergencyReasons, isHighPriority, hearingRefusal, nextStep,
   categoryVerdict, completenessOf,
 } from '../lib/analytics';
 import { GET as analyticsGET } from '../app/api/analytics/[section]/route';
@@ -71,10 +71,11 @@ async function main() {
     ok('no level and no flag is not high priority - nothing is invented', !isHighPriority({ ...urgentNoAi, triageStatus: null }));
     ok('a closed case is never in the queue', !isHighPriority({ ...urgentNoAi, status: 'Resolved' }));
     ok('an officer\'s safety assessment flags it', emergencyReasons({ ...urgentNoAi, triageStatus: null, safety: { immediateConcern: 'yes', urgentAssistance: 'no' } }).length === 1);
-    ok('a VAWC case never gets a hearing', hearingRefusal('Domestic Violence', [], 1)?.startsWith('VAWC') === true);
-    ok('hearing 2 waits for hearing 1', hearingRefusal('Noise Complaint', [], 2) !== null && hearingRefusal('Noise Complaint', [{ hearingNumber: 1, status: 'COMPLETED' }], 2) === null);
-    ok('one scheduled hearing at a time', hearingRefusal('Noise Complaint', [{ hearingNumber: 1, status: 'SCHEDULED' }], 1) !== null);
-    ok('no fourth hearing', nextHearingNumber([1, 2, 3].map(n => ({ hearingNumber: n, status: 'COMPLETED' }))) === null);
+    ok('a VAWC case never gets a hearing', hearingRefusal('Domestic Violence', [], 'MEDIATION')?.startsWith('VAWC') === true);
+    ok('the Pangkat waits for mediation', hearingRefusal('Noise Complaint', [], 'CONSTITUTION') !== null
+      && hearingRefusal('Noise Complaint', [{ hearingNumber: 1, stage: 'MEDIATION', status: 'COMPLETED', outcome: 'NOT_SETTLED' }], 'CONSTITUTION') === null);
+    ok('one scheduled hearing at a time', hearingRefusal('Noise Complaint', [{ hearingNumber: 1, stage: 'MEDIATION', status: 'SCHEDULED' }], 'MEDIATION') !== null);
+    ok('nothing after the proceedings end', nextStep('Noise Complaint', [{ hearingNumber: 1, stage: 'MEDIATION', status: 'COMPLETED', outcome: 'SETTLED' }], false).stage === null);
     ok('a desk change is a misrouting', categoryVerdict([{ kind: 'category_change', caseType: 'Noise Complaint', previousCaseType: 'Domestic Violence' }]) === 'misrouted');
     ok('a change within the desk is not', categoryVerdict([{ kind: 'category_change', caseType: 'Noise Complaint', previousCaseType: 'Vandalism' }]) === 'recategorized');
     ok('completeness says nothing about truth - only detail', completenessOf('SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT') === 'complete' && completenessOf(null) === 'unassessed');
@@ -184,32 +185,33 @@ async function main() {
     console.log('\nHearing management');
     const hear = (id: string, cookie: string, body: Body) => hearingsPOST(req(`/api/cases/${id}/hearings`, cookie, 'POST', body), params(id)).then(json);
     const soon = new Date(Date.now() + 3 * 86_400_000).toISOString();
-    const refused = await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: soon });
+    await prisma.caseParty.create({ data: { caseId: b4.id, role: 'REPORTED', fullName: 'Analytics Respondent', source: 'official' } });
+    const refused = await hear(b4.id, B.cookie, { scheduledAt: soon });
     ok('no hearing before an official reviews eligibility', refused.status === 422 && /review/i.test(refused.body.error ?? ''), refused.body.error);
     await prisma.caseKpReview.create({ data: { caseId: b4.id, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: {}, reviewedById: B.id } });
     // Today, so it can be recorded as held straight away.
-    const h1 = await hear(b4.id, B.cookie, { hearingNumber: 1, scheduledAt: new Date().toISOString(), venue: 'Barangay hall' });
-    ok('hearing 1 is scheduled', h1.status === 201, `${h1.status} ${h1.body.error ?? ''}`);
-    ok('hearing 2 cannot be scheduled while 1 is open', (await hear(b4.id, B.cookie, { hearingNumber: 2, scheduledAt: soon })).status === 422);
+    const h1 = await hear(b4.id, B.cookie, { stage: 'MEDIATION', scheduledAt: new Date().toISOString(), venue: 'Barangay hall' });
+    ok('mediation is scheduled', h1.status === 201, `${h1.status} ${h1.body.error ?? ''}`);
+    ok('the Pangkat cannot be scheduled while mediation is open', (await hear(b4.id, B.cookie, { stage: 'CONSTITUTION', scheduledAt: soon })).status === 422);
     const patch = (id: string, hid: string, body: Body) => hearingPATCH(req(`/api/cases/${id}/hearings/${hid}`, B.cookie, 'PATCH', body), { params: Promise.resolve({ id, hid }) }).then(json);
     const held = await patch(b4.id, h1.body.data.id, { action: 'complete', outcome: 'NOT_SETTLED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT' });
-    ok('hearing 1 held, not settled', held.status === 200, `${held.status} ${held.body.error ?? ''}`);
+    ok('mediation held, not settled', held.status === 200, `${held.status} ${held.body.error ?? ''}`);
     ok('a held hearing is final', (await patch(b4.id, h1.body.data.id, { action: 'cancel', reason: 'changed mind' })).status === 409);
-    const h2 = await hear(b4.id, B.cookie, { hearingNumber: 2, scheduledAt: soon });
-    ok('hearing 2 is scheduled', h2.status === 201);
+    const h2 = await hear(b4.id, B.cookie, { stage: 'CONSTITUTION', scheduledAt: soon });
+    ok('the constitution of the Pangkat is scheduled', h2.status === 201);
     ok('given a new date', (await patch(b4.id, h2.body.data.id, { action: 'reschedule', reason: 'Respondent is ill', scheduledAt: new Date(Date.now() + 7 * 86_400_000).toISOString() })).status === 200);
     const list = (await json(await hearingsGET(req(`/api/cases/${b4.id}/hearings`, B.cookie), params(b4.id)))).body.data;
-    const h2row = list.hearings.find((h: Body) => h.hearingNumber === 2);
+    const h2row = list.hearings.find((h: Body) => h.stage === 'CONSTITUTION');
     ok('one record per hearing, the old date kept in its history', list.hearings.length === 2 && h2row?.rescheduleCount === 1
       && h2row.events.some((e: Body) => e.kind === 'rescheduled' && e.before?.scheduledAt === soon));
     await prisma.case.update({ where: { id: v1.id }, data: { assignedToId: V.id } });
-    ok('a VAWC case is refused a hearing', (await hear(v1.id, V.cookie, { hearingNumber: 1, scheduledAt: soon })).status === 422);
+    ok('a VAWC case is refused a hearing', (await hear(v1.id, V.cookie, { scheduledAt: soon })).status === 422);
     const hb = (await get('hearings', B.cookie, 'scope=blotter')).body.data;
-    ok('hearing 1 held, hearing 2 rescheduled, one upcoming', hb.byNumber[0].completed - before.hearB.byNumber[0].completed === 1
+    ok('mediation held, the Pangkat constitution rescheduled, one upcoming', hb.byStage[0].completed - before.hearB.byStage[0].completed === 1
       && hb.rescheduled - before.hearB.rescheduled === 1 && hb.upcomingCount - before.hearB.upcomingCount === 1
-      && hb.upcoming.some((h: Body) => h.case.id === b4.id && h.hearingNumber === 2), JSON.stringify({ r: hb.rescheduled, u: hb.upcomingCount }));
+      && hb.upcoming.some((h: Body) => h.case.id === b4.id && h.stage === 'CONSTITUTION'), JSON.stringify({ r: hb.rescheduled, u: hb.upcomingCount }));
     const hToday = (await get('hearings', B.cookie, `scope=blotter&${today}`)).body.data;
-    ok('a hearing set for next week counts as scheduled under a "today" filter', hToday.byNumber[1].scheduled >= 1
+    ok('a hearing set for next week counts as scheduled under a "today" filter', hToday.byStage[1].scheduled >= 1
       && hToday.upcoming.some((h: Body) => h.case.id === b4.id));
     const hv = (await get('hearings', V.cookie, 'scope=vawc')).body.data;
     ok('on the VAWC board hearings do not apply; its referrals and follow-ups show instead', hv.applicable === false && hv.vawc !== null && hv.upcoming.length === 0);

@@ -4,8 +4,8 @@ import { requireAuth, errorResponse } from '@/lib/auth';
 import { loadActor, BLOTTER_ROLES, isVawcType } from '@/lib/reporterAccess';
 import { canSeeVawc } from '@/lib/caseAccess';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { noStore, loadHearingCase, eligibilityOf } from '@/lib/hearingsServer';
-import { hearingRefusal, nextHearingNumber, VAWC_HEARING_REFUSAL, CLOSED_CASE_STATUSES } from '@/lib/hearings';
+import { noStore, loadHearingCase, eligibilityOf, loadPangkat, pangkatConstituted } from '@/lib/hearingsServer';
+import { nextStep, sessionTitle, partyFormsFor, kpFormName, VAWC_HEARING_REFUSAL, CLOSED_CASE_STATUSES } from '@/lib/hearings';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,14 +39,18 @@ export async function GET(req: NextRequest) {
     for (const { id } of cases) {
       const c = await loadHearingCase(id);
       if (!c) continue;
-      const [eligibility, hearings] = await Promise.all([
+      const [eligibility, hearings, pangkat, respondents] = await Promise.all([
         eligibilityOf(c),
-        prisma.caseHearing.findMany({ where: { caseId: id }, select: { hearingNumber: true, status: true, outcome: true } }),
+        prisma.caseHearing.findMany({ where: { caseId: id }, select: { hearingNumber: true, stage: true, session: true, status: true, outcome: true } }),
+        loadPangkat(id),
+        prisma.caseParty.count({ where: { caseId: id, role: 'REPORTED' } }),
       ]);
-      const next = nextHearingNumber(hearings);
+      const step = nextStep(c.caseType, hearings, pangkatConstituted(pangkat));
       out.push({
         id, caseNumber: c.caseNumber, caseType: c.caseType, status: c.status,
-        next, refusal: next ? hearingRefusal(c.caseType, hearings, next) : 'All three hearings have been held.',
+        next: step.stage ? { stage: step.stage, session: step.session, title: sessionTitle(step.stage, step.session),
+          forms: partyFormsFor(step.stage).map(f => ({ ...f, name: kpFormName(f.formNo) })) } : null,
+        refusal: step.refusal, hasRespondent: respondents > 0,
         eligible: eligibility.eligible, reasons: eligibility.reasons, warnings: eligibility.warnings, needsReview: eligibility.needsReview,
         categoryVerified: eligibility.categoryVerified,
       });
@@ -56,7 +60,7 @@ export async function GET(req: NextRequest) {
       const v = await prisma.case.findFirst({ where: { caseNumber: { equals: q, mode: 'insensitive' }, caseType: { in: [...VAWC_TYPES] } },
         select: { id: true, caseNumber: true, caseType: true, status: true } });
       if (v && isVawcType(v.caseType)) {
-        out.unshift({ ...v, next: null, refusal: VAWC_HEARING_REFUSAL, eligible: false, reasons: [VAWC_HEARING_REFUSAL], warnings: [], needsReview: false, categoryVerified: false });
+        out.unshift({ ...v, next: null, refusal: VAWC_HEARING_REFUSAL, hasRespondent: false, eligible: false, reasons: [VAWC_HEARING_REFUSAL], warnings: [], needsReview: false, categoryVerified: false });
       }
     }
     return noStore({ success: true, data: out });
