@@ -908,15 +908,23 @@ model CaseKpReview {
   id           String   @id @default(cuid())
   caseId       String
   case         Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  /// ELIGIBLE | NOT_ELIGIBLE
+  /// PENDING_REVIEW | NEEDS_VERIFICATION | ELIGIBLE | NOT_ELIGIBLE
+  /// (version 1 reviews: ELIGIBLE | NOT_ELIGIBLE only)
   decision     String
   /// The verified category the review was made under.
   caseType     String
-  /// lib/hearings.ts KP_CHECKLIST answers: { key: true | false }
+  /// lib/hearings.ts KP_CHECKLIST answers. Version 1: { key: true | false };
+  /// version 2: { key: YES | NO | UNKNOWN | NOT_APPLICABLE }, unanswered keys left out.
   checklist    Json
   note         String?
   reviewedById String
   createdAt    DateTime @default(now())
+  /// 1 = the earlier tick-box checklist, 2 = answers (lib/hearings.ts KP_REVIEW_VERSION).
+  version      Int      @default(1)
+  /// The official who approved the case for KP proceedings - required for a
+  /// version 2 ELIGIBLE review (database CHECK, prisma/sql/008).
+  approvedById String?
+  approvedAt   DateTime?
 
   @@index([caseId, createdAt])
 }

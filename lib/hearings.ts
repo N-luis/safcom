@@ -213,21 +213,105 @@ export const hasDayArrived = (d: Date | string, now = new Date()) => phDay(d) <=
 // ── Eligibility for Katarungang Pambarangay proceedings ──────────────────────
 
 /**
- * What the reviewing official confirms. Each must hold for the dispute to go
- * to barangay mediation or conciliation (Local Government Code, secs. 408 and
- * 412). SafeComm records the official's review; it does not decide the law.
+ * What the reviewing official checks, from the Local Government Code (RA
+ * 7160) secs. 408, 409 and 412(b), and RA 9262 sec. 33. Each is a statement
+ * that must hold for the dispute to go to barangay mediation or conciliation,
+ * answered:
+ *
+ *   YES            - checked, and it holds
+ *   NO             - checked, and it does not: a legal exclusion applies
+ *   UNKNOWN        - not yet known; the fact must be verified first
+ *   NOT_APPLICABLE - the point does not arise in this dispute (only where
+ *                    that is possible, e.g. no offence, no real property)
+ *
+ * An unanswered point is just that - the review is not finished. Only a NO
+ * the official records excludes the case. SafeComm records the review; it
+ * does not make the legal call.
  */
+export const KP_ANSWERS = ['YES', 'NO', 'UNKNOWN', 'NOT_APPLICABLE'] as const;
+export type KpAnswer = (typeof KP_ANSWERS)[number];
+export const KP_ANSWER_LABELS: Record<KpAnswer, string> = { YES: 'Yes', NO: 'No', UNKNOWN: 'Unknown', NOT_APPLICABLE: 'Not applicable' };
+
 export const KP_CHECKLIST = [
-  { key: 'not_vawc', label: 'The dispute does not involve violence against women or their children (RA 9262). Those cases stay with the VAWC desk.' },
-  { key: 'individuals', label: 'The parties are individuals - not the government, a government office, or a corporation or other juridical entity.' },
-  { key: 'not_official_duty', label: 'No party is a public officer or employee and the dispute does not relate to the performance of official functions.' },
-  { key: 'offence_limit', label: 'Any offence involved is within the penalty limit for barangay conciliation in sec. 408(c) of RA 7160 (as written: imprisonment of not more than one year or a fine of not more than PHP 5,000) - check against the current law.' },
-  { key: 'private_party', label: 'There is a private offended party (the complaint is not one with no private complainant).' },
-  { key: 'residence', label: 'The parties actually reside in the same city or municipality (or in adjoining barangays and they agree to conciliation), and any real property involved is there too.' },
-  { key: 'no_urgent_court', label: 'No urgent court action is needed - no one is under detention, and no habeas corpus, provisional remedy or prescription deadline makes conciliation impossible.' },
+  { key: 'not_vawc', short: 'not a VAWC case', basis: 'RA 9262 sec. 33', na: false,
+    label: 'The dispute is not violence against a woman or her child under RA 9262.',
+    exclusion: 'RA 9262 sec. 33 prohibits mediation and conciliation of VAWC cases. Keep it with the VAWC desk.' },
+  { key: 'individuals', short: 'the parties are individuals', basis: 'RA 7160 sec. 408(a)', na: false,
+    label: 'Every party is an individual - none is the government or one of its subdivisions or instrumentalities, nor a corporation, partnership or other juridical entity.',
+    exclusion: 'A party is the government, a government office, or a juridical entity.' },
+  { key: 'not_official_duty', short: 'not about official functions', basis: 'RA 7160 sec. 408(b)', na: false,
+    label: 'No party is a public officer or employee in a dispute relating to the performance of their official functions.',
+    exclusion: 'A public officer or employee is a party and the dispute relates to their official functions.' },
+  { key: 'offence_limit', short: 'within the penalty limit', basis: 'RA 7160 sec. 408(c)', na: true,
+    label: 'Any offence involved is punishable by imprisonment of not more than one year or a fine of not more than PHP 5,000 (sec. 408(c) as written in RA 7160 - bills to amend it have been filed, so check the current law). Not applicable when no offence is involved.',
+    exclusion: 'The offence is punishable beyond the limit of sec. 408(c).' },
+  { key: 'private_party', short: 'a private offended party', basis: 'RA 7160 sec. 408(d)', na: true,
+    label: 'Any offence involved has a private offended party. Not applicable when no offence is involved.',
+    exclusion: 'The offence has no private offended party.' },
+  { key: 'residence', short: 'where the parties reside', basis: 'RA 7160 sec. 408(f)', na: false,
+    label: 'The parties actually reside in the same city or municipality - or in adjoining barangays of different ones, and they agree to submit the dispute.',
+    exclusion: 'The parties reside in different cities or municipalities, and the exception for adjoining barangays does not apply.' },
+  { key: 'real_property', short: 'where the real property is', basis: 'RA 7160 sec. 408(e)', na: true,
+    label: 'Any real property involved is in the same city or municipality - or the parties agree to submit the dispute. Not applicable when no real property is involved.',
+    exclusion: 'The real property is in a different city or municipality and the parties do not agree to submit.' },
+  { key: 'venue', short: 'the proper barangay (venue)', basis: 'RA 7160 sec. 409', na: false,
+    label: 'This barangay is the proper venue: where both parties reside; where the respondent resides (parties in different barangays of the same city or municipality); where the real property is; or the barangay of the workplace or school.',
+    exclusion: 'Another barangay is the proper venue under sec. 409.' },
+  { key: 'no_direct_court', short: 'no ground to go directly to court', basis: 'RA 7160 sec. 412(b)', na: false,
+    label: 'No ground to go directly to court applies: the accused is not under detention, no one is deprived of liberty (habeas corpus), no provisional remedy is sought (injunction, attachment, delivery of personal property, support pendente lite), and the action is not about to prescribe.',
+    exclusion: 'A ground under sec. 412(b) lets the parties go directly to court.' },
+  { key: 'may_compromise', short: 'a dispute the parties may settle', basis: 'RA 7160 sec. 408(g); Civil Code art. 2035', na: false,
+    label: 'The dispute is not of a class excluded by the President, and it is one the law allows the parties to settle (not, for example, civil status, the validity of a marriage, or future support).',
+    exclusion: 'The dispute is excluded, or is one the law does not allow to be settled by compromise.' },
 ] as const;
 export type KpCheckKey = (typeof KP_CHECKLIST)[number]['key'];
 export const KP_KEYS = KP_CHECKLIST.map(c => c.key) as [KpCheckKey, ...KpCheckKey[]];
+export type KpAnswers = Partial<Record<KpCheckKey, KpAnswer | null>>;
+/** The review format: 1 = the earlier tick-box checklist, 2 = the answers above. */
+export const KP_REVIEW_VERSION = 2;
+
+/** Where a case stands on eligibility. */
+export const KP_ELIGIBILITY_STATES = ['PENDING_REVIEW', 'NEEDS_VERIFICATION', 'ELIGIBLE', 'NOT_ELIGIBLE'] as const;
+export type KpEligibilityState = (typeof KP_ELIGIBILITY_STATES)[number];
+export const KP_ELIGIBILITY_LABELS: Record<KpEligibilityState, string> = {
+  PENDING_REVIEW: 'Pending review', NEEDS_VERIFICATION: 'Needs verification', ELIGIBLE: 'Eligible', NOT_ELIGIBLE: 'Not eligible',
+};
+
+export interface KpReviewOutcome {
+  decision: KpEligibilityState;
+  /** Points answered NO - each a legal exclusion the official recorded. */
+  exclusions: KpCheckKey[];
+  /** Points answered UNKNOWN. */
+  toVerify: KpCheckKey[];
+  /** Points not answered yet. */
+  unanswered: KpCheckKey[];
+}
+
+/**
+ * The decision a set of answers makes. A recorded exclusion (NO) makes it
+ * not eligible; otherwise an UNKNOWN leaves it to be verified, and an
+ * unanswered point leaves the review unfinished. Every point cleared (YES, or
+ * NOT_APPLICABLE where that is possible) is eligible only once the official
+ * approves it - until then it waits for that approval.
+ */
+export function decideKpReview(answers: KpAnswers, approved: boolean): KpReviewOutcome {
+  const of = (a: KpAnswer) => KP_CHECKLIST.filter(c => answers[c.key] === a).map(c => c.key);
+  const exclusions = of('NO');
+  const toVerify = of('UNKNOWN');
+  const unanswered = KP_CHECKLIST.filter(c => !answers[c.key]).map(c => c.key);
+  const decision: KpEligibilityState = exclusions.length ? 'NOT_ELIGIBLE'
+    : toVerify.length ? 'NEEDS_VERIFICATION'
+      : unanswered.length || !approved ? 'PENDING_REVIEW' : 'ELIGIBLE';
+  return { decision, exclusions, toVerify, unanswered };
+}
+
+/** Why these answers cannot be recorded, or null: N/A only where the point can not arise. */
+export function kpAnswersRefusal(answers: KpAnswers): string | null {
+  const bad = KP_CHECKLIST.find(c => answers[c.key] === 'NOT_APPLICABLE' && !c.na);
+  return bad ? `"Not applicable" cannot be the answer to: ${bad.label}` : null;
+}
+
+export const kpCheck = (key: string) => KP_CHECKLIST.find(c => c.key === key);
 
 export const CLOSED_CASE_STATUSES = ['Resolved', 'Closed'];
 
@@ -237,7 +321,10 @@ export interface EligibilityInput {
   /** The latest officer decision on the category (confirmed, changed, or entered at a walk-in). */
   verifiedCategory: { caseType: string | null; at: Date | string } | null;
   /** The latest eligibility review. */
-  review: { decision: string; caseType: string; at: Date | string; note?: string | null; by?: string | null } | null;
+  review: {
+    decision: string; caseType: string; at: Date | string; note?: string | null; by?: string | null;
+    version?: number | null; checklist?: unknown; approvedById?: string | null; approvedBy?: string | null;
+  } | null;
   reportPath?: string | null;
   /** The category the AI read from the report, when it differed. */
   aiSuggestedCategory?: string | null;
@@ -245,46 +332,91 @@ export interface EligibilityInput {
 
 export interface Eligibility {
   eligible: boolean;
+  /** Where the case stands - PENDING_REVIEW, NEEDS_VERIFICATION, ELIGIBLE or NOT_ELIGIBLE. */
+  state: KpEligibilityState;
   /** Why not - shown in place of the Create Hearing button. */
   reasons: string[];
   /** Worth a second look even when eligible. */
   warnings: string[];
   categoryVerified: boolean;
-  /** True when an official still has to review eligibility (or review it again). */
+  /** True when an official still has to review eligibility (or continue, or review it again). */
   needsReview: boolean;
+  /** The legal exclusions the latest review recorded, in the checklist's words. */
+  exclusions: { key: KpCheckKey; basis: string; exclusion: string }[];
+  /** The latest review's answers on the current category, to continue it. */
+  answers: KpAnswers | null;
   review: EligibilityInput['review'];
 }
 
 export const VAWC_HEARING_REFUSAL = 'VAWC cases under RA 9262 are not subject to barangay mediation or conciliation. Keep this case in the VAWC workflow - intervention, safety assistance, referral and follow-up.';
 
+const answersOf = (v: unknown): KpAnswers => {
+  const out: KpAnswers = {};
+  if (v && typeof v === 'object') {
+    for (const k of KP_KEYS) {
+      const a = (v as Record<string, unknown>)[k];
+      if (typeof a === 'string' && (KP_ANSWERS as readonly string[]).includes(a)) out[k] = a as KpAnswer;
+    }
+  }
+  return out;
+};
+const listOf = (keys: KpCheckKey[]) => keys.map(k => `${kpCheck(k)!.short} (${kpCheck(k)!.basis})`).join('; ');
+
 /**
  * May this case have an ordinary barangay hearing? Decided from the verified
- * category and an official's review, never from the form the resident chose.
+ * category and an official's review, never from the form the resident chose
+ * or the AI's reading.
  */
 export function hearingEligibility(i: EligibilityInput): Eligibility {
-  const base = { warnings: [] as string[], review: i.review };
+  const base = { warnings: [] as string[], review: i.review, exclusions: [], answers: null };
   if (isVawc(i.caseType)) {
-    return { ...base, eligible: false, reasons: [VAWC_HEARING_REFUSAL], categoryVerified: Boolean(i.verifiedCategory), needsReview: false };
+    return { ...base, eligible: false, state: 'NOT_ELIGIBLE', reasons: [VAWC_HEARING_REFUSAL], categoryVerified: Boolean(i.verifiedCategory), needsReview: false };
   }
   const reasons: string[] = [];
   const warnings: string[] = [];
-  if (CLOSED_CASE_STATUSES.includes(i.status)) reasons.push(`This case is ${i.status.toLowerCase()}. A closed case has no further hearings.`);
+  let state: KpEligibilityState = 'PENDING_REVIEW';
+  let exclusions: Eligibility['exclusions'] = [];
+  let answers: KpAnswers | null = null;
+  let needsReview = true;
   const categoryVerified = Boolean(i.verifiedCategory && i.verifiedCategory.caseType === i.caseType);
   if (!categoryVerified) {
     reasons.push('Confirm the case category first (Case Classification). Eligibility follows the verified category, not the one chosen when the report was filed.');
   }
-  const reviewHolds = Boolean(i.review && i.review.caseType === i.caseType);
-  const needsReview = !reviewHolds;
-  if (!i.review) reasons.push('An official must review whether this dispute may go to Katarungang Pambarangay proceedings.');
-  else if (!reviewHolds) reasons.push(`The eligibility review was made when the case was "${i.review.caseType}". Review it again for "${i.caseType}".`);
-  else if (i.review.decision !== 'ELIGIBLE') {
-    reasons.push(`Reviewed as not eligible for barangay conciliation${i.review.note ? `: ${i.review.note}` : '.'}`);
+  const r = i.review;
+  if (!r) reasons.push('An official must review whether this dispute may go to Katarungang Pambarangay proceedings.');
+  else if (r.caseType !== i.caseType) reasons.push(`The eligibility review was made when the case was "${r.caseType}". Review it again for "${i.caseType}".`);
+  else if ((r.version ?? 1) < 2) {
+    // The earlier tick-box review: all ticked was an explicit confirmation of
+    // every point. Anything else only meant a box was left unticked - it never
+    // established an exclusion - so it is reviewed again, not treated as one.
+    if (r.decision === 'ELIGIBLE') { state = 'ELIGIBLE'; needsReview = false; }
+    else reasons.push(`An earlier review saved this as not eligible because a point on the old checklist was left unticked${r.note ? ` (note: "${r.note}")` : ''}. That did not record a legal exclusion - review it again with the current checklist.`);
+  } else {
+    answers = answersOf(r.checklist);
+    const o = decideKpReview(answers, Boolean(r.approvedById));
+    state = o.decision;
+    if (o.decision === 'NOT_ELIGIBLE') {
+      needsReview = false;
+      exclusions = o.exclusions.map(k => { const c = kpCheck(k)!; return { key: k, basis: c.basis, exclusion: c.exclusion }; });
+      reasons.push(`Not eligible for barangay conciliation: ${exclusions.map(e => `${e.exclusion} (${e.basis})`).join(' ')}${r.note ? ` Official's note: ${r.note}` : ''}`);
+    } else if (o.decision === 'NEEDS_VERIFICATION') {
+      reasons.push(`Still to be verified: ${listOf(o.toVerify)}.`);
+    } else if (o.decision === 'PENDING_REVIEW') {
+      reasons.push(o.unanswered.length
+        ? `The eligibility review is not finished - ${o.unanswered.length} point${o.unanswered.length === 1 ? '' : 's'} still to answer.`
+        : 'Every point is cleared. An authorized official must approve the case for Katarungang Pambarangay proceedings.');
+    } else needsReview = false;
+  }
+  if (!categoryVerified && state === 'ELIGIBLE') state = 'PENDING_REVIEW';
+  if (CLOSED_CASE_STATUSES.includes(i.status)) {
+    reasons.push(`This case is ${i.status.toLowerCase()}. A closed case has no further hearings.`);
+    state = 'NOT_ELIGIBLE'; needsReview = false;
   }
   if (i.reportPath === 'VAWC') warnings.push('The reporter filed this on the VAWC form. Check again that RA 9262 does not apply before any hearing.');
   if (i.aiSuggestedCategory && isVawc(i.aiSuggestedCategory)) {
     warnings.push(`The AI read possible VAWC indicators ("${i.aiSuggestedCategory}"). The verified category is "${i.caseType}" - confirm that RA 9262 does not apply.`);
   }
-  return { eligible: reasons.length === 0, reasons, warnings, categoryVerified, needsReview, review: i.review };
+  return { eligible: reasons.length === 0 && state === 'ELIGIBLE', state, reasons, warnings, categoryVerified, needsReview, exclusions, answers, review: i.review };
 }
 
 // ── Which proceeding may come next ──────────────────────────────────────────

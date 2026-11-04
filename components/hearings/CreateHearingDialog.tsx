@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from 'react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import {
   Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Autocomplete,
   CircularProgress, Skeleton, Chip, useMediaQuery, useTheme,
@@ -9,6 +9,7 @@ import {
 import { Gavel } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { phDay, phTime, type ScheduleConflict } from '@/lib/hearings';
+import { REFERRAL_AGENCIES, type ReferralAgency } from '@/lib/caseRecords';
 import type { HearingCaseRow } from '@/lib/hearingCasesServer';
 import ConflictWarnings, { ConflictList } from './ConflictWarnings';
 import KpReviewForm from './KpReviewForm';
@@ -16,7 +17,11 @@ import { PartyAccount } from './HearingDetailsDialog';
 import { NAVY, getJson, send, todayPh, conflictsOf, chipSx, type CaseHearingsData } from './hearingUi';
 
 export const ELIGIBILITY_COLOR: Record<HearingCaseRow['eligibility']['state'], string> = {
-  ELIGIBLE: '#15803d', NOT_ELIGIBLE: '#b91c1c', PENDING: '#b45309',
+  ELIGIBLE: '#15803d', NOT_ELIGIBLE: '#b91c1c', NEEDS_VERIFICATION: '#b45309', PENDING_REVIEW: '#64748b',
+};
+const ELIGIBILITY_TITLE: Record<HearingCaseRow['eligibility']['state'], string> = {
+  PENDING_REVIEW: 'Eligibility review pending', NEEDS_VERIFICATION: 'Eligibility needs verification',
+  NOT_ELIGIBLE: 'Not eligible for barangay mediation or conciliation', ELIGIBLE: 'Not ready for a hearing yet',
 };
 
 interface CaseListData { rows: HearingCaseRow[]; vawc: { id: string; caseNumber: string; caseType: string; status: string; reason: string } | null }
@@ -48,7 +53,9 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   const candidates = useSWR<CaseListData>(fixedCase ? null : `/api/hearings/cases?pageSize=25${q ? `&q=${encodeURIComponent(q)}` : ''}`, getJson, { keepPreviousData: true });
   const detail = useSWR<CaseHearingsData>(caseId ? `/api/cases/${caseId}/hearings` : null, getJson);
   const d = detail.data;
-  const refresh = () => { void detail.mutate(); void candidates.mutate(); };
+  const { mutate: mutateAll } = useSWRConfig();
+  // A review, a respondent or a claim changes the case list behind the dialog too.
+  const refresh = () => { void detail.mutate(); void mutateAll((key: unknown) => typeof key === 'string' && key.startsWith('/api/hearings/cases')); };
 
   // null = not touched yet: the field shows the case's default until the official changes it.
   const [dateIn, setDate] = useState<string | null>(null);
@@ -81,6 +88,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
 
   const next = d?.next ?? null;
   const ready = Boolean(d && d.canEdit && d.eligibility.eligible && next && !d.blocked);
+  const hasAnswers = Boolean(d?.eligibility.answers && Object.keys(d.eligibility.answers).length);
   const detailError = detail.error as (Error & { status?: number; canClaim?: boolean }) | undefined;
 
   const claim = async () => {
@@ -180,9 +188,9 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
           <>
             <CaseInfo d={d} />
             {d.eligibility.warnings.map(w => <Alert key={w} severity="warning" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{w}</Alert>)}
-            {!d.eligibility.eligible && (
-              <Alert severity={d.vawc ? 'error' : 'info'} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.25 }}>{d.vawc ? 'No ordinary barangay hearing for this case' : 'Not eligible for a hearing yet'}</Typography>
+            {!d.eligibility.eligible && !(d.eligibility.state === 'NOT_ELIGIBLE' && d.eligibility.exclusions.length > 0 && !d.vawc && !reviewAgain) && (
+              <Alert severity={d.vawc || d.eligibility.state === 'NOT_ELIGIBLE' ? 'error' : d.eligibility.state === 'NEEDS_VERIFICATION' ? 'warning' : 'info'} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.25 }}>{d.vawc ? 'No ordinary barangay hearing for this case' : ELIGIBILITY_TITLE[d.eligibility.state]}</Typography>
                 {d.eligibility.reasons.map(r => <Box key={r}>{r}</Box>)}
                 {!d.eligibility.categoryVerified && !d.vawc && d.canEdit && (
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.75 }}>
@@ -194,11 +202,15 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                 )}
               </Alert>
             )}
-            {!d.vawc && d.canEdit && d.eligibility.categoryVerified && (d.eligibility.needsReview || reviewAgain) && (
-              <KpReviewForm caseId={d.case.id} caseType={d.case.caseType} onSaved={() => { setReviewAgain(false); refresh(); }} />
+            {!d.vawc && d.canEdit && d.eligibility.categoryVerified && (reviewAgain || (d.eligibility.needsReview && !hasAnswers)) && (
+              <KpReviewForm key={d.eligibility.review ? String(d.eligibility.review.at) : 'new'} caseId={d.case.id} caseType={d.case.caseType}
+                initial={d.eligibility.answers} onSaved={() => { setReviewAgain(false); refresh(); }} />
             )}
-            {!d.vawc && d.canEdit && d.eligibility.categoryVerified && !d.eligibility.needsReview && !d.eligibility.eligible && !reviewAgain && d.eligibility.review && (
-              <Box><Button size="small" onClick={() => setReviewAgain(true)} sx={{ textTransform: 'none' }}>Review eligibility again</Button></Box>
+            {!d.vawc && d.canEdit && d.eligibility.categoryVerified && d.eligibility.needsReview && hasAnswers && !reviewAgain && (
+              <Box><Button variant="contained" color="warning" onClick={() => setReviewAgain(true)} sx={{ textTransform: 'none' }}>Continue eligibility review</Button></Box>
+            )}
+            {!d.vawc && d.eligibility.state === 'NOT_ELIGIBLE' && d.eligibility.exclusions.length > 0 && !reviewAgain && (
+              <NotEligible d={d} onReviewAgain={d.canEdit ? () => setReviewAgain(true) : undefined} />
             )}
             {d.eligibility.eligible && d.blocked && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.blocked}</Alert>}
             {!d.canEdit && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.accessMessage ?? 'You can view this case\'s hearings but not create one.'}</Alert>}
@@ -284,6 +296,58 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
         )}
       </DialogActions>
     </Dialog>
+  );
+}
+
+/**
+ * A case an official found not eligible: the exclusion, in the law's terms,
+ * and where to send the parties instead - recorded as a referral on the
+ * case (Case records). The exclusion is never bypassed here: only a new
+ * review that says what changed can clear it.
+ */
+function NotEligible({ d, onReviewAgain }: { d: CaseHearingsData; onReviewAgain?: () => void }) {
+  const agencies = (Object.keys(REFERRAL_AGENCIES) as ReferralAgency[]).filter(a => a !== 'LUPON' && (REFERRAL_AGENCIES[a].desks as readonly string[]).includes('BLOTTER'));
+  const directCourt = d.eligibility.exclusions.some(e => e.key === 'no_direct_court' || e.key === 'offence_limit' || e.key === 'private_party');
+  const [agency, setAgency] = useState<ReferralAgency>(directCourt ? 'LEGAL_AID' : 'OTHER');
+  const [other, setOther] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
+  const refer = async () => {
+    setBusy(true);
+    try {
+      await send(`/api/cases/${d.case.id}/referrals`, 'POST', {
+        agency, agencyOther: agency === 'OTHER' ? other.trim() : undefined, referredAt: todayPh(),
+        reason: `Not eligible for barangay conciliation: ${d.eligibility.exclusions.map(e => `${e.exclusion} (${e.basis})`).join(' ')}`.slice(0, 500),
+      });
+      setDone(REFERRAL_AGENCIES[agency].label); toast.success('Referral recorded on the case');
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not record the referral'); } finally { setBusy(false); }
+  };
+  return (
+    <Box sx={{ border: '1px solid #fecaca', bgcolor: '#fef2f2', borderRadius: 2, p: 1.5, display: 'grid', gap: 1 }}>
+      <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: '#991b1b' }}>Why no KP proceeding can be created</Typography>
+      {d.eligibility.exclusions.map(e => (
+        <Typography key={e.key} sx={{ fontSize: '0.8rem', color: '#7f1d1d' }}>{e.exclusion} <span style={{ color: '#b91c1c' }}>({e.basis})</span></Typography>
+      ))}
+      {d.eligibility.review?.note && <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>Official&apos;s basis: {d.eligibility.review.note}{d.eligibility.review.by ? ` - ${d.eligibility.review.by}` : ''}</Typography>}
+      <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>
+        {directCourt ? "The parties may take the matter directly to the court or the prosecutor's office. " : ''}
+        Refer the parties to the office that can act on it. The referral is saved to the case records.
+      </Typography>
+      {done ? <Alert severity="success" sx={{ borderRadius: 2, fontSize: '0.8rem', py: 0 }}>Referred to {done}.</Alert> : d.canEdit && (
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <TextField select size="small" label="Refer to" value={agency} onChange={e => setAgency(e.target.value as ReferralAgency)} sx={{ minWidth: 260 }}>
+            {agencies.map(a => <MenuItem key={a} value={a}>{REFERRAL_AGENCIES[a].label}</MenuItem>)}
+          </TextField>
+          {agency === 'OTHER' && <TextField size="small" label="Office *" placeholder="e.g. Office of the City Prosecutor" value={other} onChange={e => setOther(e.target.value)} slotProps={{ htmlInput: { maxLength: 160 } }} />}
+          <Button variant="outlined" color="error" onClick={refer} disabled={busy || (agency === 'OTHER' && other.trim().length < 2)} sx={{ textTransform: 'none', mt: 0.25 }}>
+            {busy ? <CircularProgress size={16} /> : 'Record referral'}
+          </Button>
+        </Box>
+      )}
+      {onReviewAgain && (
+        <Box><Button size="small" onClick={onReviewAgain} sx={{ textTransform: 'none', px: 0 }}>The facts have changed - review eligibility again</Button></Box>
+      )}
+    </Box>
   );
 }
 

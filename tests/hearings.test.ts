@@ -16,7 +16,7 @@ import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
 import {
-  hearingEligibility, hearingRefusal, nextStep, outcomeLeadsTo, statusFromNotices, residentHearingMessage, partyFormsFor, phDay, KP_KEYS, STAGE_OUTCOMES,
+  hearingEligibility, hearingRefusal, nextStep, outcomeLeadsTo, statusFromNotices, residentHearingMessage, partyFormsFor, phDay, KP_KEYS, KP_CHECKLIST, STAGE_OUTCOMES, decideKpReview, type KpAnswers,
 } from '../lib/hearings';
 import { decideHearingAccess, pangkatRefusal } from '../lib/hearingsServer';
 import { kpNoticeBody } from '../lib/kpNoticesPdf';
@@ -66,7 +66,8 @@ async function pdfText(res: Response | undefined) {
   for (let i = 1; i <= doc.numPages; i++) out += (await (await doc.getPage(i)).getTextContent()).items.map(it => ('str' in it ? it.str : '')).join(' ') + '\n';
   return out.replace(/\s+/g, ' ');
 }
-const allChecks = Object.fromEntries(KP_KEYS.map(k => [k, true]));
+// Every point answered Yes - the earlier tick-box form had every box ticked.
+const allYes = Object.fromEntries(KP_KEYS.map(k => [k, 'YES']));
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 async function main() {
@@ -83,6 +84,20 @@ async function main() {
     ok('a review made under another category must be redone', hearingEligibility({ caseType: 'Noise Complaint', status: 'Open', verifiedCategory: verified, review: { ...review, caseType: 'Vandalism' } }).needsReview);
     ok('reviewed as not eligible stays not eligible', !hearingEligibility({ caseType: 'Noise Complaint', status: 'Open', verifiedCategory: verified, review: { ...review, decision: 'NOT_ELIGIBLE' } }).eligible);
     ok('verified and reviewed is eligible', hearingEligibility({ caseType: 'Noise Complaint', status: 'Open', verifiedCategory: verified, review }).eligible);
+    ok('an earlier tick-box "not eligible" is reviewed again - it never recorded an exclusion', (() => {
+      const e = hearingEligibility({ caseType: 'Noise Complaint', status: 'Open', verifiedCategory: verified, review: { ...review, decision: 'NOT_ELIGIBLE', note: 'x' } });
+      return !e.eligible && e.state === 'PENDING_REVIEW' && e.needsReview && /old checklist/.test(e.reasons[0]); })());
+    ok('decisions: unanswered is pending; unknown needs verification; a No is not eligible; all cleared needs approval',
+      decideKpReview({}, false).decision === 'PENDING_REVIEW'
+      && decideKpReview({ ...allYes, venue: 'UNKNOWN' } as KpAnswers, false).decision === 'NEEDS_VERIFICATION'
+      && decideKpReview({ venue: 'NO' } as KpAnswers, false).decision === 'NOT_ELIGIBLE'
+      && decideKpReview({ ...allYes, venue: 'NO', residence: 'UNKNOWN' } as KpAnswers, true).decision === 'NOT_ELIGIBLE'
+      && decideKpReview(allYes as KpAnswers, false).decision === 'PENDING_REVIEW'
+      && decideKpReview(allYes as KpAnswers, true).decision === 'ELIGIBLE');
+    ok('the checklist covers secs. 408(a)-(g), 409, 412(b) and RA 9262', ['408(a)', '408(b)', '408(c)', '408(d)', '408(e)', '408(f)', '408(g)', 'sec. 409', '412(b)', 'RA 9262']
+      .every(b => KP_CHECKLIST.some(c => c.basis.includes(b))));
+    ok('a VAWC case is not eligible whatever the review says', hearingEligibility({ caseType: 'Domestic Violence', status: 'Open', verifiedCategory: { caseType: 'Domestic Violence', at: new Date() },
+      review: { decision: 'ELIGIBLE', caseType: 'Domestic Violence', at: new Date(), version: 2, checklist: allYes, approvedById: 'x' } }).state === 'NOT_ELIGIBLE');
     ok('a closed case is not', !hearingEligibility({ caseType: 'Noise Complaint', status: 'Closed', verifiedCategory: verified, review }).eligible);
     ok('filed on the VAWC form or read as VAWC by the AI: a warning', hearingEligibility({ caseType: 'Noise Complaint', status: 'Open', verifiedCategory: verified, review, reportPath: 'VAWC', aiSuggestedCategory: 'Domestic Violence' }).warnings.length === 2);
     const done = (stage: string, outcome: string, n = 1) => ({ hearingNumber: n, stage, session: 1, status: 'COMPLETED', outcome });
@@ -157,7 +172,8 @@ async function main() {
     };
     const eligible = async (caseId: string, by: string) => {
       await prisma.assessmentHistory.create({ data: { caseId, kind: 'category_confirm', caseType: 'Noise Complaint', rationale: {}, actorId: by } });
-      await prisma.caseKpReview.create({ data: { caseId, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: allChecks, reviewedById: by } });
+      await prisma.caseKpReview.create({ data: { caseId, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: allYes, reviewedById: by,
+        version: 2, approvedById: by, approvedAt: new Date() } });
     };
     const K = await mkCase({});
     const respondent = await prisma.caseParty.create({ data: { caseId: K.id, role: 'REPORTED', fullName: 'Juan Respondente', address: '7 Secret Lane', source: 'reporter' } });
@@ -193,7 +209,7 @@ async function main() {
     const vv = await create(KV.id, V.cookie, { date: futureDay, time: '09:00' });
     ok('the VAWC officer cannot schedule mediation on a VAWC case', vv.status === 422 && /RA 9262/.test(vv.body.error ?? ''), `${vv.status}`);
     ok('nor can the captain', (await create(KV.id, C.cookie, { stage: 'MEDIATION', date: futureDay, time: '09:00' })).status === 422);
-    ok('no eligibility review can be recorded on it', (await json(await kpPOST(req(`/api/cases/${KV.id}/kp-review`, C.cookie, 'POST', { checklist: allChecks }), P(KV.id)))).status === 422);
+    ok('no eligibility review can be recorded on it', (await json(await kpPOST(req(`/api/cases/${KV.id}/kp-review`, C.cookie, 'POST', { answers: allYes, approve: true }), P(KV.id)))).status === 422);
     ok('no Pangkat can be recorded on it', (await pk(KV.id, C.cookie, { action: 'add_member', name: 'Someone Lupon', chosenBy: 'BOTH_PARTIES' })).status !== 200);
     ok('to the blotter desk the VAWC case is not found', (await json(await caseHearingsGET(req(`/api/cases/${KV.id}/hearings`, B.cookie), P(KV.id)))).status === 404);
     const vlist = await json(await listGET(req('/api/hearings', V.cookie)));
@@ -210,12 +226,36 @@ async function main() {
     const e2 = await create(K.id, B.cookie, { date: futureDay, time: '09:00' });
     ok('without an official\'s eligibility review: refused', e2.status === 422 && /review/i.test(e2.body.error ?? ''));
     const kp = (cookie: string, body: Body) => kpPOST(req(`/api/cases/${K.id}/kp-review`, cookie, 'POST', body), P(K.id)).then(json);
-    ok('a review with a point unticked needs a reason', (await kp(B.cookie, { checklist: { ...allChecks, offence_limit: false } })).status === 400);
-    const ne = await kp(B.cookie, { checklist: { ...allChecks, offence_limit: false }, note: 'Penalty exceeds the limit' });
-    ok('...and is recorded as not eligible, by whom', ne.status === 201 && ne.body.data.review.decision === 'NOT_ELIGIBLE' && !ne.body.data.eligibility.eligible);
-    ok('a proceeding is then refused', (await create(K.id, B.cookie, { date: futureDay, time: '09:00' })).status === 422);
-    ok('the system administrator cannot record a review', (await kp(S.cookie, { checklist: allChecks })).status === 403);
-    ok('a full review makes the case eligible', (await kp(B.cookie, { checklist: allChecks })).body.data?.eligibility.eligible === true);
+    const refused = async () => (await create(K.id, B.cookie, { date: futureDay, time: '09:00' })).status === 422;
+    const part = await kp(B.cookie, { answers: { not_vawc: 'YES', individuals: 'YES' } });
+    ok('unanswered points do not make the case not eligible: the review is pending', part.status === 201 && part.body.data.review.decision === 'PENDING_REVIEW'
+      && part.body.data.eligibility.state === 'PENDING_REVIEW' && /not finished - 8 points/.test(part.body.data.eligibility.reasons.join(' ')));
+    ok('...and no proceeding can be created yet', await refused());
+    const unk = await kp(B.cookie, { answers: { ...allYes, residence: 'UNKNOWN', real_property: 'NOT_APPLICABLE' } });
+    ok('an unknown answer: needs verification, saying which point', unk.status === 201 && unk.body.data.review.decision === 'NEEDS_VERIFICATION'
+      && unk.body.data.eligibility.state === 'NEEDS_VERIFICATION' && /where the parties reside/.test(unk.body.data.eligibility.reasons[0]) && await refused());
+    ok('the answers are kept to continue the review', (await detail(K.id)).eligibility.answers?.residence === 'UNKNOWN' && (await detail(K.id)).eligibility.needsReview === true);
+    ok('"not applicable" only where the point can not arise', (await kp(B.cookie, { answers: { ...allYes, venue: 'NOT_APPLICABLE' } })).status === 400);
+    ok('a review with an unknown point cannot be approved', (await kp(B.cookie, { answers: { ...allYes, residence: 'UNKNOWN' }, approve: true })).status === 400);
+    const unapproved = await kp(B.cookie, { answers: allYes });
+    ok('every point cleared but not approved: still pending, waiting for approval', unapproved.body.data?.review.decision === 'PENDING_REVIEW'
+      && /must approve/.test(unapproved.body.data.eligibility.reasons.join(' ')) && await refused());
+    ok('an exclusion needs the basis it rests on', (await kp(B.cookie, { answers: { ...allYes, offence_limit: 'NO' } })).status === 400);
+    const ne = await kp(B.cookie, { answers: { ...allYes, offence_limit: 'NO' }, note: 'Slight physical injuries with a weapon - checked against the RPC penalty' });
+    ok('a recorded exclusion: not eligible, with the legal basis', ne.status === 201 && ne.body.data.review.decision === 'NOT_ELIGIBLE' && !ne.body.data.eligibility.eligible
+      && ne.body.data.eligibility.exclusions.some((x: Body) => x.key === 'offence_limit' && x.basis === 'RA 7160 sec. 408(c)'));
+    ok('a verified exclusion blocks the proceeding', await refused());
+    ok('and is not cleared without saying what changed', (await kp(B.cookie, { answers: allYes, approve: true })).status === 400);
+    ok('the system administrator cannot record a review', (await kp(S.cookie, { answers: allYes, approve: true })).status === 403);
+    ok('nor can another officer, nor a resident', (await kp(B2.cookie, { answers: allYes, approve: true })).status === 403
+      && (await kp(R1.cookie, { answers: allYes, approve: true })).status === 401);
+    let badRow = false;
+    try { await prisma.caseKpReview.create({ data: { caseId: K.id, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: allYes, reviewedById: B.id, version: 2 } }); badRow = true; } catch { /* refused */ }
+    ok('the database refuses an eligible review without the approving official', !badRow);
+    const full = await kp(B.cookie, { answers: { ...allYes, real_property: 'NOT_APPLICABLE' }, approve: true, note: 'Re-checked: the injury was minor, no weapon' });
+    ok('a full, approved review makes the case eligible, with the approving official', full.body.data?.eligibility.eligible === true
+      && full.body.data.eligibility.state === 'ELIGIBLE' && full.body.data.review.approvedById === B.id && full.body.data.review.version === 2);
+    ok('every review is kept', await prisma.caseKpReview.count({ where: { caseId: K.id } }) === 5);
 
     console.log('\nWho may create');
     ok('another blotter officer may not', (await create(K.id, B2.cookie, { date: futureDay, time: '09:00' })).status === 403);
@@ -555,7 +595,7 @@ async function main() {
     const row = (id: string, data: Body = all) => data.rows.find((r: Body) => r.id === id);
     ok('an unassigned case with no hearing is listed to a blotter officer - not only cases with hearings or assigned to them',
       row(KU.id)?.hearing.state === 'NOT_SCHEDULED' && row(KU.id).canClaim === true && row(KU.id).canManage === false && row(KU.id).respondents.length === 0);
-    ok('a case nobody has reviewed shows as pending review, with why - never assumed eligible', row(KU.id).eligibility.state === 'PENDING'
+    ok('a case nobody has reviewed shows as pending review, with why - never assumed eligible', row(KU.id).eligibility.state === 'PENDING_REVIEW'
       && row(KU.id).eligibility.reasons.some((r: string) => /category/i.test(r)));
     ok('a reviewed case shows as eligible; one with a proceeding open says so', row(K2.id)?.eligibility.state === 'ELIGIBLE' && row(K2.id).hearing.state === 'IN_PROGRESS' && row(K2.id).hearing.latest?.id === C2);
     ok('a VAWC case is never listed', !row(KV.id) && all.rows.every((r: Body) => r.caseType !== 'Domestic Violence'));
@@ -564,8 +604,8 @@ async function main() {
       && row(K2.id, asB2)?.assignedTo?.name === `${TAG} blotter`);
     ok('search by respondent', (await list(B.cookie, 'q=Pedro Neighbore')).rows.some((r: Body) => r.id === K2.id));
     ok('search by complainant', (await list(B.cookie, `q=Complainanta&pageSize=100`)).rows.some((r: Body) => r.id === KU.id));
-    const pend = await list(B.cookie, `${mineQ}&eligibility=PENDING`);
-    ok('filter by KP eligibility', pend.rows.length > 0 && pend.rows.every((r: Body) => r.eligibility.state === 'PENDING') && !row(K2.id, pend));
+    const pend = await list(B.cookie, `${mineQ}&eligibility=PENDING_REVIEW`);
+    ok('filter by KP eligibility', pend.rows.length > 0 && pend.rows.every((r: Body) => r.eligibility.state === 'PENDING_REVIEW') && !row(K2.id, pend));
     const none = await list(B.cookie, `${mineQ}&hearing=NOT_SCHEDULED`);
     ok('filter by hearing status', Boolean(row(KU.id, none)) && !row(K2.id, none));
     const one = await list(B.cookie, `q=${TAG}-${process.pid}&pageSize=1&page=2`);
@@ -579,7 +619,7 @@ async function main() {
     const conf = await json(await classPATCH(req(`/api/cases/${KU.id}/classification`, B.cookie, 'PATCH', { caseType: 'Noise Complaint', confirm: true }), { params: Promise.resolve({ id: KU.id }) }));
     ok('confirming the category', conf.status === 200, `${conf.status} ${conf.body.error ?? ''}`);
     ok('then refused until the eligibility review', /review/i.test((await create(KU.id, B.cookie, { date: futureDay, time: '13:00' })).body.error ?? ''));
-    ok('the review', (await json(await kpPOST(req(`/api/cases/${KU.id}/kp-review`, B.cookie, 'POST', { checklist: allChecks }), P(KU.id)))).status === 201);
+    ok('the review', (await json(await kpPOST(req(`/api/cases/${KU.id}/kp-review`, B.cookie, 'POST', { answers: allYes, approve: true }), P(KU.id)))).status === 201);
     ok('the list now shows it eligible, with mediation next', row(KU.id, await list(B.cookie, mineQ))?.eligibility.state === 'ELIGIBLE' && row(KU.id, await list(B.cookie, mineQ)).next?.stage === 'MEDIATION');
     const noResp = await create(KU.id, B.cookie, { date: futureDay, time: '13:00' });
     ok('scheduling without a respondent on record: refused, and why', noResp.status === 400 && /respondent/i.test(noResp.body.error ?? ''));

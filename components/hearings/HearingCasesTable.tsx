@@ -17,7 +17,9 @@ interface CaseListData {
   counts: { eligibility: Record<KpEligibilityState, number>; hearing: Record<CaseHearingState, number> };
 }
 
-const ELIGIBILITY_OPTIONS: [KpEligibilityState, string][] = [['ELIGIBLE', 'Eligible'], ['PENDING', 'Pending review'], ['NOT_ELIGIBLE', 'Not eligible']];
+const ELIGIBILITY_OPTIONS: [KpEligibilityState, string][] = [
+  ['ELIGIBLE', 'Eligible'], ['PENDING_REVIEW', 'Pending review'], ['NEEDS_VERIFICATION', 'Needs verification'], ['NOT_ELIGIBLE', 'Not eligible'],
+];
 const HEARING_OPTIONS: [CaseHearingState, string][] = [
   ['NOT_SCHEDULED', 'No hearing yet'], ['IN_PROGRESS', 'Proceeding open'], ['AWAITING_NEXT', 'Next stage due'], ['ENDED', 'Proceedings ended'],
 ];
@@ -62,7 +64,8 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
     <Box>
       <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>
         Every blotter case, scheduled or not. Eligibility for Katarungang Pambarangay proceedings is what an official recorded - the confirmed category
-        and the eligibility review - and a case nobody has reviewed yet shows as pending. VAWC cases (RA 9262) are not listed.
+        and the eligibility review. A case is pending until it is reviewed, needs verification while a fact is unknown, and is not eligible only when an
+        official recorded a legal exclusion. VAWC cases (RA 9262) are not listed.
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
         <TextField size="small" placeholder="Case reference, complainant or respondent" value={q} onChange={e => filter(setQ)(e.target.value)}
@@ -181,6 +184,8 @@ function RowAction({ r, claiming, onClaim, onCreate, onOpenHearing }: {
   if (r.eligibility.state === 'ELIGIBLE' && r.next) {
     return <Button size="small" variant="contained" onClick={() => onCreate(r.id)} sx={{ ...btn, bgcolor: NAVY }}>Create hearing</Button>;
   }
-  if (r.eligibility.state === 'PENDING') return <Button size="small" variant="outlined" color="warning" onClick={() => onCreate(r.id)} sx={btn}>Review eligibility</Button>;
-  return <Button size="small" onClick={() => onCreate(r.id)} sx={btn}>View review</Button>;
+  if (r.eligibility.state === 'NEEDS_VERIFICATION') return <Button size="small" variant="outlined" color="warning" onClick={() => onCreate(r.id)} sx={btn}>Continue review</Button>;
+  if (r.eligibility.state === 'PENDING_REVIEW') return <Button size="small" variant="outlined" color="warning" onClick={() => onCreate(r.id)} sx={btn}>Review eligibility</Button>;
+  if (r.eligibility.state === 'NOT_ELIGIBLE') return <Button size="small" color="error" onClick={() => onCreate(r.id)} sx={btn}>Why not eligible</Button>;
+  return <Button size="small" onClick={() => onCreate(r.id)} sx={btn}>View case</Button>;
 }

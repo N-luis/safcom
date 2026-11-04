@@ -4,8 +4,8 @@ import { VAWC_TYPES } from './vawcTypes';
 import { BLOTTER_ROLES } from './reporterAccess';
 import { complainantName } from './hearingsServer';
 import {
-  hearingEligibility, nextStep, sessionTitle, partyFormsFor, kpFormName, isOpen, CLOSED_CASE_STATUSES, HEARING_STATUSES,
-  type HearingStatus, type KpStage,
+  hearingEligibility, nextStep, sessionTitle, partyFormsFor, kpFormName, isOpen, CLOSED_CASE_STATUSES, HEARING_STATUSES, KP_ELIGIBILITY_LABELS,
+  type HearingStatus, type KpStage, type KpEligibilityState,
 } from './hearings';
 
 /**
@@ -21,12 +21,9 @@ import {
  * officer they can take it. VAWC cases are never listed (RA 9262).
  */
 
-export type KpEligibilityState = 'ELIGIBLE' | 'NOT_ELIGIBLE' | 'PENDING';
+export type { KpEligibilityState };
 export type CaseHearingState = 'NOT_SCHEDULED' | 'IN_PROGRESS' | 'AWAITING_NEXT' | 'ENDED';
 
-export const KP_ELIGIBILITY_LABELS: Record<KpEligibilityState, string> = {
-  ELIGIBLE: 'Eligible', NOT_ELIGIBLE: 'Not eligible', PENDING: 'Pending review',
-};
 export const CASE_HEARING_LABELS: Record<CaseHearingState, string> = {
   NOT_SCHEDULED: 'No hearing yet', IN_PROGRESS: 'Proceeding open', AWAITING_NEXT: 'Next stage due', ENDED: 'Proceedings ended',
 };
@@ -56,7 +53,8 @@ const caseSelect = {
   pangkat: { select: { constitutedAt: true } },
   assessmentHistory: { where: { kind: { in: ['category_confirm', 'category_change', 'walk_in'] }, actorId: { not: null } },
     orderBy: { createdAt: 'desc' as const }, take: 1, select: { caseType: true, createdAt: true } },
-  kpReviews: { orderBy: { createdAt: 'desc' as const }, take: 1, select: { decision: true, caseType: true, createdAt: true, note: true } },
+  kpReviews: { orderBy: { createdAt: 'desc' as const }, take: 1,
+    select: { decision: true, caseType: true, createdAt: true, note: true, version: true, checklist: true, approvedById: true } },
 } satisfies Prisma.CaseSelect;
 
 export async function listHearingCases(actor: { id: string; role: string }, f: HearingCaseFilters) {
@@ -88,13 +86,12 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
     const eligibility = hearingEligibility({
       caseType: c.caseType, status: c.status,
       verifiedCategory: category ? { caseType: category.caseType, at: category.createdAt } : null,
-      review: review ? { decision: review.decision, caseType: review.caseType, at: review.createdAt, note: review.note } : null,
+      review: review ? { decision: review.decision, caseType: review.caseType, at: review.createdAt, note: review.note,
+        version: review.version, checklist: review.checklist, approvedById: review.approvedById } : null,
       reportPath: c.reportPath,
       aiSuggestedCategory: c.intake?.suggestedCaseCategory && c.intake.suggestedCaseCategory !== c.caseType ? c.intake.suggestedCaseCategory : null,
     });
-    const reviewedNotEligible = Boolean(review && review.caseType === c.caseType && review.decision !== 'ELIGIBLE');
-    const eligibilityState: KpEligibilityState = eligibility.eligible ? 'ELIGIBLE'
-      : reviewedNotEligible || CLOSED_CASE_STATUSES.includes(c.status) ? 'NOT_ELIGIBLE' : 'PENDING';
+    const eligibilityState: KpEligibilityState = eligibility.state;
 
     const step = nextStep(c.caseType, c.hearings, Boolean(c.pangkat?.constitutedAt));
     const open = c.hearings.filter(h => isOpen(h.status)).at(-1) ?? null;
@@ -128,7 +125,7 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
   });
 
   const counts = {
-    eligibility: { ELIGIBLE: 0, NOT_ELIGIBLE: 0, PENDING: 0 } as Record<KpEligibilityState, number>,
+    eligibility: { PENDING_REVIEW: 0, NEEDS_VERIFICATION: 0, ELIGIBLE: 0, NOT_ELIGIBLE: 0 } as Record<KpEligibilityState, number>,
     hearing: { NOT_SCHEDULED: 0, IN_PROGRESS: 0, AWAITING_NEXT: 0, ENDED: 0 } as Record<CaseHearingState, number>,
   };
   for (const r of rows) { counts.eligibility[r.eligibility.state]++; counts.hearing[r.hearing.state]++; }

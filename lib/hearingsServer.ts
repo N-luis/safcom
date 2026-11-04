@@ -131,12 +131,15 @@ export async function eligibilityOf(c: HearingCase): Promise<Eligibility> {
     }),
     prisma.caseKpReview.findFirst({ where: { caseId: c.id }, orderBy: { createdAt: 'desc' } }),
   ]);
-  const by = review ? await prisma.user.findUnique({ where: { id: review.reviewedById }, select: { name: true } }) : null;
+  const ids = review ? [review.reviewedById, review.approvedById].filter((x): x is string => Boolean(x)) : [];
+  const users = ids.length ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+  const name = (uid: string | null | undefined) => (uid ? users.find(u => u.id === uid)?.name ?? 'Former official' : null);
   const suggested = c.intake?.suggestedCaseCategory ?? null;
   return hearingEligibility({
     caseType: c.caseType, status: c.status,
     verifiedCategory: category ? { caseType: category.caseType, at: category.createdAt } : null,
-    review: review ? { decision: review.decision, caseType: review.caseType, at: review.createdAt, note: review.note, by: by?.name ?? null } : null,
+    review: review ? { decision: review.decision, caseType: review.caseType, at: review.createdAt, note: review.note, by: name(review.reviewedById),
+      version: review.version, checklist: review.checklist, approvedById: review.approvedById, approvedBy: name(review.approvedById) } : null,
     reportPath: c.reportPath,
     aiSuggestedCategory: suggested && suggested !== c.caseType ? suggested : null,
   });

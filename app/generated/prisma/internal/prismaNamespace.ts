@@ -3264,7 +3264,10 @@ export const CaseKpReviewScalarFieldEnum = {
   checklist: 'checklist',
   note: 'note',
   reviewedById: 'reviewedById',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  version: 'version',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt'
 } as const
 
 export type CaseKpReviewScalarFieldEnum = (typeof CaseKpReviewScalarFieldEnum)[keyof typeof CaseKpReviewScalarFieldEnum]

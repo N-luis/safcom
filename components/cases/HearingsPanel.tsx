@@ -49,7 +49,8 @@ export default function HearingsPanel({ caseId, onChanged }: { caseId: string; o
               <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{data.eligibility.reasons.join(' ')}</Typography>
             )}
             {data.canEdit && data.eligibility.categoryVerified && data.eligibility.needsReview && !data.hearings.some(h => h.status !== 'CANCELLED') && (
-              <KpReviewForm caseId={caseId} caseType={data.case.caseType} onSaved={changed} />
+              <KpReviewForm key={data.eligibility.review ? String(data.eligibility.review.at) : 'new'} caseId={caseId} caseType={data.case.caseType}
+                initial={data.eligibility.answers} onSaved={changed} />
             )}
             {data.eligibility.eligible && (
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }} aria-label="Stages">

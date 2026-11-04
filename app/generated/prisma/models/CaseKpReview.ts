@@ -22,8 +22,18 @@ export type CaseKpReviewModel = runtime.Types.Result.DefaultSelection<Prisma.$Ca
 
 export type AggregateCaseKpReview = {
   _count: CaseKpReviewCountAggregateOutputType | null
+  _avg: CaseKpReviewAvgAggregateOutputType | null
+  _sum: CaseKpReviewSumAggregateOutputType | null
   _min: CaseKpReviewMinAggregateOutputType | null
   _max: CaseKpReviewMaxAggregateOutputType | null
+}
+
+export type CaseKpReviewAvgAggregateOutputType = {
+  version: number | null
+}
+
+export type CaseKpReviewSumAggregateOutputType = {
+  version: number | null
 }
 
 export type CaseKpReviewMinAggregateOutputType = {
@@ -34,6 +44,9 @@ export type CaseKpReviewMinAggregateOutputType = {
   note: string | null
   reviewedById: string | null
   createdAt: Date | null
+  version: number | null
+  approvedById: string | null
+  approvedAt: Date | null
 }
 
 export type CaseKpReviewMaxAggregateOutputType = {
@@ -44,6 +57,9 @@ export type CaseKpReviewMaxAggregateOutputType = {
   note: string | null
   reviewedById: string | null
   createdAt: Date | null
+  version: number | null
+  approvedById: string | null
+  approvedAt: Date | null
 }
 
 export type CaseKpReviewCountAggregateOutputType = {
@@ -55,9 +71,20 @@ export type CaseKpReviewCountAggregateOutputType = {
   note: number
   reviewedById: number
   createdAt: number
+  version: number
+  approvedById: number
+  approvedAt: number
   _all: number
 }
 
+
+export type CaseKpReviewAvgAggregateInputType = {
+  version?: true
+}
+
+export type CaseKpReviewSumAggregateInputType = {
+  version?: true
+}
 
 export type CaseKpReviewMinAggregateInputType = {
   id?: true
@@ -67,6 +94,9 @@ export type CaseKpReviewMinAggregateInputType = {
   note?: true
   reviewedById?: true
   createdAt?: true
+  version?: true
+  approvedById?: true
+  approvedAt?: true
 }
 
 export type CaseKpReviewMaxAggregateInputType = {
@@ -77,6 +107,9 @@ export type CaseKpReviewMaxAggregateInputType = {
   note?: true
   reviewedById?: true
   createdAt?: true
+  version?: true
+  approvedById?: true
+  approvedAt?: true
 }
 
 export type CaseKpReviewCountAggregateInputType = {
@@ -88,6 +121,9 @@ export type CaseKpReviewCountAggregateInputType = {
   note?: true
   reviewedById?: true
   createdAt?: true
+  version?: true
+  approvedById?: true
+  approvedAt?: true
   _all?: true
 }
 
@@ -129,6 +165,18 @@ export type CaseKpReviewAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseKpReviewAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseKpReviewSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseKpReviewMinAggregateInputType
@@ -159,6 +207,8 @@ export type CaseKpReviewGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: CaseKpReviewCountAggregateInputType | true
+  _avg?: CaseKpReviewAvgAggregateInputType
+  _sum?: CaseKpReviewSumAggregateInputType
   _min?: CaseKpReviewMinAggregateInputType
   _max?: CaseKpReviewMaxAggregateInputType
 }
@@ -172,7 +222,12 @@ export type CaseKpReviewGroupByOutputType = {
   note: string | null
   reviewedById: string
   createdAt: Date
+  version: number
+  approvedById: string | null
+  approvedAt: Date | null
   _count: CaseKpReviewCountAggregateOutputType | null
+  _avg: CaseKpReviewAvgAggregateOutputType | null
+  _sum: CaseKpReviewSumAggregateOutputType | null
   _min: CaseKpReviewMinAggregateOutputType | null
   _max: CaseKpReviewMaxAggregateOutputType | null
 }
@@ -204,6 +259,9 @@ export type CaseKpReviewWhereInput = {
   note?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
   reviewedById?: Prisma.StringFilter<"CaseKpReview"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseKpReview"> | Date | string
+  version?: Prisma.IntFilter<"CaseKpReview"> | number
+  approvedById?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"CaseKpReview"> | Date | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
 
@@ -216,6 +274,9 @@ export type CaseKpReviewOrderByWithRelationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
 
@@ -231,6 +292,9 @@ export type CaseKpReviewWhereUniqueInput = Prisma.AtLeast<{
   note?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
   reviewedById?: Prisma.StringFilter<"CaseKpReview"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseKpReview"> | Date | string
+  version?: Prisma.IntFilter<"CaseKpReview"> | number
+  approvedById?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"CaseKpReview"> | Date | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id">
 
@@ -243,9 +307,14 @@ export type CaseKpReviewOrderByWithAggregationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseKpReviewCountOrderByAggregateInput
+  _avg?: Prisma.CaseKpReviewAvgOrderByAggregateInput
   _max?: Prisma.CaseKpReviewMaxOrderByAggregateInput
   _min?: Prisma.CaseKpReviewMinOrderByAggregateInput
+  _sum?: Prisma.CaseKpReviewSumOrderByAggregateInput
 }
 
 export type CaseKpReviewScalarWhereWithAggregatesInput = {
@@ -260,6 +329,9 @@ export type CaseKpReviewScalarWhereWithAggregatesInput = {
   note?: Prisma.StringNullableWithAggregatesFilter<"CaseKpReview"> | string | null
   reviewedById?: Prisma.StringWithAggregatesFilter<"CaseKpReview"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseKpReview"> | Date | string
+  version?: Prisma.IntWithAggregatesFilter<"CaseKpReview"> | number
+  approvedById?: Prisma.StringNullableWithAggregatesFilter<"CaseKpReview"> | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseKpReview"> | Date | string | null
 }
 
 export type CaseKpReviewCreateInput = {
@@ -270,6 +342,9 @@ export type CaseKpReviewCreateInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   case: Prisma.CaseCreateNestedOneWithoutKpReviewsInput
 }
 
@@ -282,6 +357,9 @@ export type CaseKpReviewUncheckedCreateInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type CaseKpReviewUpdateInput = {
@@ -292,6 +370,9 @@ export type CaseKpReviewUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutKpReviewsNestedInput
 }
 
@@ -304,6 +385,9 @@ export type CaseKpReviewUncheckedUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseKpReviewCreateManyInput = {
@@ -315,6 +399,9 @@ export type CaseKpReviewCreateManyInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type CaseKpReviewUpdateManyMutationInput = {
@@ -325,6 +412,9 @@ export type CaseKpReviewUpdateManyMutationInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseKpReviewUncheckedUpdateManyInput = {
@@ -336,6 +426,9 @@ export type CaseKpReviewUncheckedUpdateManyInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseKpReviewListRelationFilter = {
@@ -357,6 +450,13 @@ export type CaseKpReviewCountOrderByAggregateInput = {
   note?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+}
+
+export type CaseKpReviewAvgOrderByAggregateInput = {
+  version?: Prisma.SortOrder
 }
 
 export type CaseKpReviewMaxOrderByAggregateInput = {
@@ -367,6 +467,9 @@ export type CaseKpReviewMaxOrderByAggregateInput = {
   note?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
 }
 
 export type CaseKpReviewMinOrderByAggregateInput = {
@@ -377,6 +480,13 @@ export type CaseKpReviewMinOrderByAggregateInput = {
   note?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+}
+
+export type CaseKpReviewSumOrderByAggregateInput = {
+  version?: Prisma.SortOrder
 }
 
 export type CaseKpReviewCreateNestedManyWithoutCaseInput = {
@@ -429,6 +539,9 @@ export type CaseKpReviewCreateWithoutCaseInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type CaseKpReviewUncheckedCreateWithoutCaseInput = {
@@ -439,6 +552,9 @@ export type CaseKpReviewUncheckedCreateWithoutCaseInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type CaseKpReviewCreateOrConnectWithoutCaseInput = {
@@ -479,6 +595,9 @@ export type CaseKpReviewScalarWhereInput = {
   note?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
   reviewedById?: Prisma.StringFilter<"CaseKpReview"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseKpReview"> | Date | string
+  version?: Prisma.IntFilter<"CaseKpReview"> | number
+  approvedById?: Prisma.StringNullableFilter<"CaseKpReview"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"CaseKpReview"> | Date | string | null
 }
 
 export type CaseKpReviewCreateManyCaseInput = {
@@ -489,6 +608,9 @@ export type CaseKpReviewCreateManyCaseInput = {
   note?: string | null
   reviewedById: string
   createdAt?: Date | string
+  version?: number
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type CaseKpReviewUpdateWithoutCaseInput = {
@@ -499,6 +621,9 @@ export type CaseKpReviewUpdateWithoutCaseInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseKpReviewUncheckedUpdateWithoutCaseInput = {
@@ -509,6 +634,9 @@ export type CaseKpReviewUncheckedUpdateWithoutCaseInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CaseKpReviewUncheckedUpdateManyWithoutCaseInput = {
@@ -519,6 +647,9 @@ export type CaseKpReviewUncheckedUpdateManyWithoutCaseInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -532,6 +663,9 @@ export type CaseKpReviewSelect<ExtArgs extends runtime.Types.Extensions.Internal
   note?: boolean
   reviewedById?: boolean
   createdAt?: boolean
+  version?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseKpReview"]>
 
@@ -544,6 +678,9 @@ export type CaseKpReviewSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   note?: boolean
   reviewedById?: boolean
   createdAt?: boolean
+  version?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseKpReview"]>
 
@@ -556,6 +693,9 @@ export type CaseKpReviewSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   note?: boolean
   reviewedById?: boolean
   createdAt?: boolean
+  version?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseKpReview"]>
 
@@ -568,9 +708,12 @@ export type CaseKpReviewSelectScalar = {
   note?: boolean
   reviewedById?: boolean
   createdAt?: boolean
+  version?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
 }
 
-export type CaseKpReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "decision" | "caseType" | "checklist" | "note" | "reviewedById" | "createdAt", ExtArgs["result"]["caseKpReview"]>
+export type CaseKpReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "decision" | "caseType" | "checklist" | "note" | "reviewedById" | "createdAt" | "version" | "approvedById" | "approvedAt", ExtArgs["result"]["caseKpReview"]>
 export type CaseKpReviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -590,7 +733,8 @@ export type $CaseKpReviewPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     caseId: string
     /**
-     * ELIGIBLE | NOT_ELIGIBLE
+     * PENDING_REVIEW | NEEDS_VERIFICATION | ELIGIBLE | NOT_ELIGIBLE
+     * (version 1 reviews: ELIGIBLE | NOT_ELIGIBLE only)
      */
     decision: string
     /**
@@ -598,12 +742,23 @@ export type $CaseKpReviewPayload<ExtArgs extends runtime.Types.Extensions.Intern
      */
     caseType: string
     /**
-     * lib/hearings.ts KP_CHECKLIST answers: { key: true | false }
+     * lib/hearings.ts KP_CHECKLIST answers. Version 1: { key: true | false };
+     * version 2: { key: YES | NO | UNKNOWN | NOT_APPLICABLE }, unanswered keys left out.
      */
     checklist: runtime.JsonValue
     note: string | null
     reviewedById: string
     createdAt: Date
+    /**
+     * 1 = the earlier tick-box checklist, 2 = answers (lib/hearings.ts KP_REVIEW_VERSION).
+     */
+    version: number
+    /**
+     * The official who approved the case for KP proceedings - required for a
+     * version 2 ELIGIBLE review (database CHECK, prisma/sql/008).
+     */
+    approvedById: string | null
+    approvedAt: Date | null
   }, ExtArgs["result"]["caseKpReview"]>
   composites: {}
 }
@@ -1036,6 +1191,9 @@ export interface CaseKpReviewFieldRefs {
   readonly note: Prisma.FieldRef<"CaseKpReview", 'String'>
   readonly reviewedById: Prisma.FieldRef<"CaseKpReview", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseKpReview", 'DateTime'>
+  readonly version: Prisma.FieldRef<"CaseKpReview", 'Int'>
+  readonly approvedById: Prisma.FieldRef<"CaseKpReview", 'String'>
+  readonly approvedAt: Prisma.FieldRef<"CaseKpReview", 'DateTime'>
 }
     
 

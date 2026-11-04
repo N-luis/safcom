@@ -6,11 +6,11 @@ import { canSeeVawc } from '@/lib/caseAccess';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { noStore } from '@/lib/hearingsServer';
 import { listHearingCases, logRouteError, type KpEligibilityState, type CaseHearingState } from '@/lib/hearingCasesServer';
-import { VAWC_HEARING_REFUSAL } from '@/lib/hearings';
+import { VAWC_HEARING_REFUSAL, KP_ELIGIBILITY_STATES } from '@/lib/hearings';
 
 export const dynamic = 'force-dynamic';
 
-const ELIGIBILITY: KpEligibilityState[] = ['ELIGIBLE', 'NOT_ELIGIBLE', 'PENDING'];
+const ELIGIBILITY: KpEligibilityState[] = [...KP_ELIGIBILITY_STATES];
 const HEARING: CaseHearingState[] = ['NOT_SCHEDULED', 'IN_PROGRESS', 'AWAITING_NEXT', 'ENDED'];
 
 /**
@@ -21,7 +21,7 @@ const HEARING: CaseHearingState[] = ['NOT_SCHEDULED', 'IN_PROGRESS', 'AWAITING_N
  *
  *   ?q=            case number, complainant or respondent
  *   ?status=       OPEN (default), ANY, or a case status
- *   ?eligibility=  ELIGIBLE | NOT_ELIGIBLE | PENDING
+ *   ?eligibility=  PENDING_REVIEW | NEEDS_VERIFICATION | ELIGIBLE | NOT_ELIGIBLE
  *   ?hearing=      NOT_SCHEDULED | IN_PROGRESS | AWAITING_NEXT | ENDED
  *   ?page= &pageSize=
  *
