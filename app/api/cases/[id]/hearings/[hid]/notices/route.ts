@@ -7,6 +7,7 @@ import {
 } from '@/lib/hearingsServer';
 import { allowedFrom, partyFormsFor, isKpStage, NOTICE_RECIPIENTS, type PartyRole } from '@/lib/hearings';
 import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * A proceeding's KP notices to the parties.
@@ -45,7 +46,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       { formNo: form.formNo, noticeNumber: null, recipientRole: r, recipientName: name, issuedAt: null }, 'PREVIEW', await actorName(g.actor.id)));
     await g.log('permitted', `${g.access.code}:notice_preview`);
     return pdfResponse(bytes, `Preview-KP${form.formNo}-${h.reference}-${r}.pdf`, true);
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/hearings/[hid]/notices', e);
     return errorResponse('The preview could not be produced right now.', 503);
   }
 }
@@ -67,7 +69,8 @@ export async function POST(req: NextRequest, { params }: Params) {
     const [notice] = await prisma.$transaction(tx => issueStageNotices(tx, g.c, h, g.actor.id, by, [recipient]));
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: notice }, 201);
-  } catch {
+  } catch (e) {
+    logRouteError('POST /api/cases/[id]/hearings/[hid]/notices', e);
     return errorResponse('The notice could not be generated right now.', 503);
   }
 }

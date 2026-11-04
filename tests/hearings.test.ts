@@ -33,6 +33,9 @@ import { POST as linkPOST, DELETE as linkDELETE } from '../app/api/cases/[id]/pa
 import { POST as kpPOST } from '../app/api/cases/[id]/kp-review/route';
 import { GET as listGET } from '../app/api/hearings/route';
 import { GET as candidatesGET } from '../app/api/hearings/cases/route';
+import { POST as claimPOST } from '../app/api/cases/[id]/claim/route';
+import { PATCH as classPATCH } from '../app/api/cases/[id]/classification/route';
+import { PUT as recordsPUT } from '../app/api/cases/[id]/records/route';
 import { GET as residentGET } from '../app/api/resident/hearings/route';
 import { POST as residentPOST } from '../app/api/resident/hearings/[hid]/route';
 import { GET as residentNotice } from '../app/api/resident/hearings/[hid]/notice/route';
@@ -195,8 +198,9 @@ async function main() {
     ok('to the blotter desk the VAWC case is not found', (await json(await caseHearingsGET(req(`/api/cases/${KV.id}/hearings`, B.cookie), P(KV.id)))).status === 404);
     const vlist = await json(await listGET(req('/api/hearings', V.cookie)));
     ok('Hearing Management refuses the VAWC desk, with the reason - its own workflow stays separate', vlist.status === 403 && /RA 9262/.test(vlist.body.error ?? ''));
-    const cand = (await json(await candidatesGET(req(`/api/hearings/cases?q=${KV.caseNumber}`, C.cookie)))).body.data as Body[];
-    ok('a VAWC case looked up by number is shown with why it cannot have a hearing', cand.some(c => c.id === KV.id && !c.eligible && /RA 9262/.test(c.reasons[0])));
+    const cand = (await json(await candidatesGET(req(`/api/hearings/cases?q=${KV.caseNumber}`, C.cookie)))).body.data as Body;
+    ok('a VAWC case looked up by number is shown with why it cannot have a hearing - and is not offered', cand.vawc?.id === KV.id && /RA 9262/.test(cand.vawc.reason)
+      && !cand.rows.some((r: Body) => r.id === KV.id));
 
     // ── Eligibility ──
     console.log('\nEligibility checkpoint');
@@ -540,6 +544,82 @@ async function main() {
       JSON.stringify({ t: dd('totalScheduled'), c: dd('completed'), x: dd('cancelled'), r: dd('rescheduled'), u: dd('upcomingCount') }));
     ok('by stage', st('MEDIATION', 'completed') === 1 && st('CONSTITUTION', 'completed') === 1 && st('CONCILIATION', 'completed') === 1 && st('MEDIATION', 'cancelled') === 1 && st('MEDIATION', 'total') === 4);
     ok('the VAWC board counts no hearings', (await getA('hearings', V.cookie, 'scope=vawc')).body.data.applicable === false);
+
+    // ── Hearing Management lists the blotter cases, scheduled or not ──
+    console.log('\nHearing Management case list - from an unassigned case to the residents\' accounts');
+    const list = async (cookie: string, qs: string) => (await json(await candidatesGET(req(`/api/hearings/cases?${qs}`, cookie)))).body.data as Body;
+    const mineQ = `q=${TAG}-${process.pid}&pageSize=100`;
+    const KU = await mkCase({ assignedToId: null });
+    const R5 = await mkRes('e', 'Rosa', 'Kapitbahay');
+    const all = await list(B.cookie, mineQ);
+    const row = (id: string, data: Body = all) => data.rows.find((r: Body) => r.id === id);
+    ok('an unassigned case with no hearing is listed to a blotter officer - not only cases with hearings or assigned to them',
+      row(KU.id)?.hearing.state === 'NOT_SCHEDULED' && row(KU.id).canClaim === true && row(KU.id).canManage === false && row(KU.id).respondents.length === 0);
+    ok('a case nobody has reviewed shows as pending review, with why - never assumed eligible', row(KU.id).eligibility.state === 'PENDING'
+      && row(KU.id).eligibility.reasons.some((r: string) => /category/i.test(r)));
+    ok('a reviewed case shows as eligible; one with a proceeding open says so', row(K2.id)?.eligibility.state === 'ELIGIBLE' && row(K2.id).hearing.state === 'IN_PROGRESS' && row(K2.id).hearing.latest?.id === C2);
+    ok('a VAWC case is never listed', !row(KV.id) && all.rows.every((r: Body) => r.caseType !== 'Domestic Violence'));
+    const asB2 = await list(B2.cookie, mineQ);
+    ok('another officer sees the case, and who manages it, but cannot manage it', row(KU.id, asB2)?.canClaim === true && row(K2.id, asB2)?.canManage === false
+      && row(K2.id, asB2)?.assignedTo?.name === `${TAG} blotter`);
+    ok('search by respondent', (await list(B.cookie, 'q=Pedro Neighbore')).rows.some((r: Body) => r.id === K2.id));
+    ok('search by complainant', (await list(B.cookie, `q=Complainanta&pageSize=100`)).rows.some((r: Body) => r.id === KU.id));
+    const pend = await list(B.cookie, `${mineQ}&eligibility=PENDING`);
+    ok('filter by KP eligibility', pend.rows.length > 0 && pend.rows.every((r: Body) => r.eligibility.state === 'PENDING') && !row(K2.id, pend));
+    const none = await list(B.cookie, `${mineQ}&hearing=NOT_SCHEDULED`);
+    ok('filter by hearing status', Boolean(row(KU.id, none)) && !row(K2.id, none));
+    const one = await list(B.cookie, `q=${TAG}-${process.pid}&pageSize=1&page=2`);
+    ok('paginated', one.rows.length === 1 && one.page === 2 && one.total >= 4 && one.pages === one.total);
+    ok('a resident cannot read the case list', (await json(await candidatesGET(req('/api/hearings/cases', R1.cookie)))).status === 401);
+
+    const u1 = await create(KU.id, B.cookie, { date: futureDay, time: '13:00' });
+    ok('an unassigned case: refused until the officer takes it - and they are told they can', u1.status === 403 && u1.body.canClaim === true);
+    ok('taking it', (await json(await claimPOST(req(`/api/cases/${KU.id}/claim`, B.cookie, 'POST', {}), P(KU.id)))).status === 200);
+    ok('then refused until the category is confirmed', (await create(KU.id, B.cookie, { date: futureDay, time: '13:00' })).body.error?.includes('category'));
+    const conf = await json(await classPATCH(req(`/api/cases/${KU.id}/classification`, B.cookie, 'PATCH', { caseType: 'Noise Complaint', confirm: true }), { params: Promise.resolve({ id: KU.id }) }));
+    ok('confirming the category', conf.status === 200, `${conf.status} ${conf.body.error ?? ''}`);
+    ok('then refused until the eligibility review', /review/i.test((await create(KU.id, B.cookie, { date: futureDay, time: '13:00' })).body.error ?? ''));
+    ok('the review', (await json(await kpPOST(req(`/api/cases/${KU.id}/kp-review`, B.cookie, 'POST', { checklist: allChecks }), P(KU.id)))).status === 201);
+    ok('the list now shows it eligible, with mediation next', row(KU.id, await list(B.cookie, mineQ))?.eligibility.state === 'ELIGIBLE' && row(KU.id, await list(B.cookie, mineQ)).next?.stage === 'MEDIATION');
+    const noResp = await create(KU.id, B.cookie, { date: futureDay, time: '13:00' });
+    ok('scheduling without a respondent on record: refused, and why', noResp.status === 400 && /respondent/i.test(noResp.body.error ?? ''));
+    const rp = await json(await recordsPUT(req(`/api/cases/${KU.id}/records`, B.cookie, 'PUT', { role: 'REPORTED', party: { fullName: 'Rosa Kapitbahay', age: '41' } }), P(KU.id)));
+    ok('recording the respondent on the case', rp.status === 200, `${rp.status} ${rp.body.error ?? ''}`);
+    const ru = await prisma.caseParty.findFirst({ where: { caseId: KU.id, role: 'REPORTED' } });
+    ok('linking the respondent\'s account by resident number', (await link(KU.id, ru!.id, B.cookie, R5.residentNumber)).status === 200);
+    const made = await create(KU.id, B.cookie, { stage: 'MEDIATION', date: futureDay, time: '13:00', venue: 'Barangay Hall', residentInstructions: 'Bring the receipts.' });
+    ok('the mediation is saved', made.status === 201, `${made.status} ${made.body.error ?? ''}`);
+    const KUH = made.body.data.id as string;
+    const saved = await prisma.caseHearing.findUnique({ where: { id: KUH }, include: { notices: true } });
+    ok('saved with the case ID and the case\'s own party records - never a typed name', saved?.caseId === KU.id && saved.respondentPartyId === ru!.id && saved.complainantPartyId === null
+      && saved.stage === 'MEDIATION' && saved.status === 'NOTICE_ISSUED');
+    const n8 = saved!.notices.find(x => x.formNo === 8); const n9 = saved!.notices.find(x => x.formNo === 9);
+    ok('KP Form No. 8 to the complainant\'s account and No. 9 to the respondent\'s, for the one schedule', saved!.notices.length === 2
+      && n8?.recipientRole === 'COMPLAINANT' && n8.recipientResidentId === R1.id && n8.channel === 'SAFECOMM_ACCOUNT' && n8.status === 'ISSUED'
+      && n9?.recipientRole === 'RESPONDENT' && n9.recipientResidentId === R5.id && n9.channel === 'SAFECOMM_ACCOUNT'
+      && n8.scheduledAt.getTime() === saved!.scheduledAt.getTime() && n9.scheduledAt.getTime() === saved!.scheduledAt.getTime());
+    ok('a second press does not make a second mediation', (await create(KU.id, B.cookie, { stage: 'MEDIATION', date: futureDay, time: '13:00' })).status === 422
+      && await prisma.caseHearing.count({ where: { caseId: KU.id } }) === 1);
+    ok('the case list shows the proceeding open', row(KU.id, await list(B.cookie, mineQ))?.hearing.latest?.id === KUH);
+    const ku1 = (await resident(R1.cookie)).upcoming.find((h: Body) => h.id === KUH);
+    ok('the complainant sees it at once, with KP Form No. 8, the instructions and the issuing official', ku1?.case.caseNumber === KU.caseNumber && ku1.notices.length === 1 && ku1.notices[0].formNo === 8
+      && ku1.instructions.some((i: string) => i.includes('receipts')) && ku1.notices[0].issuedBy === `${TAG} blotter`);
+    const ku5 = (await resident(R5.cookie)).upcoming.find((h: Body) => h.id === KUH);
+    ok('the respondent sees the same schedule, with KP Form No. 9 only, and no case record', ku5?.scheduledAt === ku1?.scheduledAt && ku5.notices.length === 1 && ku5.notices[0].formNo === 9
+      && ku5.role === 'RESPONDENT' && ku5.case.id === null);
+    ok('the respondent\'s KP Form No. 9 opens', (await rnotice(KUH, R5.cookie))!.status === 200 && (await rnotice(KUH, R5.cookie, n8!.id))!.status === 404);
+    ok('both are told in their notifications', (await feed(R1.cookie)).some(f => /KP Form No\. 8/.test(f.message)) && (await feed(R5.cookie)).some(f => /KP Form No\. 9/.test(f.message)));
+    ok('an unrelated resident sees none of it', !(await resident(R2.cookie)).upcoming.some((h: Body) => h.id === KUH) && (await rnotice(KUH, R2.cookie))!.status === 404);
+    ok('a resident cannot change the hearing', (await json(await hearingPATCH(req(`/api/cases/${KU.id}/hearings/${KUH}`, R5.cookie, 'PATCH', { action: 'cancel', reason: 'I do not want to go' }), PH(KU.id, KUH)))).status === 401
+      && (await rpost(KUH, { action: 'attendance', intent: 'WILL_ATTEND' }, R5.cookie)).status !== 200);
+    ok('the respondent acknowledges; attendance stays unrecorded', (await rpost(KUH, { action: 'acknowledge' }, R5.cookie)).status === 200
+      && (await prisma.caseHearingNotice.findUnique({ where: { id: n9!.id } }))?.status === 'ACKNOWLEDGED'
+      && (await prisma.caseHearing.findUnique({ where: { id: KUH } }))?.respondentAttendance === 'NOT_RECORDED');
+    const moved = await patch(KU.id, KUH, B.cookie, { action: 'reschedule', date: futureDay, time: '15:30', reason: 'The hall is in use that morning' });
+    const kuEv = await prisma.caseHearingEvent.findFirst({ where: { hearingId: KUH, kind: 'rescheduled' } });
+    ok('rescheduled: the old schedule kept in the history', moved.status === 200 && (kuEv?.before as Body)?.scheduledAt === saved!.scheduledAt.toISOString());
+    ok('both residents see the new time', (await resident(R5.cookie)).upcoming.find((h: Body) => h.id === KUH)?.scheduledAt !== ku5?.scheduledAt
+      && (await resident(R1.cookie)).upcoming.find((h: Body) => h.id === KUH)?.scheduledAt === (await resident(R5.cookie)).upcoming.find((h: Body) => h.id === KUH)?.scheduledAt);
   } finally {
     if (savedSecret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = savedSecret;
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });

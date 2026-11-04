@@ -415,7 +415,7 @@ function Parties({ data, h, canEdit, refresh }: { data: CaseHearingsData; h: Hea
   );
 }
 
-function PartyAccount({ caseId, role, party, canEdit, refresh }: { caseId: string; role: PartyRole; party: PartyOption | undefined; canEdit: boolean; refresh: () => void }) {
+export function PartyAccount({ caseId, role, party, canEdit, refresh }: { caseId: string; role: PartyRole; party: PartyOption | undefined; canEdit: boolean; refresh: () => void }) {
   const [number, setNumber] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);

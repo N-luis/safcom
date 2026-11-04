@@ -62,7 +62,8 @@ export const chipSx = (color: string) => ({ height: 22, fontSize: '0.72rem', fon
 export async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url, { credentials: 'include' });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw Object.assign(new Error(body.error ?? 'Could not load this'), { status: res.status });
+  // canClaim: the case is unassigned, so the officer may take it to manage its hearings.
+  if (!res.ok) throw Object.assign(new Error(body.error ?? 'Could not load this'), { status: res.status, canClaim: body.canClaim === true });
   return body.data as T;
 }
 

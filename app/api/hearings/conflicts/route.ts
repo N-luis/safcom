@@ -3,6 +3,7 @@ import { requireAuth, errorResponse } from '@/lib/auth';
 import { loadActor, BLOTTER_ROLES } from '@/lib/reporterAccess';
 import { noStore, findConflicts } from '@/lib/hearingsServer';
 import { phInstant, scheduleTimeRefusal } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,8 @@ export async function GET(req: NextRequest) {
       officialId: sp.get('officialId')?.slice(0, 64) || actor.id, excludeId: sp.get('excludeId')?.slice(0, 64) || null,
     });
     return noStore({ success: true, data: { valid: true, problem: null, conflicts } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/hearings/conflicts', e);
     return errorResponse('The schedule could not be checked right now.', 503);
   }
 }

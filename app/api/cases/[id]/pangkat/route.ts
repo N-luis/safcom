@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, recordEvent, hearingActivity, actorName, loadPangkat, pangkatRefusal, pangkatConstituted, isUniqueViolation } from '@/lib/hearingsServer';
 import { noticeNumber, kpFormName, PANGKAT_CHOSEN_BY, PANGKAT_SIZE, type PangkatChosenBy } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * The Pangkat ng Tagapagkasundo on one case (RA 7160 sec. 410(b)-(c)): the
@@ -46,7 +47,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       pangkat, constitutionHearing: hearing, notices, canEdit: g.access.edit && Boolean(hearing),
       refusal: pangkatRefusal(pangkat), constituted: pangkatConstituted(pangkat),
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/pangkat', e);
     return errorResponse('The Pangkat could not be loaded right now.', 503);
   }
 }
@@ -150,6 +152,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   } catch (e) {
     if (e instanceof Changed) return errorResponse('The Pangkat was updated elsewhere. Reload to see it.', 409);
     if (isUniqueViolation(e)) return errorResponse('That is already on record. Reload to see it.', 409);
+    logRouteError('POST /api/cases/[id]/pangkat', e);
     return errorResponse('The Pangkat could not be updated right now.', 503);
   }
 }

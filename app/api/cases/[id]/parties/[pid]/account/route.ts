@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, recordEvent, hearingActivity, actorName, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
 import { LIVE_STATUSES, kpFormName } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * Link a party on a case to their own SafeComm account, so their hearing
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     return noStore({ success: true, data: { residentNumber: resident.residentNumber, noticesDelivered: delivered } });
   } catch (e) {
     if (e instanceof Error && e.message === 'changed') return errorResponse('This party was updated elsewhere. Reload to see it.', 409);
+    logRouteError('POST /api/cases/[id]/parties/[pid]/account', e);
     return errorResponse('The account could not be linked right now.', 503);
   }
 }
@@ -122,6 +124,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return noStore({ success: true });
   } catch (e) {
     if (e instanceof Error && e.message === 'changed') return errorResponse('This party was updated elsewhere. Reload to see it.', 409);
+    logRouteError('DELETE /api/cases/[id]/parties/[pid]/account', e);
     return errorResponse('The account could not be unlinked right now.', 503);
   }
 }

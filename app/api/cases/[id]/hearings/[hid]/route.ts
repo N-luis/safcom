@@ -10,6 +10,7 @@ import {
   allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, sessionTitle, outcomeLeadsTo, isKpStage,
   HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES, STAGE_OUTCOMES, KP_STAGES, NOTICE_RECIPIENTS, type HearingStatus, type KpStage,
 } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * Everything an official does to one proceeding (mediation, constitution of
@@ -274,6 +275,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return noStore({ success: true });
   } catch (e) {
     if (e instanceof Conflict) return errorResponse('This hearing was updated elsewhere. Reload to see it.', 409);
+    logRouteError('PATCH /api/cases/[id]/hearings/[hid]', e);
     return errorResponse('The hearing could not be updated right now.', 503);
   }
 }

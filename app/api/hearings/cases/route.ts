@@ -4,17 +4,29 @@ import { requireAuth, errorResponse } from '@/lib/auth';
 import { loadActor, BLOTTER_ROLES, isVawcType } from '@/lib/reporterAccess';
 import { canSeeVawc } from '@/lib/caseAccess';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { noStore, loadHearingCase, eligibilityOf, loadPangkat, pangkatConstituted } from '@/lib/hearingsServer';
-import { nextStep, sessionTitle, partyFormsFor, kpFormName, VAWC_HEARING_REFUSAL, CLOSED_CASE_STATUSES } from '@/lib/hearings';
+import { noStore } from '@/lib/hearingsServer';
+import { listHearingCases, logRouteError, type KpEligibilityState, type CaseHearingState } from '@/lib/hearingCasesServer';
+import { VAWC_HEARING_REFUSAL } from '@/lib/hearings';
 
 export const dynamic = 'force-dynamic';
 
+const ELIGIBILITY: KpEligibilityState[] = ['ELIGIBLE', 'NOT_ELIGIBLE', 'PENDING'];
+const HEARING: CaseHearingState[] = ['NOT_SCHEDULED', 'IN_PROGRESS', 'AWAITING_NEXT', 'ENDED'];
+
 /**
- * Cases a hearing could be created on, each with whether it may have one and
- * why not - for the Create Hearing dialog. A blotter officer sees their own
- * open cases; the captain sees every open blotter case. A VAWC case is never
- * offered: typed in by its number (by a role that may see it), it comes back
- * with the reason it cannot have a hearing.
+ * The blotter cases for Hearing Management and the Create Hearing dialog:
+ * every case on the blotter desk - with a hearing or not yet - with its
+ * eligibility for Katarungang Pambarangay proceedings, its proceedings so
+ * far, and whether this official may manage it (lib/hearingCasesServer.ts).
+ *
+ *   ?q=            case number, complainant or respondent
+ *   ?status=       OPEN (default), ANY, or a case status
+ *   ?eligibility=  ELIGIBLE | NOT_ELIGIBLE | PENDING
+ *   ?hearing=      NOT_SCHEDULED | IN_PROGRESS | AWAITING_NEXT | ENDED
+ *   ?page= &pageSize=
+ *
+ * A VAWC case is never listed: typed in by its number (by a role that may
+ * see it), it comes back with the reason it cannot have a hearing.
  */
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -22,49 +34,28 @@ export async function GET(req: NextRequest) {
   const actor = await loadActor(auth.user.userId);
   if (!actor?.active) return errorResponse('Unauthorized', 401);
   const role = actor.role.trim();
-  const blotter = BLOTTER_ROLES.includes(role);
-  if (!blotter && role !== 'admin') return noStore({ success: false, error: 'Only blotter officers and the barangay captain create hearings.' }, 403);
-  const q = req.nextUrl.searchParams.get('q')?.trim().slice(0, 60) || null;
+  if (!BLOTTER_ROLES.includes(role) && role !== 'admin') {
+    return noStore({ success: false, error: 'Only blotter officers and the barangay captain manage hearings.' }, 403);
+  }
+  const sp = req.nextUrl.searchParams;
+  const q = sp.get('q')?.trim().slice(0, 60) || null;
+  const pick = <T extends string>(v: string | null, allowed: T[]) => (allowed.includes(v as T) ? v as T : null);
   try {
-    const cases = await prisma.case.findMany({
-      where: {
-        caseType: { notIn: [...VAWC_TYPES] },
-        status: { notIn: CLOSED_CASE_STATUSES },
-        ...(blotter && { assignedToId: actor.id }),
-        ...(q && { caseNumber: { contains: q, mode: 'insensitive' as const } }),
-      },
-      orderBy: { filedAt: 'desc' }, take: 25, select: { id: true },
+    const data = await listHearingCases(actor, {
+      q, status: sp.get('status')?.slice(0, 40) || null,
+      eligibility: pick(sp.get('eligibility'), ELIGIBILITY), hearing: pick(sp.get('hearing'), HEARING),
+      page: Number(sp.get('page')) || 1, pageSize: Number(sp.get('pageSize')) || 25,
     });
-    const out = [];
-    for (const { id } of cases) {
-      const c = await loadHearingCase(id);
-      if (!c) continue;
-      const [eligibility, hearings, pangkat, respondents] = await Promise.all([
-        eligibilityOf(c),
-        prisma.caseHearing.findMany({ where: { caseId: id }, select: { hearingNumber: true, stage: true, session: true, status: true, outcome: true } }),
-        loadPangkat(id),
-        prisma.caseParty.count({ where: { caseId: id, role: 'REPORTED' } }),
-      ]);
-      const step = nextStep(c.caseType, hearings, pangkatConstituted(pangkat));
-      out.push({
-        id, caseNumber: c.caseNumber, caseType: c.caseType, status: c.status,
-        next: step.stage ? { stage: step.stage, session: step.session, title: sessionTitle(step.stage, step.session),
-          forms: partyFormsFor(step.stage).map(f => ({ ...f, name: kpFormName(f.formNo) })) } : null,
-        refusal: step.refusal, hasRespondent: respondents > 0,
-        eligible: eligibility.eligible, reasons: eligibility.reasons, warnings: eligibility.warnings, needsReview: eligibility.needsReview,
-        categoryVerified: eligibility.categoryVerified,
-      });
-    }
     // The VAWC case asked for by number: shown, with why it never gets a hearing.
+    let vawc = null;
     if (q && canSeeVawc(role)) {
       const v = await prisma.case.findFirst({ where: { caseNumber: { equals: q, mode: 'insensitive' }, caseType: { in: [...VAWC_TYPES] } },
         select: { id: true, caseNumber: true, caseType: true, status: true } });
-      if (v && isVawcType(v.caseType)) {
-        out.unshift({ ...v, next: null, refusal: VAWC_HEARING_REFUSAL, hasRespondent: false, eligible: false, reasons: [VAWC_HEARING_REFUSAL], warnings: [], needsReview: false, categoryVerified: false });
-      }
+      if (v && isVawcType(v.caseType)) vawc = { ...v, reason: VAWC_HEARING_REFUSAL };
     }
-    return noStore({ success: true, data: out });
-  } catch {
+    return noStore({ success: true, data: { ...data, vawc } });
+  } catch (e) {
+    logRouteError('GET /api/hearings/cases', e);
     return errorResponse('The cases could not be loaded right now.', 503);
   }
 }

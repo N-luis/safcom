@@ -6,6 +6,7 @@ import {
   isLive, phDay, sessionTitle, kpFormName, residentHearingMessage, LIVE_NOTICE, NOTICE_STATUSES, HEARING_OUTCOMES, KP_STAGES, RESIDENT_STATUS_LABELS,
   RESIDENT_INSTRUCTIONS, RESIDENT_EVENT_KINDS, RESCHEDULE_REQUESTS_PER_HEARING, isKpStage, type HearingOutcome, type NoticeStatus,
 } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,7 +91,8 @@ export async function GET(req: NextRequest) {
       upcoming: view.filter(h => h.upcoming),
       history: [...byCase.values()].map(e => ({ ...e, hearings: [...e.hearings].sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt)) })),
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/resident/hearings', e);
     return rError('Your hearings could not be loaded right now.', 503);
   }
 }

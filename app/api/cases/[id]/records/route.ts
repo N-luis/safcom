@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateCaseRecords, noStore } from '@/lib/caseRecordsServer';
 import { affectedPartySchema, reportedPartySchema, caseNumberLabel, hasPartyDetails, pathOfType } from '@/lib/caseRecords';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * A case's records beside the narrative - officials only.
@@ -60,7 +61,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       safetyHistory: safetyHistory.map(h => ({ id: h.id, snapshot: h.rationale, by: name(h.actorId), at: h.createdAt })),
       referrals: referrals.map(r => ({ ...r, createdBy: name(r.createdById) })),
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/records', e);
     return errorResponse('The records could not be loaded right now.', 503);
   }
 }
@@ -106,7 +108,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
     });
     await g.log('permitted', g.access.code);
     return noStore({ success: true });
-  } catch {
+  } catch (e) {
+    logRouteError('PUT /api/cases/[id]/records', e);
     return errorResponse('The details could not be saved right now. They are still on your screen - try again.', 503);
   }
 }

@@ -2,18 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import {
   Box, Typography, Card, CardContent, Button, Tabs, Tab, TextField, MenuItem, Chip, Alert, Skeleton, InputAdornment, IconButton, Tooltip,
   Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
 } from '@mui/material';
 import { Gavel, Add, Search, CalendarMonth, Refresh, WarningAmber } from '@mui/icons-material';
 import {
-  HEARING_STATUSES, KP_STAGES, KP_STAGE_KEYS, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
+  HEARING_STATUSES, KP_STAGES, KP_STAGE_KEYS, isKpStage, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
   type HearingStatus, type NoticeStatus, type Attendance, type KpStage,
 } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
 import HearingDetailsDialog from './HearingDetailsDialog';
+import HearingCasesTable from './HearingCasesTable';
 import { NAVY, STATUS_COLOR, NOTICE_COLOR, ATTENDANCE_COLOR, chipSx, getJson } from './hearingUi';
 
 interface Row {
@@ -32,6 +33,9 @@ interface ListData {
 
 /** The page slug of each stage: /blotter-officer/hearings/mediation, ... */
 export const STAGE_SLUGS: Record<KpStage, string> = { MEDIATION: 'mediation', CONSTITUTION: 'pangkat', CONCILIATION: 'conciliation' };
+/** The page slug of the list of every proceeding; the blotter cases are the page itself. */
+export const PROCEEDINGS_SLUG = 'proceedings';
+export type HearingView = 'CASES' | 'ALL' | KpStage;
 
 const TAB_HINTS: Partial<Record<KpStage, string>> = {
   MEDIATION: 'A. Mediation before the Punong Barangay: one schedule makes KP Form No. 8 (Notice of Hearing) for the complainant and KP Form No. 9 (Summons) for the respondent. Record attendance and the outcome. Without a settlement, the case goes to the constitution of the Pangkat.',
@@ -40,19 +44,25 @@ const TAB_HINTS: Partial<Record<KpStage, string>> = {
 };
 
 /**
- * Hearing Management for officials: every Katarungang Pambarangay
- * proceeding they may see, by stage - mediation, constitution of the
- * Pangkat, conciliation - with the record behind each one (the calendar is
- * its own page, HearingCalendar). Proceedings are created one at a time,
- * each only when the stage before it calls for it. Each stage tab is a page
- * of its own, so it can be linked to directly.
+ * Hearing Management for officials. It opens on the blotter cases - every
+ * one, scheduled or not, with its eligibility - to find the case to
+ * schedule; then every Katarungang Pambarangay proceeding they may see, and
+ * each stage - mediation, constitution of the Pangkat, conciliation - with
+ * the record behind each one (the calendar is its own page,
+ * HearingCalendar). Proceedings are created one at a time, each only when
+ * the stage before it calls for it. Each tab is a page of its own, so it can
+ * be linked to directly.
  */
-export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', stage = null }: {
-  caseBase: string; basePath?: string; stage?: KpStage | null;
+export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', view = 'CASES' }: {
+  caseBase: string; basePath?: string; view?: HearingView;
 }) {
   const router = useRouter();
-  const tab = stage ?? 'ALL';
-  const setTab = (v: KpStage | 'ALL') => router.push(v === 'ALL' ? basePath : `${basePath}/${STAGE_SLUGS[v]}`);
+  const { mutate: mutateAll } = useSWRConfig();
+  const stage = isKpStage(view) ? view : null;
+  const tab = view;
+  const setTab = (v: HearingView) => router.push(v === 'CASES' ? basePath : v === 'ALL' ? `${basePath}/${PROCEEDINGS_SLUG}` : `${basePath}/${STAGE_SLUGS[v]}`);
+  // A new or changed proceeding changes the case list too.
+  const refreshCases = () => mutateAll((key: unknown) => typeof key === 'string' && key.startsWith('/api/hearings/cases'));
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
@@ -122,12 +132,16 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
 
           <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
+              <Tab value="CASES" label="Blotter cases" sx={{ textTransform: 'none', fontWeight: 600 }} />
               <Tab value="ALL" label="All proceedings" sx={{ textTransform: 'none', fontWeight: 600 }} />
               {KP_STAGE_KEYS.map(s => <Tab key={s} value={s} label={`${KP_STAGES[s].letter}. ${KP_STAGES[s].label}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
             </Tabs>
             <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
               {stage && TAB_HINTS[stage] && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>{TAB_HINTS[stage]}</Typography>}
-              {(
+              {view === 'CASES' && (
+                <HearingCasesTable caseBase={caseBase} onCreate={caseId => setCreate({ caseId })} onOpenHearing={(caseId, hearingId) => setOpen({ caseId, hearingId })} />
+              )}
+              {view !== 'CASES' && (
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
                   <TextField size="small" placeholder="Case number or hearing ID" value={q} onChange={e => setQ(e.target.value)}
                     slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment> } }} />
@@ -140,8 +154,8 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
                   <Tooltip title="Reload"><IconButton onClick={() => mutate()} aria-label="Reload"><Refresh /></IconButton></Tooltip>
                 </Box>
               )}
-              {isLoading && !data && <Skeleton variant="rounded" height={240} />}
-              {data && <RecordsTable rows={data.rows} caseBase={caseBase} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
+              {view !== 'CASES' && isLoading && !data && <Skeleton variant="rounded" height={240} />}
+              {view !== 'CASES' && data && <RecordsTable rows={data.rows} caseBase={caseBase} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
             </CardContent>
           </Card>
         </>
@@ -150,11 +164,11 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
       {create && (
         <CreateHearingDialog caseId={create.caseId} onClose={() => setCreate(null)}
           classificationHref={id => `${caseBase}/${id}`}
-          onCreated={() => { setCreate(null); void mutate(); }} />
+          onCreated={() => { setCreate(null); void mutate(); void refreshCases(); }} />
       )}
       {open && (
         <HearingDetailsDialog caseId={open.caseId} hearingId={open.hearingId} caseHref={`${caseBase}/${open.caseId}`}
-          onClose={() => setOpen(null)} onChanged={() => mutate()}
+          onClose={() => setOpen(null)} onChanged={() => { void mutate(); void refreshCases(); }}
           onScheduleNext={caseId => { setOpen(null); setCreate({ caseId }); }} />
       )}
     </Box>

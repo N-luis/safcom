@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
 import { noStore, recordEvent, notifyOfficials, isUniqueViolation, residentHearingWhere, partyRoleOf, hearingPartySelect, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
 import { isLive, phDay, sessionTitle, kpFormName, RESCHEDULE_REQUESTS_PER_HEARING } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * What a party may do about a proceeding they are a party to:
@@ -93,6 +94,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ hid
   } catch (e) {
     if (isUniqueViolation(e)) return rError('You already have a request waiting for this hearing.', 409);
     if (e instanceof Error && e.message === 'changed') return rError('This notice was just updated. Reload to see it.', 409);
+    logRouteError('POST /api/resident/hearings/[hid]', e);
     return rError('That could not be saved right now.', 503);
   }
 }

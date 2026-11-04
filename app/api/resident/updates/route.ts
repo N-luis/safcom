@@ -4,6 +4,7 @@ import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { RESIDENT_ACTIVITY_TYPES, residentNotice } from '@/lib/notifications';
 import { residentHearingWhere, partyRoleOf } from '@/lib/hearingsServer';
 import { residentHearingMessage, RESIDENT_EVENT_KINDS } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
@@ -140,7 +141,8 @@ export async function GET(req: NextRequest) {
       .slice(0, limit);
 
     return rSuccess(updates);
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/resident/updates', e);
     return rError('Server error', 500);
   }
 }

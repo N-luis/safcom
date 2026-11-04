@@ -12,6 +12,7 @@ import {
   VAWC_HEARING_REFUSAL,
 } from '@/lib/hearings';
 import { isVawcType } from '@/lib/reporterAccess';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * The Katarungang Pambarangay proceedings on one blotter case.
@@ -122,7 +123,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       pangkat: pangkat ? { ...pangkat, members: pangkat.members.map(m => ({ ...m, addedBy: name(m.addedById), removedBy: name(m.removedById) })) } : null,
       eligibility, parties, officials,
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/hearings', e);
     return errorResponse('The hearings could not be loaded right now.', 503);
   }
 }
@@ -223,6 +225,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     return noStore({ success: true, data: hearing }, 201);
   } catch (e) {
     if (isUniqueViolation(e)) return errorResponse('This case already has an open proceeding or this one is already on record. Reload to see it.', 409);
+    logRouteError('POST /api/cases/[id]/hearings', e);
     return errorResponse('The hearing could not be created right now.', 503);
   }
 }

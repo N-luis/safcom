@@ -6,6 +6,7 @@ import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { parseRange } from '@/lib/analytics';
 import { noStore, decideHearingAccess, complainantName, respondentName } from '@/lib/hearingsServer';
 import { HEARING_STATUSES, CALENDAR_STATUS_GROUPS, isLive, isKpStage, sessionTitle, LIVE_NOTICE, type CalendarStatusGroup } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,7 +118,8 @@ export async function GET(req: NextRequest) {
       // The filter choices, from what this official may see.
       filters: await filterOptions(scope),
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/hearings', e);
     return errorResponse('The hearings could not be loaded right now.', 503);
   }
 }

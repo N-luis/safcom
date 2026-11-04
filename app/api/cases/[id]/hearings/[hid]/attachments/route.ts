@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, recordEvent, hearingActivity, actorName } from '@/lib/hearingsServer';
 import { parseImageDataUrl } from '@/lib/attachments';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * An image attached to a hearing record - a signed attendance sheet, a
@@ -38,7 +39,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: a }, 201);
-  } catch {
+  } catch (e) {
+    logRouteError('POST /api/cases/[id]/hearings/[hid]/attachments', e);
     return errorResponse('The attachment could not be saved right now.', 503);
   }
 }

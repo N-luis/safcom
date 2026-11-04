@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, eligibilityOf, actorName } from '@/lib/hearingsServer';
 import { KP_KEYS, KP_CHECKLIST } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * An official's review of whether a dispute may go to Katarungang
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       eligibility: await eligibilityOf(g.c),
       reviews: reviews.map(r => ({ ...r, reviewedBy: users.find(u => u.id === r.reviewedById)?.name ?? 'Former official' })),
     } });
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/kp-review', e);
     return errorResponse('The review could not be loaded right now.', 503);
   }
 }
@@ -61,7 +63,8 @@ export async function POST(req: NextRequest, { params }: Params) {
     });
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: { review, eligibility: await eligibilityOf(g.c) } }, 201);
-  } catch {
+  } catch (e) {
+    logRouteError('POST /api/cases/[id]/kp-review', e);
     return errorResponse('The review could not be saved right now.', 503);
   }
 }

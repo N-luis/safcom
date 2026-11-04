@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, kpNoticeInputFor, pdfResponse, hearingPartySelect } from '@/lib/hearingsServer';
 import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /** A stored KP notice as a PDF, for officials who may view the case's hearings. Each download is logged. */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string; hid: string; nid: string }> }) {
@@ -20,7 +21,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const bytes = await buildKpNoticePdf(await kpNoticeInputFor(g.c, h, n, state, by));
     await g.log('permitted', `${g.access.code}:notice_pdf`);
     return pdfResponse(bytes, `${n.noticeNumber}.pdf`, req.nextUrl.searchParams.get('inline') === '1');
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/cases/[id]/hearings/[hid]/notices/[nid]/pdf', e);
     return errorResponse('The notice could not be produced right now.', 503);
   }
 }

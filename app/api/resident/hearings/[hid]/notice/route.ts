@@ -4,6 +4,7 @@ import { requireResidentAuth, rError } from '@/lib/residentAuth';
 import { loadHearingCase, kpNoticeInputFor, pdfResponse, residentHearingWhere, partyRoleOf, hearingPartySelect, recordEvent, hearingSnap } from '@/lib/hearingsServer';
 import { LIVE_NOTICE } from '@/lib/hearings';
 import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * A party's own KP notice as a PDF - only once it has been issued, and only
@@ -37,7 +38,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ hid:
       }).catch(() => undefined);
     }
     return pdfResponse(bytes, `${n.noticeNumber}.pdf`, req.nextUrl.searchParams.get('inline') === '1');
-  } catch {
+  } catch (e) {
+    logRouteError('GET /api/resident/hearings/[hid]/notice', e);
     return rError('Your notice could not be produced right now.', 503);
   }
 }

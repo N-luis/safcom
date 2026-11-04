@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, recordEvent, hearingActivity, actorName, hearingPartySelect, partyAccounts, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
 import { isLive, kpFormName, NOTICE_METHODS, NOTICE_RECIPIENTS, type NoticeMethod, type NoticeRecipient, type PartyRole } from '@/lib/hearings';
+import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
  * What happened to a notice, as an official records it:
@@ -74,6 +75,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return noStore({ success: true });
   } catch (e) {
     if (e instanceof Error && e.message === 'changed') return errorResponse('This notice was updated elsewhere. Reload to see it.', 409);
+    logRouteError('PATCH /api/cases/[id]/hearings/[hid]/notices/[nid]', e);
     return errorResponse('The notice could not be updated right now.', 503);
   }
 }
