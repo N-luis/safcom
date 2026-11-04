@@ -343,7 +343,7 @@ export default function CaseManagementPage() {
               ) : (
                 cases.map((c) => (
                   <TableRow key={c.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f8fafc' }, '& td': { py: 1.25, borderBottom: '1px solid #f8fafc' } }} onClick={() => setDrawerCase(c)}>
-                    <TableCell><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0 }}>
@@ -369,7 +369,7 @@ export default function CaseManagementPage() {
                         ); })()}
                       </Box>
                     </TableCell>
-                    <TableCell><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <Tooltip title="Quick view / Edit">

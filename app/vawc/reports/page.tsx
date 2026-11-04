@@ -207,7 +207,7 @@ export default function VawcReportsPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box sx={{ width: '100%', minWidth: 0 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>

@@ -199,7 +199,7 @@ export default function VawcDashboard() {
   const newCount = urgentData?.newCount ?? 0;
 
   return (
-    <Box sx={{ maxWidth: 1280 }}>
+    <Box sx={{ width: '100%', minWidth: 0 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap', mb: 3 }}>
         <Box>

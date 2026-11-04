@@ -259,7 +259,8 @@ export default function VawcCasesPage() {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <Box sx={{ maxWidth: 1280 }}>
+    // Fills the screen: no fixed cap leaving a blank strip on a wide desktop.
+    <Box sx={{ width: '100%', minWidth: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Case Monitoring</Typography>
@@ -316,12 +317,13 @@ export default function VawcCasesPage() {
       </Box>
 
       <Card>
-        <TableContainer>
-          <Table size="small">
+        {/* On a narrow screen the table scrolls inside its card instead of squeezing its columns. */}
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table size="small" sx={{ minWidth: 900, '& th, & td': { px: { xs: 1, xl: 2 } } }}>
             <TableHead>
               <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', py: 1.3, borderBottom: '1px solid #f1f5f9' } }}>
                 {['Case ID', 'Subject', 'Type', 'Street/Barangay', 'Risk', 'Status', 'Filed', 'Updated', ''].map(h => (
-                  <TableCell key={h}>{h}</TableCell>
+                  <TableCell key={h} sx={{ whiteSpace: 'nowrap' }}>{h}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -353,11 +355,11 @@ export default function VawcCasesPage() {
                         onClick={() => setSelected(c)}
                         sx={{ cursor: 'pointer', '& td': { py: 1.3, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#fafbfc' } }}
                       >
-                        <TableCell><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
                         <TableCell>
                           <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0c1e46' }}>{c.residentName}</Typography>
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.86rem', color: '#64748b', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.caseType}</Typography></TableCell>
+                        <TableCell><Typography title={c.caseType} sx={{ fontSize: '0.86rem', color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.caseType}</Typography></TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <LocationOn sx={{ fontSize: 13, color: '#94a3b8' }} />
@@ -374,17 +376,17 @@ export default function VawcCasesPage() {
                             ); })()}
                           </Box>
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Chip label={c.status} size="small"
                             sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <CalendarToday sx={{ fontSize: 12, color: '#94a3b8' }} />
                             <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell><Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>{timeAgo(c.updatedAt)}</Typography></TableCell>
                         <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                           <Tooltip title="Quick look">
                             <IconButton size="small" aria-label={`Quick look at case ${c.caseNumber}`}
