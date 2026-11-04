@@ -232,9 +232,9 @@ async function main() {
     caseIds.push(legacy.id);
     const lv = await json(await caseGET(req(`/api/cases/${legacy.id}`, staff), params(legacy.id)));
     ok('[14] a legacy case still opens, its level and status untouched', lv.status === 200 && lv.body.data.riskLevel === 'Low' && lv.body.data.triageStatus === null);
-    ok('[14] ...and reads as "Legacy", not as any new status', triageOf(lv.body.data.triageStatus).label === 'Legacy');
+    ok('[14] ...and shows no triage label, not any new status', triageOf(lv.body.data.triageStatus) === null);
     const legacyList = await json(await casesGET(req(`/api/cases?triage=LEGACY&search=${encodeURIComponent(TAG)}&limit=100`, staff)));
-    ok('[14] the LEGACY filter finds it', legacyList.body.data.cases.some((c: { id: string }) => c.id === legacy.id));
+    ok('[14] an unknown triage filter is ignored, so it is still listed', legacyList.body.data.cases.some((c: { id: string }) => c.id === legacy.id));
     const followList = await json(await casesGET(req(`/api/cases?triage=NEEDS_FOLLOW_UP&limit=100`, staff)));
     ok('the NEEDS_FOLLOW_UP filter finds the incomplete reports, and only those', followList.body.data.cases.some((c: { id: string }) => c.id === c2!.id)
       && followList.body.data.cases.every((c: { triageStatus: string }) => c.triageStatus === 'NEEDS_FOLLOW_UP'));

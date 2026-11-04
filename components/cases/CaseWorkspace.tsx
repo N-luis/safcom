@@ -897,10 +897,11 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
                 sx={{ bgcolor: `${riskCol}18`, color: riskCol, fontWeight: 700, fontSize: '0.86rem' }}
               />
               {/* Where the preliminary triage stands; separate from the workflow status */}
-              <Tooltip title={triageOf(caseData.triageStatus).hint}>
-                <Chip label={triageOf(caseData.triageStatus).label} size="small"
-                  sx={{ bgcolor: `${triageOf(caseData.triageStatus).color}14`, color: triageOf(caseData.triageStatus).color, fontWeight: 700, fontSize: '0.8rem' }} />
-              </Tooltip>
+              {(() => { const t = triageOf(caseData.triageStatus); return t && (
+                <Tooltip title={t.hint}>
+                  <Chip label={t.label} size="small" sx={{ bgcolor: `${t.color}14`, color: t.color, fontWeight: 700, fontSize: '0.8rem' }} />
+                </Tooltip>
+              ); })()}
               {caseData.aiRiskAssessment?.highRiskZone && (
                 <Chip label="⚠ High-Risk Zone" size="small" sx={{ bgcolor: '#fef2f2', color: '#ef4444', fontWeight: 700, fontSize: '0.78rem' }} />
               )}

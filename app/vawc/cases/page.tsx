@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
-import { TRIAGE, TRIAGE_VALUES, LEGACY_TRIAGE, triageOf } from '@/lib/triageLabels';
+import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -304,7 +304,6 @@ export default function VawcCasesPage() {
               <Select value={triageFilter} label="Triage" onChange={e => { setTriageFilter(e.target.value); setPage(1); }} sx={{ borderRadius: 2 }}>
                 <MenuItem value="">All</MenuItem>
                 {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
-                <MenuItem value="LEGACY">{LEGACY_TRIAGE.label}</MenuItem>
               </Select>
         </FormControl>
         <FormControl size="small" sx={{ minWidth: 160 }}>
@@ -369,8 +368,10 @@ export default function VawcCasesPage() {
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
                             <Chip label={c.riskLevel ?? 'Undetermined'} size="small"
                               sx={{ bgcolor: RISK_BG[c.riskLevel], color: RISK_COLOR[c.riskLevel] ?? '#64748b', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
-                            <Chip label={triageOf(c.triageStatus).label} size="small" title={triageOf(c.triageStatus).hint}
-                              sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${triageOf(c.triageStatus).color}14`, color: triageOf(c.triageStatus).color }} />
+                            {(() => { const t = triageOf(c.triageStatus); return t && (
+                              <Chip label={t.label} size="small" title={t.hint}
+                                sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${t.color}14`, color: t.color }} />
+                            ); })()}
                           </Box>
                         </TableCell>
                         <TableCell>

@@ -16,7 +16,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useCases, useCaseStats } from '@/hooks/useApi';
-import { TRIAGE, TRIAGE_VALUES, LEGACY_TRIAGE, triageOf } from '@/lib/triageLabels';
+import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 
@@ -305,7 +305,6 @@ export default function CaseManagementPage() {
               <Select value={triageFilter} label="Triage" onChange={e => { setTriageFilter(e.target.value); setPage(1); }} sx={{ borderRadius: 2 }}>
                 <MenuItem value="">All</MenuItem>
                 {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
-                <MenuItem value="LEGACY">{LEGACY_TRIAGE.label}</MenuItem>
               </Select>
             </FormControl>
             {(search || statusFilter || riskFilter || triageFilter) && (
@@ -364,8 +363,10 @@ export default function CaseManagementPage() {
                     <TableCell>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
                         <Chip label={c.riskLevel ?? 'Undetermined'} size="small" sx={{ bgcolor: `${RISK_COLOR[c.riskLevel] ?? '#94a3b8'}18`, color: RISK_COLOR[c.riskLevel] ?? '#94a3b8', fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
-                        <Chip label={triageOf(c.triageStatus).label} size="small" title={triageOf(c.triageStatus).hint}
-                          sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${triageOf(c.triageStatus).color}14`, color: triageOf(c.triageStatus).color }} />
+                        {(() => { const t = triageOf(c.triageStatus); return t && (
+                          <Chip label={t.label} size="small" title={t.hint}
+                            sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: `${t.color}14`, color: t.color }} />
+                        ); })()}
                       </Box>
                     </TableCell>
                     <TableCell><Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography></TableCell>

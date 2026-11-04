@@ -15,10 +15,11 @@ export const TRIAGE: Record<string, { label: string; color: string; hint: string
 
 export const TRIAGE_VALUES = Object.keys(TRIAGE);
 
-/** A case filed before triage statuses existed. */
-export const LEGACY_TRIAGE = { label: 'Legacy', color: '#64748b', hint: 'Filed before triage statuses; assessed the earlier way.' };
-
-export const triageOf = (status: string | null | undefined) => (status && TRIAGE[status]) || LEGACY_TRIAGE;
+/**
+ * The triage label for a case, or null when it has none - a case filed before
+ * triage statuses existed simply shows no triage chip.
+ */
+export const triageOf = (status: string | null | undefined) => (status && TRIAGE[status]) || null;
 
 /** A risk level for display: undetermined is said, never shown as blank or as Low. */
 export const riskText = (level: string | null | undefined) => level || 'Undetermined';

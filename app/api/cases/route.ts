@@ -69,11 +69,9 @@ export async function GET(req: NextRequest) {
   }
   // "Undetermined" is a level that was not set, so it filters on null.
   if (riskLevel) where.riskLevel = riskLevel === 'Undetermined' ? null : riskLevel;
-  // Triage status: one of lib/triageLabels.ts, or LEGACY for cases filed
-  // before it existed. Anything else is ignored rather than matched.
+  // Triage status: one of lib/triageLabels.ts. Anything else is ignored rather than matched.
   const triage = searchParams.get('triage') || '';
-  if (triage === 'LEGACY') where.triageStatus = null;
-  else if (TRIAGE_VALUES.includes(triage)) where.triageStatus = triage;
+  if (TRIAGE_VALUES.includes(triage)) where.triageStatus = triage;
 
   // Undetermined sorts above Low on purpose: an unknown risk is not a low
   // one, and must not sink to the bottom of the queue.

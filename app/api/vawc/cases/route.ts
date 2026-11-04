@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   const risk = csv(sp.get('risk'));
   const type = sp.get('type') ?? '';
   const urgent = sp.get('urgent') === 'true';
-  const triage = csv(sp.get('triage')).filter(t => t === 'LEGACY' || TRIAGE_VALUES.includes(t));
+  const triage = csv(sp.get('triage')).filter(t => TRIAGE_VALUES.includes(t));
   const fromParam = sp.get('from');
   const from = fromParam ? new Date(fromParam) : null;
   const validFrom = from && !isNaN(from.getTime()) ? from : null;
@@ -66,10 +66,7 @@ export async function GET(req: NextRequest) {
         and.push({ OR: [{ riskLevel: { in: risk.filter(r => r !== 'Undetermined') } }, ...(risk.includes('Undetermined') ? [{ riskLevel: null }] : [])] });
       }
     }
-    if (triage.length) {
-      // LEGACY: filed before triage statuses existed.
-      and.push({ OR: [{ triageStatus: { in: triage.filter(t => t !== 'LEGACY') } }, ...(triage.includes('LEGACY') ? [{ triageStatus: null }] : [])] });
-    }
+    if (triage.length) and.push({ triageStatus: { in: triage } });
     const where = {
       caseType: type ? { equals: type } : { in: [...VAWC_TYPES] },
       ...(and.length && { AND: and }),
