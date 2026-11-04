@@ -217,7 +217,7 @@ async function main() {
     ok('...laid out as the intake form, with this case\'s saved answers', /INTAKE FORM/.test(txt) && /CONFIDENTIAL/.test(txt)
       && /A\. ADMINISTRATIVE INFORMATION/.test(txt) && /D\. ALLEGED PERPETRATOR INFORMATION/.test(txt)
       && txt.includes(self.caseNumber) && txt.includes('CC-01') && txt.includes('Client states the incident happened at home.'), txt.slice(0, 300));
-    ok('...with the Data Privacy Act reminder, and who exported it', /Data Privacy Act of 2012/.test(txt) && /exported by PROBE-OI vawc/.test(txt));
+    ok('...with the Data Privacy Act reminder, and who exported it', /Data\s+Privacy\s+Act\s+of\s+2012/.test(txt) && /exported\s+by\s+PROBE-OI\s+vawc/.test(txt));
     ok('...and not someone else\'s answers', !txt.includes('ProbeThird') && !txt.includes('K-1'));
     ok('a completed intake\'s PDF carries no DRAFT watermark or notice', !/DRAFT/.test(txt) && !/has not been completed/.test(txt));
     const draftTxt = await pdfText(new Uint8Array(await (await exportPdf(third.id, V.cookie))!.arrayBuffer()));

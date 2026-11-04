@@ -22,6 +22,12 @@ const formOf = (c: IntakeCase): FormDef => formForType(c.officialIntake?.formTyp
  *   PUT  - save: a draft, a completion, or an edit of a completed intake.
  *          The save names the version it edited; a repeated or stale save is
  *          refused (409) or recognised as no change, never stored twice.
+ *          `autosave: true` is the form saving a draft by itself while the
+ *          official types: it keeps the draft current, and a revision is kept
+ *          at most every AUTOSAVE_CHECKPOINT_MINUTES per official, so the
+ *          history stays readable. A completion or an edit of a completed
+ *          intake is never an autosave, and always keeps its revision.
+ *          Every save is written to the audit log (without its answers).
  *
  * Every request re-reads the official's account and the case, so a case
  * reassigned while the form is open stops the next save. Nothing here calls
@@ -130,7 +136,11 @@ const saveSchema = z.object({
   expectedVersion: z.number().int().min(1),
   status: z.enum(['DRAFT', 'COMPLETED']),
   responses: z.unknown(),
+  autosave: z.boolean().optional(),
 });
+
+/** How often an autosaved draft keeps a revision, per official. */
+const AUTOSAVE_CHECKPOINT_MINUTES = 10;
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -148,6 +158,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!valid.ok) return errorResponse(valid.error, 400);
   const responses = valid.responses;
   const status = parsed.data.status;
+  const autosave = parsed.data.autosave === true;
+  if (autosave && (status !== 'DRAFT' || current.status !== 'DRAFT')) {
+    return errorResponse('Only a draft is saved automatically; save a completed intake as an update', 422);
+  }
   if (current.status === 'COMPLETED' && status === 'DRAFT') {
     return errorResponse('A completed intake stays completed; save your edits as an update', 422);
   }
@@ -169,7 +183,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const me = await prisma.user.findUnique({ where: { id: g.actor.id }, select: { name: true } });
-    const changed = changedKeys(current.responses as Responses, responses, def);
+    // An autosave joins the official's recent draft revision instead of adding
+    // one per pause in typing; the next kept revision lists everything changed
+    // since the last one kept.
+    const lastRevision = await prisma.officialIntakeRevision.findFirst({
+      where: { intakeId: current.id }, orderBy: { version: 'desc' }, select: { status: true, changedById: true, createdAt: true, responses: true },
+    });
+    const recentOwnDraft = Boolean(lastRevision && lastRevision.status === 'DRAFT' && lastRevision.changedById === g.actor.id
+      && Date.now() - lastRevision.createdAt.getTime() < AUTOSAVE_CHECKPOINT_MINUTES * 60_000);
+    const keepRevision = !(autosave && recentOwnDraft);
+    const changed = changedKeys((lastRevision?.responses ?? current.responses) as Responses, responses, def);
     const completing = status === 'COMPLETED' && current.status !== 'COMPLETED';
     const editingCompleted = current.status === 'COMPLETED';
     const dangerNow = responses.immediateDanger?.value === 'yes' && g.c.triageStatus !== 'URGENT_REVIEW';
@@ -184,9 +207,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         },
       });
       if (updated.count === 0) throw new Error('version_conflict');
-      await tx.officialIntakeRevision.create({ data: {
-        intakeId: current.id, version: next, status, responses: JSON.parse(JSON.stringify(responses)), changedKeys: changed, changedById: g.actor.id,
-      } });
+      if (keepRevision) {
+        await tx.officialIntakeRevision.create({ data: {
+          intakeId: current.id, version: next, status, responses: JSON.parse(JSON.stringify(responses)), changedKeys: changed, changedById: g.actor.id,
+        } });
+      }
       if (completing || editingCompleted) {
         await tx.activity.create({ data: {
           type: 'intake',
@@ -209,8 +234,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         } });
       }
     });
+    // Who saved what kind of save, and when - never the answers.
+    await g.log('permitted', completing ? 'save:complete' : editingCompleted ? 'save:update' : autosave ? 'save:autosave' : 'save:draft');
     const fresh = await loadIntakeCase(id);
-    return noStore({ success: true, data: { intake: fresh ? await shape(fresh) : null, flaggedUrgent: dangerNow } });
+    return noStore({ success: true, data: { intake: fresh ? await shape(fresh) : null, flaggedUrgent: dangerNow, revisionKept: keepRevision } });
   } catch (e) {
     if (e instanceof Error && e.message === 'version_conflict') {
       return noStore({ success: false, error: 'This intake was saved elsewhere at the same moment. Reload to see the latest version.', code: 'version_conflict' }, 409);

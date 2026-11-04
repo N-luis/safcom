@@ -1,8 +1,9 @@
 import 'server-only';
 import { PDFDocument, StandardFonts, rgb, degrees, type PDFFont, type PDFPage } from 'pdf-lib';
 import {
-  MARKER_LABEL, appliesTo, optionsOf, type Answer, type Item, type Option, type Responses,
+  MARKER_LABEL, optionsOf, type Answer, type Item, type Option, type Responses,
 } from './officialIntakeForm';
+import { documentPages, annexSection, isShownOnDocument, DIGITAL_COPY_NOTICE } from './intakeDocument';
 import { FORMS, type FormDef } from './intakeForms';
 
 /**
@@ -286,21 +287,8 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
     }
   };
 
-  // ── The form's own sections ──
-  const official = form.sections.filter(s => !s.proposed);
-  for (const s of official) {
-    y -= 8;
-    sectionBar(s.title.toUpperCase());
-    for (const it of s.items) {
-      if (it.key.startsWith('signature')) continue;
-      if (appliesTo(it, r) === 'hidden' && !r[it.key]) continue;
-      row(`${it.no ? `${it.no}. ` : ''}${it.label}`, it, r[it.key]);
-    }
-  }
-
-  // ── Signatures, as at the end of the form ──
-  ensure(70);
-  y -= 40;
+  // ── The form's own pages, starting where the source document's do ──
+  // (lib/intakeDocument.ts - the live preview uses the same layout).
   const sig = (x: number, caption: string, signed: boolean) => {
     page.drawLine({ start: { x, y }, end: { x: x + 220, y }, thickness: 0.7, color: BLACK });
     wrap(caption, bold, 7.5, 220).forEach((l, i) => {
@@ -310,12 +298,25 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
     if (signed) page.drawText('(signed on the paper form)', { x: x + 50, y: y + 4, size: 7, font: italic, color: GRAY });
   };
   const [sigA, sigB] = form.pdf.signatures;
-  sig(M + 10, sigA.caption, r[sigA.key]?.value === 'yes');
-  sig(W - M - 230, sigB.caption, r[sigB.key]?.value === 'yes');
-  y -= 30;
+  documentPages(form).forEach((dp, pi) => {
+    if (pi > 0) newPage();
+    for (const b of dp.blocks) {
+      if (b.kind === 'section') { y -= 8; sectionBar(b.title.toUpperCase()); }
+      else if (b.kind === 'item') {
+        if (!isShownOnDocument(b.item, r)) continue;
+        row(`${b.item.no ? `${b.item.no}. ` : ''}${b.item.label}`, b.item, r[b.item.key]);
+      } else if (b.kind === 'signatures') {
+        ensure(70);
+        y -= 40;
+        sig(M + 10, sigA.caption, r[sigA.key]?.value === 'yes');
+        sig(W - M - 230, sigB.caption, r[sigB.key]?.value === 'yes');
+        y -= 30;
+      }
+    }
+  });
 
   // ── Annex: SafeComm's safety check (not part of the form) ──
-  const annex = form.sections.find(s => s.proposed);
+  const annex = annexSection(form);
   if (annex && annex.items.some(i => r[i.key])) {
     y -= 10;
     sectionBar('ANNEX - SAFETY AND CONSENT CHECK (SafeComm addition, not part of the official form)');
@@ -323,7 +324,7 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   }
 
   // ── Every page: watermark, footer, page numbers ──
-  const stamp = `SafeComm export - Case #${input.caseNumber} - ${input.status === 'COMPLETED' ? `completed${input.completedBy ? ` by ${input.completedBy}` : ''}` : 'DRAFT, not completed'} - version ${input.version} - exported by ${input.exportedBy} on ${input.exportedAt.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' })}`;
+  const stamp = `${DIGITAL_COPY_NOTICE} Case #${input.caseNumber} - ${input.status === 'COMPLETED' ? `completed${input.completedBy ? ` by ${input.completedBy}` : ''}` : 'DRAFT, not completed'} - version ${input.version} - exported by ${input.exportedBy} on ${input.exportedAt.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' })}`;
   pages.forEach((p, i) => {
     wrap(PRIVACY, bold, 6.5, CW - 70).forEach((l, j) => p.drawText(l, { x: M, y: 40 - j * 8, size: 6.5, font: bold, color: RED }));
     p.drawText(`Page ${i + 1} of ${pages.length}`, { x: W - M - 50, y: 40, size: 8, font });

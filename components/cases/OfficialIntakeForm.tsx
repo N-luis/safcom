@@ -2,12 +2,16 @@
 import ContactCopyButton from '@/components/shared/ContactCopyButton';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Box, Typography, Card, CardContent, Button, TextField, Radio, RadioGroup, FormControlLabel, Checkbox, Chip, Alert,
-  CircularProgress, Divider, Grid, LinearProgress,
+  CircularProgress, Divider, Grid, LinearProgress, Tabs, Tab, Dialog, IconButton, GlobalStyles, useMediaQuery, useTheme,
 } from '@mui/material';
-import { ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber, PictureAsPdf } from '@mui/icons-material';
+import {
+  ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber, PictureAsPdf, Print, Visibility, CloudDone, CloudOff, Close,
+} from '@mui/icons-material';
+import IntakeDocumentPreview from '@/components/intake/IntakeDocumentPreview';
 import toast from 'react-hot-toast';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
@@ -25,7 +29,23 @@ import { formForType, missingIn, type FormDef, type FormType } from '@/lib/intak
  * each name the version they edited, so a double click or a stale tab
  * cannot overwrite or duplicate anything. Access is decided by the server
  * on every request; this page only shows what it is given.
+ *
+ * Two panels: the form on the left, and on the right the live document
+ * preview (components/intake/IntakeDocumentPreview) drawn from the same
+ * `responses` state - there is no second copy of the answers, so the preview
+ * changes with every keystroke. On small screens the two are tabs.
+ *
+ * A draft saves itself AUTOSAVE_MS after the official stops typing; the
+ * preview never waits for it. Nothing is kept in the browser's storage, and
+ * no answer is ever written to the console.
  */
+const AUTOSAVE_MS = 2500;
+/** A save failed: try again this long after, unless the official types first. */
+const RETRY_MS = 15000;
+type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
+/** Answers in one canonical order, to tell whether what is on screen is what was saved. */
+const stable = (v: unknown): string => JSON.stringify(v, (_k, x) =>
+  x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : x);
 
 interface Context {
   case: {
@@ -71,6 +91,20 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const [missingKeys, setMissingKeys] = useState<string[]>([]);
   const [readOnly, setReadOnly] = useState(sp.get('view') === '1');
   const started = useRef(false);
+  const theme = useTheme();
+  const twoPanel = useMediaQuery(theme.breakpoints.up('lg'));
+  const [panel, setPanel] = useState<'input' | 'preview'>('input');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  // The item just changed, for the preview to bring into view.
+  const [changed, setChanged] = useState<{ key: string; n: number } | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>('idle');
+  // What is on screen now and the intake as last saved - read by saves that
+  // finish while the official keeps typing.
+  const responsesRef = useRef<Responses>({});
+  const intakeRef = useRef<IntakeData | null>(null);
+  const inFlight = useRef<Promise<boolean> | null>(null);
+  useEffect(() => { responsesRef.current = responses; }, [responses]);
+  useEffect(() => { intakeRef.current = loaded?.intake ?? null; }, [loaded]);
   // The VAWC intake on a VAWC case, the Blotter Report on a blotter case -
   // as the server reports it, so a draft reopens as the form it was begun on.
   const loadedType = loaded?.formType;
@@ -84,7 +118,9 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
     if (!res.ok) { setLoadError({ status: res.status, message: json.error ?? 'The intake could not be opened.' }); return null; }
     const data = json.data as Loaded;
     setLoaded(data); setLoadError(null);
-    setResponses(data.intake?.responses ?? {}); setDirty(false); setConflict(false);
+    setResponses(data.intake?.responses ?? {}); setDirty(false); setConflict(false); setSaveState('idle');
+    responsesRef.current = data.intake?.responses ?? {};
+    intakeRef.current = data.intake ?? null;
     return data;
   }, [caseId]);
 
@@ -116,6 +152,8 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const setAnswer = (key: string, a: Answer) => {
     setResponses(r => ({ ...r, [key]: a }));
     setDirty(true);
+    setSaveState(st => (st === 'saving' ? st : 'pending'));
+    setChanged(c => ({ key, n: (c?.n ?? 0) + 1 }));
     setMissingKeys(m => m.filter(k => k !== key));
   };
 
@@ -138,9 +176,63 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
     if (!window.confirm(`Mark ${keys.length} unanswered item${keys.length === 1 ? '' : 's'} as N/A?\n\nOnly do this for items that do not apply to this client. Items that were not asked should be answered, or marked Unknown or Declined instead. You can still change any of them before completing.`)) return;
     setResponses(r => ({ ...r, ...Object.fromEntries(keys.map(k => [k, { marker: 'na' as Marker }])) }));
     setDirty(true);
+    setSaveState('pending');
     setMissingKeys(m => m.filter(k => !keys.includes(k)));
     toast.success(`${keys.length} item${keys.length === 1 ? '' : 's'} marked N/A - review them, then complete the intake`);
   };
+
+  /**
+   * Save what is on screen. One save at a time, in order; the version sent is
+   * the latest saved. Answers typed while a save is on its way stay on screen
+   * and are saved next - a finished save never replaces them.
+   */
+  const persist = useCallback(async (status: 'DRAFT' | 'COMPLETED', auto = false): Promise<boolean> => {
+    if (inFlight.current) await inFlight.current;
+    const current = intakeRef.current;
+    if (!current) return false;
+    const sent = responsesRef.current;
+    const sentJson = stable(sent);
+    const wasCompleted = current.status === 'COMPLETED';
+    setSaving(true); setSaveState('saving');
+    const run = (async () => {
+      try {
+        const res = await fetch(`/api/cases/${caseId}/official-intake`, {
+          method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expectedVersion: current.version, status, responses: sent, ...(auto && { autosave: true }) }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.status === 409) { setConflict(true); setSaveState('error'); toast.error(json.error ?? 'Saved elsewhere', { id: 'intake-save' }); return false; }
+        if (res.status === 422 && Array.isArray(json.missing)) { setMissingKeys(json.missing.map((m: { key: string }) => m.key)); setSaveState('pending'); toast.error(json.error); return false; }
+        if (!res.ok) {
+          setSaveState('error');
+          toast.error(auto ? 'Save failed - your answers are still on this page. SafeComm will try again shortly.' : json.error ?? 'Not saved - your answers are still on this page', { id: 'intake-save' });
+          return false;
+        }
+        const fresh = json.data.intake as IntakeData;
+        intakeRef.current = fresh;
+        setLoaded(l => (l ? { ...l, intake: fresh } : l));
+        const untouched = stable(responsesRef.current) === sentJson;
+        // Take the server's copy only when nothing was typed since sending.
+        if (untouched) { setResponses(fresh.responses); responsesRef.current = fresh.responses; }
+        setDirty(!untouched);
+        setSaveState(untouched ? 'saved' : 'pending');
+        if (json.data.flaggedUrgent) toast.error('The case has been flagged for urgent review and the desks notified', { duration: 6000 });
+        if (!auto) toast.success(json.data.unchanged ? 'No changes to save' : status === 'COMPLETED' ? (wasCompleted ? 'Intake updated' : 'Intake completed') : 'Draft saved');
+        if (status === 'COMPLETED' && !json.data.unchanged) setReadOnly(true);
+        return true;
+      } catch {
+        setSaveState('error');
+        toast.error('Not saved - the connection failed. Your answers are still on this page.', { id: 'intake-save' });
+        return false;
+      } finally {
+        setSaving(false);
+      }
+    })();
+    inFlight.current = run;
+    const ok = await run;
+    inFlight.current = null;
+    return ok;
+  }, [caseId]);
 
   const save = async (status: 'DRAFT' | 'COMPLETED') => {
     if (!intake || saving) return;
@@ -153,26 +245,38 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
         return;
       }
     }
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/cases/${caseId}/official-intake`, {
-        method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expectedVersion: intake.version, status, responses }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.status === 409) { setConflict(true); toast.error(json.error ?? 'Saved elsewhere'); return; }
-      if (res.status === 422 && Array.isArray(json.missing)) { setMissingKeys(json.missing.map((m: { key: string }) => m.key)); toast.error(json.error); return; }
-      if (!res.ok) { toast.error(json.error ?? 'Not saved - your answers are still on this page'); return; }
-      const fresh = json.data.intake as IntakeData;
-      setLoaded(l => (l ? { ...l, intake: fresh } : l));
-      setResponses(fresh.responses);
-      setDirty(false);
-      if (json.data.flaggedUrgent) toast.error('The case has been flagged for urgent review and the desks notified', { duration: 6000 });
-      toast.success(json.data.unchanged ? 'No changes to save' : status === 'COMPLETED' ? (completed ? 'Intake updated' : 'Intake completed') : 'Draft saved');
-      if (status === 'COMPLETED' && !json.data.unchanged) setReadOnly(true);
-    } finally {
-      setSaving(false);
-    }
+    await persist(status);
+  };
+
+  // A draft saves itself once the official pauses; a failed save is tried
+  // again later. A completed intake is saved only as a deliberate update.
+  useEffect(() => {
+    if (!dirty || !editable || completed || conflict || saveState === 'saving') return;
+    const t = setTimeout(() => { void persist('DRAFT', true); }, saveState === 'error' ? RETRY_MS : AUTOSAVE_MS);
+    return () => clearTimeout(t);
+  }, [responses, dirty, editable, completed, conflict, saveState, persist]);
+
+  /** The PDF is built from what is saved: a draft is saved first, so it matches the screen. */
+  const downloadPdf = async () => {
+    if (dirty && editable && !completed) {
+      if (!(await persist('DRAFT', true))) { toast.error('The PDF was not downloaded: the latest answers could not be saved first.'); return; }
+    } else if (dirty && !window.confirm('The PDF contains the saved version. Your unsaved changes will not be in it. Export anyway?')) return;
+    const link = document.createElement('a');
+    link.href = `/api/cases/${caseId}/official-intake/pdf`;
+    link.download = '';
+    link.click();
+  };
+
+  /** From a row in the preview to the item in the form. */
+  const jumpTo = (key: string) => {
+    const idx = STEPS.findIndex(st => form.sections.find(x => x.key === st.key)?.items.some(i => i.key === key));
+    if (idx >= 0) setStep(idx);
+    setPanel('input'); setPreviewOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById(`item-${key}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el?.querySelector<HTMLElement>('input, textarea')?.focus({ preventScroll: true });
+    }, 80);
   };
 
   const leave = () => {
@@ -202,7 +306,13 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const section = form.sections.find(s => s.key === current.key);
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 3 }, maxWidth: 1000 }}>
+    // On a wide screen the page fills the window and the form and the preview
+    // each scroll in their own column, so the preview is always in view. (The
+    // desk layouts' content area is a scroll container that grows with the
+    // page, which a sticky panel cannot stick to.)
+    <Box sx={intake && twoPanel
+      ? { p: 3, maxWidth: 1760, height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }
+      : { p: { xs: 1.5, sm: 3 }, maxWidth: 1000 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
         <Button startIcon={<ArrowBack />} onClick={leave} sx={{ color: '#64748b', minHeight: 40 }}>Case #{ctx.case.caseNumber}</Button>
@@ -212,15 +322,18 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
             CONFIDENTIAL · {!intake ? 'Not started' : completed ? `Completed${intake.completedBy ? ` by ${intake.completedBy}` : ''}` : 'Draft - not completed'}
             {intake ? ` · version ${intake.version} · last saved ${when(intake.updatedAt)}${intake.updatedBy ? ` by ${intake.updatedBy}` : ''}` : ''}
           </Typography>
+          {intake && editable && <SaveStatus state={saveState} dirty={dirty} completed={completed} onRetry={() => void persist(completed ? 'COMPLETED' : 'DRAFT', !completed)} />}
         </Box>
         {intake && (
-          // The saved version, laid out as the intake form. Unsaved answers on
-          // this page are not in it - said before it downloads.
-          <Button variant="outlined" startIcon={<PictureAsPdf />} href={`/api/cases/${caseId}/official-intake/pdf`} download
-            onClick={e => { if (dirty && !window.confirm('The PDF contains the saved version. Your unsaved changes will not be in it. Export anyway?')) e.preventDefault(); }}
-            sx={{ minHeight: 40 }}>
-            {completed ? 'Export PDF' : 'Export PDF (draft)'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="outlined" startIcon={<Visibility />} onClick={() => (twoPanel ? setPreviewOpen(true) : setPanel('preview'))} sx={{ minHeight: 40 }}>
+              Preview document
+            </Button>
+            <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => void downloadPdf()} disabled={saving} sx={{ minHeight: 40 }}>
+              {completed ? 'Download PDF' : 'Download PDF (draft)'}
+            </Button>
+            <Button variant="outlined" startIcon={<Print />} onClick={() => window.print()} sx={{ minHeight: 40 }}>Print</Button>
+          </Box>
         )}
         {intake && readOnly && loaded.access.edit && (
           <Button variant="outlined" startIcon={<Edit />} onClick={() => setReadOnly(false)} sx={{ minHeight: 40 }}>
@@ -246,6 +359,17 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
         </CardContent></Card>
       )}
 
+      {intake && !twoPanel && (
+        <Tabs value={panel} onChange={(_, v) => setPanel(v)} variant="fullWidth" sx={{ mb: 1.5, borderBottom: '1px solid #e2e8f0' }} aria-label="Form or preview">
+          <Tab value="input" label="Input" sx={{ fontWeight: 700 }} />
+          <Tab value="preview" label="Preview" sx={{ fontWeight: 700 }} />
+        </Tabs>
+      )}
+
+      <Box sx={intake && twoPanel ? { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 2.5, flex: 1, minHeight: 0 } : undefined}>
+      {/* The form stays mounted when the preview tab is shown, so nothing typed is lost. */}
+      <Box data-testid="intake-input-pane" sx={{ minWidth: 0, display: intake && !twoPanel && panel === 'preview' ? 'none' : 'block',
+        ...(intake && twoPanel && { overflowY: 'auto', minHeight: 0, pr: 1 }) }}>
       {/* Progress */}
       <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 2 }} role="tablist" aria-label="Intake sections">
         {STEPS.map((s, i) => {
@@ -354,9 +478,62 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
           </Button>
         )}
       </Box>
-      {dirty && <Typography sx={{ fontSize: '0.76rem', color: '#a16207', mt: 1 }}>Unsaved changes.</Typography>}
+      {dirty && completed && <Typography sx={{ fontSize: '0.76rem', color: '#a16207', mt: 1 }}>Unsaved changes - a completed intake is saved only with Save update.</Typography>}
+      </Box>
+
+      {intake && (twoPanel || panel === 'preview') && (
+        <Box sx={{ height: twoPanel ? '100%' : '80vh', minHeight: twoPanel ? 0 : 420, minWidth: 0 }}>
+          <IntakeDocumentPreview form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version}
+            unsaved={dirty} changed={changed} focusKey={section?.items[0]?.key ?? null} onJump={jumpTo} />
+        </Box>
+      )}
+      </Box>
+
+      {intake && previewOpen && (
+        <Dialog open fullScreen onClose={() => setPreviewOpen(false)} aria-label="Document preview">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: '1px solid #e2e8f0' }}>
+            <Typography sx={{ fontWeight: 800, color: '#0c1e46' }}>{form.title} - Case #{ctx.case.caseNumber}</Typography>
+            <Button startIcon={<Print />} onClick={() => window.print()} sx={{ ml: 'auto' }}>Print</Button>
+            <IconButton onClick={() => setPreviewOpen(false)} aria-label="Close preview"><Close /></IconButton>
+          </Box>
+          <Box sx={{ height: 'calc(100vh - 58px)', p: 1.5 }}>
+            <IntakeDocumentPreview form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version}
+              unsaved={dirty} onJump={jumpTo} />
+          </Box>
+        </Dialog>
+      )}
+
+      {/* What Print prints: only the document, from the answers on screen. */}
+      {intake && createPortal(
+        <Box className="intake-print-root" sx={{ display: 'none' }}>
+          <IntakeDocumentPreview variant="print" form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version} unsaved={dirty} />
+        </Box>, document.body)}
+      <GlobalStyles styles={{ '@media print': {
+        'body > *:not(.intake-print-root)': { display: 'none !important' },
+        '.intake-print-root': { display: 'block !important' },
+        '@page': { size: 'A4', margin: '12mm' },
+      } }} />
     </Box>
   );
+}
+
+/** Where the draft's saving stands, in words - announced to screen readers. */
+function SaveStatus({ state, dirty, completed, onRetry }: { state: SaveState; dirty: boolean; completed: boolean; onRetry: () => void }) {
+  const base = { display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: '0.78rem', fontWeight: 700, mt: 0.25 } as const;
+  if (completed) {
+    return dirty ? <Typography role="status" sx={{ ...base, color: '#a16207' }}>Changes not saved - use Save update</Typography> : null;
+  }
+  if (state === 'saving') return <Typography role="status" sx={{ ...base, color: '#0369a1' }}><CircularProgress size={12} /> Saving...</Typography>;
+  if (state === 'error') {
+    return (
+      <Typography role="status" sx={{ ...base, color: '#b91c1c' }}>
+        <CloudOff sx={{ fontSize: 16 }} /> Save failed - your answers are still here
+        <Button size="small" onClick={onRetry} sx={{ minHeight: 0, py: 0, fontWeight: 700 }}>Retry now</Button>
+      </Typography>
+    );
+  }
+  if (dirty || state === 'pending') return <Typography role="status" sx={{ ...base, color: '#a16207' }}>Unsaved changes - saving shortly</Typography>;
+  return <Typography role="status" sx={{ ...base, color: '#15803d' }}><CloudDone sx={{ fontSize: 16 }} /> Saved</Typography>;
 }
 
 // ─── Section 1: from the records ─────────────────────────────────────────────
@@ -425,6 +602,8 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
   item: Item; answer?: Answer; onChange: (a: Answer) => void; readOnly: boolean; required: boolean; missing: boolean;
   prefilledFrom?: string; extra?: React.ReactNode;
 }) {
+  // Today in Philippine time, for the date check - read once, not on every render.
+  const [today] = useState(() => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10));
   const a = answer ?? {};
   // Typing an answer clears an N/A / Unknown / Declined marker.
   const set = (patch: Partial<Answer>) => {
@@ -439,7 +618,7 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
 
   if (readOnly) {
     return (
-      <Box>
+      <Box id={`item-${item.key}`}>
         <Typography sx={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>{label}</Typography>
         <Typography sx={{ fontSize: '0.9rem', color: '#0c1e46', whiteSpace: 'pre-wrap' }}>{display(item, answer)}</Typography>
       </Box>
@@ -447,6 +626,11 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
   }
 
   const opts = optionsOf(item);
+  const raw = typeof a.value === 'string' ? a.value : '';
+  const problem = !raw ? null
+    : item.type === 'date' && raw > today ? 'This date is in the future - check it with the client.'
+      : item.type === 'number' && (!/^\d+$/.test(raw) || Number(raw) > 130) ? 'Enter the age in whole years (0 to 130).'
+        : null;
   return (
     <Box sx={{ borderLeft: `3px solid ${missing ? '#ef4444' : '#e2e8f0'}`, pl: 1.5 }} id={`item-${item.key}`}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>
@@ -462,7 +646,8 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
         <>
           {(item.type === 'text' || item.type === 'date' || item.type === 'time' || item.type === 'number') && (
             <TextField size="small" fullWidth type={item.type === 'text' ? 'text' : item.type} value={(a.value as string) ?? ''}
-              onChange={e => set({ value: e.target.value })} slotProps={{ htmlInput: { maxLength: 300, ...(item.type === 'number' && { min: 0, max: 130 }) } }}
+              error={Boolean(problem)} helperText={problem ?? undefined}
+              onChange={e => set({ value: e.target.value })} slotProps={{ htmlInput: { maxLength: 300, 'aria-label': label, ...(item.type === 'number' && { min: 0, max: 130 }) } }}
               sx={{ maxWidth: item.type === 'text' ? '100%' : 260 }} />
           )}
           {item.type === 'textarea' && (

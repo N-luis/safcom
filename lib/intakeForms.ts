@@ -30,6 +30,12 @@ export interface FormDef {
     box: [string, string, string, string];
     instructions: string[];
     signatures: [{ key: string; caption: string }, { key: string; caption: string }];
+    /**
+     * Where the source document starts a new page: before which item, and the
+     * bar a page repeats when it continues a section (lib/intakeDocument.ts).
+     * A form without them flows as one sheet.
+     */
+    pageBreaks?: { before: string; bar?: string }[];
   };
 }
 
@@ -54,6 +60,13 @@ export const FORMS: Record<FormType, FormDef> = {
       signatures: [
         { key: 'signatureClient', caption: '(Signature over printed name of the victim, parent, or guardian)' },
         { key: 'signatureOfficer', caption: '(Signature over printed name of the intake officer)' },
+      ],
+      // The five pages of intake form.pdf: A and B items 11-17.a; B 18-30; C 31; C 32-40; D 41-51.
+      pageBreaks: [
+        { before: 'civilStatus', bar: 'VICTIM-SURVIVOR INFORMATION' },
+        { before: 'typeOfViolence' },
+        { before: 'description', bar: 'DETAILS OF THE INCIDENT' },
+        { before: 'perpName' },
       ],
     },
   }),
