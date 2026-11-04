@@ -10,7 +10,7 @@ import {
 import {
   Dashboard, FolderOpen, Category, Psychology, Campaign,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
-  Shield, Logout, Message, ArrowBack, Gavel, CalendarMonth, LooksOne, LooksTwo, Looks3,
+  Shield, Logout, Message, ArrowBack, Gavel,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
@@ -24,11 +24,9 @@ const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/blotter-officer', exact: true },
   { id: 'cases', label: 'Case Management', icon: FolderOpen, path: '/blotter-officer/case-management' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
-  { id: 'hearings', label: 'Hearing Management', icon: Gavel, path: '/blotter-officer/hearings', exact: true },
-  { id: 'hearing-calendar', label: 'Hearing Calendar', icon: CalendarMonth, path: '/blotter-officer/hearings/calendar' },
-  { id: 'hearing-1', label: 'Hearing 1', icon: LooksOne, path: '/blotter-officer/hearings/1' },
-  { id: 'hearing-2', label: 'Hearing 2', icon: LooksTwo, path: '/blotter-officer/hearings/2' },
-  { id: 'hearing-3', label: 'Hearing 3', icon: Looks3, path: '/blotter-officer/hearings/3' },
+  // One entry for every hearing page: the records (with the Hearing 1, 2 and 3
+  // tabs) and the calendar are reached from inside it, and it stays highlighted on each.
+  { id: 'hearings', label: 'Hearing', icon: Gavel, path: '/blotter-officer/hearings' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
   // Path kept as /reports so existing links still resolve; the page behind it
   // is now purely announcements.

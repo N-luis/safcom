@@ -5,7 +5,7 @@ import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Button, ToggleButton, ToggleButtonGroup, IconButton, TextField, MenuItem, Chip, Alert, Skeleton, Tooltip,
 } from '@mui/material';
-import { ChevronLeft, ChevronRight, Add, CalendarMonth, Refresh, Place, Person } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, Add, CalendarMonth, Refresh, Place, Person, ViewList } from '@mui/icons-material';
 import { HEARING_STATUSES, CALENDAR_STATUS_GROUPS, phDay, formatHearingTime, formatHearingDate, type HearingStatus, type CalendarStatusGroup } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
 import HearingDetailsDialog from './HearingDetailsDialog';
@@ -95,11 +95,17 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
             <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay hearings you may see. VAWC cases and their appointments are never shown here.</Typography>
           </Box>
         </Box>
-        {data?.canCreate && (
-          <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ ml: { sm: 'auto' }, textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>
-            Create Hearing
+        <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {/* Back to the records - the sidebar has one Hearing entry for both. */}
+          <Button variant="outlined" startIcon={<ViewList />} href="/blotter-officer/hearings" sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
+            Hearing Records
           </Button>
-        )}
+          {data?.canCreate && (
+            <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>
+              Create Hearing
+            </Button>
+          )}
+        </Box>
       </Box>
 
       {forbidden && <Alert severity="info" sx={{ borderRadius: 2 }}>{error?.message}</Alert>}
