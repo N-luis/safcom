@@ -7,6 +7,7 @@ import {
 } from './officialIntakeForm';
 import { FORMS, type FormDef } from './intakeForms';
 import { BLOTTER_CATEGORIES } from './classificationSchema';
+import { BARANGAY_CONTEXT } from './safecommConfig';
 
 /**
  * The official intake on the server: who may see or fill it, the first
@@ -26,7 +27,7 @@ import { BLOTTER_CATEGORIES } from './classificationSchema';
  *     the captain. Residents never reach this - the endpoints are staff-only.
  *
  * THE FORM follows the desk (lib/intakeForms): the VAWC intake form on a VAWC
- * case, the Barangay Blotter Report on a blotter case.
+ * case, the Barangay Blotter Intake Form on a blotter case.
  */
 
 export interface IntakeAccess {
@@ -180,7 +181,7 @@ export function startingAnswers(c: IntakeCase, actor: { role: string; name?: str
 const CONTACT_PREF: Record<string, string> = { call_ok: 'call_ok', text_first: 'text_first', no_phone: 'no_phone' };
 
 /**
- * The Blotter Report's start: the complainant is the reporter on the case
+ * The Blotter Intake Form's start: the complainant is the reporter on the case
  * (never a name match), the person reported is what the report or an
  * official recorded, and the rest comes from the case itself. Contact
  * numbers are not copied in - they are revealed, and logged, through the
@@ -192,7 +193,7 @@ function startingBlotterAnswers(c: IntakeCase, actor: { name?: string | null }) 
   const set = (key: string, a: Answer, from: string) => { responses[key] = a; prefilled[key] = from; };
   const r = !c.reporterIdentityWithheld ? c.resident : null;
   if (r) {
-    set('complainantName', { value: `${r.firstName} ${r.lastName}`.trim() }, 'registered resident profile');
+    set('complainantName', { value: { first: r.firstName.slice(0, 200), last: r.lastName.slice(0, 200) } }, 'registered resident profile');
     if (r.age) set('complainantAge', { value: String(r.age) }, 'registered resident profile');
     const address = [r.address?.trim(), r.barangay?.trim()].filter(Boolean).join(', ');
     if (address) set('complainantAddress', { value: address.slice(0, 300) }, 'registered resident profile');
@@ -208,7 +209,8 @@ function startingBlotterAnswers(c: IntakeCase, actor: { name?: string | null }) 
   const p = c.parties.find(x => x.source === 'official') ?? c.parties.find(x => x.source === 'reporter');
   if (p) {
     const from = p.source === 'official' ? 'official record on the case' : 'the report';
-    if (p.fullName) set('respondentName', { value: p.fullName.slice(0, 300) }, from);
+    // The record keeps one line for the name: it goes in as the name as written.
+    if (p.fullName) set('respondentName', { value: { full: p.fullName.slice(0, 200) } }, from);
     if (p.age !== null && p.age !== undefined) set('respondentAge', { value: String(p.age) }, from);
     if (p.address) set('respondentAddress', { value: p.address.slice(0, 300) }, from);
     if (p.relationship) set('respondentRelationship', { value: p.relationship.slice(0, 300) }, from);
@@ -226,9 +228,12 @@ function startingBlotterAnswers(c: IntakeCase, actor: { name?: string | null }) 
   if (c.attachments.length) set('attachments', { value: 'on_file' }, 'case attachments');
 
   if (actor.name) set('receivingOfficer', { value: actor.name.slice(0, 300) }, 'your account');
-  const now = new Date(Date.now() + 8 * 3600_000).toISOString();
-  set('recordedDate', { value: now.slice(0, 10) }, 'today');
-  set('recordedTime', { value: now.slice(11, 16) }, 'now');
+  // Received when the report reached the barangay - the case's filing time.
+  const received = new Date(c.filedAt.getTime() + 8 * 3600_000).toISOString();
+  set('recordedDate', { value: received.slice(0, 10) }, 'case record');
+  set('recordedTime', { value: received.slice(11, 16) }, 'case record');
+  set('barangay', { value: BARANGAY_CONTEXT.name.slice(0, 300) }, 'barangay settings');
+  // The case number is the reference - never a second one.
   set('blotterReferenceNo', { value: c.caseNumber }, 'case record');
   if (c.assignedTo?.name) set('assignedOfficer', { value: c.assignedTo.name.slice(0, 300) }, 'case record');
   set('caseStatus', { value: c.status }, 'case record');

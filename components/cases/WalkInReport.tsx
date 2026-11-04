@@ -292,6 +292,8 @@ export interface WalkInReportProps {
   subjectLabel?: string;
   /** A line shown above the form, where a desk needs one. */
   notice?: string;
+  /** The desk's intake form, offered once the case is filed: its name. */
+  intakeLabel?: string;
 }
 
 export default function WalkInReport({
@@ -300,6 +302,7 @@ export default function WalkInReport({
   basePath,
   subjectLabel = 'Reporter',
   notice,
+  intakeLabel = 'Intake Form',
 }: WalkInReportProps) {
   const STEPS = [`${subjectLabel} Info`, 'Incident Details', 'Classification', 'Review & Submit'];
   const [step, setStep] = useState(0);
@@ -438,6 +441,17 @@ export default function WalkInReport({
                     sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#475569' }}
                   >
                     Open the Case
+                  </Button>
+                )}
+                {filedId && (
+                  // The case now exists: its intake form is the next step, on this case - never a second case.
+                  <Button
+                    variant="contained"
+                    startIcon={<Assignment />}
+                    onClick={() => router.push(`${basePath}/${filedId}/intake?start=1`)}
+                    sx={{ borderRadius: 2, bgcolor: '#0f766e', '&:hover': { bgcolor: '#115e59' } }}
+                  >
+                    Open {intakeLabel}
                   </Button>
                 )}
                 <Button variant="contained" startIcon={<Refresh />} onClick={reset} sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' } }}>

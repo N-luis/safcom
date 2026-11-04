@@ -10,6 +10,7 @@ import { FORMS } from '../lib/intakeForms';
 import { documentPages, pageOfItem, DIGITAL_COPY_NOTICE } from '../lib/intakeDocument';
 import { ALL_ITEMS, type Responses } from '../lib/officialIntakeForm';
 import IntakeDocumentPreview from '../components/intake/IntakeDocumentPreview';
+import KpForm7Preview from '../components/intake/KpForm7Preview';
 import { fictional, narrative, NARRATIVE_END } from './intakeFixtures';
 
 let pass = 0; const fails: string[] = [];
@@ -37,7 +38,8 @@ function main() {
     const expected = ALL_ITEMS.filter(i => i.no && !i.proposed).map(i => i.no!);
     ok('every numbered item 1-51 (and 17.a) appears once, in order', numbered.join() === expected.join() && numbered.length === 52, `${numbered.length}`);
     ok('the SafeComm safety check is not on the form pages', !pages.some(p => p.blocks.some(b => b.kind === 'item' && b.item.proposed)));
-    ok('the Blotter Report flows as one sheet', documentPages(FORMS.BLOTTER_REPORT).length === 1);
+    ok('the Blotter Intake Record is three pages: A-B, C-D, E-F', documentPages(FORMS.BLOTTER_REPORT).length === 3
+      && pageOfItem(documentPages(FORMS.BLOTTER_REPORT), 'complainantName') === 1 && pageOfItem(documentPages(FORMS.BLOTTER_REPORT), 'narrative') === 2 && pageOfItem(documentPages(FORMS.BLOTTER_REPORT), 'complaintStatement') === 3);
 
     // ── 2. The live preview ──
     console.log('\nThe live preview');
@@ -77,6 +79,30 @@ function main() {
       && html({ ...r, safeToSpeak: { value: 'yes' } }).includes('ANNEX - SAFETY AND CONSENT CHECK') && html({ ...r, safeToSpeak: { value: 'yes' } }).includes('Page 6 of 6'));
     const long = html({ ...r, description: { value: narrative(60) } });
     ok('a very long narrative is kept whole and wraps (no cut-off)', long.includes(NARRATIVE_END) && long.includes('Paragraph 60:') && long.includes('overflow-wrap:anywhere'));
+
+  // ── 3. The Blotter Intake Record and KP Form No. 7 ──
+  console.log('\nThe Blotter Intake Record and KP Form No. 7');
+  const br: Responses = {
+    blotterReferenceNo: { value: 'SC-PROBE-0101' }, recordedDate: { value: '2026-11-02' },
+    complainantName: { value: { last: 'Dela Prueba', first: 'Rosa', middle: 'M', full: '' } }, respondentUnknown: { value: 'yes' },
+    narrative: { value: 'Ayon sa nagrereklamo, binato ang bintana.\n\nWalang nasaktan.' },
+    complaintNature: { value: 'Pagbasag ng bintana' }, complaintStatement: { value: 'Binato ng di-kilalang tao ang aming bintana.' },
+    requestedRelief: { value: 'Ipagbayad ang nasirang bintana.' }, initialObservations: { value: 'Basag ang salamin ng bintana sa harap.' },
+  };
+  const bh = renderToStaticMarkup(<IntakeDocumentPreview form={FORMS.BLOTTER_REPORT} responses={br} caseNumber="SC-PROBE-0101" status="DRAFT" version={2} />);
+  ok('the blotter preview is the Barangay Blotter Intake Record, three pages, A to F', bh.includes('BARANGAY BLOTTER INTAKE RECORD') && bh.includes('Page 3 of 3')
+    && ['A. Administrative Information', 'B. Complainant Information', 'C. Respondent Information', 'D. Incident Information', 'E. Complaint and Requested Relief', 'F. Initial Action and Documentation'].every(t => bh.includes(t)));
+  ok('the name in its parts, and "respondent unknown" marked', bh.includes('Dela Prueba') && bh.includes('Rosa') && bh.includes('The respondent is unknown, or the information is unavailable'));
+  ok('the reference and date received (mm/dd/yyyy) head pages 2 and 3', (bh.match(/SC-PROBE-0101/g) ?? []).length >= 3 && (bh.match(/Date Received: <span[^>]*>11\/02\/2026/g) ?? []).length === 2);
+  ok('an optional item is labelled "(optional)" once', !bh.includes('(optional) (optional)'));
+  ok('the complainant\'s statement and the officer\'s notes are separate rows', bh.includes('Binato ng di-kilalang tao') && bh.includes('Basag ang salamin') && bh.includes('Receiving officer&#x27;s notes'));
+  const kpOff = renderToStaticMarkup(<KpForm7Preview responses={br} caseNumber="SC-PROBE-0101" eligible={false} reasons={['An official must review whether this dispute may go to Katarungang Pambarangay proceedings.']} draft />);
+  ok('KP Form No. 7 is not shown for a case not found eligible - the reason is', kpOff.includes('not available') && kpOff.includes('must review') && !kpOff.includes('LUPONG TAGAPAMAYAPA'));
+  const kpOn = renderToStaticMarkup(<KpForm7Preview responses={br} caseNumber="SC-PROBE-0101" municipality="Bocaue" province="Bulacan" eligible reasons={[]} draft={false} />);
+  ok('for an eligible case: the form, from Section E', kpOn.includes('OFFICE OF THE LUPONG TAGAPAMAYAPA') && kpOn.includes('Rosa M Dela Prueba') && kpOn.includes('For: Pagbasag ng bintana')
+    && kpOn.includes('Binato ng di-kilalang tao') && kpOn.includes('Ipagbayad ang nasirang bintana') && kpOn.includes('Punong Barangay/Lupon Chairman'));
+  ok('...and says what it still lacks - here, a named respondent', kpOn.includes('Still needed') && kpOn.includes('respondent'));
+  ok('the KP preview is read-only too', !/<input|<textarea|contenteditable/i.test(kpOn));
 
   console.log(`\n${pass} passed, ${fails.length} failed`);
   if (fails.length) { fails.forEach(x => console.log('  FAILED: ' + x)); process.exitCode = 1; }

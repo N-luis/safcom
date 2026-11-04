@@ -131,8 +131,10 @@ function Sheet({ number, total, props, children }: { number: number; total: numb
   const [boxA, boxAKey, boxB, boxBKey] = form.pdf.box;
   const str = (k: string) => (typeof responses[k]?.value === 'string' ? (responses[k].value as string) : '');
   // As the PDF: the case number stands in for an empty reference box.
-  const boxAValue = str(boxAKey) || (boxAKey === 'blotterReferenceNo' ? caseNumber : '');
-  const boxBValue = str(boxBKey) || (boxBKey === 'incidentNo' ? caseNumber : '');
+  // A date in a box reads as the form writes dates: mm/dd/yyyy.
+  const asDoc = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? mmddyyyy(v) : v);
+  const boxAValue = asDoc(str(boxAKey)) || (boxAKey === 'blotterReferenceNo' ? caseNumber : '');
+  const boxBValue = asDoc(str(boxBKey)) || (boxBKey === 'incidentNo' ? caseNumber : '');
   return (
     <Box component="section" data-page={number} aria-label={`Page ${number} of ${total}`} className="intake-doc-page"
       sx={{ position: 'relative', bgcolor: '#fff', color: INK, width: '100%', maxWidth: 780, mx: 'auto', minHeight: { md: 1000 }, flexShrink: 0, boxSizing: 'border-box',

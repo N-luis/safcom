@@ -10,6 +10,7 @@ export default function BlotterWalkInPage() {
       incidentTypes={INCIDENT_TYPES}
       prefix="BLT"
       basePath="/blotter-officer/case-management"
+      intakeLabel="Blotter Intake Form"
     />
   );
 }

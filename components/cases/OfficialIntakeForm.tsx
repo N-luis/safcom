@@ -6,12 +6,13 @@ import { createPortal } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Box, Typography, Card, CardContent, Button, TextField, Radio, RadioGroup, FormControlLabel, Checkbox, Chip, Alert,
-  CircularProgress, Divider, Grid, LinearProgress, Tabs, Tab, Dialog, IconButton, GlobalStyles, useMediaQuery, useTheme,
+  CircularProgress, Divider, Grid, LinearProgress, Tabs, Tab, Dialog, IconButton, GlobalStyles, useMediaQuery, useTheme, ToggleButton, ToggleButtonGroup, Tooltip,
 } from '@mui/material';
 import {
-  ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber, PictureAsPdf, Print, Visibility, CloudDone, CloudOff, Close,
+  ArrowBack, ArrowForward, Save, CheckCircle, Lock, Phone, Edit, WarningAmber, PictureAsPdf, Print, Visibility, CloudDone, CloudOff, Close, Gavel, AssignmentInd,
 } from '@mui/icons-material';
 import IntakeDocumentPreview from '@/components/intake/IntakeDocumentPreview';
+import KpForm7Preview from '@/components/intake/KpForm7Preview';
 import toast from 'react-hot-toast';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
@@ -64,7 +65,11 @@ interface IntakeData {
   createdAt: string; updatedAt: string;
   revisions: { version: number; status: string; changedItems: number; by: string | null; at: string }[];
 }
-interface Loaded { access: { view: boolean; edit: boolean; message: string | null }; context: Context; intake: IntakeData | null; formType?: FormType }
+interface Loaded {
+  access: { view: boolean; edit: boolean; message: string | null }; context: Context; intake: IntakeData | null; formType?: FormType;
+  /** Blotter intake only: whether KP Form No. 7 may be produced for this case, and why not. */
+  kp?: { eligible: boolean; reasons: string[] } | null;
+}
 
 /** The form's steps: the case from the records, its own sections, then the review. */
 const stepsFor = (form: FormDef) => [
@@ -82,7 +87,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const router = useRouter();
   const sp = useSearchParams();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [loadError, setLoadError] = useState<{ status: number; message: string } | null>(null);
+  const [loadError, setLoadError] = useState<{ status: number; message: string; canClaim?: boolean } | null>(null);
   const [responses, setResponses] = useState<Responses>({});
   const [dirty, setDirty] = useState(false);
   const [step, setStep] = useState(0);
@@ -95,6 +100,8 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const twoPanel = useMediaQuery(theme.breakpoints.up('lg'));
   const [panel, setPanel] = useState<'input' | 'preview'>('input');
   const [previewOpen, setPreviewOpen] = useState(false);
+  // Blotter intake: which document the preview shows.
+  const [doc, setDoc] = useState<'record' | 'kp7'>('record');
   // The item just changed, for the preview to bring into view.
   const [changed, setChanged] = useState<{ key: string; n: number } | null>(null);
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -105,7 +112,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const inFlight = useRef<Promise<boolean> | null>(null);
   useEffect(() => { responsesRef.current = responses; }, [responses]);
   useEffect(() => { intakeRef.current = loaded?.intake ?? null; }, [loaded]);
-  // The VAWC intake on a VAWC case, the Blotter Report on a blotter case -
+  // The VAWC intake on a VAWC case, the Blotter Intake Form on a blotter case -
   // as the server reports it, so a draft reopens as the form it was begun on.
   const loadedType = loaded?.formType;
   const form = useMemo(() => formForType(loadedType), [loadedType]);
@@ -115,7 +122,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const load = useCallback(async () => {
     const res = await fetch(`/api/cases/${caseId}/official-intake`, { credentials: 'include', cache: 'no-store' });
     const json = await res.json().catch(() => ({}));
-    if (!res.ok) { setLoadError({ status: res.status, message: json.error ?? 'The intake could not be opened.' }); return null; }
+    if (!res.ok) { setLoadError({ status: res.status, message: json.error ?? 'The intake could not be opened.', canClaim: Boolean(json.canClaim) }); return null; }
     const data = json.data as Loaded;
     setLoaded(data); setLoadError(null);
     setResponses(data.intake?.responses ?? {}); setDirty(false); setConflict(false); setSaveState('idle');
@@ -267,6 +274,17 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
     link.click();
   };
 
+  /** KP Form No. 7 from the saved answers - a draft is saved first, so it matches the screen. */
+  const downloadKp7 = async () => {
+    if (dirty && editable && !completed && !(await persist('DRAFT', true))) { toast.error('KP Form No. 7 was not produced: the latest answers could not be saved first.'); return; }
+    const res = await fetch(`/api/cases/${caseId}/official-intake/kp-form-7`, { credentials: 'include' });
+    if (!res.ok) { const j = await res.json().catch(() => ({})); toast.error(j.error ?? 'KP Form No. 7 could not be produced', { duration: 6000 }); return; }
+    const url = URL.createObjectURL(await res.blob());
+    const link = document.createElement('a');
+    link.href = url; link.download = `KP-Form-7-${loaded?.context.case.caseNumber ?? 'case'}.pdf`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  };
+
   /** From a row in the preview to the item in the form. */
   const jumpTo = (key: string) => {
     const idx = STEPS.findIndex(st => form.sections.find(x => x.key === st.key)?.items.some(i => i.key === key));
@@ -292,7 +310,17 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   if (loadError) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
-        <Alert severity={loadError.status === 404 ? 'info' : 'error'} icon={<Lock />} sx={{ borderRadius: 2, maxWidth: 640 }}>
+        <Alert severity={loadError.status === 404 ? 'info' : 'error'} icon={<Lock />} sx={{ borderRadius: 2, maxWidth: 640 }}
+          action={loadError.canClaim ? (
+            <Button color="inherit" size="small" startIcon={<AssignmentInd />} onClick={async () => {
+              const res = await fetch(`/api/cases/${caseId}/claim`, { method: 'POST', credentials: 'include' });
+              const json = await res.json().catch(() => ({}));
+              if (!res.ok) { toast.error(json.error ?? 'Could not take this case'); return; }
+              toast.success('Case assigned to you');
+              const d = await load();
+              if (d && !d.intake && d.access.edit && sp.get('start') === '1') void start();
+            }}>Take this case</Button>
+          ) : undefined}>
           {loadError.status === 404 ? 'Case not found.' : loadError.message}
         </Alert>
         <Button startIcon={<ArrowBack />} onClick={() => router.push(basePath)} sx={{ mt: 2 }}>Back to cases</Button>
@@ -333,6 +361,15 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
               {completed ? 'Download PDF' : 'Download PDF (draft)'}
             </Button>
             <Button variant="outlined" startIcon={<Print />} onClick={() => window.print()} sx={{ minHeight: 40 }}>Print</Button>
+            {form.type === 'BLOTTER_REPORT' && (
+              <Tooltip title={loaded.kp?.eligible ? 'The Complainant\'s Form, from Section E' : (loaded.kp?.reasons[0] ?? 'Only for a case found eligible for Katarungang Pambarangay proceedings')}>
+                <span>
+                  <Button variant="outlined" startIcon={<Gavel />} onClick={() => void downloadKp7()} disabled={saving || !loaded.kp?.eligible} sx={{ minHeight: 40 }}>
+                    KP Form No. 7
+                  </Button>
+                </span>
+              </Tooltip>
+            )}
           </Box>
         )}
         {intake && readOnly && loaded.access.edit && (
@@ -393,7 +430,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
         {section && (
           <>
             {section.note && <Alert severity="info" sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>{section.note}</Alert>}
-            {/* The VAWC interview's own caution; the Blotter Report has none of its sensitive questions. */}
+            {/* The VAWC interview's own caution; the Blotter Intake Form has none of its sensitive questions. */}
             {section.key === 'A' && form.type === 'VAWC_INTAKE' && (
               <Alert severity="warning" icon={<WarningAmber />} sx={{ mb: 2, borderRadius: 2, fontSize: '0.82rem' }}>
                 Before asking sensitive questions, confirm the client can speak safely and privately. They may decline any question.
@@ -482,9 +519,24 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
       </Box>
 
       {intake && (twoPanel || panel === 'preview') && (
-        <Box sx={{ height: twoPanel ? '100%' : '80vh', minHeight: twoPanel ? 0 : 420, minWidth: 0 }}>
-          <IntakeDocumentPreview form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version}
-            unsaved={dirty} changed={changed} focusKey={section?.items[0]?.key ?? null} onJump={jumpTo} />
+        <Box sx={{ height: twoPanel ? '100%' : '80vh', minHeight: twoPanel ? 0 : 420, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {form.type === 'BLOTTER_REPORT' && (
+            <ToggleButtonGroup exclusive size="small" value={doc} onChange={(_, v) => v && setDoc(v)} aria-label="Which document">
+              <ToggleButton value="record" sx={{ textTransform: 'none', px: 2 }}>Blotter Intake Record</ToggleButton>
+              <ToggleButton value="kp7" sx={{ textTransform: 'none', px: 2 }}>KP Form No. 7</ToggleButton>
+            </ToggleButtonGroup>
+          )}
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            {form.type === 'BLOTTER_REPORT' && doc === 'kp7' ? (
+              <Box sx={{ height: '100%', overflowY: 'auto', bgcolor: '#e5e7eb', borderRadius: 2 }}>
+            <KpForm7Preview responses={responses} caseNumber={ctx.case.caseNumber} municipality={ctx.case.municipality} province={ctx.case.province}
+              eligible={Boolean(loaded.kp?.eligible)} reasons={loaded.kp?.reasons ?? []} draft={!completed} />
+              </Box>
+            ) : (
+              <IntakeDocumentPreview form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version}
+                unsaved={dirty} changed={changed} focusKey={section?.items[0]?.key ?? null} onJump={jumpTo} />
+            )}
+          </Box>
         </Box>
       )}
       </Box>
@@ -506,7 +558,10 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
       {/* What Print prints: only the document, from the answers on screen. */}
       {intake && createPortal(
         <Box className="intake-print-root" sx={{ display: 'none' }}>
-          <IntakeDocumentPreview variant="print" form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version} unsaved={dirty} />
+          {form.type === 'BLOTTER_REPORT' && doc === 'kp7' && loaded.kp?.eligible
+            ? <KpForm7Preview responses={responses} caseNumber={ctx.case.caseNumber} municipality={ctx.case.municipality} province={ctx.case.province}
+              eligible={Boolean(loaded.kp?.eligible)} reasons={loaded.kp?.reasons ?? []} draft={!completed} />
+            : <IntakeDocumentPreview variant="print" form={form} responses={responses} caseNumber={ctx.case.caseNumber} status={intake.status} version={intake.version} unsaved={dirty} />}
         </Box>, document.body)}
       <GlobalStyles styles={{ '@media print': {
         'body > *:not(.intake-print-root)': { display: 'none !important' },
@@ -634,7 +689,7 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
   return (
     <Box sx={{ borderLeft: `3px solid ${missing ? '#ef4444' : '#e2e8f0'}`, pl: 1.5 }} id={`item-${item.key}`}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>
-        <Typography sx={{ fontSize: '0.88rem', fontWeight: 700, color: '#0c1e46' }}>{label}{required ? '' : ' (optional)'}</Typography>
+        <Typography sx={{ fontSize: '0.88rem', fontWeight: 700, color: '#0c1e46' }}>{label}{required || /\(optional\)$/i.test(item.label) ? '' : ' (optional)'}</Typography>
         {item.proposed && <Chip size="small" label="Proposed addition" sx={{ height: 18, fontSize: '0.66rem', bgcolor: '#eef2ff', color: '#4338ca' }} />}
         {prefilledFrom && <Chip size="small" label={`From ${prefilledFrom} - confirm`} sx={{ height: 18, fontSize: '0.66rem', bgcolor: '#ecfeff', color: '#0e7490' }} />}
       </Box>

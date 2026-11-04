@@ -17,7 +17,7 @@ type IntakeSummary = { id: string; status: string; version: number; updatedAt: s
 export default function IntakeFormButton({ caseId, basePath, intake, caseType }: { caseId: string; basePath: string; intake: IntakeSummary; caseType: string }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   // The form already begun, or the one this case's desk uses: the VAWC
-  // intake form or the Barangay Blotter Report.
+  // intake form or the Barangay Blotter Intake Form.
   const title = formForType(intake?.formType ?? formTypeForCase(caseType)).title;
   const href = `${basePath}/${caseId}/intake`;
   const pdf = `/api/cases/${caseId}/official-intake/pdf`;

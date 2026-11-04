@@ -53,8 +53,10 @@ export async function buildIntakePdf(input: PdfInput): Promise<Uint8Array> {
   const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
   const r = input.responses;
   const [boxA, boxAKey, boxB, boxBKey] = form.pdf.box;
-  const boxAValue = text(r[boxAKey]) || (boxAKey === 'blotterReferenceNo' ? input.caseNumber : '');
-  const boxBValue = text(r[boxBKey]) || (boxBKey === 'incidentNo' ? input.caseNumber : '');
+  // A date in a box reads as the form writes dates: mm/dd/yyyy.
+  const asDoc = (v: string) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); return m ? `${m[2]}/${m[3]}/${m[1]}` : v; };
+  const boxAValue = asDoc(text(r[boxAKey])) || (boxAKey === 'blotterReferenceNo' ? input.caseNumber : '');
+  const boxBValue = asDoc(text(r[boxBKey])) || (boxBKey === 'incidentNo' ? input.caseNumber : '');
 
   // Only characters the standard fonts can print; anything else becomes "?".
   const okChar = new Map<string, boolean>();

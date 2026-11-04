@@ -3,15 +3,16 @@
  *
  *   VAWC_INTAKE    - the barangay VAWC intake form (lib/officialIntakeForm),
  *                    confidential, for VAWC cases.
- *   BLOTTER_REPORT - the Barangay Blotter Report (lib/blotterReportForm),
- *                    for blotter cases.
+ *   BLOTTER_REPORT - the Barangay Blotter Intake Form (lib/blotterIntakeForm),
+ *                    for blotter cases. (The type keeps its stored name:
+ *                    it replaced the earlier Blotter Report on the same rows.)
  *
  * A case's form follows its desk when the form is started, and is stored
  * with it: a draft reopens as the form it was begun on even if the case is
  * later moved to the other desk. Client-safe.
  */
 import { INTAKE_SECTIONS, INTAKE_FORM_VERSION, appliesTo, isAnswered, type Item, type Responses, type Section } from './officialIntakeForm';
-import { BLOTTER_REPORT_SECTIONS, BLOTTER_REPORT_VERSION } from './blotterReportForm';
+import { BLOTTER_INTAKE_SECTIONS, BLOTTER_INTAKE_VERSION } from './blotterIntakeForm';
 import { VAWC_TYPES } from './vawcTypes';
 
 export type FormType = 'VAWC_INTAKE' | 'BLOTTER_REPORT';
@@ -71,19 +72,23 @@ export const FORMS: Record<FormType, FormDef> = {
     },
   }),
   BLOTTER_REPORT: build({
-    type: 'BLOTTER_REPORT', version: BLOTTER_REPORT_VERSION, title: 'Blotter Report', sections: BLOTTER_REPORT_SECTIONS,
+    type: 'BLOTTER_REPORT', version: BLOTTER_INTAKE_VERSION, title: 'Blotter Intake Form', sections: BLOTTER_INTAKE_SECTIONS,
     pdf: {
-      title: 'BARANGAY BLOTTER REPORT', box: ['Blotter Ref. No.', 'blotterReferenceNo', 'Incident Date', 'incidentDate'],
+      title: 'BARANGAY BLOTTER INTAKE RECORD', box: ['Blotter Ref. No.', 'blotterReferenceNo', 'Date Received', 'recordedDate'],
       instructions: [
         'To be filled out by authorized barangay personnel. Write N/A for items that are not applicable, and Unknown where the complainant does not know.',
-        'Record what the complainant states as their account. It is not a finding on what happened.',
-        'If anyone is in immediate danger, follow the urgent-response workflow at once; this report can be completed afterwards.',
+        'Record the complainant\'s account and complaint in their own words. It is their statement, not a finding on what happened.',
+        'Keep the receiving officer\'s notes and actions (Section F) apart from the complainant\'s statement.',
+        'If anyone is in immediate danger, follow the urgent-response workflow at once; this record can be completed afterwards.',
+        'This record is not KP Form No. 7. A complaint for barangay conciliation is filed on KP Form No. 7, only once an official has confirmed the case is eligible.',
         'VAWC cases are not recorded on this form. Refer them to the barangay VAWC desk.',
       ],
       signatures: [
         { key: 'signatureComplainant', caption: '(Signature over printed name of the complainant)' },
         { key: 'signatureOfficer', caption: '(Signature over printed name of the receiving officer)' },
       ],
+      // Three pages: A and B; C and D; E and F.
+      pageBreaks: [{ before: 'respondentUnknown' }, { before: 'complaintNature' }],
     },
   }),
 };
@@ -98,4 +103,23 @@ export const formTypeForCase = (caseType: string): FormType =>
 /** Every item that must be answered (or marked N/A, Unknown or Declined) before this form can be completed. */
 export function missingIn(def: FormDef, r: Responses): Item[] {
   return def.items.filter(i => appliesTo(i, r) === 'required' && !isAnswered(i, r[i.key]));
+}
+
+/**
+ * Answers stored by an earlier version of a form, read in the current one's
+ * shape - a copy; what is stored is never rewritten. The Blotter Report kept
+ * the complainant's and respondent's names as one line: they become the
+ * "Full name" part of the name.
+ */
+export function upgradeResponses(def: FormDef, r: Responses): Responses {
+  let out: Responses | null = null;
+  for (const item of def.items) {
+    const a = r[item.key];
+    if (item.type === 'name' && typeof a?.value === 'string' && item.parts?.some(p => p.key === 'full')) {
+      out ??= { ...r };
+      out[item.key] = { ...a, value: a.value.trim() ? { full: a.value.slice(0, 200) } : undefined };
+      if (out[item.key].value === undefined) delete out[item.key].value;
+    }
+  }
+  return out ?? r;
 }

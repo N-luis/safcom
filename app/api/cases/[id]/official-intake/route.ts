@@ -8,7 +8,8 @@ import {
   logIntakeAccess, type IntakeCase,
 } from '@/lib/officialIntake';
 import { type Responses } from '@/lib/officialIntakeForm';
-import { formForType, formTypeForCase, missingIn, type FormDef } from '@/lib/intakeForms';
+import { formForType, formTypeForCase, missingIn, upgradeResponses, type FormDef } from '@/lib/intakeForms';
+import { loadHearingCase, eligibilityOf } from '@/lib/hearingsServer';
 
 /** The form this case's intake is - the stored one, or its desk's for a new one. */
 const formOf = (c: IntakeCase): FormDef => formForType(c.officialIntake?.formType ?? formTypeForCase(c.caseType));
@@ -52,7 +53,12 @@ async function gate(req: NextRequest, id: string, need: 'view' | 'edit') {
   const log = (outcome: 'permitted' | 'denied', code: string) =>
     logIntakeAccess({ actorId: actor.id, actorRole: actor.role, caseId: id, caseNumber: c?.caseNumber, outcome, code }).catch(() => {});
   if (!c) { await log('denied', 'not_found'); return { error: errorResponse('Case not found', 404) }; }
-  const access = decideIntakeAccess(actor, c);
+  const decided = decideIntakeAccess(actor, c);
+  // Intake records are kept by the desk officers and the captain: a system
+  // administrator may read one, never record on it.
+  const access = actor.role === 'system_admin' && decided.edit
+    ? { ...decided, edit: false, message: 'System administrators can view intake records. Recording them is for the barangay officials.' }
+    : decided;
   if (access.hidden) { await log('denied', access.code); return { error: errorResponse('Case not found', 404) }; }
   if (!access.view || (need === 'edit' && !access.edit)) {
     await log('denied', access.code);
@@ -73,7 +79,8 @@ async function shape(c: IntakeCase) {
   const name = (uid: string | null) => (uid && users.find(u => u.id === uid)?.name) || null;
   return {
     id: i.id, status: i.status, version: i.version, formVersion: i.formVersion, formType: formOf(c).type,
-    responses: i.responses as Responses, prefilled: (i.prefilled ?? {}) as Record<string, string>,
+    // Read in the current form's shape; what is stored is not rewritten.
+    responses: upgradeResponses(formOf(c), i.responses as Responses), prefilled: (i.prefilled ?? {}) as Record<string, string>,
     startedBy: name(i.startedById), updatedBy: name(i.updatedById), completedBy: name(i.completedById),
     completedAt: i.completedAt?.toISOString() ?? null, createdAt: i.createdAt.toISOString(), updatedAt: i.updatedAt.toISOString(),
     revisions: revisions.map(r => ({ version: r.version, status: r.status, changedItems: r.changedKeys.length, by: name(r.changedById), at: r.createdAt.toISOString() })),
@@ -86,9 +93,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if ('error' in g) return g.error;
   try {
     await g.log('permitted', g.access.code);
+    // On a blotter intake: whether KP Form No. 7 may be produced, and why not.
+    let kp: { eligible: boolean; reasons: string[] } | null = null;
+    if (formOf(g.c).type === 'BLOTTER_REPORT') {
+      const hc = await loadHearingCase(id);
+      const e = hc ? await eligibilityOf(hc) : null;
+      kp = { eligible: Boolean(e?.eligible), reasons: e?.reasons ?? [] };
+    }
     return noStore({ success: true, data: {
       access: { view: g.access.view, edit: g.access.edit, message: g.access.message },
-      context: intakeContext(g.c), intake: await shape(g.c), formVersion: formOf(g.c).version, formType: formOf(g.c).type,
+      context: intakeContext(g.c), intake: await shape(g.c), formVersion: formOf(g.c).version, formType: formOf(g.c).type, kp,
     } });
   } catch {
     return errorResponse('The intake could not be loaded right now.', 503);
@@ -154,7 +168,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!current) return errorResponse('Start the intake first', 409);
 
   const def = formOf(g.c);
-  const valid = validateResponses(parsed.data.responses, def);
+  const valid = validateResponses(parsed.data.responses && typeof parsed.data.responses === 'object' && !Array.isArray(parsed.data.responses)
+    ? upgradeResponses(def, parsed.data.responses as Responses) : parsed.data.responses, def);
   if (!valid.ok) return errorResponse(valid.error, 400);
   const responses = valid.responses;
   const status = parsed.data.status;
@@ -173,7 +188,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
   // The same save again - a double click, a retried request: nothing new.
-  if (status === current.status && canonical(responses) === canonical(current.responses as Responses)) {
+  const stored = upgradeResponses(def, current.responses as Responses);
+  if (status === current.status && canonical(responses) === canonical(stored)) {
     return noStore({ success: true, data: { intake: await shape(g.c), unchanged: true } });
   }
   if (parsed.data.expectedVersion !== current.version) {
@@ -192,7 +208,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const recentOwnDraft = Boolean(lastRevision && lastRevision.status === 'DRAFT' && lastRevision.changedById === g.actor.id
       && Date.now() - lastRevision.createdAt.getTime() < AUTOSAVE_CHECKPOINT_MINUTES * 60_000);
     const keepRevision = !(autosave && recentOwnDraft);
-    const changed = changedKeys((lastRevision?.responses ?? current.responses) as Responses, responses, def);
+    const changed = changedKeys(upgradeResponses(def, (lastRevision?.responses ?? current.responses) as Responses), responses, def);
     const completing = status === 'COMPLETED' && current.status !== 'COMPLETED';
     const editingCompleted = current.status === 'COMPLETED';
     const dangerNow = responses.immediateDanger?.value === 'yes' && g.c.triageStatus !== 'URGENT_REVIEW';
@@ -202,7 +218,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       const updated = await tx.officialIntake.updateMany({
         where: { id: current.id, version: parsed.data.expectedVersion },
         data: {
-          responses: JSON.parse(JSON.stringify(responses)), status, version: next, updatedById: g.actor.id,
+          // Saved now in this version of the form.
+          responses: JSON.parse(JSON.stringify(responses)), status, version: next, updatedById: g.actor.id, formVersion: def.version,
           ...(completing && { completedById: g.actor.id, completedAt: new Date() }),
         },
       });
