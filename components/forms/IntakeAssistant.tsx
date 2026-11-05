@@ -6,7 +6,7 @@ import {
   Box, Typography, Button, TextField, Chip, Alert, CircularProgress, LinearProgress, Divider,
 } from '@mui/material';
 import {
-  AutoAwesome, Phone, Send, SkipNext, DoNotDisturbAlt, Refresh, CheckCircle, HelpOutlined,
+  AutoAwesome, Phone, Send, SkipNext, Refresh, CheckCircle, HelpOutlined,
 } from '@mui/icons-material';
 import type { IntakeAnswer, IntakeResult, Completeness } from '@/lib/intake';
 import type { InterviewQuestion, InterviewState, InterviewTurn, ReportingRelationship } from '@/lib/interviewTypes';
@@ -18,7 +18,7 @@ import { useLanguage } from '@/lib/i18n';
  * happened.
  *
  * Optional at every step. Nothing here blocks the report: every question can
- * be skipped or declined, the report can be submitted at any point, and a
+ * be skipped, the report can be submitted at any point, and a
  * stated danger puts the emergency numbers and a "submit now" button above
  * everything else straight away.
  *
@@ -43,9 +43,8 @@ const T: Record<Lang, Record<string, string>> = {
     reading: 'Binabasa ang iyong sagot…',
     readingReport: 'Binabasa ang iyong report…',
     aiRead: 'May tulong ng AI',
-    answer: 'Sagutin',
+    answer: 'Ipasa',
     skip: 'Laktawan',
-    decline: 'Ayokong sagutin',
     typePlaceholder: 'O isulat ang sagot dito (opsyonal)',
     complete: 'Gaano kakumpleto ang impormasyon',
     INSUFFICIENT: 'Kulang pa',
@@ -87,7 +86,6 @@ const T: Record<Lang, Record<string, string>> = {
     aiRead: 'AI-assisted',
     answer: 'Answer',
     skip: 'Skip',
-    decline: 'Prefer not to answer',
     typePlaceholder: 'Or type your answer here (optional)',
     complete: 'How complete the information is',
     INSUFFICIENT: 'Not enough yet',
@@ -433,11 +431,6 @@ export default function IntakeAssistant({
                   startIcon={<SkipNext sx={{ fontSize: 17 }} />}
                   sx={{ minHeight: 40, textTransform: 'none', color: '#64748b' }}>
                   {t.skip}
-                </Button>
-                <Button disabled={busy} onClick={() => respond({ kind: 'declined' })}
-                  startIcon={<DoNotDisturbAlt sx={{ fontSize: 16 }} />}
-                  sx={{ minHeight: 40, textTransform: 'none', color: '#64748b' }}>
-                  {t.decline}
                 </Button>
               </Box>
             </Box>
