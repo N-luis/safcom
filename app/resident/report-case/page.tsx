@@ -33,6 +33,8 @@ import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import { REPORTING_RELATIONSHIPS, RELATIONSHIP_LABEL, type InterviewTurn, type ReportingRelationship } from '@/lib/interviewTypes';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 import ReportPeopleFields, { EMPTY_PEOPLE, peoplePayload, peopleProblem, type PeopleState } from '@/components/forms/ReportPeopleFields';
+import IncidentTimeField from '@/components/forms/IncidentTimeField';
+import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
 import DeskNote, { type ResidentDesk } from '@/components/forms/DeskNote';
 
 /**
@@ -69,7 +71,8 @@ const schema = z.object({
   // When it happened, if known.
   incidentDate: z.string().optional().refine(v => !v || v <= new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10),
     'The date cannot be in the future'),
-  incidentTimeApprox: z.string().max(60, 'Keep this short').optional(),
+  // Picked, never typed: a part of the day or an exact time (lib/incidentTime.ts).
+  incidentTimeApprox: z.string().optional().refine(v => isIncidentTime(v), INCIDENT_TIME_HINT),
   witnessInfo: z.string().max(500, 'Keep this under 500 characters').optional(),
   // Who the report is for. Asked first: it changes the questions, and an
   // anonymous report is filed without the reporter's name.
@@ -89,7 +92,8 @@ const schema = z.object({
   // the case beside the contact details.
   contactPreference: z.enum(['', 'call_ok', 'text_first', 'no_phone']).optional(),
   contactSafetyNote: z.string().max(200, 'Keep this under 200 characters').optional(),
-});
+}).refine(d => !isFutureIncidentTime(d.incidentDate, d.incidentTimeApprox),
+  { path: ['incidentTimeApprox'], message: INCIDENT_TIME_FUTURE });
 type FormData = z.infer<typeof schema>;
 
 
@@ -111,6 +115,7 @@ export default function ReportCasePage() {
   });
 
   const descLen = watch('description')?.length ?? 0;
+  const incidentDateValue = watch('incidentDate') ?? '';
 
   // The pin. The street field stays the value the case is filed under; this
   // carries the coordinates alongside it.
@@ -508,7 +513,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   disabled={isSubmitting || analysing} />
 
                 {/* When it happened - optional */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5, alignItems: 'start' }}>
                   <TextField
                     label="When did it happen? (optional)"
                     type="date"
@@ -518,14 +523,13 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     size="small"
                     slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayPh } }}
                   />
-                  <TextField
-                    label="About what time? (optional)"
-                    placeholder="e.g. around 9 PM, early morning"
-                    {...register('incidentTimeApprox')}
-                    error={!!errors.incidentTimeApprox}
-                    helperText={errors.incidentTimeApprox?.message ?? 'An estimate is fine'}
-                    size="small"
-                    slotProps={{ htmlInput: { maxLength: 60 } }}
+                  <Controller
+                    name="incidentTimeApprox"
+                    control={control}
+                    render={({ field }) => (
+                      <IncidentTimeField value={field.value ?? ''} onChange={field.onChange} date={incidentDateValue}
+                        error={errors.incidentTimeApprox?.message} disabled={isSubmitting || analysing} />
+                    )}
                   />
                 </Box>
 
@@ -736,6 +740,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   ['Desk', 'Recommended by SafeComm AI from what you wrote'],
                   ['Reporting for', RELATIONSHIP_LABEL[(reviewing.reportingRelationship || 'SELF') as ReportingRelationship].en],
                   ['Street', reviewing.street],
+                  ['When', [reviewing.incidentDate ? new Date(`${reviewing.incidentDate}T00:00:00+08:00`).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' }) : 'Date not sure',
+                    reviewing.incidentTimeApprox || 'time not sure'].join(', ')],
                   ['Photos', String(photos.length)],
                 ] as [string, string][]).map(([k, v]) => (
                   <Box key={k} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

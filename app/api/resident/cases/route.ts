@@ -19,6 +19,7 @@ import {
 } from '@/lib/caseRecords';
 import { deskFor, deskHistoryRow } from '@/lib/reportDeskServer';
 import { DESK_DECISION_LABEL } from '@/lib/reportDesk';
+import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
 
 /**
  * Fields only the server sets. A report that carries any of them is refused
@@ -90,7 +91,8 @@ const createSchema = z.object({
   reportPath: z.enum(REPORT_PATHS).optional(),
   // When it happened, if they know. Never required.
   incidentDate: incidentDateSchema,
-  incidentTimeApprox: z.string().trim().max(60).optional(),
+  // Chosen on the form: a part of the day or an exact time (lib/incidentTime.ts).
+  incidentTimeApprox: z.string().trim().max(60).optional().refine(v => isIncidentTime(v), INCIDENT_TIME_HINT),
   witnessInfo: z.string().trim().max(500).optional(),
   // The person affected and the person reported, as far as the reporter
   // knows - each field optional, each person stored on their own, and never
@@ -157,6 +159,7 @@ export async function POST(req: NextRequest) {
     }
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Validation error', 400);
+    if (isFutureIncidentTime(parsed.data.incidentDate, parsed.data.incidentTimeApprox)) return rError(INCIDENT_TIME_FUTURE, 400);
 
     const resident = await prisma.resident.findUnique({
       where: { id: auth.resident.residentId },

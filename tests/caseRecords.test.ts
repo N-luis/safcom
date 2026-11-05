@@ -126,15 +126,25 @@ async function main() {
     const b = await file({
       reportPath: 'BLOTTER', caseType: 'Noise Complaint', description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT,
       reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit',
-      incidentDate: '2026-10-20', incidentTimeApprox: 'mga alas-dos ng madaling araw', witnessInfo: 'Ang asawa ko, narinig din niya',
+      incidentDate: '2026-10-20', incidentTimeApprox: '2:05 AM', witnessInfo: 'Ang asawa ko, narinig din niya',
       reportedParty: { fullName: 'Juan Probe', relationship: 'Kapitbahay', details: 'Nakatira sa kabilang bahay' },
     });
     ok('the report is filed', b.status === 201, `${b.status} ${b.body.error ?? ''}`);
     const bCase = await prisma.case.findUnique({ where: { id: b.body.data.id }, include: { parties: true, intake: true } });
     ok('filed on the Blotter desk', bCase?.caseType === 'Noise Complaint', bCase?.caseType);
     ok('form, channel, date, time and witnesses are kept', bCase?.reportPath === 'BLOTTER' && bCase.reportingChannel === 'ONLINE'
-      && bCase.incidentDate?.toISOString().slice(0, 10) === '2026-10-20' && bCase.incidentTimeApprox === 'mga alas-dos ng madaling araw'
+      && bCase.incidentDate?.toISOString().slice(0, 10) === '2026-10-20' && bCase.incidentTimeApprox === '2:05 AM'
       && bCase.witnessInfo === 'Ang asawa ko, narinig din niya');
+    // The time is picked on the form; typed text and a time still to come today are refused.
+    const typedTime = await file({ description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit',
+      incidentTimeApprox: 'mga alas-dos ng madaling araw' });
+    ok('a typed time is refused - it is chosen on the form', typedTime.status === 400 && String(typedTime.body.error).includes('time of day'), `${typedTime.status} ${typedTime.body.error ?? ''}`);
+    const phNow = new Date(Date.now() + 8 * 3600_000);
+    if (phNow.getUTCHours() < 21) {
+      const later = await file({ description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit',
+        incidentDate: phNow.toISOString().slice(0, 10), incidentTimeApprox: 'Night (9 PM - 12 MN)' });
+      ok('a part of today still to come is refused', later.status === 400 && String(later.body.error).includes('not come yet'), `${later.status} ${later.body.error ?? ''}`);
+    }
     ok('the person reported is stored on their own', bCase?.parties.length === 1 && bCase.parties[0].role === 'REPORTED'
       && bCase.parties[0].fullName === 'Juan Probe' && bCase.parties[0].source === 'reporter');
     ok('the original narrative is kept as written', bCase?.intake?.narrative === BLOTTER_TEXT);
