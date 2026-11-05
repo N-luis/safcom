@@ -39,7 +39,7 @@ export default function ContactCopyButton({ name, number, children, ...buttonPro
     if (!value) return;
     if (await copyText(value)) {
       setCopied(true);
-      toast.success('Phone number copied to clipboard!');
+      toast.success('Phone number copied successfully.');
       return;
     }
     // No clipboard access at all: select the number so it can be copied by hand.

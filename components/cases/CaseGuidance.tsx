@@ -188,9 +188,10 @@ export default function CaseGuidance({
 
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {copy.planB.action.kind === 'call' ? (
-            <Button
-              component="a"
-              href={`tel:${copy.planB.action.tel}`}
+            // Opens the number with a Copy button - never the phone dialer.
+            <ContactCopyButton
+              name="Emergency hotline"
+              number={copy.planB.action.tel}
               variant="contained"
               startIcon={<Phone aria-hidden sx={{ fontSize: 17 }} />}
               sx={{
@@ -199,8 +200,8 @@ export default function CaseGuidance({
                 '&:hover': { bgcolor: '#99200f' },
               }}
             >
-              {copy.planB.action.label}
-            </Button>
+              {copy.planB.action.tel ? `Emergency ${copy.planB.action.tel}` : copy.planB.action.label}
+            </ContactCopyButton>
           ) : (
             <Button
               onClick={() => runAction(copy.planB.action)}
