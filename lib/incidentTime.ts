@@ -25,7 +25,7 @@ export const MERIDIEMS = ['AM', 'PM'] as const;
 
 const EXACT = /^(1[0-2]|[1-9]):([0-5]\d) (AM|PM)$/;
 
-export const INCIDENT_TIME_HINT = 'Choose a time of day, or the hour, minutes and AM or PM';
+export const INCIDENT_TIME_HINT = 'Choose the hour, the minutes and AM or PM on the clock, or leave it on "Not sure"';
 export const INCIDENT_TIME_FUTURE = 'That time has not come yet today';
 
 export interface ExactTime { hour: string; minute: string; meridiem: 'AM' | 'PM' }
