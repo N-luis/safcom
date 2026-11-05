@@ -25,7 +25,7 @@ export const MERIDIEMS = ['AM', 'PM'] as const;
 
 const EXACT = /^(1[0-2]|[1-9]):([0-5]\d) (AM|PM)$/;
 
-export const INCIDENT_TIME_HINT = 'Choose the hour, the minutes and AM or PM, or leave the time on "Not sure"';
+export const INCIDENT_TIME_HINT = 'Finish the time - hour, minutes and AM or PM - or leave it blank if you are not sure';
 export const INCIDENT_TIME_FUTURE = 'That time has not come yet today';
 
 export interface ExactTime { hour: string; minute: string; meridiem: 'AM' | 'PM' }
@@ -38,6 +38,23 @@ export function parseExactTime(v: string): ExactTime | null {
 
 export function formatExactTime(t: ExactTime): string {
   return `${t.hour}:${t.minute} ${t.meridiem}`;
+}
+
+/** A browser time field's value ("21:30", 24-hour) -> "9:30 PM"; '' stays ''. Null when it is not a time. */
+export function fromTimeInput(v: string): string | null {
+  if (!v) return '';
+  const m = /^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d(?:\.\d+)?)?$/.exec(v);
+  if (!m) return null;
+  const h24 = Number(m[1]);
+  return formatExactTime({ hour: String(h24 % 12 || 12), minute: m[2], meridiem: h24 < 12 ? 'AM' : 'PM' });
+}
+
+/** "9:30 PM" -> "21:30" for a browser time field; anything else -> ''. */
+export function toTimeInput(v: string | null | undefined): string {
+  const t = parseExactTime(v ?? '');
+  if (!t) return '';
+  const h24 = (Number(t.hour) % 12) + (t.meridiem === 'PM' ? 12 : 0);
+  return `${String(h24).padStart(2, '0')}:${t.minute}`;
 }
 
 export function periodOf(v: string): TimePeriod | null {

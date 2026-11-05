@@ -5,6 +5,7 @@
  */
 import {
   TIME_PERIODS, HOURS_12, MINUTES_5, isIncidentTime, parseExactTime, formatExactTime, startMinutes, isFutureIncidentTime, nowInPh,
+  fromTimeInput, toTimeInput,
 } from '../lib/incidentTime';
 
 let passed = 0, failed = 0;
@@ -35,6 +36,20 @@ ok('12 AM is midnight', startMinutes('12:00 AM') === 0);
 ok('12 PM is noon', startMinutes('12:30 PM') === 12 * 60 + 30);
 ok('9:05 PM is 21:05', startMinutes('9:05 PM') === 21 * 60 + 5);
 ok('a part of the day starts at its first hour', startMinutes('Evening (6 PM - 9 PM)') === 18 * 60);
+
+console.log('\nThe browser time field (24-hour "HH:mm") and what is stored');
+ok('21:30 -> 9:30 PM', fromTimeInput('21:30') === '9:30 PM');
+ok('00:05 -> 12:05 AM (midnight)', fromTimeInput('00:05') === '12:05 AM');
+ok('12:00 -> 12:00 PM (noon)', fromTimeInput('12:00') === '12:00 PM');
+ok('09:07 -> 9:07 AM', fromTimeInput('09:07') === '9:07 AM');
+ok('seconds from a browser are ignored (21:30:00 -> 9:30 PM)', fromTimeInput('21:30:00') === '9:30 PM');
+ok('blank stays blank (not sure)', fromTimeInput('') === '');
+ok('not a time -> null', fromTimeInput('25:00') === null && fromTimeInput('9:30 PM') === null);
+ok('9:30 PM -> 21:30, 12:05 AM -> 00:05, 12:00 PM -> 12:00', toTimeInput('9:30 PM') === '21:30' && toTimeInput('12:05 AM') === '00:05' && toTimeInput('12:00 PM') === '12:00');
+ok('every minute of the day goes there and back', Array.from({ length: 1440 }, (_, i) => `${String(Math.floor(i / 60)).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}`)
+  .every(v => toTimeInput(fromTimeInput(v)) === v && isIncidentTime(fromTimeInput(v))));
+ok('blank or unknown -> empty field', toTimeInput('') === '' && toTimeInput('?:?? ?') === '' && toTimeInput('Morning (6 AM - 12 NN)') === '');
+ok('an unfinished time is refused', !isIncidentTime('?:?? ?'));
 
 console.log('\nNot later than now, when the date is today (Philippine time)');
 // 2026-11-05 15:00 in Manila = 07:00 UTC.

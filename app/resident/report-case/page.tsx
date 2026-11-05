@@ -513,10 +513,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   disabled={isSubmitting || analysing} />
 
                 {/* When it happened - optional */}
-                {/* The date, then the time options across the full width - they are tiles, not a box. */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {/* The date and the time side by side, the same size - both the browser's own pickers. */}
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5, alignItems: 'start' }}>
                   <TextField
-                    sx={{ maxWidth: { sm: 'calc(50% - 6px)' } }}
                     label="When did it happen? (optional)"
                     type="date"
                     {...register('incidentDate')}
