@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard, Assessment, FolderOpen, Notifications, Person,
-  Shield, Logout, Menu as MenuIcon, Gavel, CalendarMonth,
+  Shield, Logout, Menu as MenuIcon, Gavel,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
@@ -25,8 +25,7 @@ const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/resident', exact: true },
   { id: 'report', label: 'File a Report', icon: Assessment, path: '/resident/report-case' },
   { id: 'cases', label: 'My Cases', icon: FolderOpen, path: '/resident/my-cases' },
-  { id: 'hearings', label: 'My Hearings & Notices', icon: Gavel, path: '/resident/hearings', exact: true },
-  { id: 'hearings-upcoming', label: 'Upcoming Hearings', icon: CalendarMonth, path: '/resident/hearings/upcoming' },
+  { id: 'hearings', label: 'My Hearings & Notices', icon: Gavel, path: '/resident/hearings' },
   { id: 'notifications', label: 'Notifications', icon: Notifications, path: '/resident/notifications' },
   { id: 'profile', label: 'Profile', icon: Person, path: '/resident/profile' },
 ];

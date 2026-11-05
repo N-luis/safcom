@@ -1,8 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import ResidentHearings from '@/components/hearings/ResidentHearings';
-
-/** Upcoming Hearings: the resident's hearing calendar and what is coming. */
+/** Upcoming Hearings and its calendar are part of My Hearings & Notices; an old link to it opens that page. */
 export default function UpcomingHearingsPage() {
-  return <ResidentHearings view="upcoming" />;
+  redirect('/resident/hearings');
 }

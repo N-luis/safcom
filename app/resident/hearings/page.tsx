@@ -2,7 +2,7 @@
 
 import ResidentHearings from '@/components/hearings/ResidentHearings';
 
-/** My Hearings & Notices: the proceedings the resident is a party to - what is coming, and the history. */
+/** My Hearings & Notices: the proceedings the resident is a party to - upcoming, on the calendar, and the history. */
 export default function MyHearingsPage() {
-  return <ResidentHearings view="overview" />;
+  return <ResidentHearings />;
 }

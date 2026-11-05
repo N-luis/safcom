@@ -7,7 +7,7 @@ import {
   TextField, CircularProgress, ToggleButton, ToggleButtonGroup, Divider, IconButton,
 } from '@mui/material';
 import {
-  Gavel, CalendarToday, Schedule, LocationOn, Description, Download, CheckCircle, EventRepeat, InfoOutlined, ChevronLeft, ChevronRight, History as HistoryIcon, CalendarMonth,
+  Gavel, CalendarToday, Schedule, LocationOn, Description, Download, CheckCircle, EventRepeat, InfoOutlined, ChevronLeft, ChevronRight, History as HistoryIcon,
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { formatHearingDate, formatHearingTime, phDay } from '@/lib/hearings';
@@ -53,10 +53,11 @@ async function post(hid: string, body: unknown) {
 /**
  * My Hearings & Notices: the Katarungang Pambarangay proceedings the
  * resident is a party to - as the complainant, or as the respondent an
- * official linked to their account - in two views:
- *   overview  - what is coming, and the history: every proceeding, case by
- *               case, with what changed and any request for a new date
- *   upcoming  - a month calendar and the upcoming hearings
+ * official linked to their account - on one page: what is coming (with a
+ * month calendar), and the history, case by case, with what changed and any
+ * request for a new date. On a wide screen the upcoming hearings fill the
+ * main column and the calendar and history sit beside them; on a narrow one
+ * they stack.
  *
  * They can read, download or print their own KP notices, acknowledge them
  * (receipt only - not attendance), the complainant can say whether they will
@@ -64,126 +65,161 @@ async function post(hid: string, body: unknown) {
  * dates and keeps the record - nothing here changes the schedule, the
  * attendance record, the notes or the outcome.
  */
-export type ResidentHearingsView = 'overview' | 'upcoming';
-const TITLES: Record<ResidentHearingsView, { title: string; intro: string }> = {
-  overview: { title: 'My Hearings & Notices', intro: 'Barangay mediation and conciliation hearings you are a party to - as the complainant or the respondent. View, download or print your notices, acknowledge them, and ask for a new date. Dates, attendance and outcomes are recorded by barangay officials.' },
-  upcoming: { title: 'Upcoming Hearings', intro: 'Your hearing schedule. Pick a day on the calendar to see its hearing. Only an official can change a date - ask for a new one from the hearing below.' },
-};
-
-export default function ResidentHearings({ view = 'overview' }: { view?: ResidentHearingsView }) {
+export default function ResidentHearings() {
   const { data, error, isLoading, mutate } = useSWR<Data>('/api/resident/hearings', fetcher);
   const [ack, setAck] = useState<{ h: ResidentHearing; n: ResidentNotice } | null>(null);
   const [resched, setResched] = useState<ResidentHearing | null>(null);
   const [day, setDay] = useState<string | null>(null);
   const all = useMemo(() => (data ? data.history.flatMap(g => g.hearings) : []), [data]);
   const shownUpcoming = data ? (day ? data.upcoming.filter(h => phDay(h.scheduledAt) === day) : data.upcoming) : [];
+  const toAcknowledge = data ? data.upcoming.reduce((n, h) => n + h.notices.filter(x => x.canAcknowledge).length, 0) : 0;
+  const pendingRequests = all.reduce((n, h) => n + h.requests.filter(r => r.status === 'PENDING').length, 0);
+  const tiles = data ? [
+    { label: 'Upcoming hearings', value: data.upcoming.length, color: '#0369a1' },
+    { label: 'Notices to acknowledge', value: toAcknowledge, color: TEAL },
+    { label: 'Requests for a new date', value: pendingRequests, color: '#b45309' },
+    { label: 'Cases with proceedings', value: data.history.length, color: '#4f46e5' },
+  ] : [];
+  const sectionTitle = { fontWeight: 800, color: NAVY, fontSize: '1.02rem' };
 
   return (
-    <Box sx={{ maxWidth: 980, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 1760, mx: 'auto', width: '100%', p: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5 }}>
-        {view === 'upcoming' ? <CalendarMonth sx={{ color: TEAL }} /> : <Gavel sx={{ color: TEAL }} />}
-        <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', md: '1.5rem' }, color: NAVY }}>{TITLES[view].title}</Typography>
+        <Gavel sx={{ color: TEAL }} />
+        <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', md: '1.5rem' }, color: NAVY }}>My Hearings &amp; Notices</Typography>
       </Box>
-      <Typography sx={{ fontSize: '0.88rem', color: '#64748b', mb: 2 }}>{TITLES[view].intro}</Typography>
+      <Typography sx={{ fontSize: '0.88rem', color: '#64748b', mb: 2, maxWidth: 900 }}>
+        Barangay mediation and conciliation hearings you are a party to - as the complainant or the respondent. View, download or print your notices,
+        acknowledge them, and ask for a new date. Dates, attendance and outcomes are recorded by barangay officials.
+      </Typography>
 
-      {isLoading && <><Skeleton variant="rounded" height={160} sx={{ mb: 2 }} /><Skeleton variant="rounded" height={120} /></>}
-      {error && !data && <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" onClick={() => mutate()}>Retry</Button>}>{error.message}</Alert>}
-
-      {data && view === 'upcoming' && (
-        <ResidentMonth hearings={all} selected={day} onSelect={d => setDay(cur => (cur === d ? null : d))} />
+      {isLoading && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.7fr) minmax(340px, 1fr)' }, gap: 2.5 }}>
+          <Skeleton variant="rounded" height={320} /><Skeleton variant="rounded" height={320} />
+        </Box>
       )}
+      {error && !data && <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" onClick={() => mutate()}>Retry</Button>}>{error.message}</Alert>}
 
       {data && (
         <>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <Typography component="h2" sx={{ fontWeight: 800, color: NAVY, fontSize: '1.02rem' }}>
-              {day ? `Hearings on ${formatHearingDate(`${day}T04:00:00Z`)}` : 'Upcoming Hearings'}
-            </Typography>
-            {day && <Button size="small" onClick={() => setDay(null)} sx={{ textTransform: 'none' }}>Show all upcoming</Button>}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.25, mb: 2.5 }} aria-label="Summary">
+            {tiles.map(t => (
+              <Card key={t.label} sx={{ borderRadius: 2.5, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
+                <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <Typography sx={{ fontSize: '1.4rem', fontWeight: 800, color: t.value ? t.color : '#94a3b8', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{t.value}</Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>{t.label}</Typography>
+                </CardContent>
+              </Card>
+            ))}
           </Box>
-          {day && !shownUpcoming.length && all.some(h => phDay(h.scheduledAt) === day) && (
-            <Typography sx={{ color: '#64748b', fontSize: '0.86rem', mb: 2 }}>That hearing has already taken place or was cancelled - see Hearing History in My Hearings &amp; Notices.</Typography>
-          )}
-          {shownUpcoming.length === 0 && !(day && all.some(h => phDay(h.scheduledAt) === day)) ? (
-            <Card sx={{ borderRadius: 3, mb: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <CalendarToday sx={{ fontSize: 34, color: '#cbd5e1' }} />
-                <Typography sx={{ color: '#64748b', fontSize: '0.9rem', mt: 1 }}>
-                  {day ? 'No hearing on that day.' : 'No upcoming hearing. When the barangay schedules one you are a party to, it appears here and in your notifications.'}
-                </Typography>
-              </CardContent>
-            </Card>
-          ) : (
-            <Box sx={{ display: 'grid', gap: 2, mb: 3 }}>
-              {shownUpcoming.map(h => <UpcomingCard key={h.id} h={h} onAck={n => setAck({ h, n })} onResched={() => setResched(h)} refresh={() => mutate()} />)}
-            </Box>
-          )}
-        </>
-      )}
 
-      {data && view !== 'upcoming' && (
-        <>
-          {view === 'overview' && <Typography component="h2" sx={{ fontWeight: 800, color: NAVY, fontSize: '1.02rem', mb: 1 }}>Hearing History</Typography>}
-          {data.history.length === 0 ? (
-            <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <HistoryIcon sx={{ fontSize: 34, color: '#cbd5e1' }} />
-                <Typography sx={{ color: '#94a3b8', fontSize: '0.88rem', mt: 1 }}>No hearings yet. A respondent sees theirs here once the barangay links the case to their SafeComm account.</Typography>
-              </CardContent>
-            </Card>
-          ) : (
-            <Box sx={{ display: 'grid', gap: 2 }}>
-              {data.history.map(g => (
-                <Card key={`${g.case.caseNumber}:${g.role}`} sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
-                  <CardContent sx={{ p: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-                      <Typography sx={{ fontWeight: 800, color: NAVY }}>Case {g.case.caseNumber}</Typography>
-                      <Chip size="small" label={`You are the ${g.role === 'RESPONDENT' ? 'respondent' : 'complainant'}`} sx={chip('#4f46e5')} />
-                      {g.next && <Chip size="small" label={`Next: ${g.next.title}, ${formatHearingDate(g.next.scheduledAt)}`} sx={chip('#0369a1')} />}
-                    </Box>
-                    <Box sx={{ display: 'grid', gap: 1 }}>
-                      {g.hearings.map(h => (
-                        <Box key={h.id} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-                          <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: `${STATUS_COLOR[h.status] ?? '#64748b'}18`, color: STATUS_COLOR[h.status] ?? '#64748b',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}>{STAGE_CODE[h.stage] ?? ''}{h.session}</Box>
-                          <Box sx={{ minWidth: 0 }}>
-                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                              <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: NAVY }}>{h.stageLabel}{h.session > 1 ? ` - session ${h.session}` : ''}</Typography>
-                              <Chip size="small" label={h.statusLabel} sx={chip(STATUS_COLOR[h.status] ?? '#64748b')} />
-                            </Box>
-                            <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{formatHearingDate(h.scheduledAt)}, {formatHearingTime(h.scheduledAt)} · {h.venue}</Typography>
-                            {h.notices.map(n => (
-                              <Typography key={n.id} sx={{ fontSize: '0.78rem', color: '#64748b' }}>
-                                {n.formName} ({n.noticeNumber}): {n.statusLabel.toLowerCase()}{' '}
-                                <a href={`/api/resident/hearings/${h.id}/notice?id=${n.id}&inline=1`} target="_blank" rel="noopener" style={{ color: TEAL }}>View</a>
-                              </Typography>
-                            ))}
-                            {h.outcome && <Typography sx={{ fontSize: '0.84rem', color: '#334155', mt: 0.25 }}>{h.outcome.text}</Typography>}
-                            {h.outcome?.summary && <Typography sx={{ fontSize: '0.82rem', color: '#475569', whiteSpace: 'pre-wrap' }}>{h.outcome.summary}</Typography>}
-                            {h.updates.length > 0 && (
-                              <Box sx={{ mt: 0.5, pl: 1, borderLeft: '2px solid #e2e8f0' }}>
-                                {h.updates.map(u => <Typography key={u.id} sx={{ fontSize: '0.78rem', color: '#475569', whiteSpace: 'pre-wrap' }}>{u.message} <span style={{ color: '#94a3b8' }}>- {when(u.at)}</span></Typography>)}
-                              </Box>
-                            )}
-                            {h.requests.map(r => (
-                              <Typography key={r.id} sx={{ fontSize: '0.78rem', color: '#64748b' }}>
-                                Request for a new date ({when(r.createdAt)}): {r.status === 'PENDING' ? 'waiting for the barangay' : r.status === 'APPROVED' ? 'approved' : `not approved${r.reviewNote ? ` - ${r.reviewNote}` : ''}`}
-                              </Typography>
-                            ))}
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.7fr) minmax(340px, 1fr)' }, gap: 2.5, alignItems: 'start' }}>
+            {/* The upcoming hearings: the main column. */}
+            <Box component="section" aria-labelledby="rh-upcoming" sx={{ minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                <Typography id="rh-upcoming" component="h2" sx={sectionTitle}>
+                  {day ? `Hearings on ${formatHearingDate(`${day}T04:00:00Z`)}` : 'Upcoming Hearings'}
+                </Typography>
+                {day && <Button size="small" onClick={() => setDay(null)} sx={{ textTransform: 'none' }}>Show all upcoming</Button>}
+              </Box>
+              {day && !shownUpcoming.length && all.some(h => phDay(h.scheduledAt) === day) && (
+                <Typography sx={{ color: '#64748b', fontSize: '0.86rem', mb: 2 }}>That hearing has already taken place or was cancelled - see Hearing History.</Typography>
+              )}
+              {shownUpcoming.length === 0 && !(day && all.some(h => phDay(h.scheduledAt) === day)) ? (
+                <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
+                  <CardContent sx={{ textAlign: 'center', py: { xs: 4, lg: 7 } }}>
+                    <CalendarToday sx={{ fontSize: 34, color: '#cbd5e1' }} />
+                    <Typography sx={{ color: '#64748b', fontSize: '0.9rem', mt: 1 }}>
+                      {day ? 'No hearing on that day.' : 'No upcoming hearing. When the barangay schedules one you are a party to, it appears here and in your notifications.'}
+                    </Typography>
                   </CardContent>
                 </Card>
-              ))}
+              ) : (
+                <Box sx={{ display: 'grid', gap: 2 }}>
+                  {shownUpcoming.map(h => <UpcomingCard key={h.id} h={h} onAck={n => setAck({ h, n })} onResched={() => setResched(h)} refresh={() => mutate()} />)}
+                </Box>
+              )}
             </Box>
-          )}
+
+            {/* The calendar and the history: beside it on a wide screen, below it on a narrow one. */}
+            <Box sx={{ display: 'grid', gap: 2.5, minWidth: 0 }}>
+              <Box component="section" aria-labelledby="rh-calendar">
+                <Typography id="rh-calendar" component="h2" sx={{ ...sectionTitle, mb: 1 }}>Hearing Calendar</Typography>
+                <ResidentMonth hearings={all} selected={day} onSelect={d => setDay(cur => (cur === d ? null : d))} />
+              </Box>
+              <Box component="section" aria-labelledby="rh-history">
+                <Typography id="rh-history" component="h2" sx={{ ...sectionTitle, mb: 1 }}>Hearing History</Typography>
+                <HearingHistory data={data} />
+              </Box>
+            </Box>
+          </Box>
         </>
       )}
 
       {ack && <AcknowledgeDialog h={ack.h} n={ack.n} onClose={() => setAck(null)} onDone={() => { setAck(null); void mutate(); }} />}
       {resched && <RescheduleDialog h={resched} onClose={() => setResched(null)} onDone={() => { setResched(null); void mutate(); }} />}
+    </Box>
+  );
+}
+
+/** Every proceeding, case by case: its notices, what changed, any request for a new date, and how it ended. */
+function HearingHistory({ data }: { data: Data }) {
+  if (data.history.length === 0) {
+    return (
+      <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
+        <CardContent sx={{ textAlign: 'center', py: 4 }}>
+          <HistoryIcon sx={{ fontSize: 34, color: '#cbd5e1' }} />
+          <Typography sx={{ color: '#94a3b8', fontSize: '0.88rem', mt: 1 }}>No hearings yet. A respondent sees theirs here once the barangay links the case to their SafeComm account.</Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <Box sx={{ display: 'grid', gap: 2 }}>
+      {data.history.map(g => (
+        <Card key={`${g.case.caseNumber}:${g.role}`} sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+              <Typography sx={{ fontWeight: 800, color: NAVY, overflowWrap: 'anywhere' }}>Case {g.case.caseNumber}</Typography>
+              <Chip size="small" label={`You are the ${g.role === 'RESPONDENT' ? 'respondent' : 'complainant'}`} sx={chip('#4f46e5')} />
+              {g.next && <Chip size="small" label={`Next: ${g.next.title}, ${formatHearingDate(g.next.scheduledAt)}`} sx={{ ...chip('#0369a1'), maxWidth: '100%' }} />}
+            </Box>
+            <Box sx={{ display: 'grid', gap: 1.25 }}>
+              {g.hearings.map(h => (
+                <Box key={h.id} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                  <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: `${STATUS_COLOR[h.status] ?? '#64748b'}18`, color: STATUS_COLOR[h.status] ?? '#64748b',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}>{STAGE_CODE[h.stage] ?? ''}{h.session}</Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: NAVY }}>{h.stageLabel}{h.session > 1 ? ` - session ${h.session}` : ''}</Typography>
+                      <Chip size="small" label={h.statusLabel} sx={chip(STATUS_COLOR[h.status] ?? '#64748b')} />
+                    </Box>
+                    <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{formatHearingDate(h.scheduledAt)}, {formatHearingTime(h.scheduledAt)} · {h.venue}</Typography>
+                    {h.notices.map(n => (
+                      <Typography key={n.id} sx={{ fontSize: '0.78rem', color: '#64748b', overflowWrap: 'anywhere' }}>
+                        {n.formName} ({n.noticeNumber}): {n.statusLabel.toLowerCase()}{' '}
+                        <a href={`/api/resident/hearings/${h.id}/notice?id=${n.id}&inline=1`} target="_blank" rel="noopener" style={{ color: TEAL }}>View</a>
+                      </Typography>
+                    ))}
+                    {h.outcome && <Typography sx={{ fontSize: '0.84rem', color: '#334155', mt: 0.25 }}>{h.outcome.text}</Typography>}
+                    {h.outcome?.summary && <Typography sx={{ fontSize: '0.82rem', color: '#475569', whiteSpace: 'pre-wrap' }}>{h.outcome.summary}</Typography>}
+                    {h.updates.length > 0 && (
+                      <Box sx={{ mt: 0.5, pl: 1, borderLeft: '2px solid #e2e8f0' }}>
+                        {h.updates.map(u => <Typography key={u.id} sx={{ fontSize: '0.78rem', color: '#475569', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{u.message} <span style={{ color: '#94a3b8' }}>- {when(u.at)}</span></Typography>)}
+                      </Box>
+                    )}
+                    {h.requests.map(r => (
+                      <Typography key={r.id} sx={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        Request for a new date ({when(r.createdAt)}): {r.status === 'PENDING' ? 'waiting for the barangay' : r.status === 'APPROVED' ? 'approved' : `not approved${r.reviewNote ? ` - ${r.reviewNote}` : ''}`}
+                      </Typography>
+                    ))}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
     </Box>
   );
 }
@@ -204,7 +240,7 @@ function ResidentMonth({ hearings, selected, onSelect }: { hearings: ResidentHea
   const shift = (n: number) => setMonth(new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7));
   const cells: (string | null)[] = [...Array(first.getUTCDay()).fill(null), ...Array.from({ length: days }, (_, i) => `${month}-${String(i + 1).padStart(2, '0')}`)];
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0', mb: 3 }}>
+    <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
       <CardContent sx={{ p: { xs: 1.25, md: 2 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
           <IconButton size="small" onClick={() => shift(-1)} aria-label="Previous month"><ChevronLeft /></IconButton>
@@ -212,7 +248,7 @@ function ResidentMonth({ hearings, selected, onSelect }: { hearings: ResidentHea
           <IconButton size="small" onClick={() => shift(1)} aria-label="Next month"><ChevronRight /></IconButton>
           <Button size="small" onClick={() => setMonth(today.slice(0, 7))} sx={{ textTransform: 'none' }}>Today</Button>
         </Box>
-        <Box role="grid" aria-label="Your hearings this month" sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
+        <Box role="grid" aria-label="Your hearings this month" sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 0.5 }}>
           {WEEKDAYS.map(d => <Typography key={d} role="columnheader" sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textAlign: 'center' }}>{d}</Typography>)}
           {cells.map((d, i) => {
             const list = d ? byDay.get(d) ?? [] : [];
@@ -229,7 +265,7 @@ function ResidentMonth({ hearings, selected, onSelect }: { hearings: ResidentHea
                   <Box key={h.id} component="span" sx={{ display: 'block', mt: 0.25, px: 0.5, borderRadius: 1, fontSize: { xs: '0.6rem', sm: '0.68rem' }, fontWeight: 700,
                     bgcolor: `${STATUS_COLOR[h.status] ?? '#64748b'}18`, color: STATUS_COLOR[h.status] ?? '#64748b', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
                     textDecoration: h.status === 'CANCELLED' ? 'line-through' : 'none' }}>
-                    {STAGE_CODE[h.stage] ?? ''}{h.session}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}> · {formatHearingTime(h.scheduledAt)}</Box>
+                    {STAGE_CODE[h.stage] ?? ''}{h.session}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline', lg: 'none', xl: 'inline' } }}> · {formatHearingTime(h.scheduledAt)}</Box>
                   </Box>
                 ))}
               </Box>
