@@ -1,39 +1,163 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Box, Typography, ButtonBase, Button, FormHelperText } from '@mui/material';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, Typography, Button, FormHelperText } from '@mui/material';
 import { RestartAlt } from '@mui/icons-material';
-import { formatExactTime, isFutureIncidentTime, parseExactTime } from '@/lib/incidentTime';
+import { formatExactTime, isFutureIncidentTime, nowInPh, parseExactTime } from '@/lib/incidentTime';
 
 const TEAL = '#0f766e';
 const TEAL_SOFT = '#ccfbf1';
 const NAVY = '#0c1e46';
-const FACE = '#f1f5f9';
+const CARD = '#f1f5f9';
 
-type Dial = 'hour' | 'minute';
-type Meridiem = '' | 'AM' | 'PM';
+/** One row of a wheel, and how many show at once: 5 x 34 = 170px tall. */
+const ROW = 34;
+const VISIBLE = 5;
+const PAD = ((VISIBLE - 1) / 2) * ROW;
 
-const HOUR_MARKS = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
-const MINUTE_MARKS = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-/** Where the numbers sit, as a share of the face's half-width. */
-const RING = 0.78;
+const HOURS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+const MERIDIEMS = ['AM', 'PM'] as const;
 
-/** A point on the face, in percent of its box, for a clockwise angle from 12 o'clock. */
-const at = (deg: number, r = RING) => {
-  const a = (deg * Math.PI) / 180;
-  // Rounded: the server and the browser can differ in the last digits of
-  // sin/cos, and an unrounded position would not hydrate.
-  const round = (n: number) => Math.round(n * 1000) / 1000;
-  return { x: round(50 + 50 * r * Math.sin(a)), y: round(50 - 50 * r * Math.cos(a)) };
-};
+const clamp = (i: number, n: number) => Math.max(0, Math.min(n - 1, i));
+const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * "About what time?" as a clock: tap or drag round the face to the hour, and
- * it moves on to the minutes (marked every 5, any minute by dragging); AM / PM
- * beside it. "Not sure" (the default) leaves the time out.
- * `value` is what is stored: '' or "9:05 PM". A time that is only half chosen
- * is passed up as it stands ("9:05 ?"), so the form's check flags it instead
- * of it being dropped.
+ * One scrolling column. Scroll-snap stops it on a row; the row in the middle
+ * is the value. `onPick(i, byUser)` reports where it settled - `byUser` is
+ * true only when the resident scrolled, swiped, used the wheel or a key, so
+ * the wheels being placed on load never counts as choosing a time.
+ */
+function Wheel({ label, items, index, onPick, active, disabled, spoken }: {
+  label: string;
+  items: readonly string[];
+  index: number;
+  onPick: (i: number, byUser: boolean) => void;
+  /** False while "Not sure": the wheel shows where it is, greyed. */
+  active: boolean;
+  disabled?: boolean;
+  /** How a screen reader says the value, e.g. "9 o'clock". */
+  spoken: (v: string) => string;
+}) {
+  const el = useRef<HTMLDivElement | null>(null);
+  const [center, setCenter] = useState(index);
+  const intent = useRef(false);
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const placed = useRef(false);
+  const wheelAcc = useRef(0);
+  const latest = useRef({ index, onPick, n: items.length });
+  useEffect(() => { latest.current = { index, onPick, n: items.length }; });
+
+  // Put the wheel on `index` when it changes from outside (load, keys, a tap).
+  useEffect(() => {
+    const box = el.current;
+    if (!box) return;
+    if (Math.round(box.scrollTop / ROW) !== index) {
+      box.scrollTo({ top: index * ROW, behavior: placed.current && !reducedMotion() ? 'smooth' : 'auto' });
+    }
+    placed.current = true;
+    setCenter(index);
+  }, [index]);
+
+  // A mouse wheel moves one row per notch (a trackpad, one row per 40px), not a page.
+  useEffect(() => {
+    const box = el.current;
+    if (!box) return;
+    const onWheel = (e: WheelEvent) => {
+      if (disabled) return;
+      e.preventDefault();
+      const { index: i, onPick: pick, n } = latest.current;
+      let step = 0;
+      if (e.deltaMode !== 0 || Math.abs(e.deltaY) >= 40) step = Math.sign(e.deltaY);
+      else {
+        wheelAcc.current += e.deltaY;
+        if (Math.abs(wheelAcc.current) >= 40) { step = Math.sign(wheelAcc.current); wheelAcc.current = 0; }
+      }
+      if (step) pick(clamp(i + step, n), true);
+    };
+    box.addEventListener('wheel', onWheel, { passive: false });
+    return () => box.removeEventListener('wheel', onWheel);
+  }, [disabled]);
+
+  useEffect(() => () => { if (settle.current) clearTimeout(settle.current); }, []);
+
+  const onScroll = () => {
+    const box = el.current;
+    if (!box) return;
+    setCenter(clamp(Math.round(box.scrollTop / ROW), items.length));
+    if (settle.current) clearTimeout(settle.current);
+    // Settled: no scroll for a moment (covers momentum after a swipe).
+    settle.current = setTimeout(() => {
+      const i = clamp(Math.round(box.scrollTop / ROW), items.length);
+      const byUser = intent.current;
+      intent.current = false;
+      if (byUser || i !== latest.current.index) latest.current.onPick(i, byUser);
+    }, 140);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const n = items.length;
+    const to = e.key === 'ArrowUp' ? index - 1 : e.key === 'ArrowDown' ? index + 1
+      : e.key === 'PageUp' ? index - 5 : e.key === 'PageDown' ? index + 5
+      : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : null;
+    if (to === null) return;
+    e.preventDefault();
+    intent.current = true;
+    onPick(clamp(to, n), true);
+  };
+
+  return (
+    <Box
+      ref={el}
+      role="spinbutton"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={items.length - 1}
+      aria-valuenow={index}
+      aria-valuetext={active ? spoken(items[index]) : `${spoken(items[index])}, not chosen - time is "Not sure"`}
+      aria-disabled={disabled || undefined}
+      onScroll={onScroll}
+      onPointerDown={() => { intent.current = true; }}
+      onTouchStart={() => { intent.current = true; }}
+      onKeyDown={onKeyDown}
+      sx={{
+        height: ROW * VISIBLE, overflowY: disabled ? 'hidden' : 'auto', overscrollBehavior: 'contain',
+        scrollSnapType: 'y mandatory', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' },
+        position: 'relative', zIndex: 1, outline: 'none', borderRadius: 2, cursor: disabled ? 'default' : 'ns-resize',
+        // Fade the rows above and below the middle.
+        maskImage: 'linear-gradient(to bottom, transparent 0, #000 32%, #000 68%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, #000 32%, #000 68%, transparent 100%)',
+        '&:focus-visible': { boxShadow: `inset 0 0 0 2px ${TEAL}` },
+      }}
+    >
+      <Box aria-hidden sx={{ py: `${PAD}px` }}>
+        {items.map((v, i) => {
+          const on = i === center;
+          return (
+            <Box key={v}
+              onClick={() => { if (disabled) return; intent.current = true; onPick(i, true); }}
+              sx={{
+                height: ROW, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center',
+                fontVariantNumeric: 'tabular-nums', userSelect: 'none',
+                fontSize: on ? '1.15rem' : '1rem', fontWeight: on ? 800 : 600,
+                color: on ? (active ? TEAL : '#64748b') : NAVY,
+                opacity: on ? 1 : Math.abs(i - center) === 1 ? 0.55 : 0.3,
+                transition: 'color 120ms, opacity 120ms, font-size 120ms',
+              }}>
+              {v}
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+}
+
+/**
+ * "About what time?" - an iOS-style scroll wheel: hour, minutes, AM/PM.
+ * "Not sure" (the default) saves nothing; scrolling any wheel chooses the time
+ * the three wheels show. `value` is what is stored: '' or "9:30 PM".
  */
 export default function IncidentTimeField({ value, onChange, date, error, disabled }: {
   value: string;
@@ -45,169 +169,82 @@ export default function IncidentTimeField({ value, onChange, date, error, disabl
   disabled?: boolean;
 }) {
   const start = parseExactTime(value);
-  const [hour, setHour] = useState(start?.hour ?? '');
-  const [minute, setMinute] = useState(start?.minute ?? '00');
-  const [meridiem, setMeridiem] = useState<Meridiem>(start?.meridiem ?? '');
-  const [dial, setDial] = useState<Dial>('hour');
-  const face = useRef<HTMLDivElement | null>(null);
-  const dragging = useRef(false);
+  const [chosen, setChosen] = useState(Boolean(start));
+  // Fixed first render (it must match the server's); "Not sure" wheels move to the current time after mount.
+  const [h, setH] = useState(start ? HOURS.indexOf(start.hour) : 11);
+  const [m, setM] = useState(start ? Number(start.minute) : 0);
+  const [ap, setAp] = useState(start ? MERIDIEMS.indexOf(start.meridiem) : 0);
+  const idx = useRef({ h, m, ap });
+  const chosenRef = useRef(chosen);
+  useEffect(() => { idx.current = { h, m, ap }; chosenRef.current = chosen; });
 
-  const emit = (h: string, m: string, ap: Meridiem) => {
-    if (!h && !ap) return onChange('');
-    onChange(h && ap ? formatExactTime({ hour: h, minute: m, meridiem: ap }) : `${h || '?'}:${m} ${ap || '?'}`);
-  };
-  const pickHour = (h: string) => { setHour(h); emit(h, minute, meridiem); };
-  const pickMinute = (m: string) => { setMinute(m); emit(hour, m, meridiem); };
-  const pickMeridiem = (ap: 'AM' | 'PM') => { setMeridiem(ap); emit(hour, minute, ap); };
-  const clear = () => { setHour(''); setMinute('00'); setMeridiem(''); setDial('hour'); onChange(''); };
+  // Only on mount: "Not sure" wheels start at the current time (after the
+  // first paint, so the server-rendered HTML still matches).
+  const hadStart = useRef(Boolean(start));
+  useEffect(() => {
+    if (hadStart.current) return;
+    const id = requestAnimationFrame(() => {
+      if (chosenRef.current) return;
+      const mins = nowInPh().minutes;
+      const hour24 = Math.floor(mins / 60);
+      setH((hour24 % 12 || 12) - 1);
+      setM(Math.floor((mins % 60) / 5) * 5);
+      setAp(hour24 < 12 ? 0 : 1);
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
 
-  /** The value under the pointer, from its angle round the centre. */
-  const fromPointer = (clientX: number, clientY: number) => {
-    const el = face.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const dx = clientX - (r.left + r.width / 2), dy = clientY - (r.top + r.height / 2);
-    if (Math.hypot(dx, dy) < r.width * 0.08) return; // the very centre has no direction
-    const deg = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360;
-    if (dial === 'hour') pickHour(String(Math.round(deg / 30) % 12 || 12));
-    else pickMinute(String(Math.round(deg / 6) % 60).padStart(2, '0'));
-  };
+  const timeOf = (i: { h: number; m: number; ap: number }) => formatExactTime({ hour: HOURS[i.h], minute: MINUTES[i.m], meridiem: MERIDIEMS[i.ap] });
 
-  const set = Boolean(hour);
-  const complete = Boolean(hour && meridiem);
-  const shown = complete ? formatExactTime({ hour, minute, meridiem: meridiem as 'AM' | 'PM' }) : null;
+  const pick = useCallback((col: 'h' | 'm' | 'ap', i: number, byUser: boolean) => {
+    const next = { ...idx.current, [col]: i };
+    idx.current = next;
+    if (col === 'h') setH(i); else if (col === 'm') setM(i); else setAp(i);
+    if (byUser) { setChosen(true); onChange(timeOf(next)); }
+  }, [onChange]);
+
+  const clear = () => { setChosen(false); onChange(''); };
+
+  const shown = chosen ? timeOf({ h, m, ap }) : null;
   const later = shown && isFutureIncidentTime(date, shown) ? 'That time has not come yet today - choose an earlier time, or "Not sure"' : null;
-  const needsMeridiem = set && !meridiem ? 'Choose AM or PM' : null;
-  const message = later ?? (needsMeridiem && error ? needsMeridiem : error) ?? null;
-
-  // The hand points at the chosen value on the current dial.
-  const handDeg = dial === 'hour' ? (hour ? (Number(hour) % 12) * 30 : null) : Number(minute) * 6;
-  const tip = handDeg === null ? null : at(handDeg);
-  const marks = dial === 'hour' ? HOUR_MARKS : MINUTE_MARKS;
-  const isOn = (m: string) => (dial === 'hour' ? hour === m : minute === m);
-
-  const segment = (which: Dial, text: string, label: string) => (
-    <ButtonBase onClick={() => setDial(which)} disabled={disabled} aria-pressed={dial === which} aria-label={label} focusRipple
-      sx={{ borderRadius: 2, px: 1.25, py: 0.25, bgcolor: dial === which ? TEAL_SOFT : FACE, color: dial === which ? TEAL : NAVY,
-        fontSize: { xs: '2.4rem', sm: '2.75rem' }, fontWeight: 800, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', minWidth: { xs: 76, sm: 88 },
-        '&.Mui-focusVisible': { outline: `2px solid ${TEAL}`, outlineOffset: 2 } }}>
-      {text}
-    </ButtonBase>
-  );
-  const meridiemButton = (ap: 'AM' | 'PM') => (
-    <ButtonBase key={ap} onClick={() => pickMeridiem(ap)} disabled={disabled} role="radio" aria-checked={meridiem === ap} focusRipple
-      sx={{ px: 1.5, minHeight: 40, fontWeight: 800, fontSize: '0.95rem', bgcolor: meridiem === ap ? TEAL_SOFT : '#fff', color: meridiem === ap ? TEAL : '#475569',
-        '&.Mui-focusVisible': { outline: `2px solid ${TEAL}`, outlineOffset: -2 } }}>
-      {ap}
-    </ButtonBase>
-  );
+  const message = later ?? error ?? null;
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: { sm: 'calc(50% - 6px)' } }}>
       <Typography id="incident-time-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: NAVY }}>About what time? (optional)</Typography>
-      <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mb: 1.25 }}>
-        Tap the clock to set the hour, then the minutes. An estimate is fine - leave it on &quot;Not sure&quot; if you do not know.
-      </Typography>
 
-      <Box role="group" aria-labelledby="incident-time-label"
-        sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: { xs: 2, sm: 4 },
-          border: '1px solid #e2e8f0', borderRadius: 3, p: { xs: 1.5, sm: 2.5 }, bgcolor: '#fff' }}>
-
-        {/* The readout: hour and minutes switch the dial; AM / PM beside them. */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, gap: 1.25, order: { xs: 0, sm: 1 }, flex: { sm: 1 } }}>
-          <Typography sx={{ fontSize: '0.74rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: 0.4 }}>
-            {set ? 'Time it happened' : 'Not sure'}
+      <Box role="group" aria-labelledby="incident-time-label" aria-describedby="incident-time-readout"
+        sx={{ mt: 0.75, bgcolor: CARD, borderRadius: 3, border: '1px solid #e2e8f0', p: 1.25, opacity: disabled ? 0.6 : 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap', px: 0.5, mb: 0.75 }}>
+          <Typography id="incident-time-readout" aria-live="polite"
+            sx={{ fontSize: '0.95rem', fontWeight: 800, color: shown ? TEAL : '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+            {shown ? `Around ${shown}` : 'Not sure'}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {segment('hour', hour || '--', `Hour, ${hour || 'not set'}. Show the hours on the clock`)}
-            <Typography aria-hidden sx={{ fontSize: '2.4rem', fontWeight: 800, color: '#94a3b8', lineHeight: 1 }}>:</Typography>
-            {segment('minute', set ? minute : '--', `Minutes, ${set ? minute : 'not set'}. Show the minutes on the clock`)}
-            <Box role="radiogroup" aria-label="AM or PM"
-              sx={{ display: 'flex', flexDirection: 'column', border: `1.5px solid ${needsMeridiem && error ? '#d32f2f' : '#cbd5e1'}`, borderRadius: 2, overflow: 'hidden', ml: 0.5,
-                '& > :first-of-type': { borderBottom: '1px solid #cbd5e1' } }}>
-              {meridiemButton('AM')}{meridiemButton('PM')}
-            </Box>
-          </Box>
-          <Typography aria-live="polite" sx={{ fontSize: '0.82rem', color: shown ? TEAL : '#64748b', fontWeight: shown ? 700 : 400, minHeight: '1.3em' }}>
-            {shown ? `Chosen: ${shown}` : set ? 'Choose AM or PM' : dial === 'hour' ? 'Choose the hour on the clock' : 'Choose the minutes on the clock'}
+          <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>
+            {shown ? 'An estimate is fine' : 'Scroll to set the time'}
           </Typography>
-          <Button size="small" onClick={clear} disabled={disabled || (!set && !meridiem)} startIcon={<RestartAlt />}
-            sx={{ textTransform: 'none', color: '#475569', px: 1, minHeight: 36 }}>
-            Not sure - clear the time
-          </Button>
         </Box>
 
-        {/* The face. Tap a number, or drag round it; the hour moves on to the minutes. */}
-        <Box
-          ref={face}
-          aria-label={dial === 'hour' ? 'Clock - choose the hour' : 'Clock - choose the minutes'}
-          onPointerDown={e => {
-            if (disabled) return;
-            dragging.current = true;
-            e.currentTarget.setPointerCapture(e.pointerId);
-            fromPointer(e.clientX, e.clientY);
-          }}
-          onPointerMove={e => { if (dragging.current) fromPointer(e.clientX, e.clientY); }}
-          onPointerUp={() => {
-            if (!dragging.current) return;
-            dragging.current = false;
-            if (dial === 'hour') setDial('minute');
-          }}
-          onPointerCancel={() => { dragging.current = false; }}
-          sx={{
-            position: 'relative', width: 'min(100%, 272px)', aspectRatio: '1 / 1', borderRadius: '50%', bgcolor: FACE, flexShrink: 0,
-            touchAction: 'none', userSelect: 'none', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : 1, order: { xs: 1, sm: 0 },
-          }}>
-          <svg viewBox="0 0 100 100" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-            {/* Minute ticks, so a dragged minute between the numbers has a place. */}
-            {dial === 'minute' && Array.from({ length: 60 }, (_, i) => i).filter(i => i % 5).map(i => {
-              const a = at(i * 6, 0.93), b = at(i * 6, 0.97);
-              return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#cbd5e1" strokeWidth={0.6} />;
-            })}
-            {tip && (
-              <>
-                <line x1={50} y1={50} x2={tip.x} y2={tip.y} stroke={TEAL} strokeWidth={1.1} strokeLinecap="round" />
-                <circle cx={tip.x} cy={tip.y} r={8.2} fill={TEAL} />
-                {dial === 'minute' && Number(minute) % 5 !== 0 && <circle cx={tip.x} cy={tip.y} r={1.4} fill="#fff" />}
-              </>
-            )}
-            <circle cx={50} cy={50} r={2} fill={tip ? TEAL : '#94a3b8'} />
-          </svg>
-          <Box role="radiogroup" aria-label={dial === 'hour' ? 'Hour' : 'Minutes'} sx={{ position: 'absolute', inset: 0 }}>
-            {marks.map((m, i) => {
-              const p = at(i * 30);
-              const on = isOn(m);
-              return (
-                <ButtonBase key={`${dial}-${m}`} role="radio" aria-checked={on} disabled={disabled} tabIndex={on || (!hour && i === 0) ? 0 : -1}
-                  aria-label={dial === 'hour' ? `${m} o'clock` : `${m} minutes`}
-                  // Mouse and touch are read from the angle on the face; this is for the keyboard.
-                  onClick={e => { if (e.detail === 0) { if (dial === 'hour') pickHour(m); else pickMinute(m); } }}
-                  onKeyDown={e => {
-                    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-                    if (!step) return;
-                    e.preventDefault();
-                    const next = marks[(i + step + 12) % 12];
-                    if (dial === 'hour') pickHour(next); else pickMinute(next);
-                    const btns = (e.currentTarget.parentElement?.querySelectorAll('[role=radio]') ?? []) as NodeListOf<HTMLElement>;
-                    btns[(i + step + 12) % 12]?.focus();
-                  }}
-                  sx={{
-                    position: 'absolute', left: `${p.x}%`, top: `${p.y}%`, transform: 'translate(-50%, -50%)',
-                    width: '15%', aspectRatio: '1 / 1', borderRadius: '50%', fontSize: { xs: '0.95rem', sm: '1rem' }, fontWeight: 700,
-                    color: on ? '#fff' : NAVY, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none',
-                    '&.Mui-focusVisible': { outline: `2px solid ${TEAL}`, outlineOffset: 1 },
-                  }}>
-                  {m}
-                </ButtonBase>
-              );
-            })}
-          </Box>
+        <Box sx={{ position: 'relative', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 10px minmax(0, 1fr) minmax(0, 1fr)', alignItems: 'center' }}>
+          {/* The band the middle row sits in. */}
+          <Box aria-hidden sx={{ position: 'absolute', left: 0, right: 0, top: PAD, height: ROW, borderRadius: 2,
+            bgcolor: shown ? TEAL_SOFT : '#e2e8f0', transition: 'background-color 150ms', pointerEvents: 'none' }} />
+          <Wheel label="Hour" items={HOURS} index={h} onPick={(i, u) => pick('h', i, u)} active={Boolean(shown)} disabled={disabled}
+            spoken={v => `${v} o'clock`} />
+          <Typography aria-hidden sx={{ position: 'relative', zIndex: 1, textAlign: 'center', fontWeight: 800, color: shown ? TEAL : '#94a3b8' }}>:</Typography>
+          <Wheel label="Minutes" items={MINUTES} index={m} onPick={(i, u) => pick('m', i, u)} active={Boolean(shown)} disabled={disabled}
+            spoken={v => `${v} minutes`} />
+          <Wheel label="AM or PM" items={MERIDIEMS} index={ap} onPick={(i, u) => pick('ap', i, u)} active={Boolean(shown)} disabled={disabled}
+            spoken={v => v} />
         </Box>
+
+        <Button size="small" onClick={clear} disabled={disabled || !shown} startIcon={<RestartAlt sx={{ fontSize: 17 }} />}
+          sx={{ mt: 0.5, textTransform: 'none', color: '#475569', px: 0.75, minHeight: 34, fontSize: '0.8rem' }}>
+          Not sure – clear the time
+        </Button>
       </Box>
 
-      {message && (
-        <FormHelperText error role="alert" sx={{ mx: 0, mt: 0.75, fontSize: '0.8rem' }}>{message}</FormHelperText>
-      )}
+      {message && <FormHelperText error role="alert" sx={{ mx: 0, mt: 0.75, fontSize: '0.8rem' }}>{message}</FormHelperText>}
     </Box>
   );
 }

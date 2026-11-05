@@ -138,7 +138,7 @@ async function main() {
     // The time is picked on the form; typed text and a time still to come today are refused.
     const typedTime = await file({ description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit',
       incidentTimeApprox: 'mga alas-dos ng madaling araw' });
-    ok('a typed time is refused - it is chosen on the form', typedTime.status === 400 && String(typedTime.body.error).includes('on the clock'), `${typedTime.status} ${typedTime.body.error ?? ''}`);
+    ok('a typed time is refused - it is chosen on the form', typedTime.status === 400 && String(typedTime.body.error).includes('AM or PM'), `${typedTime.status} ${typedTime.body.error ?? ''}`);
     const phNow = new Date(Date.now() + 8 * 3600_000);
     if (phNow.getUTCHours() < 21) {
       const later = await file({ description: BLOTTER_TEXT, intakeNarrative: BLOTTER_TEXT, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit',
