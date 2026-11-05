@@ -14,6 +14,8 @@ import {
   REFERRAL_STATUSES, referralAgenciesFor, RESOLUTION_TYPES, type ReportPath, type ReportingChannel, type ReferralAgency, type ReferralStatus,
   type YesNoUnknownAnswer, type ResolutionType,
 } from '@/lib/caseRecords';
+import { PH_MOBILE_HINT, displayPhMobile, isPhMobileLocal, normalizePhMobile, phMobileLocal } from '@/lib/phoneNumber';
+import PhMobileField from '@/components/forms/PhMobileField';
 
 /**
  * The case's records beside the narrative, for officials: the report details,
@@ -92,18 +94,23 @@ function PartyDialog({ caseId, role, vawc, start, onClose, onSaved }: {
 }) {
   const [f, setF] = useState({
     fullName: start?.fullName ?? '', age: start?.age?.toString() ?? '', address: start?.address ?? '',
-    contactNumber: start?.contactNumber ?? '', relationship: start?.relationship ?? '',
+    contactNumber: phMobileLocal(start?.contactNumber), relationship: start?.relationship ?? '',
     dependentsAffected: start?.dependentsAffected ?? '', details: start?.details ?? '',
   });
   const [saving, setSaving] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(p => ({ ...p, [k]: e.target.value }));
   const who = role === 'AFFECTED' ? (vawc ? 'Victim-survivor' : 'Person affected') : 'Person reported';
   const save = async () => {
+    // The number field is shown on the VAWC desk only; a started-but-wrong one is not saved silently.
+    if (role === 'AFFECTED' && vawc && f.contactNumber && !isPhMobileLocal(f.contactNumber)) {
+      toast.error(`Contact number: ${PH_MOBILE_HINT}, or leave it empty.`);
+      return;
+    }
     setSaving(true);
     try {
       const party: Record<string, unknown> = {
         fullName: f.fullName, age: f.age, address: f.address, relationship: f.relationship, details: f.details,
-        ...(role === 'AFFECTED' && { contactNumber: f.contactNumber, ...(f.dependentsAffected && { dependentsAffected: f.dependentsAffected }) }),
+        ...(role === 'AFFECTED' && { contactNumber: normalizePhMobile(f.contactNumber) ?? '', ...(f.dependentsAffected && { dependentsAffected: f.dependentsAffected }) }),
       };
       await send(`/api/cases/${caseId}/records`, 'PUT', { role, party });
       toast.success(`${who} details saved`);
@@ -123,7 +130,7 @@ function PartyDialog({ caseId, role, vawc, start, onClose, onSaved }: {
         <TextField size="small" label="Age, if known" type="number" value={f.age} onChange={set('age')} slotProps={{ htmlInput: { min: 0, max: 120 } }} />
         <TextField size="small" label="Address, if needed" value={f.address} onChange={set('address')} slotProps={{ htmlInput: { maxLength: 200 } }} />
         {role === 'AFFECTED' && vawc && (
-          <TextField size="small" label="Contact number - only if it is safe to use" value={f.contactNumber} onChange={set('contactNumber')} slotProps={{ htmlInput: { maxLength: 40 } }} />
+          <PhMobileField size="small" label="Contact number - only if it is safe to use" value={f.contactNumber} onChange={d => setF(p => ({ ...p, contactNumber: d }))} />
         )}
         <TextField size="small" value={f.relationship} onChange={set('relationship')} slotProps={{ htmlInput: { maxLength: 120 } }}
           label={role === 'AFFECTED' ? 'Relationship to the reporter' : `Relationship to the ${vawc ? 'victim-survivor' : 'person affected'}`} />
@@ -159,7 +166,7 @@ function PartyBlock({ title, role, parties, vawc, selfReport, note, edit, onEdit
       <Field name="Full name" value={p.fullName} />
       <Field name="Age" value={p.age} />
       <Field name="Address" value={p.address} />
-      {role === 'AFFECTED' && vawc && <Field name="Contact number" value={p.contactNumber} />}
+      {role === 'AFFECTED' && vawc && <Field name="Contact number" value={p.contactNumber ? displayPhMobile(p.contactNumber) : p.contactNumber} />}
       <Field name={role === 'AFFECTED' ? 'Relationship to reporter' : 'Relationship to person affected'} value={p.relationship} />
       {role === 'AFFECTED' && <Field name="Children / dependents affected" value={p.dependentsAffected ? ANSWER_LABEL[p.dependentsAffected as YesNoUnknownAnswer] : null} />}
       <Field name="Other information" value={p.details} />

@@ -9,6 +9,7 @@
 import { z } from 'zod';
 import { BLOTTER_CATEGORIES, VAWC_CATEGORIES } from './classificationSchema';
 import { VAWC_TYPES } from './vawcTypes';
+import { PH_MOBILE_HINT, normalizePhMobile } from './phoneNumber';
 
 const isVawcType = (caseType: string) => (VAWC_TYPES as readonly string[]).includes(caseType);
 
@@ -73,7 +74,11 @@ export const affectedPartySchema = z.object({
   fullName: text(120),
   age,
   address: text(200),
-  contactNumber: text(40),
+  // A Philippine mobile number, stored as +639XXXXXXXXX. "0917...", "+63 917 ..."
+  // and "917-123-4567" are accepted and stored the same way; anything else is refused.
+  contactNumber: z.string().trim().max(40).optional()
+    .refine(v => !v || normalizePhMobile(v) !== null, PH_MOBILE_HINT)
+    .transform(v => (v ? normalizePhMobile(v) ?? undefined : undefined)),
   relationship: text(120),
   dependentsAffected: z.enum(YES_NO_UNKNOWN).optional(),
   details: text(500),

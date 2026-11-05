@@ -5,6 +5,8 @@ import { Box, Typography, TextField, Button, Collapse, RadioGroup, Radio, FormCo
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { ANSWER_LABEL, YES_NO_UNKNOWN, type ReportPath } from '@/lib/caseRecords';
 import type { ReportingRelationship } from '@/lib/interviewTypes';
+import { PH_MOBILE_HINT, isPhMobileLocal, normalizePhMobile, phMobileLocal } from '@/lib/phoneNumber';
+import PhMobileField from './PhMobileField';
 
 /**
  * The person affected and the person reported, as far as the reporter knows.
@@ -46,8 +48,20 @@ export function peoplePayload(p: PeopleState, path: ReportPath | null, relations
   const asksAll = path !== 'BLOTTER';
   const affected = relationship === 'SELF'
     ? { ...EMPTY_PEOPLE.affected, dependentsAffected: asksAll ? p.affected.dependentsAffected : '' }
-    : { ...p.affected, ...(!asksAll && { contactNumber: '', dependentsAffected: '' }) };
+    : { ...p.affected, contactNumber: asksAll ? normalizePhMobile(p.affected.contactNumber) ?? '' : '', ...(!asksAll && { dependentsAffected: '' }) };
   return { affectedParty: clean(affected), reportedParty: clean(p.reported) };
+}
+
+/**
+ * Why the people details cannot be sent as they are, or null. Only a contact
+ * number that was started but is not a full +63 mobile number stops a report;
+ * it is never dropped silently, and an empty one is fine.
+ */
+export function peopleProblem(p: PeopleState, path: ReportPath | null, relationship: ReportingRelationship | ''): string | null {
+  if (relationship === 'SELF' || path === 'BLOTTER') return null;
+  const local = phMobileLocal(p.affected.contactNumber);
+  if (local && !isPhMobileLocal(local)) return `The affected person's contact number is incomplete. ${PH_MOBILE_HINT}, or leave it empty.`;
+  return null;
 }
 
 export default function ReportPeopleFields({ path, relationship, value, onChange, disabled }: {
@@ -111,8 +125,9 @@ export default function ReportPeopleFields({ path, relationship, value, onChange
               <TextField size="small" label="Address, if needed" value={value.affected.address} onChange={setA('address')} disabled={disabled}
                 slotProps={{ htmlInput: { maxLength: 200 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
               {asksAll && (
-                <TextField size="small" label="Their contact number - only if it is safe to use" value={value.affected.contactNumber} onChange={setA('contactNumber')}
-                  disabled={disabled} slotProps={{ htmlInput: { maxLength: 40, inputMode: 'tel' } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+                <PhMobileField label="Their contact number - only if it is safe to use" value={value.affected.contactNumber}
+                  onChange={d => onChange({ ...value, affected: { ...value.affected, contactNumber: d } })}
+                  disabled={disabled} sx={{ gridColumn: { sm: '1 / -1' } }} />
               )}
               <TextField size="small" label="Who are they to you?" placeholder="e.g. neighbour, sister, co-worker" value={value.affected.relationship}
                 onChange={setA('relationship')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />

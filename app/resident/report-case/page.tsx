@@ -32,7 +32,7 @@ import type { AssistState } from '@/components/forms/IntakeAssistant';
 import type { IntakeAnswer, IntakeResult } from '@/lib/intake';
 import { REPORTING_RELATIONSHIPS, RELATIONSHIP_LABEL, type InterviewTurn, type ReportingRelationship } from '@/lib/interviewTypes';
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
-import ReportPeopleFields, { EMPTY_PEOPLE, peoplePayload, type PeopleState } from '@/components/forms/ReportPeopleFields';
+import ReportPeopleFields, { EMPTY_PEOPLE, peoplePayload, peopleProblem, type PeopleState } from '@/components/forms/ReportPeopleFields';
 import DeskNote, { type ResidentDesk } from '@/components/forms/DeskNote';
 
 /**
@@ -418,7 +418,12 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit(data => { setAssistState(null); setReviewing(data); })} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Box component="form" onSubmit={handleSubmit(data => {
+                // A started-but-wrong contact number is never sent or dropped silently.
+                const problem = peopleProblem(people, null, data.reportingRelationship as ReportingRelationship);
+                if (problem) { toast.error(problem); return; }
+                setAssistState(null); setReviewing(data);
+              })} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
                 {/* What happened, in the resident's own words - first, and the only
                     thing asked about the incident itself. SafeComm reads it and
