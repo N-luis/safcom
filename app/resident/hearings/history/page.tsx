@@ -1,8 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import ResidentHearings from '@/components/hearings/ResidentHearings';
-
-/** Hearing History: every hearing on the resident's cases. */
+/** Hearing History is part of My Hearings & Notices; an old link to it opens that page. */
 export default function HearingHistoryPage() {
-  return <ResidentHearings view="history" />;
+  redirect('/resident/hearings');
 }

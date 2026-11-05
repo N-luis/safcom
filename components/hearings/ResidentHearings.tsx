@@ -53,10 +53,10 @@ async function post(hid: string, body: unknown) {
 /**
  * My Hearings & Notices: the Katarungang Pambarangay proceedings the
  * resident is a party to - as the complainant, or as the respondent an
- * official linked to their account - in three views:
- *   overview  - what is coming, and the history
+ * official linked to their account - in two views:
+ *   overview  - what is coming, and the history: every proceeding, case by
+ *               case, with what changed and any request for a new date
  *   upcoming  - a month calendar and the upcoming hearings
- *   history   - every proceeding, case by case, with what changed
  *
  * They can read, download or print their own KP notices, acknowledge them
  * (receipt only - not attendance), the complainant can say whether they will
@@ -64,11 +64,10 @@ async function post(hid: string, body: unknown) {
  * dates and keeps the record - nothing here changes the schedule, the
  * attendance record, the notes or the outcome.
  */
-export type ResidentHearingsView = 'overview' | 'upcoming' | 'history';
+export type ResidentHearingsView = 'overview' | 'upcoming';
 const TITLES: Record<ResidentHearingsView, { title: string; intro: string }> = {
   overview: { title: 'My Hearings & Notices', intro: 'Barangay mediation and conciliation hearings you are a party to - as the complainant or the respondent. View, download or print your notices, acknowledge them, and ask for a new date. Dates, attendance and outcomes are recorded by barangay officials.' },
   upcoming: { title: 'Upcoming Hearings', intro: 'Your hearing schedule. Pick a day on the calendar to see its hearing. Only an official can change a date - ask for a new one from the hearing below.' },
-  history: { title: 'Hearing History', intro: 'Every hearing you are a party to, what changed, and what came of each, as the barangay has shared it.' },
 };
 
 export default function ResidentHearings({ view = 'overview' }: { view?: ResidentHearingsView }) {
@@ -82,7 +81,7 @@ export default function ResidentHearings({ view = 'overview' }: { view?: Residen
   return (
     <Box sx={{ maxWidth: 980, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5 }}>
-        {view === 'history' ? <HistoryIcon sx={{ color: TEAL }} /> : view === 'upcoming' ? <CalendarMonth sx={{ color: TEAL }} /> : <Gavel sx={{ color: TEAL }} />}
+        {view === 'upcoming' ? <CalendarMonth sx={{ color: TEAL }} /> : <Gavel sx={{ color: TEAL }} />}
         <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', md: '1.5rem' }, color: NAVY }}>{TITLES[view].title}</Typography>
       </Box>
       <Typography sx={{ fontSize: '0.88rem', color: '#64748b', mb: 2 }}>{TITLES[view].intro}</Typography>
@@ -94,7 +93,7 @@ export default function ResidentHearings({ view = 'overview' }: { view?: Residen
         <ResidentMonth hearings={all} selected={day} onSelect={d => setDay(cur => (cur === d ? null : d))} />
       )}
 
-      {data && view !== 'history' && (
+      {data && (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <Typography component="h2" sx={{ fontWeight: 800, color: NAVY, fontSize: '1.02rem' }}>
@@ -103,7 +102,7 @@ export default function ResidentHearings({ view = 'overview' }: { view?: Residen
             {day && <Button size="small" onClick={() => setDay(null)} sx={{ textTransform: 'none' }}>Show all upcoming</Button>}
           </Box>
           {day && !shownUpcoming.length && all.some(h => phDay(h.scheduledAt) === day) && (
-            <Typography sx={{ color: '#64748b', fontSize: '0.86rem', mb: 2 }}>That hearing has already taken place or was cancelled - see Hearing History.</Typography>
+            <Typography sx={{ color: '#64748b', fontSize: '0.86rem', mb: 2 }}>That hearing has already taken place or was cancelled - see Hearing History in My Hearings &amp; Notices.</Typography>
           )}
           {shownUpcoming.length === 0 && !(day && all.some(h => phDay(h.scheduledAt) === day)) ? (
             <Card sx={{ borderRadius: 3, mb: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
@@ -161,12 +160,12 @@ export default function ResidentHearings({ view = 'overview' }: { view?: Residen
                             ))}
                             {h.outcome && <Typography sx={{ fontSize: '0.84rem', color: '#334155', mt: 0.25 }}>{h.outcome.text}</Typography>}
                             {h.outcome?.summary && <Typography sx={{ fontSize: '0.82rem', color: '#475569', whiteSpace: 'pre-wrap' }}>{h.outcome.summary}</Typography>}
-                            {view === 'history' && h.updates.length > 0 && (
+                            {h.updates.length > 0 && (
                               <Box sx={{ mt: 0.5, pl: 1, borderLeft: '2px solid #e2e8f0' }}>
                                 {h.updates.map(u => <Typography key={u.id} sx={{ fontSize: '0.78rem', color: '#475569', whiteSpace: 'pre-wrap' }}>{u.message} <span style={{ color: '#94a3b8' }}>- {when(u.at)}</span></Typography>)}
                               </Box>
                             )}
-                            {view === 'history' && h.requests.map(r => (
+                            {h.requests.map(r => (
                               <Typography key={r.id} sx={{ fontSize: '0.78rem', color: '#64748b' }}>
                                 Request for a new date ({when(r.createdAt)}): {r.status === 'PENDING' ? 'waiting for the barangay' : r.status === 'APPROVED' ? 'approved' : `not approved${r.reviewNote ? ` - ${r.reviewNote}` : ''}`}
                               </Typography>
