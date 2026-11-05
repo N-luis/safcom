@@ -170,13 +170,18 @@ async function main() {
     const mCase = await prisma.case.findUnique({ where: { id: m.body.data.id }, include: { intake: true } });
     // Filed on the confidential form: held on the VAWC desk until a VAWC
     // officer confirms it, with the AI's own reading kept beside it.
-    ok('VAWC form, blotter content: held on the VAWC desk and flagged', mCase?.caseType === 'VAWC - Other' && mCase.requiresOfficerReview
+    // The page no longer asks which form; an older one that still sends
+    // "VAWC" only ever makes it more confidential.
+    const mDesk = (await prisma.assessmentHistory.findFirst({ where: { caseId: mCase!.id, kind: 'desk_recommendation' } }))?.rationale as Body | undefined;
+    ok('VAWC form (an older page), blotter content: held on the VAWC desk and flagged', mCase?.caseType === 'VAWC - Other' && mCase.requiresOfficerReview
       && mCase.intake?.suggestedCaseCategory === 'Noise Complaint'
-      && (mCase.intake?.reviewReasons as string[]).some(r => r.includes('VAWC Incident Report')));
+      && mDesk?.decision === 'HUMAN_REVIEW' && mDesk.confidentialReview === true
+      && (mCase.intake?.reviewReasons as string[]).some(r => r.includes('Needs an official to decide the desk')));
     const m2 = await file({ reportPath: 'BLOTTER', description: VAWC_TEXT, intakeNarrative: VAWC_TEXT, reportingRelationship: 'THIRD_PARTY', intakeAnswers: [], barangay: 'Ayukit' });
     const m2Case = await prisma.case.findUnique({ where: { id: m2.body.data.id }, include: { intake: true } });
-    ok('Blotter form, VAWC content: filed on the VAWC desk at once, and flagged', ['Domestic Violence', 'Physical Abuse', 'VAWC - Other'].includes(m2Case?.caseType ?? '')
-      && Boolean(m2Case?.requiresOfficerReview) && (m2Case?.intake?.reviewReasons as string[]).some(r => r.includes('Blotter Incident Report')));
+    const m2Desk = (await prisma.assessmentHistory.findFirst({ where: { caseId: m2Case!.id, kind: 'desk_recommendation' } }))?.rationale as Body | undefined;
+    ok('Blotter form (an older page), VAWC content: the choice is not followed - filed on the VAWC desk at once, confidential',
+      ['Domestic Violence', 'Physical Abuse', 'VAWC - Other'].includes(m2Case?.caseType ?? '') && m2Desk?.desk === 'VAWC' && m2Desk.confidentialReview === true);
 
     // ── What a resident cannot do or see ──
     console.log('\nResidents');

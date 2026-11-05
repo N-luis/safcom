@@ -382,7 +382,9 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
               <Box>
                 <Typography sx={{ ...label, mb: 0.75 }}>Report</Typography>
                 <Field name={r.caseNumberLabel} value={`#${r.caseNumber}`} />
-                <Field name="Form used" value={r.reportPath ? REPORT_PATH_LABEL[r.reportPath].title : 'Filed before the two forms'} />
+                {/* Older reports name the form the resident picked; a report filed now
+                    has none - SafeComm recommended the desk (see the AI assessment). */}
+                <Field name="Form used" value={r.reportPath ? REPORT_PATH_LABEL[r.reportPath].title : 'Not chosen by the reporter - desk recommended by SafeComm AI'} />
                 <Field name="Reporting channel" value={r.reportingChannel ? REPORTING_CHANNELS[r.reportingChannel] : null} />
                 <Field name="Date of incident" value={r.incidentDate ? day(`${r.incidentDate}T00:00:00+08:00`) : null} />
                 <Field name="Approximate time" value={r.incidentTimeApprox} />

@@ -37,18 +37,22 @@ const clean = (o: Record<string, string>) => {
 
 /**
  * What the server receives: only what was filled in, and only what the form
- * as finally chosen asks - details typed before switching to "for myself", or
- * from the VAWC form to the Blotter one, are not sent.
+ * asks - details typed before switching to "for myself" are not sent. With no
+ * desk chosen (null: the resident form, where SafeComm recommends the desk)
+ * everything asked is sent; the Blotter form never asked for the affected
+ * person's number or dependents.
  */
-export function peoplePayload(p: PeopleState, path: ReportPath, relationship: ReportingRelationship | '') {
+export function peoplePayload(p: PeopleState, path: ReportPath | null, relationship: ReportingRelationship | '') {
+  const asksAll = path !== 'BLOTTER';
   const affected = relationship === 'SELF'
-    ? { ...EMPTY_PEOPLE.affected, dependentsAffected: path === 'VAWC' ? p.affected.dependentsAffected : '' }
-    : { ...p.affected, ...(path !== 'VAWC' && { contactNumber: '', dependentsAffected: '' }) };
+    ? { ...EMPTY_PEOPLE.affected, dependentsAffected: asksAll ? p.affected.dependentsAffected : '' }
+    : { ...p.affected, ...(!asksAll && { contactNumber: '', dependentsAffected: '' }) };
   return { affectedParty: clean(affected), reportedParty: clean(p.reported) };
 }
 
 export default function ReportPeopleFields({ path, relationship, value, onChange, disabled }: {
-  path: ReportPath;
+  /** The desk's own wording, or null for neutral wording that asks everything. */
+  path: ReportPath | null;
   relationship: ReportingRelationship | '';
   value: PeopleState;
   onChange: (next: PeopleState) => void;
@@ -57,6 +61,9 @@ export default function ReportPeopleFields({ path, relationship, value, onChange
   const [openAffected, setOpenAffected] = useState(false);
   const [openReported, setOpenReported] = useState(false);
   const vawc = path === 'VAWC';
+  // The affected person's number and the dependents question: asked unless
+  // this is the Blotter form, which never asked them.
+  const asksAll = path !== 'BLOTTER';
   const self = relationship === 'SELF';
   const setA = (k: keyof PeopleState['affected']) => (e: { target: { value: string } }) =>
     onChange({ ...value, affected: { ...value.affected, [k]: e.target.value } });
@@ -82,8 +89,8 @@ export default function ReportPeopleFields({ path, relationship, value, onChange
       </Typography>
 
       {/* Reporting for yourself: you are the person affected. Only the
-          children question is asked, and only on the VAWC form. */}
-      {self && vawc && (
+          children question is asked, and never on the Blotter form. */}
+      {self && asksAll && (
         <Box sx={{ mt: 0.5 }}>
           <Typography id="dependents-self" sx={{ fontSize: '0.84rem', color: '#334155' }}>Are any children or dependents affected?</Typography>
           <RadioGroup row aria-labelledby="dependents-self" value={value.affected.dependentsAffected}
@@ -103,13 +110,13 @@ export default function ReportPeopleFields({ path, relationship, value, onChange
               <TextField size="small" label="Age, if known" type="number" value={value.affected.age} onChange={setA('age')} disabled={disabled} slotProps={ageProps} />
               <TextField size="small" label="Address, if needed" value={value.affected.address} onChange={setA('address')} disabled={disabled}
                 slotProps={{ htmlInput: { maxLength: 200 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
-              {vawc && (
+              {asksAll && (
                 <TextField size="small" label="Their contact number - only if it is safe to use" value={value.affected.contactNumber} onChange={setA('contactNumber')}
                   disabled={disabled} slotProps={{ htmlInput: { maxLength: 40, inputMode: 'tel' } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
               )}
               <TextField size="small" label="Who are they to you?" placeholder="e.g. neighbour, sister, co-worker" value={value.affected.relationship}
                 onChange={setA('relationship')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
-              {vawc && (
+              {asksAll && (
                 <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
                   <Typography id="dependents-other" sx={{ fontSize: '0.84rem', color: '#334155' }}>Are any children or dependents affected?</Typography>
                   <RadioGroup row aria-labelledby="dependents-other" value={value.affected.dependentsAffected}
@@ -133,7 +140,7 @@ export default function ReportPeopleFields({ path, relationship, value, onChange
           <TextField size="small" label="Age, if known" type="number" value={value.reported.age} onChange={setR('age')} disabled={disabled} slotProps={ageProps} />
           <TextField size="small" label="Address, if known" value={value.reported.address} onChange={setR('address')} disabled={disabled}
             slotProps={{ htmlInput: { maxLength: 200 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
-          <TextField size="small" label={`Who are they to ${self ? 'you' : affectedName}?`} placeholder={vawc ? 'e.g. husband, ex-partner, father' : 'e.g. neighbour, stranger'}
+          <TextField size="small" label={`Who are they to ${self ? 'you' : affectedName}?`} placeholder={vawc ? 'e.g. husband, ex-partner, father' : path === null ? 'e.g. neighbour, relative, partner, stranger' : 'e.g. neighbour, stranger'}
             value={value.reported.relationship} onChange={setR('relationship')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 120 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
           <TextField size="small" label="Anything else that may help (optional)" multiline minRows={2} value={value.reported.details}
             onChange={setR('details')} disabled={disabled} slotProps={{ htmlInput: { maxLength: 500 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />

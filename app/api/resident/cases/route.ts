@@ -15,8 +15,10 @@ import { runIntake, answersSchema, relationshipSchema, turnsSchema, transcript, 
 import { ANONYMOUS_NAME, type InterviewTurn } from '@/lib/interviewTypes';
 import { triageStatusFor } from '@/lib/intake';
 import {
-  REPORT_PATHS, REPORT_PATH_LABEL, pathOfType, incidentDateSchema, affectedPartySchema, reportedPartySchema, hasPartyDetails,
+  REPORT_PATHS, incidentDateSchema, affectedPartySchema, reportedPartySchema, hasPartyDetails,
 } from '@/lib/caseRecords';
+import { deskFor, deskHistoryRow } from '@/lib/reportDeskServer';
+import { DESK_DECISION_LABEL } from '@/lib/reportDesk';
 
 /**
  * Fields only the server sets. A report that carries any of them is refused
@@ -82,6 +84,9 @@ const createSchema = z.object({
   // Which form they used - Blotter or VAWC. A first reading, like the
   // category below: the report's own content decides, and a disagreement is
   // put to an officer.
+  // No longer asked: SafeComm recommends the desk (lib/reportDesk.ts). An
+  // older page may still send it; "VAWC" is then one more reason to keep the
+  // report confidential - never a reason for less.
   reportPath: z.enum(REPORT_PATHS).optional(),
   // When it happened, if they know. Never required.
   incidentDate: incidentDateSchema,
@@ -202,6 +207,10 @@ export async function POST(req: NextRequest) {
       turns,
     });
     const aiAssessment = intake.grounding.ai?.assessment ?? null;
+    // Which desk: SafeComm's recommendation from the same reading and both
+    // desks' knowledge-base text - never the resident's choice. A possible
+    // VAWC concern is filed on the VAWC desk, confidential, whatever else.
+    const desk = await deskFor(intake, narrative, true, undefined, parsed.data.reportPath === 'VAWC');
     // Where the report stands, from the server's own reading: urgent first,
     // then whether the matrix could be consulted, then whether enough is known.
     // A report with essentials missing is saved - never refused - as
@@ -317,22 +326,13 @@ export async function POST(req: NextRequest) {
     const classification = docRead?.classification ?? intake.classification;
     const ir = intake.result;
 
-    // The form chosen and the desk the report reads as can differ - someone
-    // may not know a partner's violence is a VAWC matter. The difference is
-    // for an officer to see, and the report is never refused for it.
-    //   - Blotter form, reads as VAWC: filed on the VAWC desk, so it is
-    //     confidential at once.
-    //   - VAWC form, reads as Blotter: held on the VAWC desk as "VAWC - Other"
-    //     until a VAWC officer confirms the desk. The reporter chose the
-    //     confidential form; the blotter does not read it on the AI's word.
-    // The AI's own category stays on the intake record either way.
-    const chosenPath = parsed.data.reportPath ?? null;
-    const heldConfidential = chosenPath === 'VAWC' && pathOfType(caseType) === 'BLOTTER';
-    const filedType = heldConfidential ? 'VAWC - Other' : caseType;
-    const pathMismatch = !chosenPath || chosenPath === pathOfType(caseType) ? null
-      : heldConfidential
-        ? `Filed on the VAWC Incident Report (confidential) form, but the report reads as a Blotter matter (${caseType}). Held on the VAWC desk until a VAWC officer confirms the desk - change the category to move it`
-        : `Filed on the ${REPORT_PATH_LABEL[chosenPath].title} form, but the report reads as a VAWC matter (${caseType}); filed on the VAWC desk - confirm the category`;
+    // Filed under the recommendation's category: the reading's own, or
+    // "VAWC - Other" when it is held on the VAWC desk for confidential review.
+    // The reading's category stays on the intake record either way, and the
+    // recommendation in the case's history.
+    const filedType = desk.filedCategory;
+    const deskUnsettled = desk.decision === 'NEEDS_CLARIFICATION' || desk.decision === 'HUMAN_REVIEW';
+    const deskReason = deskUnsettled ? `${DESK_DECISION_LABEL[desk.decision]}: ${desk.explanation[0]}` : null;
 
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
@@ -352,7 +352,7 @@ export async function POST(req: NextRequest) {
           status: 'Open',
           riskLevel,
           informationCompleteness: ir.informationCompleteness,
-          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || Boolean(pathMismatch),
+          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || deskUnsettled,
           triageStatus,
           language: detected.language,
           ...pin,
@@ -362,6 +362,7 @@ export async function POST(req: NextRequest) {
           // No way to be contacted is kept for an anonymous report.
           contactPreference: anonymous ? null : parsed.data.contactPreference ?? null,
           contactSafetyNote: anonymous ? null : parsed.data.contactSafetyNote || null,
+          // The resident no longer picks a form - null, unless an older page sent one.
           reportPath: parsed.data.reportPath ?? null,
           reportingChannel: 'ONLINE',
           incidentDate: parsed.data.incidentDate ? new Date(`${parsed.data.incidentDate}T00:00:00Z`) : null,
@@ -391,12 +392,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || Boolean(pathMismatch);
+    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || deskUnsettled;
     const reviewReasons = [
       ...evidence.reviewReasons,
       ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),
       ...ir.reviewReasons,
-      ...(pathMismatch ? [pathMismatch] : []),
+      ...(deskReason ? [deskReason] : []),
     ].filter((r, i, all) => all.indexOf(r) === i);
 
     // The level the case was actually stored at, not the one the weighted
@@ -523,6 +524,8 @@ export async function POST(req: NextRequest) {
             urgentReview,
           },
         }),
+        // The desk recommendation as made, kept apart from the risk assessment below.
+        prisma.assessmentHistory.create({ data: deskHistoryRow(newCase.id, desk, filedType) }),
         prisma.assessmentHistory.create({
           data: {
             caseId: newCase.id,
@@ -592,6 +595,12 @@ export async function POST(req: NextRequest) {
       needsHumanReview,
       reviewReasons,
       classification,
+      // For the resident: where it stands and what would help - never which
+      // desk by name, since a screen can be seen by someone else.
+      desk: {
+        decision: desk.decision, confidentialReview: desk.confidentialReview, clarificationNeeded: desk.clarificationNeeded,
+        questions: desk.questions, awaitingAi: desk.awaitingAi,
+      },
     }, 201);
   } catch (err) {
     // Logged: a silent 500 here hid an attachment failure that looked identical

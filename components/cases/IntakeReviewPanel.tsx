@@ -85,6 +85,8 @@ export interface HistoryRow {
   matrixLevel?: number | null;
   matrixLabel?: string | null;
   reason?: string | null;
+  /** What the row recorded - a desk recommendation's full content, for one. */
+  rationale?: unknown;
   createdAt: string;
   actor?: { name: string; role: string } | null;
 }
@@ -124,6 +126,7 @@ const KIND: Record<string, string> = {
   category_change: 'Category changed by an officer',
   ai_reassessment: 'AI assessment re-run (advisory)',
   safety_assessment: 'Safety assessment recorded',
+  desk_recommendation: 'Reporting desk recommended by SafeComm AI',
 };
 
 export function CompletenessChip({ value }: { value?: string | null }) {

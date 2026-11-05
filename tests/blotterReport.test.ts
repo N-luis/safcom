@@ -245,7 +245,7 @@ async function main() {
     const recB = (await json(await recordsGET(req(`/api/cases/${bc.id}/records`, B.cookie), params(bc.id)))).body.data;
     ok('the case records show it', recB.report.resolution?.type === 'SETTLED' && recB.report.resolution?.by === `${TAG} blotter`);
 
-    console.log('\nA report on the VAWC form that reads as a blotter matter');
+    console.log('\nAn older page sending the VAWC form choice, for a report that reads as a blotter matter');
     const NOISE = 'Gabi-gabi pong maingay ang videoke ng kapitbahay namin hanggang alas-dos ng madaling araw. Walang nasaktan at walang nagbanta.';
     const filed = await json(await filePOST(req('/api/resident/cases', resCookie, 'POST', { reportPath: 'VAWC', description: NOISE, intakeNarrative: NOISE,
       reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit' })));
@@ -254,7 +254,7 @@ async function main() {
     const held = await prisma.case.findUnique({ where: { id: filed.body.data.id }, include: { intake: true } });
     ok('held on the VAWC desk until a VAWC officer confirms it', held?.caseType === 'VAWC - Other' && held.requiresOfficerReview);
     ok('the AI\'s own category is kept for the officer', held?.intake?.suggestedCaseCategory === 'Noise Complaint');
-    ok('the reason is recorded', (held?.intake?.reviewReasons as string[]).some(x => x.includes('Held on the VAWC desk')));
+    ok('the reason is recorded', (held?.intake?.reviewReasons as string[]).some(x => x.includes('Needs an official to decide the desk')), JSON.stringify(held?.intake?.reviewReasons));
     ok('the blotter cannot read it meanwhile', (await caseGET(req(`/api/cases/${held!.id}`, B.cookie), params(held!.id)))?.status === 404);
     ok('the original report is kept as written', held?.description === NOISE);
   } finally {

@@ -31,6 +31,7 @@ import HearingsPanel from '@/components/cases/HearingsPanel';
 import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
+import ReportingDeskPanel from '@/components/cases/ReportingDeskPanel';
 import { caseNumberLabel, RESOLUTION_TYPES, resolutionTypesFor, pathOfType, type ResolutionType } from '@/lib/caseRecords';
 import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
 import { triageOf } from '@/lib/triageLabels';
@@ -662,6 +663,9 @@ function AIAssessmentCard({ ai, riskLevel, caseId, onReviewed, completeness, nee
           Set from the risk-matrix criteria the report meets (Blotter or VAWC matrix), never from the case type alone.
           It is a starting point for review, not a finding.
         </Typography>
+
+        {/* Which desk SafeComm AI recommended, and the official decision beside it. */}
+        <ReportingDeskPanel history={history} />
 
         {/* The category is decided here, before the reading behind it. */}
         <CategoryReview caseId={caseId} caseType={caseType} basePath={basePath} onChanged={onReviewed} />
