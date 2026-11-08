@@ -17,7 +17,7 @@ import { canSeeVawc, canSeeVawcStatistics } from './caseAccess';
 import { VAWC_TYPES } from './vawcTypes';
 import {
   STATUS_GROUPS, CLOSED_STATUSES, parseRange, latestAi, emergencyReasons, isHighPriority, priorityOrder,
-  completenessOf, categoryVerdict, deskOf, KP_STAGES, KP_STAGE_KEYS, type AnalyticsScope, type StatusGroup,
+  deskOf, KP_STAGES, KP_STAGE_KEYS, type AnalyticsScope, type StatusGroup,
 } from './analytics';
 import { sessionTitle } from './hearings';
 
@@ -142,53 +142,7 @@ export async function highPriority(ctx: AnalyticsContext) {
   };
 }
 
-// ── 4. Correct reporting ─────────────────────────────────────────────────────
-
-export async function correctReporting(ctx: AnalyticsContext) {
-  const cases = await prisma.case.findMany({
-    where: { AND: [ctx.countsWhere, filedIn(ctx)] },
-    take: 5000,
-    select: {
-      id: true, caseNumber: true, caseType: true, status: true, triageStatus: true, informationCompleteness: true, filedAt: true,
-      intake: { select: { assessmentStatus: true, informationCompleteness: true } },
-      assessmentHistory: {
-        where: { kind: { in: ['category_confirm', 'category_change', 'officer_confirm', 'officer_override', 'preliminary', 'walk_in', 'ai_reassessment'] } },
-        orderBy: { createdAt: 'desc' },
-        select: { kind: true, caseType: true, previousCaseType: true },
-      },
-    },
-  });
-  const count = { complete: 0, incomplete: 0, unassessed: 0, awaitingClarification: 0, confirmed: 0, misrouted: 0, recategorized: 0,
-    categoryUnreviewed: 0, aiAgreed: 0, aiRevised: 0, aiAwaitingReview: 0, aiReruns: 0 };
-  const awaiting: { id: string; caseNumber: string; caseType: string; desk: string; filedAt: Date }[] = [];
-  const misrouted: typeof awaiting = [];
-  const vawcRowOk = (t: string) => ctx.maySeeVawcRows || deskOf(t) !== 'VAWC';
-  for (const c of cases) {
-    count[completenessOf(c.informationCompleteness ?? c.intake?.informationCompleteness)]++;
-    const open = !CLOSED_STATUSES.includes(c.status);
-    if (open && (c.triageStatus === 'NEEDS_FOLLOW_UP' || c.intake?.assessmentStatus === 'NEEDS_MORE_INFORMATION')) {
-      count.awaitingClarification++;
-      if (vawcRowOk(c.caseType)) awaiting.push({ id: c.id, caseNumber: c.caseNumber, caseType: c.caseType, desk: deskOf(c.caseType), filedAt: c.filedAt });
-    }
-    const verdict = categoryVerdict(c.assessmentHistory);
-    if (verdict) {
-      count[verdict]++;
-      if (verdict === 'misrouted' && vawcRowOk(c.caseType)) misrouted.push({ id: c.id, caseNumber: c.caseNumber, caseType: c.caseType, desk: deskOf(c.caseType), filedAt: c.filedAt });
-    } else count.categoryUnreviewed++;
-    // The officer's decision on the level: the latest one counts.
-    const decision = c.assessmentHistory.find(h => h.kind === 'officer_confirm' || h.kind === 'officer_override');
-    const assessed = c.assessmentHistory.some(h => h.kind === 'preliminary' || h.kind === 'walk_in' || h.kind === 'ai_reassessment') || Boolean(c.intake);
-    if (decision?.kind === 'officer_confirm') count.aiAgreed++;
-    else if (decision?.kind === 'officer_override') count.aiRevised++;
-    else if (assessed) count.aiAwaitingReview++;
-    count.aiReruns += c.assessmentHistory.filter(h => h.kind === 'ai_reassessment').length;
-  }
-  return {
-    total: cases.length, ...count,
-    awaiting: awaiting.slice(0, 15), misroutedCases: misrouted.slice(0, 15),
-    range: { from: ctx.from, to: ctx.to },
-  };
-}
+// ── 4. Reporting: lib/reportingAnalyticsServer.ts ─────────────────────────────
 
 // ── 5. Hearing management (and the VAWC desk's separate track) ───────────────
 

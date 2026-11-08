@@ -16,6 +16,7 @@ import {
 } from '@/lib/caseRecords';
 import { PH_MOBILE_HINT, displayPhMobile, isPhMobileLocal, normalizePhMobile, phMobileLocal } from '@/lib/phoneNumber';
 import PhMobileField from '@/components/forms/PhMobileField';
+import VictimSurvivorsPanel from './VictimSurvivorsPanel';
 
 /**
  * The case's records beside the narrative, for officials: the report details,
@@ -424,6 +425,14 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                 <PartyBlock title="Person reported" role="REPORTED" parties={data.parties} vawc={vawc}
                   selfReport={false} note={null} edit={edit} onEdit={start => setParty({ role: 'REPORTED', start })} />
               </Box>
+
+              {/* The victim-survivors, one per person, for the women and children statistics - the VAWC desk's */}
+              {vawc && (
+                <>
+                  <Divider />
+                  <VictimSurvivorsPanel caseId={caseId} />
+                </>
+              )}
 
               {/* Safety assessment - the VAWC desk's */}
               {vawc && (

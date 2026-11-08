@@ -52,6 +52,19 @@ export type User = Prisma.UserModel
  */
 export type Case = Prisma.CaseModel
 /**
+ * Model CaseVictimSurvivor
+ * The victim-survivors of a VAWC case, as an official records them - one row
+ * per person, so a case can have more than one (a mother and her children).
+ * For the women-and-children statistics: sex as recorded (never inferred from
+ * a name or the narrative), and age at the incident from a birthdate or as
+ * recorded. No name is kept here; the person's details stay in the intake
+ * form. `clientCode` (the VAWC client code) is how the same person is
+ * recognised across cases - without one, a row counts as its own person.
+ * A row is never deleted by the app: a mistaken one is marked removed, with
+ * who, when and why. RLS: prisma/sql/009_victim_survivors.sql.
+ */
+export type CaseVictimSurvivor = Prisma.CaseVictimSurvivorModel
+/**
  * Model CaseParty
  * A person the report is about, other than the reporter: the person affected
  * (AFFECTED) and the person reported (REPORTED). Kept apart from the

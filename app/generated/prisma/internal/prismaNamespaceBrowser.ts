@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseVictimSurvivor: 'CaseVictimSurvivor',
   CaseParty: 'CaseParty',
   CaseSafetyAssessment: 'CaseSafetyAssessment',
   CaseReferral: 'CaseReferral',
@@ -161,6 +162,25 @@ export const CaseScalarFieldEnum = {
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CaseVictimSurvivorScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  sexAtBirth: 'sexAtBirth',
+  birthDate: 'birthDate',
+  ageAtIncident: 'ageAtIncident',
+  clientCode: 'clientCode',
+  source: 'source',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  removedAt: 'removedAt',
+  removedById: 'removedById',
+  removedReason: 'removedReason'
+} as const
+
+export type CaseVictimSurvivorScalarFieldEnum = (typeof CaseVictimSurvivorScalarFieldEnum)[keyof typeof CaseVictimSurvivorScalarFieldEnum]
 
 
 export const CasePartyScalarFieldEnum = {

@@ -9,11 +9,12 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody, TableContainer,
 } from '@mui/material';
 import {
-  Insights, Map as MapIcon, ReportProblem, FactCheck, Gavel, MarkEmailRead, Refresh, AutoAwesome,
+  Insights, Map as MapIcon, ReportProblem, FactCheck, Gavel, MarkEmailRead, Refresh, AutoAwesome, Category, Diversity3,
 } from '@mui/icons-material';
 import { BLOTTER_CATEGORIES, VAWC_CATEGORIES } from '@/lib/classificationSchema';
 import { STATUS_GROUPS, type AnalyticsScope, type StatusGroup } from '@/lib/analytics';
 import { REFERRAL_STATUSES, type ReferralStatus } from '@/lib/caseRecords';
+import ReportingAnalytics from './ReportingAnalytics';
 
 const RiskHeatMap = dynamic(() => import('@/components/cases/RiskHeatMap'), { ssr: false });
 
@@ -36,6 +37,8 @@ const SECTIONS = [
   { id: 'heatmap', label: 'Street Risk Heatmap', Icon: MapIcon },
   { id: 'priority', label: 'High-Priority Cases', Icon: ReportProblem },
   { id: 'reporting', label: 'Reporting', Icon: FactCheck },
+  { id: 'case-types', label: 'Reported Case Types', Icon: Category },
+  { id: 'vawc-people', label: 'VAWC – Women & Children', Icon: Diversity3 },
   { id: 'hearings', label: 'Hearing Management', Icon: Gavel },
   { id: 'letters', label: 'Acknowledgement Letters', Icon: MarkEmailRead },
 ] as const;
@@ -196,7 +199,7 @@ export default function AnalyticsModule({ scope, caseBase }: AnalyticsModuleProp
           )}
         </Box>
         <Box component="nav" aria-label="Analytics sections" sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', pb: 0.25 }}>
-          {SECTIONS.map((s, i) => (
+          {SECTIONS.filter(s => s.id !== 'vawc-people' || scope !== 'blotter').map((s, i) => (
             <Chip key={s.id} component="a" href={`#${s.id}`} clickable icon={<s.Icon sx={{ fontSize: '15px !important' }} />}
               label={`${i + 1}. ${s.label}`} size="small" sx={{ flexShrink: 0, fontWeight: 600, bgcolor: '#f1f5f9' }} />
           ))}
@@ -211,7 +214,8 @@ export default function AnalyticsModule({ scope, caseBase }: AnalyticsModuleProp
       </Section>
 
       <Priority query={query} open={open} canOpen={canOpen} />
-      <Reporting query={query} rangeLabel={rangeLabel} open={open} canOpen={canOpen} />
+      {/* Reporting has its own filters - period, desk, affected-person group, case type. */}
+      <ReportingAnalytics scope={scope} caseBase={caseBase} />
       <Hearings query={query} rangeLabel={rangeLabel} open={open} canOpen={canOpen} />
       <Letters query={query} rangeLabel={rangeLabel} open={open} canOpen={canOpen} />
     </Box>
@@ -310,66 +314,6 @@ function Priority({ query, open, canOpen }: { query: string } & Opener) {
               </TableBody>
             </Table>
           </TableContainer>
-        )
-      )}
-    </Section>
-  );
-}
-
-// ── 4. Reporting ─────────────────────────────────────────────────────────────
-
-function CaseChips({ list, open, canOpen }: { list: Data[] } & Opener) {
-  if (!list.length) return <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8' }}>None.</Typography>;
-  return (
-    <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-      {list.map(c => (
-        <Chip key={c.id} size="small" label={`#${c.caseNumber} · ${c.caseType}`}
-          {...(canOpen(c.desk) ? { clickable: true, onClick: () => open(c.desk, c.id) } : {})} sx={{ fontWeight: 600 }} />
-      ))}
-    </Box>
-  );
-}
-
-function Reporting({ query, rangeLabel, open, canOpen }: { query: string; rangeLabel: string } & Opener) {
-  const { data, error, isLoading, mutate } = useSection('reporting', query);
-  return (
-    <Section id="reporting" title="Reporting"
-      hint={`Reports filed ${rangeLabel}. Completeness measures how much detail a report gives for assessment - never whether what it says is true.`}>
-      {error && !data ? <Failed error={error} retry={() => void mutate()} /> : isLoading ? <Loading /> : data && (
-        data.total === 0 ? <Empty>No reports were filed in this period.</Empty> : (
-          <>
-            <Typography sx={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', mb: 0.75 }}>Detail in the report</Typography>
-            <Grid container spacing={1.5} sx={{ mb: 2 }}>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Complete reports" value={data.complete} hint="Enough detail for a preliminary assessment" color="#15803d" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Incomplete reports" value={data.incomplete} hint="Partial or insufficient detail" color="#c2410c" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Awaiting clarification" value={data.awaitingClarification} hint="Open, needing follow-up from the reporter" color="#a16207" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Not assessed" value={data.unassessed} hint="Filed before completeness was recorded" color="#64748b" /></Grid>
-            </Grid>
-            <Typography sx={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', mb: 0.75 }}>Category and desk, as reviewed by officers</Typography>
-            <Grid container spacing={1.5} sx={{ mb: 2 }}>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Correctly categorized" value={data.confirmed} hint="Category confirmed by an officer" color="#15803d" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Misrouted reports" value={data.misrouted} hint="Moved to the other desk by an officer" color="#b91c1c" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Recategorized" value={data.recategorized} hint="Category changed within the same desk" color="#a16207" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Category not yet reviewed" value={data.categoryUnreviewed} color="#64748b" /></Grid>
-            </Grid>
-            <Typography sx={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', mb: 0.75 }}>AI assessments reviewed by officers</Typography>
-            <Grid container spacing={1.5} sx={{ mb: 2 }}>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Confirmed by an officer" value={data.aiAgreed} hint="The official assessment agrees" color="#15803d" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Revised by an officer" value={data.aiRevised} hint="Overridden, with the officer's reason" color="#7c3aed" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="Awaiting officer review" value={data.aiAwaitingReview} color="#a16207" /></Grid>
-              <Grid size={{ xs: 6, md: 3 }}><Tile label="AI re-runs" value={data.aiReruns} hint="Kept beside the earlier results" color="#0f766e" /></Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.75 }}>Awaiting clarification</Typography>
-                <CaseChips list={data.awaiting} open={open} canOpen={canOpen} />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.75 }}>Misrouted reports</Typography>
-                <CaseChips list={data.misroutedCases} open={open} canOpen={canOpen} />
-              </Grid>
-            </Grid>
-          </>
         )
       )}
     </Section>

@@ -691,14 +691,6 @@ export type CasePartyUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.CasePartyScalarWhereInput | Prisma.CasePartyScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type CasePartyCreateNestedManyWithoutResidentInput = {
   create?: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput> | Prisma.CasePartyCreateWithoutResidentInput[] | Prisma.CasePartyUncheckedCreateWithoutResidentInput[]
   connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutResidentInput | Prisma.CasePartyCreateOrConnectWithoutResidentInput[]

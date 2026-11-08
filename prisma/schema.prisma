@@ -150,8 +150,43 @@ model Case {
   acknowledgement  AcknowledgementLetter?
   kpReviews        CaseKpReview[]
   pangkat          CasePangkat?
+  victimSurvivors  CaseVictimSurvivor[]
 
   @@index([progressState])
+}
+
+/// The victim-survivors of a VAWC case, as an official records them - one row
+/// per person, so a case can have more than one (a mother and her children).
+/// For the women-and-children statistics: sex as recorded (never inferred from
+/// a name or the narrative), and age at the incident from a birthdate or as
+/// recorded. No name is kept here; the person's details stay in the intake
+/// form. `clientCode` (the VAWC client code) is how the same person is
+/// recognised across cases - without one, a row counts as its own person.
+/// A row is never deleted by the app: a mistaken one is marked removed, with
+/// who, when and why. RLS: prisma/sql/009_victim_survivors.sql.
+model CaseVictimSurvivor {
+  id            String    @id @default(cuid())
+  caseId        String
+  case          Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// female | male | intersex - null when not recorded.
+  sexAtBirth    String?
+  /// The birthdate, when known (a date; time ignored).
+  birthDate     DateTime?
+  /// Age at the incident as recorded, when the birthdate is not known.
+  ageAtIncident Int?
+  /// The VAWC client code (upper-cased, trimmed) - the same code on two cases is one person.
+  clientCode    String?
+  /// official | intake (copied from the completed VAWC intake form by an official).
+  source        String    @default("official")
+  recordedById  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  removedAt     DateTime?
+  removedById   String?
+  removedReason String?
+
+  @@index([caseId])
+  @@index([clientCode])
 }
 
 /// A person the report is about, other than the reporter: the person affected

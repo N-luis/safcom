@@ -102,7 +102,7 @@ async function main() {
     const before = {
       ovB: (await get('overview', B.cookie, `scope=blotter&${today}`)).body.data,
       ovSall: (await get('overview', S.cookie, `scope=all&${today}`)).body.data,
-      repC: (await get('reporting', C.cookie, 'scope=all')).body.data,
+      repC: (await get('reporting', C.cookie, 'scope=all&from=2000-01-01')).body.data,
       letC: (await get('letters', C.cookie, 'scope=all')).body.data,
       letS: (await get('letters', S.cookie, 'scope=all')).body.data,
       hearB: (await get('hearings', B.cookie, 'scope=blotter')).body.data,
@@ -171,15 +171,17 @@ async function main() {
 
     // ── 4. Correct reporting ──
     console.log('\nCorrect reporting');
-    const rep = (await get('reporting', C.cookie, 'scope=all')).body.data;
-    const dr = (k: string) => rep[k] - before.repC[k];
-    // b5 is insufficient on the case; b2 is partial on its intake - both incomplete.
-    ok('complete and incomplete reports', dr('complete') === 1 && dr('incomplete') === 2, `${dr('complete')} ${dr('incomplete')}`);
-    ok('awaiting clarification, and listed', dr('awaitingClarification') === 1 && rep.awaiting.some((c: Body) => c.id === b5.id));
-    ok('confirmed category and misrouted report, and listed', dr('confirmed') === 1 && dr('misrouted') === 1 && rep.misroutedCases.some((c: Body) => c.id === b5.id));
-    ok('an officer revision of the AI is counted', dr('aiRevised') === 1);
-    const repToday = (await get('reporting', C.cookie, `scope=all&${today}`)).body.data;
-    ok('the date range applies - the 60-day-old report is outside today', !repToday.awaiting.some((c: Body) => c.id === b5.id));
+    // The Reporting section itself is tested in full by tests/reportingAnalytics.test.ts; this checks it against the cases above.
+    const rep = (await get('reporting', C.cookie, 'scope=all&from=2000-01-01')).body.data;
+    const dr = (k: string, part = 'completeness') => rep[part][k] - before.repC[part][k];
+    // b2 is partial on its intake - incomplete. b5 is insufficient but waiting for the reporter: counted once, as awaiting clarification.
+    ok('complete and incomplete reports', dr('complete') === 1 && dr('incomplete') === 1, `${dr('complete')} ${dr('incomplete')}`);
+    const segment = (s: string, q = 'scope=all&from=2000-01-01') => get('reporting-cases', C.cookie, `${q}&segment=${s}`).then(r => r.body.data);
+    ok('awaiting clarification, and listed', dr('awaitingClarification') === 1 && (await segment('completeness:awaitingClarification')).cases.some((c: Body) => c.id === b5.id));
+    ok('confirmed category and misrouted report, and listed', dr('confirmed', 'classification') === 1 && dr('misrouted', 'classification') === 1
+      && (await segment('classification:misrouted')).cases.some((c: Body) => c.id === b5.id));
+    ok('an officer revision of the AI is counted', dr('revised', 'ai') === 1);
+    ok('the date range applies - the 60-day-old report is outside today', !(await segment('completeness:awaitingClarification', `scope=all&${today}`)).cases.some((c: Body) => c.id === b5.id));
 
     // ── 5. Hearings ──
     console.log('\nHearing management');

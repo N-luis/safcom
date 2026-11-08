@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  CaseVictimSurvivor: 'CaseVictimSurvivor',
   CaseParty: 'CaseParty',
   CaseSafetyAssessment: 'CaseSafetyAssessment',
   CaseReferral: 'CaseReferral',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
+    modelProps: "user" | "case" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -578,6 +579,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CaseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseVictimSurvivor: {
+      payload: Prisma.$CaseVictimSurvivorPayload<ExtArgs>
+      fields: Prisma.CaseVictimSurvivorFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseVictimSurvivorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseVictimSurvivorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseVictimSurvivorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseVictimSurvivorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        findMany: {
+          args: Prisma.CaseVictimSurvivorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>[]
+        }
+        create: {
+          args: Prisma.CaseVictimSurvivorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        createMany: {
+          args: Prisma.CaseVictimSurvivorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseVictimSurvivorCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseVictimSurvivorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        update: {
+          args: Prisma.CaseVictimSurvivorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseVictimSurvivorDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseVictimSurvivorUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseVictimSurvivorUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseVictimSurvivorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseVictimSurvivorPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseVictimSurvivorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseVictimSurvivor>
+        }
+        groupBy: {
+          args: Prisma.CaseVictimSurvivorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseVictimSurvivorGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseVictimSurvivorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseVictimSurvivorCountAggregateOutputType> | number
         }
       }
     }
@@ -2756,6 +2831,25 @@ export const CaseScalarFieldEnum = {
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
 
 
+export const CaseVictimSurvivorScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  sexAtBirth: 'sexAtBirth',
+  birthDate: 'birthDate',
+  ageAtIncident: 'ageAtIncident',
+  clientCode: 'clientCode',
+  source: 'source',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  removedAt: 'removedAt',
+  removedById: 'removedById',
+  removedReason: 'removedReason'
+} as const
+
+export type CaseVictimSurvivorScalarFieldEnum = (typeof CaseVictimSurvivorScalarFieldEnum)[keyof typeof CaseVictimSurvivorScalarFieldEnum]
+
+
 export const CasePartyScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
@@ -3577,6 +3671,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   case?: Prisma.CaseOmit
+  caseVictimSurvivor?: Prisma.CaseVictimSurvivorOmit
   caseParty?: Prisma.CasePartyOmit
   caseSafetyAssessment?: Prisma.CaseSafetyAssessmentOmit
   caseReferral?: Prisma.CaseReferralOmit
