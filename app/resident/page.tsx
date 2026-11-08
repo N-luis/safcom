@@ -13,7 +13,7 @@ import {
   TrendingUp, Add, MoreHoriz, Refresh, Shield, Assessment,
   LocationOn, Update, ArrowForward,
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, Tooltip as ChartTooltip, ResponsiveContainer, Legend } from 'recharts';
+import DonutBreakdown from '@/components/charts/DonutBreakdown';
 import { motion } from 'framer-motion';
 
 const MotionTableRow = motion(TableRow);
@@ -84,10 +84,10 @@ export default function ResidentDashboard() {
   // Case distribution for donut
   const total = stats?.total ?? 0;
   const donutData = [
-    { name: 'Resolved', value: stats?.resolved ?? 0, color: '#22c55e' },
-    { name: 'Ongoing', value: stats?.ongoing ?? 0, color: '#3b82f6' },
-    { name: 'Pending', value: stats?.pending ?? 0, color: '#f59e0b' },
-  ].filter(d => d.value > 0);
+    { name: 'Resolved', value: stats?.resolved ?? 0, color: '#22c55e', href: '/resident/my-cases?status=Resolved,Closed' },
+    { name: 'Ongoing', value: stats?.ongoing ?? 0, color: '#3b82f6', href: '/resident/my-cases?status=In%20Progress' },
+    { name: 'Pending', value: stats?.pending ?? 0, color: '#f59e0b', href: '/resident/my-cases?status=Open' },
+  ];
 
   const statCards = [
     {
@@ -336,46 +336,11 @@ export default function ResidentDashboard() {
                     </Box>
                   )
                 : (
-                    <>
-                      <Box sx={{ position: 'relative', height: 200 }}>
-                        <ResponsiveContainer width="100%" height={200}>
-                          <PieChart>
-                            <Pie
-                              data={donutData}
-                              cx="50%" cy="50%"
-                              innerRadius={62} outerRadius={88}
-                              dataKey="value"
-                              strokeWidth={0}
-                            >
-                              {donutData.map((d, i) => <Cell key={i} fill={d.color} />)}
-                            </Pie>
-                            <ChartTooltip
-                              formatter={(v: unknown) => [`${String(v)} cases`, '']}
-                              contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: '0.9rem' }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                        {/* Center label */}
-                        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', pointerEvents: 'none' }}>
-                          <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>{total}</Typography>
-                          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>TOTAL</Typography>
-                        </Box>
-                      </Box>
-                      {/* Legend */}
-                      <Box sx={{ mt: 0.5 }}>
-                        {donutData.map(d => (
-                          <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 0.6, borderBottom: '1px solid #f8fafc' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: d.color, flexShrink: 0 }} />
-                              <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>{d.name}</Typography>
-                            </Box>
-                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>
-                              {total > 0 ? `${Math.round((d.value / total) * 100)}%` : '0%'}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    </>
+                    // Point at a slice or a row to see its share and count in the middle; a row opens those cases.
+                    <Box sx={{ mt: 1.5 }}>
+                      <DonutBreakdown ariaLabel="Your cases by status" centerLabel="Total" maxSize={200}
+                        slices={donutData.map(d => ({ key: d.name, label: d.name, count: d.value, color: d.color, onSelect: () => router.push(d.href) }))} />
+                    </Box>
                   )
               }
             </CardContent>

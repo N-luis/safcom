@@ -12,7 +12,7 @@ import {
   Search, Visibility, ArrowForward, LocationOn, AccessTime,
   PlayCircle, PendingActions, Close,
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import DonutBreakdown from '@/components/charts/DonutBreakdown';
 import { motion } from 'framer-motion';
 import { useCaseStats, useCases } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
@@ -122,7 +122,6 @@ export default function BlotterDashboard() {
    * of space on this chart guaranteed to be empty, so the figures go there and
    * nothing can overlap.
    */
-  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
 
   const categories = byCaseType.slice(0, 5).map((t, i) => ({
     name: t.caseType,
@@ -235,102 +234,16 @@ export default function BlotterDashboard() {
                   <Typography sx={{ fontSize: '0.94rem', color: 'text.secondary' }}>No cases recorded yet</Typography>
                 </Box>
               ) : (
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3 }}>
-                {/* Donut chart */}
-                <Box sx={{ position: 'relative', width: 220, height: 220, flexShrink: 0 }}>
-                  <ResponsiveContainer width={220} height={220}>
-                    <PieChart>
-                      <Pie
-                        data={categories}
-                        cx="50%" cy="50%"
-                        innerRadius={72} outerRadius={95}
-                        paddingAngle={3}
-                        dataKey="value"
-                        stroke="none"
-                        isAnimationActive={false}
-                        onMouseEnter={(_: unknown, i: number) => setHoveredSlice(i)}
-                        onMouseLeave={() => setHoveredSlice(null)}
-                      >
-                        {categories.map((entry, i) => (
-                          <Cell
-                            key={i}
-                            fill={entry.color}
-                            // The rest fade rather than the hovered one growing,
-                            // so the ring keeps its shape and nothing shifts.
-                            opacity={hoveredSlice === null || hoveredSlice === i ? 1 : 0.35}
-                            style={{ transition: 'opacity 0.15s', cursor: 'pointer' }}
-                          />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <Box sx={{
-                    position: 'absolute', top: '50%', left: '50%',
-                    transform: 'translate(-50%, -50%)', textAlign: 'center',
-                    // Never intercepts the cursor, or hovering the middle would
-                    // read as leaving the slice and the figures would flicker.
-                    pointerEvents: 'none',
-                    // Inside the 144px hole, with room to spare.
-                    width: 126,
-                  }}>
-                    {hoveredSlice !== null && categories[hoveredSlice] ? (
-                      <>
-                        <Typography sx={{
-                          fontSize: '0.74rem', fontWeight: 700, color: '#64748b', lineHeight: 1.25,
-                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden', mb: 0.25,
-                        }}>
-                          {categories[hoveredSlice].name}
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: '1.6rem', fontWeight: 800, lineHeight: 1,
-                          color: categories[hoveredSlice].color,
-                        }}>
-                          {categories[hoveredSlice].value}%
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8', mt: 0.25 }}>
-                          {categories[hoveredSlice].count} case{categories[hoveredSlice].count === 1 ? '' : 's'}
-                        </Typography>
-                      </>
-                    ) : (
-                      <>
-                        <Typography sx={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>
-                          {categories.length}
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b', lineHeight: 1.4 }}>Categories</Typography>
-                        <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total Data</Typography>
-                      </>
-                    )}
-                  </Box>
-                </Box>
-
-                {/* Legend */}
-                <Box sx={{ flex: 1 }}>
-                  {categories.map((cat) => (
-                    <Box
-                      key={cat.name}
-                      onClick={cat.linkable ? () => router.push(`/blotter-officer/case-management?search=${encodeURIComponent(cat.name)}`) : undefined}
-                      sx={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, borderRadius: 1, px: 0.5,
-                        ...(cat.linkable ? { cursor: 'pointer', '&:hover': { bgcolor: '#f8fafc' } } : {}),
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: cat.color, flexShrink: 0 }} />
-                        <Typography sx={{ fontSize: '0.9rem', color: '#475569' }}>{cat.name}</Typography>
-                      </Box>
-                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>{cat.value}% · {cat.count}</Typography>
-                    </Box>
-                  ))}
-                  <Divider sx={{ my: 1.5 }} />
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              // Point at a slice or a row to see its share and count in the middle; a category row opens its cases.
+              <DonutBreakdown ariaLabel="Cases by category" centerValue={categories.length} centerLabel={categories.length === 1 ? 'Category' : 'Categories'}
+                slices={categories.map(cat => ({ key: cat.name, label: cat.name, count: cat.count, color: cat.color,
+                  onSelect: cat.linkable ? () => router.push(`/blotter-officer/case-management?search=${encodeURIComponent(cat.name)}`) : undefined }))}
+                footer={(
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1, pt: 1.25 }}>
                     <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>Total Recorded</Typography>
-                    <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>
-                      {(stats?.total ?? 0).toLocaleString()}
-                    </Typography>
+                    <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>{(stats?.total ?? 0).toLocaleString()}</Typography>
                   </Box>
-                </Box>
-              </Box>
+                )} />
               )}
             </CardContent>
           </Card>

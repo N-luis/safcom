@@ -14,11 +14,12 @@ import {
 } from '@mui/icons-material';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend,
+  ResponsiveContainer,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
+import DonutBreakdown from '@/components/charts/DonutBreakdown';
 
 const MotionTableRow = motion(TableRow);
 
@@ -186,11 +187,13 @@ export default function VawcDashboard() {
   const active = stats?.active ?? 0;
   const open = total !== null ? total - resolved - active : 0;
 
+  // Each case in exactly one slice. "Open / New" is everything not yet in
+  // progress or resolved - not necessarily urgent, so it is not called that.
   const donutData = [
-    { name: 'Resolved Cases', value: resolved, color: '#22c55e' },
-    { name: 'In Progress', value: active, color: '#14b8a6' },
-    { name: 'Urgent/New', value: open > 0 ? open : 0, color: '#ef4444' },
-  ].filter(d => d.value > 0);
+    { name: 'Resolved / Closed', value: resolved, color: '#22c55e', href: '/vawc/cases?filter=resolved' },
+    { name: 'In Progress', value: active, color: '#14b8a6', href: '/vawc/cases?filter=active' },
+    { name: 'Open / New', value: open > 0 ? open : 0, color: '#ef4444', href: '/vawc/cases?status=Open' },
+  ];
 
   const resolutionRate = total && total > 0 ? Math.round((resolved / total) * 100) : 0;
 
@@ -354,36 +357,14 @@ export default function VawcDashboard() {
                   <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8' }}>No case data yet</Typography>
                 </Box>
               ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: 240, mt: 1.5 }}>
-                  {/* Donut */}
-                  <Box sx={{ position: 'relative', width: 190, height: 190, flexShrink: 0 }}>
-                    <ResponsiveContainer width={190} height={190}>
-                      <PieChart>
-                        <Pie data={donutData} cx="50%" cy="50%" innerRadius={58} outerRadius={89} dataKey="value" strokeWidth={0}>
-                          {donutData.map((d, i) => <Cell key={i} fill={d.color} />)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', pointerEvents: 'none' }}>
-                      <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Average</Typography>
-                      <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1.1 }}>{resolutionRate}%</Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Legend */}
-                  <Box sx={{ flex: 1 }}>
-                    {donutData.map(d => (
-                      <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1, borderBottom: '1px solid #f8fafc' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: d.color, flexShrink: 0 }} />
-                          <Typography sx={{ fontSize: '0.86rem', color: '#475569' }}>{d.name}</Typography>
-                        </Box>
-                        <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46' }}>
-                          {total && total > 0 ? `${Math.round((d.value / total) * 100)}%` : '0%'}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
+                <Box sx={{ mt: 1.5 }}>
+                  {/* Point at a slice or a row to see its share and count in the middle */}
+                  <DonutBreakdown ariaLabel="VAWC case distribution" centerLabel="VAWC cases"
+                    slices={donutData.map(d => ({ key: d.name, label: d.name, count: d.value, color: d.color,
+                      onSelect: () => router.push(d.href) }))} />
+                  <Typography sx={{ fontSize: '0.76rem', color: '#64748b', mt: 1.25 }}>
+                    Each case is counted once. Open / New: filed, not yet marked in progress - not necessarily urgent.
+                  </Typography>
                 </Box>
               )}
             </CardContent>
