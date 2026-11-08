@@ -60,6 +60,10 @@ const IncidentLocationMap = dynamicImport(
 
 const ACCENT = '#14b8a6';
 
+// Who a resident can report for. "Without identifying myself" (ANONYMOUS) is
+// no longer offered on this form; anonymous reports already filed keep their
+// protections (lib/interviewTypes.ts still knows the value).
+const RESIDENT_RELATIONSHIPS = REPORTING_RELATIONSHIPS.filter(r => r !== 'ANONYMOUS');
 
 // No case type is asked for. SafeComm reads what the resident wrote and the
 // classification matrix (lib/classificationSchema.ts) decides the category on
@@ -74,9 +78,8 @@ const schema = z.object({
   // Picked, never typed: a part of the day or an exact time (lib/incidentTime.ts).
   incidentTimeApprox: z.string().optional().refine(v => isIncidentTime(v), INCIDENT_TIME_HINT),
   witnessInfo: z.string().max(500, 'Keep this under 500 characters').optional(),
-  // Who the report is for. Asked first: it changes the questions, and an
-  // anonymous report is filed without the reporter's name.
-  reportingRelationship: z.string().refine(v => (REPORTING_RELATIONSHIPS as readonly string[]).includes(v),
+  // Who the report is for. Asked first, at the top of the form: it changes the questions.
+  reportingRelationship: z.string().refine(v => (RESIDENT_RELATIONSHIPS as readonly string[]).includes(v),
     'Choose who you are reporting this for'),
   // Who was affected, in the reporter's words. Never required.
   affectedPersonNote: z.string().max(200, 'Keep this under 200 characters').optional(),
@@ -189,7 +192,6 @@ export default function ReportCasePage() {
   // The AI interview's questions as asked and answered, in order.
   const [intakeTurns, setIntakeTurns] = useState<InterviewTurn[]>([]);
   const relationshipValue = (watch('reportingRelationship') || '') as ReportingRelationship | '';
-  const anonymous = relationshipValue === 'ANONYMOUS';
   // The person affected and the person reported - optional, kept apart.
   const [people, setPeople] = useState<PeopleState>(EMPTY_PEOPLE);
   // Today in Philippine time, read once - the latest date the date field allows.
@@ -430,34 +432,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 setAssistState(null); setReviewing(data);
               })} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
-                {/* What happened, in the resident's own words - first, and the only
-                    thing asked about the incident itself. SafeComm reads it and
-                    recommends the desk; the resident never picks one. */}
-                <Box>
-                  <Typography id="describe-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.25 }}>
-                    What happened? *
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mb: 1 }}>
-                    Describe what happened in your own words. SafeComm AI will help identify the appropriate reporting desk.
-                  </Typography>
-                  <TextField
-                    label="What happened? *"
-                    placeholder="In your own words — what happened, who was involved, and when. Write only what you know."
-                    {...register('description')}
-                    error={!!errors.description}
-                    helperText={errors.description?.message || `${descLen}/800 characters`}
-                    fullWidth multiline rows={5}
-                    slotProps={{ htmlInput: { maxLength: 800, 'aria-describedby': 'describe-label' } }}
-                  />
-                  <Alert severity="info" icon={false} sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem', bgcolor: '#f5f3ff', color: '#4c1d95' }}>
-                    Reports that may involve violence against a woman or a child are kept confidential and go only to the barangay officers
-                    assigned to them. You do not need evidence, and you can leave out anything you do not know. If someone is in danger
-                    right now, say so - help is not delayed.
-                  </Alert>
-                </Box>
-
-                {/* Who the report is for - the reporter, the person affected and the
-                    person responsible are separate roles, and none is assumed. */}
+                {/* Who the report is for - first, because it changes what is asked next.
+                    The reporter, the person affected and the person responsible are
+                    separate roles, and none is assumed. */}
                 <Box>
                   <Typography id="relationship-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.5 }}>
                     Who are you reporting this incident for? *
@@ -467,8 +444,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     control={control}
                     render={({ field }) => (
                       <RadioGroup aria-labelledby="relationship-label" value={field.value} onChange={e => field.onChange(e.target.value)}
-                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0.75 }}>
-                        {REPORTING_RELATIONSHIPS.map(r => (
+                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 0.75 }}>
+                        {RESIDENT_RELATIONSHIPS.map(r => (
                           <FormControlLabel key={r} value={r} disabled={isSubmitting || analysing}
                             control={<Radio size="small" sx={{ '&.Mui-checked': { color: ACCENT } }} />}
                             label={(
@@ -500,12 +477,32 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                       slotProps={{ htmlInput: { maxLength: 200 } }}
                     />
                   )}
-                  {anonymous && (
-                    <Alert severity="info" sx={{ mt: 1.25, borderRadius: 2, fontSize: '0.82rem' }}>
-                      Barangay officials will not see your name or contact details, so they cannot call you back.
-                      You can still follow this report and reply to updates in My Cases.
-                    </Alert>
-                  )}
+                </Box>
+
+                {/* What happened, in the resident's own words - the only thing asked
+                    about the incident itself. SafeComm reads it and
+                    recommends the desk; the resident never picks one. */}
+                <Box>
+                  <Typography id="describe-label" sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.25 }}>
+                    What happened? *
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mb: 1 }}>
+                    Describe what happened in your own words. SafeComm AI will help identify the appropriate reporting desk.
+                  </Typography>
+                  <TextField
+                    label="What happened? *"
+                    placeholder="In your own words — what happened, who was involved, and when. Write only what you know."
+                    {...register('description')}
+                    error={!!errors.description}
+                    helperText={errors.description?.message || `${descLen}/800 characters`}
+                    fullWidth multiline rows={5}
+                    slotProps={{ htmlInput: { maxLength: 800, 'aria-describedby': 'describe-label' } }}
+                  />
+                  <Alert severity="info" icon={false} sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem', bgcolor: '#f5f3ff', color: '#4c1d95' }}>
+                    Reports that may involve violence against a woman or a child are kept confidential and go only to the barangay officers
+                    assigned to them. You do not need evidence, and you can leave out anything you do not know. If someone is in danger
+                    right now, say so - help is not delayed.
+                  </Alert>
                 </Box>
 
                 {/* The person affected and the person reported - optional, kept apart */}
@@ -627,9 +624,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   fullWidth multiline rows={2}
                 />
 
-                {/* How it is safe to reach them - never assumed to be a call. Not
-                    asked on an anonymous report: no contact is kept for it. */}
-                {!anonymous && <Box>
+                {/* How it is safe to reach them - never assumed to be a call. */}
+                <Box>
                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#0c1e46', mb: 0.25 }}>
                     How can the barangay safely contact you? (optional)
                   </Typography>
@@ -672,7 +668,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     slotProps={{ htmlInput: { maxLength: 200 } }}
                     sx={{ mt: 1.25 }}
                   />
-                </Box>}
+                </Box>
 
                 {/* Photo evidence — shrunk in the browser before upload */}
                 <PhotoAttachments
