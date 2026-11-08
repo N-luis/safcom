@@ -137,7 +137,7 @@ export function intakeContext(c: IntakeCase) {
   };
 }
 
-const ROLE_TITLE: Record<string, string> = {
+export const ROLE_TITLE: Record<string, string> = {
   officer: 'Blotter Officer', blotter_officer: 'Blotter Officer', vawc_officer: 'VAWC Officer', vawc: 'VAWC Officer',
   vawc_lead: 'VAWC Desk Lead', admin: 'Punong Barangay', system_admin: 'System Administrator',
 };

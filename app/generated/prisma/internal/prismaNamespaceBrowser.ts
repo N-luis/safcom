@@ -328,7 +328,28 @@ export const CaseReferralScalarFieldEnum = {
   notes: 'notes',
   createdById: 'createdById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  toAddress: 'toAddress',
+  toContactPerson: 'toContactPerson',
+  clientName: 'clientName',
+  clientAge: 'clientAge',
+  clientSex: 'clientSex',
+  clientAddress: 'clientAddress',
+  guardianName: 'guardianName',
+  guardianContact: 'guardianContact',
+  guardianAddress: 'guardianAddress',
+  servicesRequested: 'servicesRequested',
+  feedbackTo: 'feedbackTo',
+  feedbackAddress: 'feedbackAddress',
+  feedbackCellPhone: 'feedbackCellPhone',
+  feedbackLandline: 'feedbackLandline',
+  feedbackEmail: 'feedbackEmail',
+  feedbackFax: 'feedbackFax',
+  feedbackContact: 'feedbackContact',
+  referredByName: 'referredByName',
+  referredByDesignation: 'referredByDesignation',
+  formUpdatedAt: 'formUpdatedAt',
+  formUpdatedById: 'formUpdatedById'
 } as const
 
 export type CaseReferralScalarFieldEnum = (typeof CaseReferralScalarFieldEnum)[keyof typeof CaseReferralScalarFieldEnum]

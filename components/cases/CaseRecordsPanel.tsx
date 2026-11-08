@@ -5,9 +5,9 @@ import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Chip, Button, Alert, Skeleton, Divider, Dialog, DialogTitle, DialogContent,
   DialogActions, TextField, RadioGroup, Radio, FormControlLabel, FormControl, InputLabel, Select, MenuItem, Collapse,
-  CircularProgress,
+  CircularProgress, useMediaQuery,
 } from '@mui/material';
-import { Lock, PersonOutlined, HealthAndSafety, Share, Edit, Add, History, Warning } from '@mui/icons-material';
+import { Lock, PersonOutlined, HealthAndSafety, Share, Edit, Add, History, Warning, PictureAsPdf } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import {
   REPORT_PATH_LABEL, REPORTING_CHANNELS, SAFETY_QUESTIONS, ANSWER_LABEL, YES_NO_UNKNOWN, REFERRAL_AGENCIES,
@@ -17,6 +17,7 @@ import {
 import { PH_MOBILE_HINT, displayPhMobile, isPhMobileLocal, normalizePhMobile, phMobileLocal } from '@/lib/phoneNumber';
 import PhMobileField from '@/components/forms/PhMobileField';
 import VictimSurvivorsPanel from './VictimSurvivorsPanel';
+import { REFERRAL_FORM_LABELS, EMPTY_REFERRAL_FORM, CLIENT_SEX, formOf, type ReferralFormKey } from '@/lib/referralForm';
 
 /**
  * The case's records beside the narrative, for officials: the report details,
@@ -40,10 +41,10 @@ interface Safety {
   safeContactConfirmed: YesNoUnknownAnswer | null; preferredAssistance: string | null; followUpRequirements: string | null; safetyPlan: string | null;
   followUpAt: string | null; version: number; updatedBy: string | null; updatedAt: string;
 }
-interface Referral {
+type Referral = {
   id: string; agency: ReferralAgency; agencyOther: string | null; referredAt: string; reason: string | null;
-  status: ReferralStatus; notes: string | null; createdBy: string | null;
-}
+  status: ReferralStatus; notes: string | null; createdBy: string | null; formUpdatedAt: string | null;
+} & { [K in ReferralFormKey]: string | number | null };
 interface Records {
   access: { view: boolean; edit: boolean; message: string | null };
   report: {
@@ -289,55 +290,156 @@ function SafetyDialog({ caseId, start, onClose, onSaved }: { caseId: string; sta
 
 // ─── Referrals ───────────────────────────────────────────────────────────────
 
-function ReferralDialog({ caseId, desk, onClose, onSaved }: { caseId: string; desk: ReportPath; onClose: () => void; onSaved: () => void }) {
+/**
+ * Add a referral, or fill in / correct its Annex B referral form. A new one
+ * starts from what the case already records (the server's prefill) - every
+ * field can be changed, and anything left blank prints as a line to fill in.
+ */
+function ReferralDialog({ caseId, desk, referral, onClose, onSaved }: {
+  caseId: string; desk: ReportPath; referral?: Referral | null; onClose: () => void; onSaved: () => void;
+}) {
+  const editing = Boolean(referral);
+  const phone = useMediaQuery('(max-width:600px)');
   // Today in Philippine time, read once when the dialog opens.
   const [today] = useState(() => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10));
-  const [f, setF] = useState({ agency: '' as ReferralAgency | '', agencyOther: '', referredAt: today, reason: '', status: 'REFERRED' as ReferralStatus, notes: '' });
+  const [f, setF] = useState({ agency: (referral?.agency ?? '') as ReferralAgency | '', agencyOther: referral?.agencyOther ?? '',
+    referredAt: today, reason: referral?.reason ?? '', status: 'REFERRED' as ReferralStatus, notes: '' });
+  const [form, setForm] = useState<Record<ReferralFormKey, string>>(() => (referral ? formOf(referral) : { ...EMPTY_REFERRAL_FORM }));
+  const [from, setFrom] = useState<Partial<Record<ReferralFormKey, string>>>({});
   const [saving, setSaving] = useState(false);
+  // A new referral: what the case records, for the official to check. Not when editing - the saved form is shown.
+  const { data: prefill, isLoading: prefilling } = useSWR(editing ? null : `/api/cases/${caseId}/referrals`, async (url: string) => {
+    const res = await fetch(url, { credentials: 'include' });
+    const body = await res.json().catch(() => ({}));
+    return res.ok ? body.data as { form: Record<ReferralFormKey, string>; from: Partial<Record<ReferralFormKey, string>> } : null;
+  }, { revalidateOnFocus: false });
+  const [applied, setApplied] = useState(false);
+  if (prefill && !applied) { setApplied(true); setForm(prefill.form); setFrom(prefill.from); }
+
+  const set = (k: ReferralFormKey) => (e: { target: { value: string } }) => setForm(p => ({ ...p, [k]: e.target.value }));
+  const hint = (k: ReferralFormKey) => (from[k] && form[k] === prefill?.form[k] ? `From ${from[k]} - check it` : undefined);
+  const tf = (k: ReferralFormKey, extra: Record<string, unknown> = {}) => (
+    <TextField size="small" label={REFERRAL_FORM_LABELS[k]} value={form[k]} onChange={set(k)} helperText={hint(k)} {...extra} />
+  );
   const save = async () => {
-    if (!f.agency) { toast.error('Choose the office'); return; }
+    if (!editing && !f.agency) { toast.error('Choose the office'); return; }
     setSaving(true);
     try {
-      await send(`/api/cases/${caseId}/referrals`, 'POST', f);
-      toast.success('Referral recorded');
+      if (editing) {
+        await send(`/api/cases/${caseId}/referrals/${referral!.id}`, 'PUT', { form, reason: f.reason });
+        toast.success('Referral form saved');
+      } else {
+        await send(`/api/cases/${caseId}/referrals`, 'POST', { ...f, form });
+        toast.success('Referral recorded - download its referral form from the list');
+      }
       onSaved();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Could not save');
     } finally { setSaving(false); }
   };
+  const section = (title: string) => <Typography sx={{ ...label, mt: 0.5 }}>{title}</Typography>;
+  const two = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 };
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm" scroll="paper">
-      <DialogTitle sx={{ fontWeight: 800, color: NAVY }}>Record a referral</DialogTitle>
+    <Dialog open onClose={onClose} fullWidth maxWidth="md" fullScreen={phone} scroll="paper">
+      <DialogTitle sx={{ fontWeight: 800, color: NAVY }}>
+        {editing ? 'Referral form' : 'Record a referral'}
+        <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+          Annex B - Referral Form. Blank fields print as lines to fill in by hand; the signature is signed on the printed copy.
+        </Typography>
+      </DialogTitle>
       <DialogContent dividers sx={{ display: 'grid', gap: 1.5 }}>
         {desk === 'VAWC' && (
           <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
-            VAWC cases are not referred to the Lupon for mediation or conciliation.
+            VAWC cases are not referred to the Lupon for mediation or conciliation. This form names the client - give it only to the receiving office.
           </Alert>
         )}
-        <FormControl size="small">
-          <InputLabel>Office referred to</InputLabel>
-          <Select label="Office referred to" value={f.agency} onChange={e => setF(p => ({ ...p, agency: e.target.value as ReferralAgency }))}>
-            {referralAgenciesFor(desk).map(k => <MenuItem key={k} value={k}>{REFERRAL_AGENCIES[k].label}</MenuItem>)}
-          </Select>
-        </FormControl>
-        {f.agency === 'OTHER' && (
-          <TextField size="small" label="Name of the office" value={f.agencyOther} onChange={e => setF(p => ({ ...p, agencyOther: e.target.value }))} slotProps={{ htmlInput: { maxLength: 160 } }} />
+        {prefilling && <Alert severity="info" icon={<CircularProgress size={16} />} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>Filling in what the case already records...</Alert>}
+
+        {section('To')}
+        {editing ? (
+          <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: NAVY }}>
+            {referral!.agency === 'OTHER' ? referral!.agencyOther : REFERRAL_AGENCIES[referral!.agency]?.label} · {day(referral!.referredAt)}
+          </Typography>
+        ) : (
+          <Box sx={two}>
+            <FormControl size="small">
+              <InputLabel>Office referred to</InputLabel>
+              <Select label="Office referred to" value={f.agency} onChange={e => setF(p => ({ ...p, agency: e.target.value as ReferralAgency }))}>
+                {referralAgenciesFor(desk).map(k => <MenuItem key={k} value={k}>{REFERRAL_AGENCIES[k].label}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <TextField size="small" label="Date of Referral" type="date" value={f.referredAt} onChange={e => setF(p => ({ ...p, referredAt: e.target.value }))}
+              slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: today } }} />
+            {f.agency === 'OTHER' && (
+              <TextField size="small" label="Name of the office" value={f.agencyOther} onChange={e => setF(p => ({ ...p, agencyOther: e.target.value }))}
+                slotProps={{ htmlInput: { maxLength: 160 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+            )}
+          </Box>
         )}
-        <TextField size="small" label="Referral date" type="date" value={f.referredAt} onChange={e => setF(p => ({ ...p, referredAt: e.target.value }))}
-          slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: today } }} />
-        <TextField size="small" label="Reason for referral" multiline minRows={2} value={f.reason} onChange={e => setF(p => ({ ...p, reason: e.target.value }))} slotProps={{ htmlInput: { maxLength: 500 } }} />
-        <FormControl size="small">
-          <InputLabel>Status</InputLabel>
-          <Select label="Status" value={f.status} onChange={e => setF(p => ({ ...p, status: e.target.value as ReferralStatus }))}>
-            {(Object.keys(REFERRAL_STATUSES) as ReferralStatus[]).map(k => <MenuItem key={k} value={k}>{REFERRAL_STATUSES[k]}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <TextField size="small" label="Notes" multiline minRows={2} value={f.notes} onChange={e => setF(p => ({ ...p, notes: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
+        <Box sx={two}>
+          {tf('toAddress', { slotProps: { htmlInput: { maxLength: 300 } } })}
+          {tf('toContactPerson', { slotProps: { htmlInput: { maxLength: 160 } } })}
+        </Box>
+
+        {section('Client')}
+        <Box sx={two}>
+          {tf('clientName', { slotProps: { htmlInput: { maxLength: 160 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+          {tf('clientAge', { type: 'number', slotProps: { htmlInput: { min: 0, max: 120, inputMode: 'numeric' } } })}
+          <TextField select size="small" label="Sex" value={form.clientSex} onChange={set('clientSex')} helperText={hint('clientSex') ?? 'As recorded - leave blank if not known'}
+            slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
+            <MenuItem value=""><em>Not recorded</em></MenuItem>
+            {CLIENT_SEX.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+          </TextField>
+          {tf('clientAddress', { slotProps: { htmlInput: { maxLength: 300 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+        </Box>
+
+        {section('Family / guardian')}
+        <Box sx={two}>
+          {tf('guardianName', { slotProps: { htmlInput: { maxLength: 160 } } })}
+          {tf('guardianContact', { slotProps: { htmlInput: { maxLength: 40, inputMode: 'tel' } } })}
+          {tf('guardianAddress', { slotProps: { htmlInput: { maxLength: 300 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+        </Box>
+
+        {section('Reason and services')}
+        <TextField size="small" label="Reason/s for Referral" multiline minRows={2} value={f.reason} onChange={e => setF(p => ({ ...p, reason: e.target.value }))} slotProps={{ htmlInput: { maxLength: 500 } }} />
+        {tf('servicesRequested', { multiline: true, minRows: 2, slotProps: { htmlInput: { maxLength: 1000 } } })}
+
+        {section('Feedback to the referring party')}
+        <Box sx={two}>
+          {tf('feedbackTo', { label: 'Referring Party/Agency', slotProps: { htmlInput: { maxLength: 200 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+          {tf('feedbackAddress', { slotProps: { htmlInput: { maxLength: 300 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+          {tf('feedbackCellPhone', { slotProps: { htmlInput: { maxLength: 40, inputMode: 'tel' } } })}
+          {tf('feedbackLandline', { slotProps: { htmlInput: { maxLength: 40, inputMode: 'tel' } } })}
+          {tf('feedbackEmail', { type: 'email', slotProps: { htmlInput: { maxLength: 160 } } })}
+          {tf('feedbackFax', { slotProps: { htmlInput: { maxLength: 40, inputMode: 'tel' } } })}
+          {tf('feedbackContact', { slotProps: { htmlInput: { maxLength: 160 } }, sx: { gridColumn: { sm: '1 / -1' } } })}
+        </Box>
+
+        {section('Referred by')}
+        <Box sx={two}>
+          {tf('referredByName', { slotProps: { htmlInput: { maxLength: 160 } } })}
+          {tf('referredByDesignation', { slotProps: { htmlInput: { maxLength: 160 } } })}
+        </Box>
+
+        {!editing && (
+          <>
+            {section('For SafeComm only - not on the form')}
+            <Box sx={two}>
+              <FormControl size="small">
+                <InputLabel>Status</InputLabel>
+                <Select label="Status" value={f.status} onChange={e => setF(p => ({ ...p, status: e.target.value as ReferralStatus }))}>
+                  {(Object.keys(REFERRAL_STATUSES) as ReferralStatus[]).map(k => <MenuItem key={k} value={k}>{REFERRAL_STATUSES[k]}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <TextField size="small" label="Notes" multiline minRows={1} value={f.notes} onChange={e => setF(p => ({ ...p, notes: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
+            </Box>
+          </>
+        )}
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 1.5 }}>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>Cancel</Button>
-        <Button variant="contained" onClick={save} disabled={saving} sx={{ textTransform: 'none', bgcolor: NAVY }}>
-          {saving ? <CircularProgress size={16} color="inherit" /> : 'Save referral'}
+        <Button variant="contained" onClick={save} disabled={saving || (!editing && prefilling)} sx={{ textTransform: 'none', bgcolor: NAVY }}>
+          {saving ? <CircularProgress size={16} color="inherit" /> : editing ? 'Save referral form' : 'Save referral'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -351,6 +453,7 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
   const [party, setParty] = useState<{ role: 'AFFECTED' | 'REPORTED'; start: Party | null } | null>(null);
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [referralOpen, setReferralOpen] = useState(false);
+  const [editingReferral, setEditingReferral] = useState<Referral | null>(null);
   const [showSafetyHistory, setShowSafetyHistory] = useState(false);
   const saved = () => { setParty(null); setSafetyOpen(false); setReferralOpen(false); void mutate(); onChanged?.(); };
 
@@ -535,6 +638,20 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                     </Typography>
                     {ref.reason && <Typography sx={{ fontSize: '0.8rem', color: '#334155', mt: 0.25, overflowWrap: 'anywhere' }}>{ref.reason}</Typography>}
                     {ref.notes && <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.25, overflowWrap: 'anywhere' }}>{ref.notes}</Typography>}
+                    {/* Annex B - Referral Form: a PDF of this referral, for the receiving office */}
+                    <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center', mt: 0.75 }}>
+                      <Button size="small" variant="outlined" startIcon={<PictureAsPdf sx={{ fontSize: 16 }} />} component="a"
+                        href={`/api/cases/${caseId}/referrals/${ref.id}/pdf`} download
+                        sx={{ textTransform: 'none', minHeight: 32, borderColor: '#c4b5fd', color: '#6d28d9' }}>
+                        Download referral form (PDF)
+                      </Button>
+                      {edit && (
+                        <Button size="small" startIcon={<Edit sx={{ fontSize: 15 }} />} onClick={() => setEditingReferral(ref)} sx={{ textTransform: 'none', minHeight: 32 }}>
+                          {ref.formUpdatedAt ? 'Edit form' : 'Fill in the form'}
+                        </Button>
+                      )}
+                      {!ref.formUpdatedAt && <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Recorded before the form - it prints with blank lines</Typography>}
+                    </Box>
                   </Box>
                 ))}
               </Box>
@@ -542,6 +659,8 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
               {party && <PartyDialog caseId={caseId} role={party.role} vawc={vawc} start={party.start} onClose={() => setParty(null)} onSaved={saved} />}
               {safetyOpen && <SafetyDialog caseId={caseId} start={data.safety} onClose={() => setSafetyOpen(false)} onSaved={saved} />}
               {referralOpen && <ReferralDialog caseId={caseId} desk={data.report.desk} onClose={() => setReferralOpen(false)} onSaved={saved} />}
+              {editingReferral && <ReferralDialog caseId={caseId} desk={data.report.desk} referral={editingReferral} onClose={() => setEditingReferral(null)}
+                onSaved={() => { setEditingReferral(null); saved(); }} />}
             </Box>
           );
         })()}

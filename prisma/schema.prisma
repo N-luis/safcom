@@ -398,6 +398,35 @@ model CaseReferral {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  /// Annex B - Referral Form (lib/referralForm.ts). All optional: a referral
+  /// recorded before the form existed prints with blank lines to fill in.
+  /// The receiving office ("To:" is the agency above).
+  toAddress           String?
+  toContactPerson     String?
+  /// The client being referred.
+  clientName          String?
+  clientAge           Int?
+  /// Female | Male | Intersex - as recorded, never inferred.
+  clientSex           String?
+  clientAddress       String?
+  guardianName        String?
+  guardianContact     String?
+  guardianAddress     String?
+  servicesRequested   String?
+  /// Where the receiving office sends its feedback (the referring party).
+  feedbackTo          String?
+  feedbackAddress     String?
+  feedbackCellPhone   String?
+  feedbackLandline    String?
+  feedbackEmail       String?
+  feedbackFax         String?
+  feedbackContact     String?
+  /// The signatory, printed under the signature line.
+  referredByName      String?
+  referredByDesignation String?
+  formUpdatedAt       DateTime?
+  formUpdatedById     String?
+
   @@index([caseId])
 }
 

@@ -21,8 +21,18 @@ export type CaseReferralModel = runtime.Types.Result.DefaultSelection<Prisma.$Ca
 
 export type AggregateCaseReferral = {
   _count: CaseReferralCountAggregateOutputType | null
+  _avg: CaseReferralAvgAggregateOutputType | null
+  _sum: CaseReferralSumAggregateOutputType | null
   _min: CaseReferralMinAggregateOutputType | null
   _max: CaseReferralMaxAggregateOutputType | null
+}
+
+export type CaseReferralAvgAggregateOutputType = {
+  clientAge: number | null
+}
+
+export type CaseReferralSumAggregateOutputType = {
+  clientAge: number | null
 }
 
 export type CaseReferralMinAggregateOutputType = {
@@ -37,6 +47,27 @@ export type CaseReferralMinAggregateOutputType = {
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  toAddress: string | null
+  toContactPerson: string | null
+  clientName: string | null
+  clientAge: number | null
+  clientSex: string | null
+  clientAddress: string | null
+  guardianName: string | null
+  guardianContact: string | null
+  guardianAddress: string | null
+  servicesRequested: string | null
+  feedbackTo: string | null
+  feedbackAddress: string | null
+  feedbackCellPhone: string | null
+  feedbackLandline: string | null
+  feedbackEmail: string | null
+  feedbackFax: string | null
+  feedbackContact: string | null
+  referredByName: string | null
+  referredByDesignation: string | null
+  formUpdatedAt: Date | null
+  formUpdatedById: string | null
 }
 
 export type CaseReferralMaxAggregateOutputType = {
@@ -51,6 +82,27 @@ export type CaseReferralMaxAggregateOutputType = {
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  toAddress: string | null
+  toContactPerson: string | null
+  clientName: string | null
+  clientAge: number | null
+  clientSex: string | null
+  clientAddress: string | null
+  guardianName: string | null
+  guardianContact: string | null
+  guardianAddress: string | null
+  servicesRequested: string | null
+  feedbackTo: string | null
+  feedbackAddress: string | null
+  feedbackCellPhone: string | null
+  feedbackLandline: string | null
+  feedbackEmail: string | null
+  feedbackFax: string | null
+  feedbackContact: string | null
+  referredByName: string | null
+  referredByDesignation: string | null
+  formUpdatedAt: Date | null
+  formUpdatedById: string | null
 }
 
 export type CaseReferralCountAggregateOutputType = {
@@ -65,9 +117,38 @@ export type CaseReferralCountAggregateOutputType = {
   createdById: number
   createdAt: number
   updatedAt: number
+  toAddress: number
+  toContactPerson: number
+  clientName: number
+  clientAge: number
+  clientSex: number
+  clientAddress: number
+  guardianName: number
+  guardianContact: number
+  guardianAddress: number
+  servicesRequested: number
+  feedbackTo: number
+  feedbackAddress: number
+  feedbackCellPhone: number
+  feedbackLandline: number
+  feedbackEmail: number
+  feedbackFax: number
+  feedbackContact: number
+  referredByName: number
+  referredByDesignation: number
+  formUpdatedAt: number
+  formUpdatedById: number
   _all: number
 }
 
+
+export type CaseReferralAvgAggregateInputType = {
+  clientAge?: true
+}
+
+export type CaseReferralSumAggregateInputType = {
+  clientAge?: true
+}
 
 export type CaseReferralMinAggregateInputType = {
   id?: true
@@ -81,6 +162,27 @@ export type CaseReferralMinAggregateInputType = {
   createdById?: true
   createdAt?: true
   updatedAt?: true
+  toAddress?: true
+  toContactPerson?: true
+  clientName?: true
+  clientAge?: true
+  clientSex?: true
+  clientAddress?: true
+  guardianName?: true
+  guardianContact?: true
+  guardianAddress?: true
+  servicesRequested?: true
+  feedbackTo?: true
+  feedbackAddress?: true
+  feedbackCellPhone?: true
+  feedbackLandline?: true
+  feedbackEmail?: true
+  feedbackFax?: true
+  feedbackContact?: true
+  referredByName?: true
+  referredByDesignation?: true
+  formUpdatedAt?: true
+  formUpdatedById?: true
 }
 
 export type CaseReferralMaxAggregateInputType = {
@@ -95,6 +197,27 @@ export type CaseReferralMaxAggregateInputType = {
   createdById?: true
   createdAt?: true
   updatedAt?: true
+  toAddress?: true
+  toContactPerson?: true
+  clientName?: true
+  clientAge?: true
+  clientSex?: true
+  clientAddress?: true
+  guardianName?: true
+  guardianContact?: true
+  guardianAddress?: true
+  servicesRequested?: true
+  feedbackTo?: true
+  feedbackAddress?: true
+  feedbackCellPhone?: true
+  feedbackLandline?: true
+  feedbackEmail?: true
+  feedbackFax?: true
+  feedbackContact?: true
+  referredByName?: true
+  referredByDesignation?: true
+  formUpdatedAt?: true
+  formUpdatedById?: true
 }
 
 export type CaseReferralCountAggregateInputType = {
@@ -109,6 +232,27 @@ export type CaseReferralCountAggregateInputType = {
   createdById?: true
   createdAt?: true
   updatedAt?: true
+  toAddress?: true
+  toContactPerson?: true
+  clientName?: true
+  clientAge?: true
+  clientSex?: true
+  clientAddress?: true
+  guardianName?: true
+  guardianContact?: true
+  guardianAddress?: true
+  servicesRequested?: true
+  feedbackTo?: true
+  feedbackAddress?: true
+  feedbackCellPhone?: true
+  feedbackLandline?: true
+  feedbackEmail?: true
+  feedbackFax?: true
+  feedbackContact?: true
+  referredByName?: true
+  referredByDesignation?: true
+  formUpdatedAt?: true
+  formUpdatedById?: true
   _all?: true
 }
 
@@ -150,6 +294,18 @@ export type CaseReferralAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseReferralAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseReferralSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseReferralMinAggregateInputType
@@ -180,6 +336,8 @@ export type CaseReferralGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: CaseReferralCountAggregateInputType | true
+  _avg?: CaseReferralAvgAggregateInputType
+  _sum?: CaseReferralSumAggregateInputType
   _min?: CaseReferralMinAggregateInputType
   _max?: CaseReferralMaxAggregateInputType
 }
@@ -196,7 +354,30 @@ export type CaseReferralGroupByOutputType = {
   createdById: string
   createdAt: Date
   updatedAt: Date
+  toAddress: string | null
+  toContactPerson: string | null
+  clientName: string | null
+  clientAge: number | null
+  clientSex: string | null
+  clientAddress: string | null
+  guardianName: string | null
+  guardianContact: string | null
+  guardianAddress: string | null
+  servicesRequested: string | null
+  feedbackTo: string | null
+  feedbackAddress: string | null
+  feedbackCellPhone: string | null
+  feedbackLandline: string | null
+  feedbackEmail: string | null
+  feedbackFax: string | null
+  feedbackContact: string | null
+  referredByName: string | null
+  referredByDesignation: string | null
+  formUpdatedAt: Date | null
+  formUpdatedById: string | null
   _count: CaseReferralCountAggregateOutputType | null
+  _avg: CaseReferralAvgAggregateOutputType | null
+  _sum: CaseReferralSumAggregateOutputType | null
   _min: CaseReferralMinAggregateOutputType | null
   _max: CaseReferralMaxAggregateOutputType | null
 }
@@ -231,6 +412,27 @@ export type CaseReferralWhereInput = {
   createdById?: Prisma.StringFilter<"CaseReferral"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
+  toAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  toContactPerson?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAge?: Prisma.IntNullableFilter<"CaseReferral"> | number | null
+  clientSex?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  servicesRequested?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackTo?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackCellPhone?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackLandline?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackEmail?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackFax?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByDesignation?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  formUpdatedAt?: Prisma.DateTimeNullableFilter<"CaseReferral"> | Date | string | null
+  formUpdatedById?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
 
@@ -246,6 +448,27 @@ export type CaseReferralOrderByWithRelationInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  toAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  toContactPerson?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientName?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientAge?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientSex?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianName?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianContact?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  servicesRequested?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackTo?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackCellPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackLandline?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackFax?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackContact?: Prisma.SortOrderInput | Prisma.SortOrder
+  referredByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  referredByDesignation?: Prisma.SortOrderInput | Prisma.SortOrder
+  formUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formUpdatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
 
@@ -264,6 +487,27 @@ export type CaseReferralWhereUniqueInput = Prisma.AtLeast<{
   createdById?: Prisma.StringFilter<"CaseReferral"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
+  toAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  toContactPerson?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAge?: Prisma.IntNullableFilter<"CaseReferral"> | number | null
+  clientSex?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  servicesRequested?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackTo?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackCellPhone?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackLandline?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackEmail?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackFax?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByDesignation?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  formUpdatedAt?: Prisma.DateTimeNullableFilter<"CaseReferral"> | Date | string | null
+  formUpdatedById?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id">
 
@@ -279,9 +523,32 @@ export type CaseReferralOrderByWithAggregationInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  toAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  toContactPerson?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientName?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientAge?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientSex?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianName?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianContact?: Prisma.SortOrderInput | Prisma.SortOrder
+  guardianAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  servicesRequested?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackTo?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackCellPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackLandline?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackFax?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedbackContact?: Prisma.SortOrderInput | Prisma.SortOrder
+  referredByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  referredByDesignation?: Prisma.SortOrderInput | Prisma.SortOrder
+  formUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formUpdatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseReferralCountOrderByAggregateInput
+  _avg?: Prisma.CaseReferralAvgOrderByAggregateInput
   _max?: Prisma.CaseReferralMaxOrderByAggregateInput
   _min?: Prisma.CaseReferralMinOrderByAggregateInput
+  _sum?: Prisma.CaseReferralSumOrderByAggregateInput
 }
 
 export type CaseReferralScalarWhereWithAggregatesInput = {
@@ -299,6 +566,27 @@ export type CaseReferralScalarWhereWithAggregatesInput = {
   createdById?: Prisma.StringWithAggregatesFilter<"CaseReferral"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseReferral"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CaseReferral"> | Date | string
+  toAddress?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  toContactPerson?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  clientName?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  clientAge?: Prisma.IntNullableWithAggregatesFilter<"CaseReferral"> | number | null
+  clientSex?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  clientAddress?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  guardianName?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  guardianContact?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  guardianAddress?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  servicesRequested?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackTo?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackAddress?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackCellPhone?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackLandline?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackEmail?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackFax?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  feedbackContact?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  referredByName?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  referredByDesignation?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
+  formUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseReferral"> | Date | string | null
+  formUpdatedById?: Prisma.StringNullableWithAggregatesFilter<"CaseReferral"> | string | null
 }
 
 export type CaseReferralCreateInput = {
@@ -312,6 +600,27 @@ export type CaseReferralCreateInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
   case: Prisma.CaseCreateNestedOneWithoutReferralsInput
 }
 
@@ -327,6 +636,27 @@ export type CaseReferralUncheckedCreateInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
 }
 
 export type CaseReferralUpdateInput = {
@@ -340,6 +670,27 @@ export type CaseReferralUpdateInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutReferralsNestedInput
 }
 
@@ -355,6 +706,27 @@ export type CaseReferralUncheckedUpdateInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseReferralCreateManyInput = {
@@ -369,6 +741,27 @@ export type CaseReferralCreateManyInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
 }
 
 export type CaseReferralUpdateManyMutationInput = {
@@ -382,6 +775,27 @@ export type CaseReferralUpdateManyMutationInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseReferralUncheckedUpdateManyInput = {
@@ -396,6 +810,27 @@ export type CaseReferralUncheckedUpdateManyInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseReferralListRelationFilter = {
@@ -420,6 +855,31 @@ export type CaseReferralCountOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  toAddress?: Prisma.SortOrder
+  toContactPerson?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientAge?: Prisma.SortOrder
+  clientSex?: Prisma.SortOrder
+  clientAddress?: Prisma.SortOrder
+  guardianName?: Prisma.SortOrder
+  guardianContact?: Prisma.SortOrder
+  guardianAddress?: Prisma.SortOrder
+  servicesRequested?: Prisma.SortOrder
+  feedbackTo?: Prisma.SortOrder
+  feedbackAddress?: Prisma.SortOrder
+  feedbackCellPhone?: Prisma.SortOrder
+  feedbackLandline?: Prisma.SortOrder
+  feedbackEmail?: Prisma.SortOrder
+  feedbackFax?: Prisma.SortOrder
+  feedbackContact?: Prisma.SortOrder
+  referredByName?: Prisma.SortOrder
+  referredByDesignation?: Prisma.SortOrder
+  formUpdatedAt?: Prisma.SortOrder
+  formUpdatedById?: Prisma.SortOrder
+}
+
+export type CaseReferralAvgOrderByAggregateInput = {
+  clientAge?: Prisma.SortOrder
 }
 
 export type CaseReferralMaxOrderByAggregateInput = {
@@ -434,6 +894,27 @@ export type CaseReferralMaxOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  toAddress?: Prisma.SortOrder
+  toContactPerson?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientAge?: Prisma.SortOrder
+  clientSex?: Prisma.SortOrder
+  clientAddress?: Prisma.SortOrder
+  guardianName?: Prisma.SortOrder
+  guardianContact?: Prisma.SortOrder
+  guardianAddress?: Prisma.SortOrder
+  servicesRequested?: Prisma.SortOrder
+  feedbackTo?: Prisma.SortOrder
+  feedbackAddress?: Prisma.SortOrder
+  feedbackCellPhone?: Prisma.SortOrder
+  feedbackLandline?: Prisma.SortOrder
+  feedbackEmail?: Prisma.SortOrder
+  feedbackFax?: Prisma.SortOrder
+  feedbackContact?: Prisma.SortOrder
+  referredByName?: Prisma.SortOrder
+  referredByDesignation?: Prisma.SortOrder
+  formUpdatedAt?: Prisma.SortOrder
+  formUpdatedById?: Prisma.SortOrder
 }
 
 export type CaseReferralMinOrderByAggregateInput = {
@@ -448,6 +929,31 @@ export type CaseReferralMinOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  toAddress?: Prisma.SortOrder
+  toContactPerson?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientAge?: Prisma.SortOrder
+  clientSex?: Prisma.SortOrder
+  clientAddress?: Prisma.SortOrder
+  guardianName?: Prisma.SortOrder
+  guardianContact?: Prisma.SortOrder
+  guardianAddress?: Prisma.SortOrder
+  servicesRequested?: Prisma.SortOrder
+  feedbackTo?: Prisma.SortOrder
+  feedbackAddress?: Prisma.SortOrder
+  feedbackCellPhone?: Prisma.SortOrder
+  feedbackLandline?: Prisma.SortOrder
+  feedbackEmail?: Prisma.SortOrder
+  feedbackFax?: Prisma.SortOrder
+  feedbackContact?: Prisma.SortOrder
+  referredByName?: Prisma.SortOrder
+  referredByDesignation?: Prisma.SortOrder
+  formUpdatedAt?: Prisma.SortOrder
+  formUpdatedById?: Prisma.SortOrder
+}
+
+export type CaseReferralSumOrderByAggregateInput = {
+  clientAge?: Prisma.SortOrder
 }
 
 export type CaseReferralCreateNestedManyWithoutCaseInput = {
@@ -503,6 +1009,27 @@ export type CaseReferralCreateWithoutCaseInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
 }
 
 export type CaseReferralUncheckedCreateWithoutCaseInput = {
@@ -516,6 +1043,27 @@ export type CaseReferralUncheckedCreateWithoutCaseInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
 }
 
 export type CaseReferralCreateOrConnectWithoutCaseInput = {
@@ -559,6 +1107,27 @@ export type CaseReferralScalarWhereInput = {
   createdById?: Prisma.StringFilter<"CaseReferral"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseReferral"> | Date | string
+  toAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  toContactPerson?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAge?: Prisma.IntNullableFilter<"CaseReferral"> | number | null
+  clientSex?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  clientAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  guardianAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  servicesRequested?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackTo?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackAddress?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackCellPhone?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackLandline?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackEmail?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackFax?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  feedbackContact?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByName?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  referredByDesignation?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
+  formUpdatedAt?: Prisma.DateTimeNullableFilter<"CaseReferral"> | Date | string | null
+  formUpdatedById?: Prisma.StringNullableFilter<"CaseReferral"> | string | null
 }
 
 export type CaseReferralCreateManyCaseInput = {
@@ -572,6 +1141,27 @@ export type CaseReferralCreateManyCaseInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  toAddress?: string | null
+  toContactPerson?: string | null
+  clientName?: string | null
+  clientAge?: number | null
+  clientSex?: string | null
+  clientAddress?: string | null
+  guardianName?: string | null
+  guardianContact?: string | null
+  guardianAddress?: string | null
+  servicesRequested?: string | null
+  feedbackTo?: string | null
+  feedbackAddress?: string | null
+  feedbackCellPhone?: string | null
+  feedbackLandline?: string | null
+  feedbackEmail?: string | null
+  feedbackFax?: string | null
+  feedbackContact?: string | null
+  referredByName?: string | null
+  referredByDesignation?: string | null
+  formUpdatedAt?: Date | string | null
+  formUpdatedById?: string | null
 }
 
 export type CaseReferralUpdateWithoutCaseInput = {
@@ -585,6 +1175,27 @@ export type CaseReferralUpdateWithoutCaseInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseReferralUncheckedUpdateWithoutCaseInput = {
@@ -598,6 +1209,27 @@ export type CaseReferralUncheckedUpdateWithoutCaseInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseReferralUncheckedUpdateManyWithoutCaseInput = {
@@ -611,6 +1243,27 @@ export type CaseReferralUncheckedUpdateManyWithoutCaseInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  toAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toContactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientSex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guardianAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicesRequested?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackCellPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackLandline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackFax?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feedbackContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredByDesignation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  formUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formUpdatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -627,6 +1280,27 @@ export type CaseReferralSelect<ExtArgs extends runtime.Types.Extensions.Internal
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  toAddress?: boolean
+  toContactPerson?: boolean
+  clientName?: boolean
+  clientAge?: boolean
+  clientSex?: boolean
+  clientAddress?: boolean
+  guardianName?: boolean
+  guardianContact?: boolean
+  guardianAddress?: boolean
+  servicesRequested?: boolean
+  feedbackTo?: boolean
+  feedbackAddress?: boolean
+  feedbackCellPhone?: boolean
+  feedbackLandline?: boolean
+  feedbackEmail?: boolean
+  feedbackFax?: boolean
+  feedbackContact?: boolean
+  referredByName?: boolean
+  referredByDesignation?: boolean
+  formUpdatedAt?: boolean
+  formUpdatedById?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseReferral"]>
 
@@ -642,6 +1316,27 @@ export type CaseReferralSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  toAddress?: boolean
+  toContactPerson?: boolean
+  clientName?: boolean
+  clientAge?: boolean
+  clientSex?: boolean
+  clientAddress?: boolean
+  guardianName?: boolean
+  guardianContact?: boolean
+  guardianAddress?: boolean
+  servicesRequested?: boolean
+  feedbackTo?: boolean
+  feedbackAddress?: boolean
+  feedbackCellPhone?: boolean
+  feedbackLandline?: boolean
+  feedbackEmail?: boolean
+  feedbackFax?: boolean
+  feedbackContact?: boolean
+  referredByName?: boolean
+  referredByDesignation?: boolean
+  formUpdatedAt?: boolean
+  formUpdatedById?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseReferral"]>
 
@@ -657,6 +1352,27 @@ export type CaseReferralSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  toAddress?: boolean
+  toContactPerson?: boolean
+  clientName?: boolean
+  clientAge?: boolean
+  clientSex?: boolean
+  clientAddress?: boolean
+  guardianName?: boolean
+  guardianContact?: boolean
+  guardianAddress?: boolean
+  servicesRequested?: boolean
+  feedbackTo?: boolean
+  feedbackAddress?: boolean
+  feedbackCellPhone?: boolean
+  feedbackLandline?: boolean
+  feedbackEmail?: boolean
+  feedbackFax?: boolean
+  feedbackContact?: boolean
+  referredByName?: boolean
+  referredByDesignation?: boolean
+  formUpdatedAt?: boolean
+  formUpdatedById?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseReferral"]>
 
@@ -672,9 +1388,30 @@ export type CaseReferralSelectScalar = {
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  toAddress?: boolean
+  toContactPerson?: boolean
+  clientName?: boolean
+  clientAge?: boolean
+  clientSex?: boolean
+  clientAddress?: boolean
+  guardianName?: boolean
+  guardianContact?: boolean
+  guardianAddress?: boolean
+  servicesRequested?: boolean
+  feedbackTo?: boolean
+  feedbackAddress?: boolean
+  feedbackCellPhone?: boolean
+  feedbackLandline?: boolean
+  feedbackEmail?: boolean
+  feedbackFax?: boolean
+  feedbackContact?: boolean
+  referredByName?: boolean
+  referredByDesignation?: boolean
+  formUpdatedAt?: boolean
+  formUpdatedById?: boolean
 }
 
-export type CaseReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "agency" | "agencyOther" | "referredAt" | "reason" | "status" | "notes" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseReferral"]>
+export type CaseReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "agency" | "agencyOther" | "referredAt" | "reason" | "status" | "notes" | "createdById" | "createdAt" | "updatedAt" | "toAddress" | "toContactPerson" | "clientName" | "clientAge" | "clientSex" | "clientAddress" | "guardianName" | "guardianContact" | "guardianAddress" | "servicesRequested" | "feedbackTo" | "feedbackAddress" | "feedbackCellPhone" | "feedbackLandline" | "feedbackEmail" | "feedbackFax" | "feedbackContact" | "referredByName" | "referredByDesignation" | "formUpdatedAt" | "formUpdatedById", ExtArgs["result"]["caseReferral"]>
 export type CaseReferralInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -708,6 +1445,44 @@ export type $CaseReferralPayload<ExtArgs extends runtime.Types.Extensions.Intern
     createdById: string
     createdAt: Date
     updatedAt: Date
+    /**
+     * Annex B - Referral Form (lib/referralForm.ts). All optional: a referral
+     * recorded before the form existed prints with blank lines to fill in.
+     * The receiving office ("To:" is the agency above).
+     */
+    toAddress: string | null
+    toContactPerson: string | null
+    /**
+     * The client being referred.
+     */
+    clientName: string | null
+    clientAge: number | null
+    /**
+     * Female | Male | Intersex - as recorded, never inferred.
+     */
+    clientSex: string | null
+    clientAddress: string | null
+    guardianName: string | null
+    guardianContact: string | null
+    guardianAddress: string | null
+    servicesRequested: string | null
+    /**
+     * Where the receiving office sends its feedback (the referring party).
+     */
+    feedbackTo: string | null
+    feedbackAddress: string | null
+    feedbackCellPhone: string | null
+    feedbackLandline: string | null
+    feedbackEmail: string | null
+    feedbackFax: string | null
+    feedbackContact: string | null
+    /**
+     * The signatory, printed under the signature line.
+     */
+    referredByName: string | null
+    referredByDesignation: string | null
+    formUpdatedAt: Date | null
+    formUpdatedById: string | null
   }, ExtArgs["result"]["caseReferral"]>
   composites: {}
 }
@@ -1143,6 +1918,27 @@ export interface CaseReferralFieldRefs {
   readonly createdById: Prisma.FieldRef<"CaseReferral", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseReferral", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CaseReferral", 'DateTime'>
+  readonly toAddress: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly toContactPerson: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly clientName: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly clientAge: Prisma.FieldRef<"CaseReferral", 'Int'>
+  readonly clientSex: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly clientAddress: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly guardianName: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly guardianContact: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly guardianAddress: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly servicesRequested: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackTo: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackAddress: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackCellPhone: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackLandline: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackEmail: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackFax: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly feedbackContact: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly referredByName: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly referredByDesignation: Prisma.FieldRef<"CaseReferral", 'String'>
+  readonly formUpdatedAt: Prisma.FieldRef<"CaseReferral", 'DateTime'>
+  readonly formUpdatedById: Prisma.FieldRef<"CaseReferral", 'String'>
 }
     
 

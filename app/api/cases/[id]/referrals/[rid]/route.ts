@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateCaseRecords, noStore } from '@/lib/caseRecordsServer';
 import { referralUpdateSchema, REFERRAL_STATUSES } from '@/lib/caseRecords';
+import { referralFormSchema } from '@/lib/referralForm';
 
 /** Update a referral's status or notes - officer-only. The referral must belong to this case. */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string; rid: string }> }) {
@@ -31,5 +32,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return noStore({ success: true, data: updated });
   } catch {
     return errorResponse('The referral could not be updated right now.', 503);
+  }
+}
+
+/**
+ * PUT { form, reason? } - fill in or correct the referral's Annex B form (a referral
+ * recorded before the form existed, or a detail to fix). Officer-only; the
+ * referral must belong to this case. Who changed it, and when, is kept.
+ */
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string; rid: string }> }) {
+  const { id, rid } = await params;
+  const g = await gateCaseRecords(req, id, 'edit', 'referrals');
+  if ('error' in g) return g.error;
+  const body = await req.json().catch(() => null) as { form?: unknown; reason?: unknown } | null;
+  const parsed = referralFormSchema.safeParse(body?.form ?? null);
+  if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Check the referral form', 400);
+  // The form's "Reason/s for Referral" is the referral's own reason.
+  const reason = typeof body?.reason === 'string' ? body.reason.trim().slice(0, 500) : undefined;
+  if (typeof body?.reason === 'string' && body.reason.trim().length > 500) return errorResponse('Keep the reason under 500 characters', 400);
+  try {
+    const existing = await prisma.caseReferral.findUnique({ where: { id: rid }, select: { caseId: true } });
+    if (!existing || existing.caseId !== id) return errorResponse('Referral not found', 404);
+    const me = await prisma.user.findUnique({ where: { id: g.actor.id }, select: { name: true } });
+    const updated = await prisma.$transaction(async tx => {
+      const r = await tx.caseReferral.update({ where: { id: rid }, data: { ...parsed.data, ...(reason !== undefined ? { reason: reason || null } : {}), formUpdatedAt: new Date(), formUpdatedById: g.actor.id } });
+      await tx.activity.create({ data: { type: 'referral', message: `Referral form updated by ${me?.name ?? 'an official'}`,
+        entityId: rid, entityType: 'CaseReferral', userId: g.actor.id, caseId: id, color: '#7c3aed' } });
+      return r;
+    });
+    await g.log('permitted', `${g.access.code}:referral_form`);
+    return noStore({ success: true, data: updated });
+  } catch {
+    return errorResponse('The referral form could not be saved right now. It is still on your screen - try again.', 503);
   }
 }
