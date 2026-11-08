@@ -31,7 +31,7 @@ export interface Hearing {
 export interface PartyOption {
   id: string | null; name: string; label: string;
   /** The SafeComm account the party is linked to (the reporter's own, for the reporter). */
-  account: { residentNumber: string | null; name: string | null; linkedAt: string | null; reporter?: boolean } | null;
+  account: { residentNumber: string | null; name: string | null; linkedAt: string | null; linkedBy?: string | null; reporter?: boolean } | null;
 }
 export interface NextStep { stage: KpStage; session: number; label: string; title: string; forms: { formNo: number; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; name: string }[] }
 export interface PangkatMember {

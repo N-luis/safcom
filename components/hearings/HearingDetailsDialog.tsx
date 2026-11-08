@@ -446,6 +446,14 @@ export function PartyAccount({ caseId, role, party, canEdit, refresh }: { caseId
           label={party.account ? (party.account.reporter ? 'Filed through SafeComm' : `Linked: ${party.account.residentNumber}`) : 'No SafeComm account'} />
       </Box>
       {reporter && <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>The reporter&apos;s own account receives the complainant&apos;s notices unless the person affected is linked to an account of their own.</Typography>}
+      {/* Who it is linked to, and when - so the officer can check it is the right person. */}
+      {!reporter && party.account && (
+        <Typography data-testid="party-link-detail" sx={{ fontSize: '0.8rem', color: '#0f766e' }}>
+          Linked to <b>{party.account.name || 'a SafeComm account'}</b> ({party.account.residentNumber})
+          {party.account.linkedAt ? ` on ${when(party.account.linkedAt)}` : ''}{party.account.linkedBy ? ` by ${party.account.linkedBy}` : ''}.
+          {' '}Their notices for this proceeding reach them in My Hearings &amp; Notices.
+        </Typography>
+      )}
       {!reporter && canEdit && !party.account && (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <TextField size="small" label="Resident number" value={number} onChange={e => setNumber(e.target.value)} slotProps={{ htmlInput: { maxLength: 40 } }}

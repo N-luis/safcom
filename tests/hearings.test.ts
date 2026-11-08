@@ -435,7 +435,10 @@ async function main() {
     ok('KP Form No. 11 is made for each chosen member, for the officer to hand over', k11.every(r => r.status === 201) && kp11.length === 3
       && kp11.every(x => x.recipientRole === 'PANGKAT_MEMBER' && x.channel === 'OFFICER' && x.status === 'GENERATED' && ids3.includes(x.pangkatMemberId!)));
     ok('one KP 11 per member', (await pk(K.id, B.cookie, { action: 'kp11', memberId: ids3[0] })).status === 409);
-    const t11 = await pdfText(await noticePDF(req(`/api/cases/${K.id}/hearings/${PC}/notices/${kp11[0].id}/pdf`, B.cookie), PN(K.id, PC, kp11[0].id)));
+    // Ana Lupon's own KP 11 - the notices come back in no set order.
+    const anaId = (pg.pangkat.members as Body[]).find(m => m.name === 'Ana Lupon')?.id as string;
+    const ana11 = kp11.find(x => x.pangkatMemberId === anaId)!;
+    const t11 = await pdfText(await noticePDF(req(`/api/cases/${K.id}/hearings/${PC}/notices/${ana11.id}/pdf`, B.cookie), PN(K.id, PC, ana11.id)));
     ok('KP 11 names the member and the case', t11.includes('NOTICE TO CHOSEN PANGKAT MEMBER') && t11.includes('Ana Lupon') && t11.includes(K.caseNumber) && t11.includes('Pangkat Member'));
     ok('a party never sees the Pangkat members\' notices', !JSON.stringify(await resident(R1.cookie)).includes('Ana Lupon') && (await rnotice(PC, R1.cookie, kp11[0].id))!.status === 404);
     ok('issuing a member\'s notice through SafeComm is refused; handing it over is recorded',

@@ -35,11 +35,15 @@ type Params = { params: Promise<{ id: string }> };
 async function partiesOf(c: HearingCase) {
   const rows = await prisma.caseParty.findMany({
     where: { caseId: c.id }, orderBy: { createdAt: 'asc' },
-    select: { id: true, role: true, fullName: true, source: true, residentId: true, residentLinkedAt: true,
+    select: { id: true, role: true, fullName: true, source: true, residentId: true, residentLinkedAt: true, residentLinkedById: true,
       resident: { select: { residentNumber: true, firstName: true, lastName: true } } },
   });
+  // Who linked each account, so the officer can see who and when.
+  const linkers = [...new Set(rows.filter(r => r.resident && r.residentLinkedById).map(r => r.residentLinkedById as string))];
+  const linkerNames = new Map((linkers.length ? await prisma.user.findMany({ where: { id: { in: linkers } }, select: { id: true, name: true } }) : []).map(u => [u.id, u.name]));
   const account = (r: (typeof rows)[number]) => (r.resident
-    ? { residentNumber: r.resident.residentNumber, name: `${r.resident.firstName} ${r.resident.lastName}`.trim(), linkedAt: r.residentLinkedAt } : null);
+    ? { residentNumber: r.resident.residentNumber, name: `${r.resident.firstName} ${r.resident.lastName}`.trim(), linkedAt: r.residentLinkedAt,
+      linkedBy: r.residentLinkedById ? linkerNames.get(r.residentLinkedById) ?? null : null } : null);
   return {
     complainants: [
       { id: null as string | null, name: complainantName(c, null), label: 'The reporter (filed the case)', account: c.residentId ? { residentNumber: null, name: null, linkedAt: null, reporter: true } : null },

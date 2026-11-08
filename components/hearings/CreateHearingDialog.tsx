@@ -216,11 +216,14 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             {!d.canEdit && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.accessMessage ?? 'You can view this case\'s hearings but not create one.'}</Alert>}
 
             {!d.vawc && d.canEdit && !d.parties.respondents.length && <RecordRespondent caseId={d.case.id} onSaved={refresh} />}
-            {!d.vawc && d.canEdit && rParty && !rParty.account && (
+            {/* Stays after linking, so the officer sees who it is linked to and when, and can unlink a mistake. */}
+            {!d.vawc && d.canEdit && rParty && (
               <Box>
-                <Typography sx={{ fontSize: '0.78rem', color: '#475569', mb: 0.75 }}>
-                  If the respondent has a SafeComm account, link it so the summons reaches them in My Hearings &amp; Notices. Otherwise an officer serves it and records the delivery.
-                </Typography>
+                {!rParty.account && (
+                  <Typography sx={{ fontSize: '0.78rem', color: '#475569', mb: 0.75 }}>
+                    If the respondent has a SafeComm account, link it so the summons reaches them in My Hearings &amp; Notices. Otherwise an officer serves it and records the delivery.
+                  </Typography>
+                )}
                 <PartyAccount caseId={d.case.id} role="RESPONDENT" party={rParty} canEdit refresh={refresh} />
               </Box>
             )}
