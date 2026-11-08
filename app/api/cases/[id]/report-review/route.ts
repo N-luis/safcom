@@ -6,6 +6,7 @@ import { gateCaseRecords, noStore, reassess, MAX_AI_RERUNS_PER_DAY } from '@/lib
 import { logRouteError } from '@/lib/hearingCasesServer';
 import { isVawcType } from '@/lib/reportingStats';
 import { templateFor, fieldOf, fieldsOf, countNeedsConfirmation, REQUEST_QUESTIONS, type DraftFields } from '@/lib/reportTemplates';
+import { interviewFieldOf, checkAnswer } from '@/lib/interviewAnswers';
 import {
   loadReport, originalOf, versionRow, draftRow, draftChanges, generateDraft, addVersion, materialSinceLastRun, questionsFor, fieldLabel,
   type AddendumField,
@@ -144,7 +145,18 @@ export async function POST(req: NextRequest, { params }: Params) {
       const when = new Date(d.interviewedAt.length === 16 ? `${d.interviewedAt}:00+08:00` : d.interviewedAt);
       if (Number.isNaN(when.getTime()) || when.getTime() > Date.now() + 5 * 60_000) return errorResponse('The interview date cannot be in the future.', 400);
       const interviewer = d.interviewerId || me;
-      for (const q of d.questions) if (q.fieldKey && !fieldOf(template, q.fieldKey)) return errorResponse('A question is linked to a field that is not on this report.', 400);
+      // A linked answer fills a field of the official form, written the way that form item is answered.
+      const today = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+      const linked = new Set<string>();
+      for (const q of d.questions) {
+        if (!q.fieldKey) continue;
+        if (linked.has(q.fieldKey)) return errorResponse('Two answers fill the same field - keep one, or add the other as information.', 400);
+        linked.add(q.fieldKey);
+        const f = interviewFieldOf(template, q.fieldKey);
+        if (!f || !fieldOf(template, q.fieldKey)) return errorResponse('A question is linked to a field that is not on this report.', 400);
+        const bad = checkAnswer(f, q.answer, today);
+        if (bad) return errorResponse(`${f.label} (${f.section}): ${bad}`, 400);
+      }
       const out = await prisma.$transaction(async tx => {
         const iv = await tx.caseInterview.create({ data: { caseId: id, interviewedAt: when, contactMethod: d.contactMethod, interviewerId: interviewer,
           questions: d.questions.map(q => ({ question: q.question, answer: q.answer, fieldKey: q.fieldKey ?? null })), notes: d.notes || null,

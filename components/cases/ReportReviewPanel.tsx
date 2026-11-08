@@ -4,11 +4,13 @@ import { useState, type ReactNode } from 'react';
 import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Button, Chip, Alert, Skeleton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem,
-  Checkbox, FormControlLabel, IconButton, Tooltip, CircularProgress, Divider, Collapse,
+  Checkbox, FormControlLabel, IconButton, Tooltip, CircularProgress, Divider, Collapse, ListSubheader,
 } from '@mui/material';
 import { FactCheck, QuestionAnswer, RecordVoiceOver, AutoAwesome, CompareArrows, Verified, Edit, Add, Delete, ExpandMore, ExpandLess } from '@mui/icons-material';
 import toast from 'react-hot-toast';
-import { TEMPLATES, type FieldStatus, type TemplateName } from '@/lib/reportTemplates';
+import { TEMPLATES, FIELD_STATUSES, type FieldStatus, type TemplateName } from '@/lib/reportTemplates';
+import { interviewFields, interviewFieldOf, checkAnswer, type InterviewField } from '@/lib/interviewAnswers';
+import InterviewAnswerField from '@/components/cases/InterviewAnswerField';
 import { StatusChip } from '@/components/forms/ReportEditor';
 
 /**
@@ -196,7 +198,7 @@ function Shell({ title, children, onClose, actions }: { title: string; children:
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="sm" scroll="paper">
       <DialogTitle sx={{ fontWeight: 800, color: NAVY }}>{title}</DialogTitle>
-      <DialogContent dividers sx={{ display: 'grid', gap: 1.5 }}>{children}</DialogContent>
+      <DialogContent dividers sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 1.5 }}>{children}</DialogContent>
       <DialogActions sx={{ px: 3, py: 1.5 }}><Button onClick={onClose} sx={{ textTransform: 'none' }}>Cancel</Button>{actions}</DialogActions>
     </Dialog>
   );
@@ -238,15 +240,28 @@ function InterviewDialog({ data, onClose, onSend, busy }: { data: Data; onClose:
   const [follow, setFollow] = useState('');
   const [safe, setSafe] = useState(false);
   const t: TemplateName = data.template;
+  const [today] = useState(() => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10));
+  // The fields an answer may fill - from the official form, in its sections and order.
+  const fieldsBySection = Object.entries(interviewFields(t).reduce<Record<string, InterviewField[]>>((acc, f) => { (acc[f.section] ??= []).push(f); return acc; }, {}));
+  // Choosing a field starts the question with neutral wording (kept if the official already wrote one) and clears an answer in another shape.
+  const pickField = (i: number, key: string) => setQs(a => a.map((x, j) => {
+    if (j !== i) return x;
+    const before = x.fieldKey ? interviewFieldOf(t, x.fieldKey) : null;
+    const next = key ? interviewFieldOf(t, key) : null;
+    const ownWords = x.question.trim() && x.question !== before?.question;
+    const freeText = (f: InterviewField | null) => !f || f.input.kind === 'text';
+    return { fieldKey: key, question: ownWords ? x.question : next?.question ?? '', answer: freeText(before) && freeText(next) ? x.answer : '' };
+  }));
+  const errs = qs.map(q => { const f = q.fieldKey ? interviewFieldOf(t, q.fieldKey) : null; return f ? checkAnswer(f, q.answer, today) : null; });
   const unsafeCall = data.vawc && method === 'PHONE' && data.contactPreference === 'no_phone';
-  const valid = qs.some(q => q.question.trim().length >= 3) && (!unsafeCall || safe);
+  const valid = qs.some(q => q.question.trim().length >= 3) && errs.every(e => !e) && (!unsafeCall || safe);
   return (
     <Shell title="Record Interview" onClose={onClose}
       actions={<Button variant="contained" disabled={busy || !valid} sx={{ textTransform: 'none', bgcolor: NAVY }}
         onClick={() => onSend({ action: 'record_interview', interviewedAt: at, contactMethod: method, interviewerId: interviewer || undefined, safetyConfirmed: safe || undefined,
           questions: qs.filter(q => q.question.trim().length >= 3).map(q => ({ question: q.question.trim(), answer: q.answer.trim(), fieldKey: q.fieldKey || undefined })),
           notes: notes.trim() || undefined, followUpActions: follow.trim() || undefined })}>Save interview</Button>}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 1.25 }}>
         <TextField size="small" type="datetime-local" label="Date and time (Philippine time)" value={at} onChange={e => setAt(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
         <TextField select size="small" label="Contact method" value={method} onChange={e => setMethod(e.target.value as keyof typeof CONTACT)}>
           {Object.entries(CONTACT).map(([k, v]) => <MenuItem key={k} value={k}>{v}</MenuItem>)}
@@ -264,20 +279,45 @@ function InterviewDialog({ data, onClose, onSend, busy }: { data: Data; onClose:
         </Alert>
       )}
       <Typography sx={label}>Questions and answers</Typography>
-      {qs.map((q, i) => (
-        <Box key={i} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'grid', gap: 0.75 }}>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <TextField size="small" fullWidth label={`Question ${i + 1}`} value={q.question} onChange={e => setQs(a => a.map((x, j) => j === i ? { ...x, question: e.target.value } : x))} slotProps={{ htmlInput: { maxLength: 300 } }} />
-            {qs.length > 1 && <IconButton aria-label="Remove question" onClick={() => setQs(a => a.filter((_, j) => j !== i))}><Delete fontSize="small" /></IconButton>}
+      {qs.map((q, i) => {
+        const field = q.fieldKey ? interviewFieldOf(t, q.fieldKey) : null;
+        const err = errs[i];
+        const now = field ? data.latestDraft?.fields?.[field.key] as { value: string | null; status: FieldStatus } | undefined : undefined;
+        const usedElsewhere = new Set(qs.filter((_, j) => j !== i).map(x => x.fieldKey).filter(Boolean));
+        return (
+          <Box key={i} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-start' }}>
+              <TextField select fullWidth size="small" label={`Question ${i + 1} - what does the answer fill?`} value={q.fieldKey}
+                onChange={e => pickField(i, e.target.value)}
+                slotProps={{ select: { displayEmpty: true, renderValue: v => (v ? (() => { const f = interviewFieldOf(t, String(v)); return f ? `${f.no ? `${f.no}. ` : ''}${f.label} - ${f.section}` : String(v); })() : <em>None - added as information</em>),
+                  MenuProps: { slotProps: { paper: { sx: { maxHeight: 420 } } } } }, inputLabel: { shrink: true } }}>
+                {[
+                  <MenuItem key="" value=""><em>None - added as information</em></MenuItem>,
+                  ...fieldsBySection.flatMap(([section, fs]) => [
+                    <ListSubheader key={`h-${section}`} sx={{ fontSize: '0.74rem', fontWeight: 800, color: NAVY, lineHeight: '30px' }}>{section}</ListSubheader>,
+                    ...fs.map(f => (
+                      <MenuItem key={f.key} value={f.key} disabled={usedElsewhere.has(f.key)} sx={{ pl: 3, fontSize: '0.88rem' }}>
+                        {f.no ? `${f.no}. ` : ''}{f.label}{usedElsewhere.has(f.key) ? ' (in another question)' : ''}
+                      </MenuItem>
+                    )),
+                  ]),
+                ]}
+              </TextField>
+              {qs.length > 1 && <IconButton aria-label="Remove question" onClick={() => setQs(a => a.filter((_, j) => j !== i))}><Delete fontSize="small" /></IconButton>}
+            </Box>
+            <TextField size="small" fullWidth label="Question asked" value={q.question} onChange={e => setQs(a => a.map((x, j) => j === i ? { ...x, question: e.target.value } : x))}
+              helperText={field ? 'A neutral starting question - reword it to what was actually asked' : undefined} slotProps={{ htmlInput: { maxLength: 300 } }} />
+            <InterviewAnswerField field={field} value={q.answer} today={today} error={q.answer.trim() ? err : null}
+              onChange={v => setQs(a => a.map((x, j) => j === i ? { ...x, answer: v } : x))} />
+            {field && (
+              <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>
+                From the {field.basis}.{' '}
+                {now?.value ? <>Now in the draft: <b>{now.value}</b> ({FIELD_STATUSES[now.status]?.label.toLowerCase() ?? now.status}).</> : 'Not in the draft yet.'}
+              </Typography>
+            )}
           </Box>
-          <TextField size="small" fullWidth multiline minRows={2} label="The resident's answer, or your authorized note" value={q.answer} onChange={e => setQs(a => a.map((x, j) => j === i ? { ...x, answer: e.target.value } : x))} slotProps={{ htmlInput: { maxLength: 2000 } }} />
-          <TextField select size="small" label="Fills a report field (optional)" value={q.fieldKey} onChange={e => setQs(a => a.map((x, j) => j === i ? { ...x, fieldKey: e.target.value } : x))}
-            slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
-            <MenuItem value=""><em>None - added as information</em></MenuItem>
-            {TEMPLATES[t].fields.filter(f => f.from.includes('ai')).map(f => <MenuItem key={f.key} value={f.key}>{f.label}</MenuItem>)}
-          </TextField>
-        </Box>
-      ))}
+        );
+      })}
       <Box><Button size="small" startIcon={<Add />} onClick={() => setQs(a => [...a, { question: '', answer: '', fieldKey: '' }])} sx={{ textTransform: 'none' }}>Add a question</Button></Box>
       <TextField size="small" multiline minRows={2} label="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} slotProps={{ htmlInput: { maxLength: 2000 } }} />
       <TextField size="small" multiline minRows={2} label="Follow-up actions (optional)" value={follow} onChange={e => setFollow(e.target.value)} slotProps={{ htmlInput: { maxLength: 1000 } }} />

@@ -209,9 +209,17 @@ async function main() {
     // ── 11. Interview ──
     console.log('\n11. Record Interview');
     const iv = await rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() - 3600_000).toISOString(), contactMethod: 'IN_PERSON',
-      questions: [{ question: 'Ilang beses na po ito nangyari?', answer: 'Tatlong beses na po ngayong buwan.' }, { question: 'Ilang taon na po si Mang Tonyo?', answer: 'mga 50', fieldKey: 'respondentAge' }],
+      questions: [{ question: 'Ilang beses na po ito nangyari?', answer: 'Tatlong beses na po ngayong buwan.' }, { question: 'Ilang taon na po si Mang Tonyo?', answer: 'about 50', fieldKey: 'respondentAge' }],
       notes: 'Kinausap ang reporter sa barangay hall.', followUpActions: 'Ipatawag ang respondent.' });
     ok('the interview is recorded, and kept as report version 5', iv.status === 201 && iv.body.data.version === 5);
+    const ivBad = (questions: unknown) => rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() - 600_000).toISOString(), contactMethod: 'IN_PERSON', questions });
+    const badAge = await ivBad([{ question: 'Ilang taon?', answer: 'mga limampu', fieldKey: 'respondentAge' }]);
+    ok('an answer that fills a field must be in that form item\'s shape: an age is a number', badAge.status === 400 && /Age \(C\. Respondent Information\): Enter the age/.test(badAge.body.error ?? ''), badAge.body.error);
+    ok('...a date is a date, never a future one', (await ivBad([{ question: 'Kailan?', answer: 'kahapon', fieldKey: 'incidentDate' }])).status === 400
+      && (await ivBad([{ question: 'Kailan?', answer: '2999-01-01', fieldKey: 'incidentDate' }])).status === 400);
+    ok('two answers cannot fill the same field', (await ivBad([{ question: 'Ilang taon?', answer: '50', fieldKey: 'respondentAge' }, { question: 'Edad?', answer: '51', fieldKey: 'respondentAge' }])).status === 400);
+    ok('a field only an official records (the category) cannot be filled by an interview answer', (await ivBad([{ question: 'Ano ito?', answer: 'Noise', fieldKey: 'incidentCategory' }])).status === 400);
+    ok('nothing was saved by the refused interviews', (await prisma.caseInterview.count({ where: { caseId: id } })) === 1);
     ok('it cannot be dated in the future', (await rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() + 86_400_000).toISOString(), contactMethod: 'IN_PERSON',
       questions: [{ question: 'Test?', answer: 'x' }] })).status === 400);
 
