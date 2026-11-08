@@ -53,6 +53,10 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Case: 'Case',
+  ReportAddendum: 'ReportAddendum',
+  ClarificationRequest: 'ClarificationRequest',
+  CaseInterview: 'CaseInterview',
+  ReportDraft: 'ReportDraft',
   CaseVictimSurvivor: 'CaseVictimSurvivor',
   CaseParty: 'CaseParty',
   CaseSafetyAssessment: 'CaseSafetyAssessment',
@@ -162,6 +166,86 @@ export const CaseScalarFieldEnum = {
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const ReportAddendumScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  version: 'version',
+  previousVersion: 'previousVersion',
+  source: 'source',
+  fields: 'fields',
+  text: 'text',
+  reason: 'reason',
+  residentId: 'residentId',
+  actorUserId: 'actorUserId',
+  requestId: 'requestId',
+  interviewId: 'interviewId',
+  material: 'material',
+  createdAt: 'createdAt'
+} as const
+
+export type ReportAddendumScalarFieldEnum = (typeof ReportAddendumScalarFieldEnum)[keyof typeof ReportAddendumScalarFieldEnum]
+
+
+export const ClarificationRequestScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  requestedById: 'requestedById',
+  items: 'items',
+  message: 'message',
+  status: 'status',
+  answeredAt: 'answeredAt',
+  addendumId: 'addendumId',
+  cancelledById: 'cancelledById',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  createdAt: 'createdAt'
+} as const
+
+export type ClarificationRequestScalarFieldEnum = (typeof ClarificationRequestScalarFieldEnum)[keyof typeof ClarificationRequestScalarFieldEnum]
+
+
+export const CaseInterviewScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  interviewedAt: 'interviewedAt',
+  contactMethod: 'contactMethod',
+  interviewerId: 'interviewerId',
+  questions: 'questions',
+  notes: 'notes',
+  followUpActions: 'followUpActions',
+  recordedById: 'recordedById',
+  addendumId: 'addendumId',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseInterviewScalarFieldEnum = (typeof CaseInterviewScalarFieldEnum)[keyof typeof CaseInterviewScalarFieldEnum]
+
+
+export const ReportDraftScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  draftNumber: 'draftNumber',
+  basedOnVersion: 'basedOnVersion',
+  template: 'template',
+  fields: 'fields',
+  summary: 'summary',
+  generator: 'generator',
+  aiStatus: 'aiStatus',
+  model: 'model',
+  needsConfirmation: 'needsConfirmation',
+  meta: 'meta',
+  status: 'status',
+  createdById: 'createdById',
+  createdByResident: 'createdByResident',
+  createdAt: 'createdAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  approvalNote: 'approvalNote'
+} as const
+
+export type ReportDraftScalarFieldEnum = (typeof ReportDraftScalarFieldEnum)[keyof typeof ReportDraftScalarFieldEnum]
 
 
 export const CaseVictimSurvivorScalarFieldEnum = {

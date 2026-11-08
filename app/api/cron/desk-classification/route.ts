@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '@/lib/auth';
 import { retryAwaitingDesk } from '@/lib/reportDeskServer';
+import { retryPendingDrafts } from '@/lib/reportReviewServer';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 export const dynamic = 'force-dynamic';
@@ -22,8 +23,10 @@ export async function GET(req: NextRequest) {
   if (provided !== secret) return errorResponse('Unauthorized', 401);
   try {
     const results = await retryAwaitingDesk();
+    // The same run retries report drafts SafeComm AI could not organize (lib/reportReviewServer).
+    const drafts = await retryPendingDrafts();
     // Case numbers and outcomes only - never a narrative.
-    return successResponse({ checked: results.length, results });
+    return successResponse({ checked: results.length, results, drafts });
   } catch (e) {
     logRouteError('GET /api/cron/desk-classification', e);
     return errorResponse('The retry could not run right now.', 503);

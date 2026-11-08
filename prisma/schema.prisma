@@ -151,8 +151,130 @@ model Case {
   kpReviews        CaseKpReview[]
   pangkat          CasePangkat?
   victimSurvivors  CaseVictimSurvivor[]
+  reportAddenda    ReportAddendum[]
+  reportDrafts     ReportDraft[]
+  clarifications   ClarificationRequest[]
+  interviews       CaseInterview[]
 
   @@index([progressState])
+}
+
+/// Report review: everything added to a report after it was filed. The
+/// resident's original narrative (CaseIntake.narrative / Case.description) is
+/// version 1 and is never changed; each correction, addition, answer to a
+/// follow-up question, clarification or recorded interview is a new version
+/// here, with the version it follows, what it supplies, who and when.
+/// Append-only (prisma/sql/010_report_review.sql).
+model ReportAddendum {
+  id              String   @id @default(cuid())
+  caseId          String
+  case            Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// 2, 3, ... - the original report is version 1.
+  version         Int
+  previousVersion Int
+  /// RESIDENT_CORRECTION | RESIDENT_ADDITION | RESIDENT_CLARIFICATION | RESIDENT_ANSWERS | INTERVIEW
+  source          String
+  /// [{ key, label, value }] or [{ key, label, skipped: true }] - answers to the report's questions, by template field.
+  fields          Json
+  /// Free text in the person's own words (a correction, an addition, a clarification).
+  text            String?
+  reason          String?
+  /// The authenticated resident, when a resident supplied it.
+  residentId      String?
+  /// The official, when recorded by one (an interview).
+  actorUserId     String?
+  /// The clarification request this answers, when it does.
+  requestId       String?
+  interviewId     String?
+  /// It changes what the report says happened - the AI assessment should be run again.
+  material        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@unique([caseId, version])
+  @@index([caseId])
+}
+
+/// An official's request for more information from the resident who filed.
+/// Shown in the resident's report details and answered there; delivered only
+/// inside SafeComm (no text message or call).
+model ClarificationRequest {
+  id            String    @id @default(cuid())
+  caseId        String
+  case          Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  requestedById String
+  /// [{ key, label, question }] - what needs clarifying.
+  items         Json
+  message       String?
+  /// OPEN | ANSWERED | CANCELLED
+  status        String    @default("OPEN")
+  answeredAt    DateTime?
+  addendumId    String?
+  cancelledById String?
+  cancelledAt   DateTime?
+  cancelReason  String?
+  createdAt     DateTime  @default(now())
+
+  @@index([caseId])
+}
+
+/// A follow-up interview or interaction an official recorded. Its answers
+/// are also kept as a report version (ReportAddendum, source INTERVIEW).
+/// Append-only.
+model CaseInterview {
+  id              String   @id @default(cuid())
+  caseId          String
+  case            Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  interviewedAt   DateTime
+  /// IN_PERSON | PHONE | SAFECOMM_MESSAGE | HOME_VISIT | OTHER
+  contactMethod   String
+  /// The official who held the interview.
+  interviewerId   String
+  /// [{ question, answer }]
+  questions       Json
+  notes           String?
+  followUpActions String?
+  recordedById    String
+  addendumId      String?
+  createdAt       DateTime @default(now())
+
+  @@index([caseId])
+}
+
+/// A structured draft of the report in the desk's intake template
+/// (lib/reportTemplates.ts), each field marked with where it came from - or
+/// NEEDS_CONFIRMATION. Drafts are kept, never rewritten: a new one supersedes
+/// the last. Only an official's approval makes one the official report.
+model ReportDraft {
+  id                 String    @id @default(cuid())
+  caseId             String
+  case               Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  draftNumber        Int
+  /// The latest report version it was built from (1 = the original only).
+  basedOnVersion     Int
+  /// BLOTTER | VAWC
+  template           String
+  /// { [templateKey]: { value, status, source, quote, note } }
+  fields             Json
+  /// SafeComm AI's neutral summary - never a finding.
+  summary            String?
+  /// ai | rules | official_edit
+  generator          String
+  aiStatus           String?
+  model              String?
+  needsConfirmation  Int       @default(0)
+  /// What else came with it: the reassessment it triggered, the field an official edited.
+  meta               Json?
+  /// DRAFT | APPROVED | SUPERSEDED
+  status             String    @default("DRAFT")
+  createdById        String?
+  createdByResident  String?
+  createdAt          DateTime  @default(now())
+  approvedById       String?
+  approvedAt         DateTime?
+  approvalNote       String?
+
+  @@unique([caseId, draftNumber])
+  @@index([caseId])
 }
 
 /// The victim-survivors of a VAWC case, as an official records them - one row

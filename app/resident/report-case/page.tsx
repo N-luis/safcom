@@ -487,7 +487,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     What happened? *
                   </Typography>
                   <Typography sx={{ fontSize: '0.8rem', color: '#64748b', mb: 1 }}>
-                    Describe what happened in your own words. SafeComm AI will help identify the appropriate reporting desk.
+                    Describe what happened in your own words. You do not need to follow a specific format. SafeComm AI will help organize your report.
                   </Typography>
                   <TextField
                     label="What happened? *"

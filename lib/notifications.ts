@@ -11,7 +11,7 @@ export const RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY = 'resident_notifications_last
  */
 export const RESIDENT_ACTIVITY_TYPES = [
   'case_filed', 'case', 'vawc_status_changed', 'category_changed', 'category_confirmed',
-  'assignment', 'follow_up', 'hearing',
+  'assignment', 'follow_up', 'hearing', 'clarification_request',
 ] as const;
 
 /** An official's follow-up entry, as the notice about it needs it. */
@@ -87,6 +87,12 @@ export function residentNotice(
   if (type === 'case_filed' || (type === 'case' && message.startsWith('New case'))) {
     // The desk's line carries triage, rule codes and zone flags.
     return { message: 'Your report was filed and is waiting for review by the barangay.', entryLabel: null };
+  }
+
+  if (type === 'clarification_request') {
+    // General words only - never what was asked. The questions are in the
+    // report details, behind the resident's own login (safer for VAWC too).
+    return { message: 'The barangay asked for more information about your report. Open it in My Cases to answer - you can skip anything you cannot or would rather not answer.', entryLabel: 'Request for information' };
   }
 
   if (type === 'assignment') {

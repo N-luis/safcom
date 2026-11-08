@@ -40,7 +40,8 @@
     "test:intakepreview": "npx tsx tests/intakePreviewRender.test.tsx && npx tsx --env-file=.env --conditions=react-server tests/intakePreview.test.ts",
     "kb:setup": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/001_risk_matrix_knowledge_base.sql",
     "kb:ingest": "npx tsx --env-file=.env scripts/ingest-risk-matrices.ts",
-    "test:reportinganalytics": "npx tsx --env-file=.env --conditions=react-server tests/reportingAnalytics.test.ts"
+    "test:reportinganalytics": "npx tsx --env-file=.env --conditions=react-server tests/reportingAnalytics.test.ts",
+    "test:reportreview": "npx tsx --env-file=.env --conditions=react-server tests/reportReview.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

@@ -9,12 +9,13 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Skeleton, TextField, InputAdornment, MenuItem, Select,
   FormControl, InputLabel, Dialog, DialogTitle, DialogContent,
-  DialogActions, Divider,
+  DialogActions, Divider, Alert,
 } from '@mui/material';
 import {
   Search, FolderOpen, Add, Assessment, CheckCircle, Autorenew,
-  Warning, ArrowBack, CalendarToday, LocationOn,
+  Warning, ArrowBack, CalendarToday, LocationOn, EditNote,
 } from '@mui/icons-material';
+import ReportEditor from '@/components/forms/ReportEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionTableRow = motion(TableRow);
@@ -54,7 +55,13 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
   // Bumped when a one-tap check-in is filed, so the progress pill and the
   // timeline below re-read rather than showing the case as it was on open.
   const [timelineKey, setTimelineKey] = useState(0);
+  const [editing, setEditing] = useState(false);
+  // A request from the barangay for more information is shown up front.
+  const { data: report } = useSWR<{ requests: { status: string }[] }>(`/api/resident/cases/${c.id}/report`, fetcher);
+  const openRequests = report?.requests?.filter(r => r.status === 'OPEN').length ?? 0;
   return (
+    <>
+    {editing && <ReportEditor caseId={c.id} onClose={() => { setEditing(false); setTimelineKey(k => k + 1); }} />}
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth
       sx={{ '& .MuiDialog-paper': { m: { xs: 1, sm: 4 }, width: { xs: 'calc(100% - 16px)', sm: 'auto' } } }}
       slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
@@ -66,6 +73,12 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         </Box>
       </DialogTitle>
       <DialogContent>
+        {openRequests > 0 && (
+          <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}
+            action={<Button color="inherit" size="small" onClick={() => setEditing(true)} sx={{ textTransform: 'none', fontWeight: 700 }}>Answer</Button>}>
+            The barangay asked for more information about this report. You can skip anything you cannot or would rather not answer.
+          </Alert>
+        )}
         <Grid container spacing={2} sx={{ mb: 2 }}>
           {[
             { label: 'Case Type', value: c.caseType },
@@ -81,7 +94,14 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
           ))}
         </Grid>
         <Divider sx={{ mb: 2 }} />
-        <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</Typography>
+          {/* Correct, add, answer questions and requests - never overwriting what was filed */}
+          <Button size="small" variant="outlined" startIcon={<EditNote />} onClick={() => setEditing(true)}
+            sx={{ ml: 'auto', textTransform: 'none', borderRadius: 2, borderColor: '#14b8a6', color: '#0f766e', minHeight: 36 }}>
+            Edit / Add Information
+          </Button>
+        </Box>
         <Typography sx={{ fontSize: '0.94rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 2, borderRadius: 2 }}>
           {c.description}
         </Typography>
@@ -112,6 +132,7 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, borderRadius: 2, minHeight: 44 }}>Close</Button>
       </DialogActions>
     </Dialog>
+    </>
   );
 }
 

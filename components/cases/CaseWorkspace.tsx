@@ -27,6 +27,7 @@ import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
+import ReportReviewPanel from '@/components/cases/ReportReviewPanel';
 import HearingsPanel from '@/components/cases/HearingsPanel';
 import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
@@ -1070,8 +1071,10 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           </Card>
         </Grid>
 
-        {/* Right: Timeline */}
+        {/* Right: Report Review and Clarification, then the timeline */}
         <Grid size={{ xs: 12, md: 7 }}>
+          {/* The original report and SafeComm AI's organized draft; clarification, interviews, approval */}
+          <Box sx={{ mb: 2.5 }}><ReportReviewPanel caseId={id} /></Box>
           <Card sx={{ height: 'fit-content' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>

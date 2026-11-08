@@ -10,6 +10,10 @@
  */
 export type * from './models/User'
 export type * from './models/Case'
+export type * from './models/ReportAddendum'
+export type * from './models/ClarificationRequest'
+export type * from './models/CaseInterview'
+export type * from './models/ReportDraft'
 export type * from './models/CaseVictimSurvivor'
 export type * from './models/CaseParty'
 export type * from './models/CaseSafetyAssessment'

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, after } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
@@ -19,6 +19,7 @@ import {
 } from '@/lib/caseRecords';
 import { deskFor, deskHistoryRow } from '@/lib/reportDeskServer';
 import { DESK_DECISION_LABEL } from '@/lib/reportDesk';
+import { draftQuietly } from '@/lib/reportReviewServer';
 import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
 
 /**
@@ -588,6 +589,15 @@ export async function POST(req: NextRequest) {
         data: { requiresOfficerReview: true },
       }).catch(() => undefined);
     }
+
+    // AI-Assisted Report Standardization: a first draft in the desk's template
+    // from what the case records - no AI call, so filing never waits or fails
+    // on it - then SafeComm AI organizes the resident's words after the
+    // response. Neither touches the narrative, the category or the level.
+    await draftQuietly(newCase.id, { useAi: false, by: { residentId: auth.resident.residentId }, chargeTo: auth.resident.residentId, reason: 'Filed by the resident' });
+    try {
+      after(async () => { await draftQuietly(newCase.id, { useAi: true, by: { residentId: auth.resident.residentId }, chargeTo: auth.resident.residentId, reason: 'Organized after filing' }); });
+    } catch { /* outside a request (tests): the records-only draft stands; the cron retries */ }
 
     return rSuccess({
       ...newCase,

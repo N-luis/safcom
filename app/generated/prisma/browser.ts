@@ -28,6 +28,38 @@ export type User = Prisma.UserModel
  */
 export type Case = Prisma.CaseModel
 /**
+ * Model ReportAddendum
+ * Report review: everything added to a report after it was filed. The
+ * resident's original narrative (CaseIntake.narrative / Case.description) is
+ * version 1 and is never changed; each correction, addition, answer to a
+ * follow-up question, clarification or recorded interview is a new version
+ * here, with the version it follows, what it supplies, who and when.
+ * Append-only (prisma/sql/010_report_review.sql).
+ */
+export type ReportAddendum = Prisma.ReportAddendumModel
+/**
+ * Model ClarificationRequest
+ * An official's request for more information from the resident who filed.
+ * Shown in the resident's report details and answered there; delivered only
+ * inside SafeComm (no text message or call).
+ */
+export type ClarificationRequest = Prisma.ClarificationRequestModel
+/**
+ * Model CaseInterview
+ * A follow-up interview or interaction an official recorded. Its answers
+ * are also kept as a report version (ReportAddendum, source INTERVIEW).
+ * Append-only.
+ */
+export type CaseInterview = Prisma.CaseInterviewModel
+/**
+ * Model ReportDraft
+ * A structured draft of the report in the desk's intake template
+ * (lib/reportTemplates.ts), each field marked with where it came from - or
+ * NEEDS_CONFIRMATION. Drafts are kept, never rewritten: a new one supersedes
+ * the last. Only an official's approval makes one the official report.
+ */
+export type ReportDraft = Prisma.ReportDraftModel
+/**
  * Model CaseVictimSurvivor
  * The victim-survivors of a VAWC case, as an official records them - one row
  * per person, so a case can have more than one (a mother and her children).
