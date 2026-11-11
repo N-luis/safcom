@@ -242,9 +242,10 @@ export default function VawcReportsPage() {
       {/* Summary cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {summaryCards.map((card) => (
-          <Grid key={card.label} size={{ xs: 6, md: 3 }}>
-            <Card sx={{ '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 8px 24px ${card.color}18` }, transition: 'all 0.2s' }}>
-              <CardContent sx={{ p: 2.5 }}>
+          <Grid key={card.label} size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
+            {/* Every card fills its row, so all four are the same height whatever they hold. */}
+            <Card sx={{ flex: 1, height: '100%', '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 8px 24px ${card.color}18` }, transition: 'all 0.2s' }}>
+              <CardContent sx={{ p: 2.5, height: '100%', boxSizing: 'border-box' }}>
                 <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: `${card.color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1.5 }}>
                   <card.icon sx={{ fontSize: 18, color: card.color }} />
                 </Box>
@@ -253,7 +254,8 @@ export default function VawcReportsPage() {
                   ? <Skeleton variant="text" width={60} height={40} />
                   : <Typography sx={{ fontSize: '1.9rem', fontWeight: 800, color: '#0c1e46', lineHeight: 1 }}>{card.value.toLocaleString()}</Typography>
                 }
-                {card.sub && <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.75 }}>{card.sub}</Typography>}
+                {/* The line under the number is always there (blank when a card has none), so the cards line up. */}
+                <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', mt: 0.75, minHeight: '1.2em' }}>{card.sub ?? ' '}</Typography>
               </CardContent>
             </Card>
           </Grid>

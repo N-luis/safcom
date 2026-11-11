@@ -7,6 +7,7 @@ import { prisma } from './prisma';
 import { BARANGAY_CONTEXT, EMERGENCY_CONTACTS } from './safecommConfig';
 import { ROLE_TITLE } from './officialIntake';
 import { isVawcType } from './reportingStats';
+import { pathOfType } from './caseRecords';
 import { EMPTY_REFERRAL_FORM, CLIENT_SEX, type ReferralFormKey } from './referralForm';
 
 const SEX_OF: Record<string, string> = { female: 'Female', male: 'Male', intersex: 'Intersex' };
@@ -56,5 +57,5 @@ export async function referralPrefill(caseId: string, actor: { id: string; role:
   set('feedbackContact', me?.name, 'you');
   set('referredByName', me?.name, 'you');
   set('referredByDesignation', ROLE_TITLE[actor.role], 'your role');
-  return { form: f, from, caseNumber: c.caseNumber };
+  return { form: f, from, caseNumber: c.caseNumber, desk: pathOfType(c.caseType) };
 }

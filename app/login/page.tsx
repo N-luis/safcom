@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 import ResendVerification from '@/components/auth/ResendVerification';
+import EmergencyHotlines from '@/components/landing/EmergencyHotlines';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Enter your email or username'),
@@ -474,8 +475,8 @@ export default function LoginPage() {
         </Box>
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, py: { xs: 6, md: 8 } }}>
-          <Grid container spacing={6} sx={{ alignItems: 'center' }}>
-            <Grid size={12}>
+          <Grid container spacing={{ xs: 5, md: 4, lg: 6 }} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
                 <Chip icon={<Shield sx={{ fontSize: 14, color: '#60a5fa !important' }} />} label="Barangay Biñang 2nd Public Safety Office"
                   sx={{ mb: 3, background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', fontWeight: 600, fontSize: '0.86rem', '& .MuiChip-icon': { color: '#60a5fa' } }} />
@@ -504,6 +505,9 @@ export default function LoginPage() {
                   ))}
                 </Box>
               </motion.div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <EmergencyHotlines />
             </Grid>
           </Grid>
         </Container>

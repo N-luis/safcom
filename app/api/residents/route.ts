@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
           id: true, residentNumber: true, firstName: true, lastName: true,
           age: true, gender: true, barangay: true, address: true,
           contactNumber: true, email: true, emailVerified: true,
-          idDocument: true, status: true, riskLevel: true, notes: true,
+          status: true, riskLevel: true, notes: true,
           registeredAt: true, updatedAt: true,
           // Anonymous reports are not linked back to the resident here.
           _count: { select: { cases: { where: { reporterIdentityWithheld: false } } } },

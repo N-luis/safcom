@@ -394,6 +394,9 @@ export const ModelName = {
   CaseParty: 'CaseParty',
   CaseSafetyAssessment: 'CaseSafetyAssessment',
   CaseReferral: 'CaseReferral',
+  ServiceReferral: 'ServiceReferral',
+  ServiceReferralEvent: 'ServiceReferralEvent',
+  ServiceReferralAttachment: 'ServiceReferralAttachment',
   CaseAssessment: 'CaseAssessment',
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
@@ -434,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1175,6 +1178,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CaseReferralCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CaseReferralCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceReferral: {
+      payload: Prisma.$ServiceReferralPayload<ExtArgs>
+      fields: Prisma.ServiceReferralFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceReferralFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceReferralFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceReferralFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceReferralFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceReferralFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceReferralCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceReferralCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceReferralCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceReferralDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        update: {
+          args: Prisma.ServiceReferralUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceReferralDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceReferralUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceReferralUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceReferralUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceReferralAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceReferral>
+        }
+        groupBy: {
+          args: Prisma.ServiceReferralGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceReferralCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceReferralEvent: {
+      payload: Prisma.$ServiceReferralEventPayload<ExtArgs>
+      fields: Prisma.ServiceReferralEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceReferralEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceReferralEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceReferralEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceReferralEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceReferralEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceReferralEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceReferralEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceReferralEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceReferralEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        update: {
+          args: Prisma.ServiceReferralEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceReferralEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceReferralEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceReferralEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceReferralEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceReferralEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceReferralEvent>
+        }
+        groupBy: {
+          args: Prisma.ServiceReferralEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceReferralEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceReferralAttachment: {
+      payload: Prisma.$ServiceReferralAttachmentPayload<ExtArgs>
+      fields: Prisma.ServiceReferralAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceReferralAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceReferralAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceReferralAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceReferralAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceReferralAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceReferralAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceReferralAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceReferralAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceReferralAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        update: {
+          args: Prisma.ServiceReferralAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceReferralAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceReferralAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceReferralAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceReferralAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceReferralAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceReferralAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceReferralAttachment>
+        }
+        groupBy: {
+          args: Prisma.ServiceReferralAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceReferralAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceReferralAttachmentCountAggregateOutputType> | number
         }
       }
     }
@@ -3318,6 +3543,75 @@ export const CaseReferralScalarFieldEnum = {
 export type CaseReferralScalarFieldEnum = (typeof CaseReferralScalarFieldEnum)[keyof typeof CaseReferralScalarFieldEnum]
 
 
+export const ServiceReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  requestKey: 'requestKey',
+  status: 'status',
+  destination: 'destination',
+  services: 'services',
+  receivingOrganization: 'receivingOrganization',
+  form: 'form',
+  prefilled: 'prefilled',
+  formVersion: 'formVersion',
+  version: 'version',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  issuedVia: 'issuedVia',
+  recipientVerifiedAt: 'recipientVerifiedAt',
+  documentSha256: 'documentSha256',
+  issuedDocument: 'issuedDocument',
+  ackStatus: 'ackStatus',
+  ackReceivedByName: 'ackReceivedByName',
+  ackPosition: 'ackPosition',
+  ackClientCode: 'ackClientCode',
+  ackDateReceived: 'ackDateReceived',
+  ackRemarks: 'ackRemarks',
+  ackBasis: 'ackBasis',
+  ackRecordedById: 'ackRecordedById',
+  ackRecordedAt: 'ackRecordedAt',
+  cancelledById: 'cancelledById',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceReferralScalarFieldEnum = (typeof ServiceReferralScalarFieldEnum)[keyof typeof ServiceReferralScalarFieldEnum]
+
+
+export const ServiceReferralEventScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  caseId: 'caseId',
+  type: 'type',
+  version: 'version',
+  changedKeys: 'changedKeys',
+  note: 'note',
+  actorId: 'actorId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceReferralEventScalarFieldEnum = (typeof ServiceReferralEventScalarFieldEnum)[keyof typeof ServiceReferralEventScalarFieldEnum]
+
+
+export const ServiceReferralAttachmentScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  kind: 'kind',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceReferralAttachmentScalarFieldEnum = (typeof ServiceReferralAttachmentScalarFieldEnum)[keyof typeof ServiceReferralAttachmentScalarFieldEnum]
+
+
 export const CaseAssessmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
@@ -3386,7 +3680,6 @@ export const ResidentScalarFieldEnum = {
   username: 'username',
   clerkId: 'clerkId',
   password: 'password',
-  idDocument: 'idDocument',
   status: 'status',
   riskLevel: 'riskLevel',
   notes: 'notes',
@@ -4080,6 +4373,9 @@ export type GlobalOmitConfig = {
   caseParty?: Prisma.CasePartyOmit
   caseSafetyAssessment?: Prisma.CaseSafetyAssessmentOmit
   caseReferral?: Prisma.CaseReferralOmit
+  serviceReferral?: Prisma.ServiceReferralOmit
+  serviceReferralEvent?: Prisma.ServiceReferralEventOmit
+  serviceReferralAttachment?: Prisma.ServiceReferralAttachmentOmit
   caseAssessment?: Prisma.CaseAssessmentOmit
   caseAttachment?: Prisma.CaseAttachmentOmit
   report?: Prisma.ReportOmit

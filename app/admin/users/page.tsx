@@ -12,11 +12,11 @@ import {
 } from '@mui/material';
 import {
   Add, Search, Edit, PersonOff, PersonAdd, AdminPanelSettings, Badge, Security, Shield,
-  People, Groups, Cancel, Schedule, CheckCircle, InsertDriveFile,
-  Close, OpenInNew, Person, LocationOn, CalendarToday, FolderOpen, Refresh,
+  People, Groups, CheckCircle,
+  Close, Person, LocationOn, CalendarToday, FolderOpen, Refresh,
   Visibility, VisibilityOff, DeleteOutlined,
   Email, Phone, Home, Cake, Wc, AlternateEmail, VerifiedUser, Lock, Update,
-  HowToReg, Gavel, WarningAmber, Notes, FactCheck,
+  Gavel, WarningAmber, Notes, FactCheck,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -24,18 +24,11 @@ import useSWR, { mutate } from 'swr';
 
 const ACCENT = '#0ea5e9';
 
-const RESIDENT_STATUS_CONFIG: Record<string, { color: string; bg: string; label: string; icon: typeof CheckCircle }> = {
-  Pending:  { color: '#f97316', bg: '#fff7ed', label: 'Pending',  icon: Schedule },
-  Active:   { color: '#22c55e', bg: '#f0fdf4', label: 'Verified', icon: CheckCircle },
-  Rejected: { color: '#ef4444', bg: '#fef2f2', label: 'Rejected', icon: Cancel },
-  Inactive: { color: '#94a3b8', bg: '#f8fafc', label: 'Inactive', icon: Cancel },
-};
-
 interface Resident {
   id: string; residentNumber: string; firstName: string; lastName: string;
   age: number; gender: string; barangay: string; address: string;
   contactNumber: string | null; email: string | null; emailVerified?: boolean;
-  idDocument: string | null; status: string; registeredAt: string;
+  status: string; registeredAt: string;
 }
 
 /** Extra fields the single-resident endpoint returns on top of the list row. */
@@ -70,11 +63,6 @@ const SIGN_IN_METHOD: Record<string, { label: string; detail: string }> = {
   password: { label: 'Password',        detail: 'Legacy account with a local password' },
   none:     { label: 'No credentials',  detail: 'Created by staff — this resident cannot sign in yet' },
 };
-
-function isImageDoc(url: string | null): boolean {
-  if (!url) return false;
-  return /\.(jpg|jpeg|png|webp)$/i.test(url) || url.includes('/uploads/');
-}
 
 const fullDate = (iso: string) =>
   new Date(iso).toLocaleString('en-US', {
@@ -122,7 +110,6 @@ export default function AdminUsersPage() {
   const { data: users, isLoading } = useSWR<User[]>(key, fetcher, { refreshInterval: 30000 });
   const { data: residentsData } = useSWR<{ residents: Resident[] }>('/api/residents?limit=100', fetcher, { refreshInterval: 30000 });
   const allResidents = residentsData?.residents ?? [];
-  const pendingResidentCount = allResidents.filter(r => r.status === 'Pending').length;
 
   const roleStats = ROLES.map(r => ({ ...r, count: users?.filter(u => u.role === r.value && u.active).length ?? 0 }));
 
@@ -170,15 +157,7 @@ export default function AdminUsersPage() {
           value="residents"
           icon={<People sx={{ fontSize: 18 }} />}
           iconPosition="start"
-          label={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              User (Resident)
-              {pendingResidentCount > 0 && (
-                <Chip label={pendingResidentCount} size="small"
-                  sx={{ height: 18, minWidth: 18, fontSize: '0.72rem', fontWeight: 800, bgcolor: '#fff7ed', color: '#f97316' }} />
-              )}
-            </Box>
-          }
+          label="User (Resident)"
         />
       </Tabs>
 
@@ -308,12 +287,9 @@ export default function AdminUsersPage() {
   );
 }
 
-// ─── Resident accounts panel (with inline ID verification) ──────────────────
+// ─── Resident accounts panel ────────────────────────────────────────────────
 function ResidentsPanel({ residents }: { residents: Resident[] }) {
-  const [filter, setFilter] = useState<'Pending' | 'Active' | 'Rejected' | 'all'>('Pending');
   const [preview, setPreview] = useState<Resident | null>(null);
-  const [rejectDialog, setRejectDialog] = useState<Resident | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<Resident | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [acting, setActing] = useState<string | null>(null);
@@ -341,21 +317,16 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
     }
   }
 
-  const visible = filter === 'all' ? residents : residents.filter(r => r.status === filter);
-  const statusStats = (['Pending', 'Active', 'Rejected'] as const).map(s => ({
-    status: s, ...RESIDENT_STATUS_CONFIG[s], count: residents.filter(r => r.status === s).length,
-  }));
-
-  async function handleAction(id: string, action: 'approve' | 'reject' | 'verify_email', reason?: string) {
+  async function verifyEmail(id: string) {
     setActing(id);
     try {
       const res = await fetch(`/api/admin/residents/${id}/verify`, {
         method: 'PATCH', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, reason }),
+        body: JSON.stringify({ action: 'verify_email' }),
       });
       if (res.ok) {
-        toast.success(action === 'approve' ? '✓ Resident verified and activated!' : action === 'verify_email' ? '✓ Email marked as verified — they can log in now' : 'Resident registration rejected');
+        toast.success('✓ Email marked as verified — they can log in now');
         mutate('/api/residents?limit=100');
         setPreview(null);
       } else {
@@ -364,69 +335,20 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
       }
     } finally {
       setActing(null);
-      setRejectDialog(null);
-      setRejectReason('');
     }
   }
 
-  const tabs = [
-    { value: 'Pending' as const, label: 'Pending Review', color: '#f97316' },
-    { value: 'Active' as const, label: 'Verified', color: '#22c55e' },
-    { value: 'Rejected' as const, label: 'Rejected', color: '#ef4444' },
-    { value: 'all' as const, label: 'All Residents', color: '#64748b' },
-  ];
-
   return (
     <Box>
-      {/* Stat cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        {statusStats.map((s, i) => {
-          const StatIcon = s.icon;
-          return (
-            <Grid key={s.status} size={{ xs: 6, sm: 4 }}>
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}>
-                <Card sx={{ border: `1.5px solid ${s.color}22` }}>
-                  <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: `${s.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <StatIcon sx={{ fontSize: 19, color: s.color }} />
-                    </Box>
-                    <Box>
-                      <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.count}</Typography>
-                      <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{s.label}</Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Grid>
-          );
-        })}
-      </Grid>
-
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {tabs.map(t => (
-            <Chip key={t.value} label={t.value === 'Pending' && filter === 'Pending' ? `${t.label} (${visible.length})` : t.label}
-              onClick={() => setFilter(t.value)}
-              sx={{
-                bgcolor: filter === t.value ? `${t.color}15` : '#f1f5f9',
-                color: filter === t.value ? t.color : '#64748b',
-                fontWeight: filter === t.value ? 700 : 400,
-                border: filter === t.value ? `1px solid ${t.color}30` : '1px solid transparent',
-                cursor: 'pointer', fontSize: '0.86rem',
-              }} />
-          ))}
-        </Box>
+        <Typography sx={{ fontSize: '0.9rem', color: '#64748b' }}>
+          {residents.length} resident account{residents.length === 1 ? '' : 's'}
+        </Typography>
         <Button variant="outlined" size="small" startIcon={<Refresh />} onClick={() => mutate('/api/residents?limit=100')}
           sx={{ borderColor: '#e2e8f0', color: '#64748b', '&:hover': { borderColor: ACCENT, color: ACCENT } }}>
           Refresh
         </Button>
       </Box>
-
-      {filter === 'Pending' && visible.length > 0 && (
-        <Alert severity="info" sx={{ mb: 2, borderRadius: 2, fontSize: '0.9rem' }}>
-          Click the ID thumbnail or <strong>View</strong> to inspect the submitted document. Approving activates the resident&apos;s account so they can sign in.
-        </Alert>
-      )}
 
       <Card>
         <TableContainer>
@@ -435,25 +357,22 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
               <TableRow sx={{ '& th': { fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', bgcolor: '#f8fafc', py: 1.5 } }}>
                 <TableCell>Resident</TableCell>
                 <TableCell>Details</TableCell>
-                <TableCell>Status</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {visible.length === 0 ? (
+              {residents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={3} align="center" sx={{ py: 6 }}>
                     <FolderOpen sx={{ fontSize: 38, color: '#e2e8f0', display: 'block', mx: 'auto', mb: 1 }} />
                     <Typography sx={{ color: '#94a3b8', fontSize: '0.94rem', fontWeight: 600 }}>
-                      {filter === 'Pending' ? 'No pending verifications — all caught up!' : 'No residents in this category'}
+                      No resident accounts yet
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 <AnimatePresence>
-                  {visible.map((r, i) => {
-                    const sCfg = RESIDENT_STATUS_CONFIG[r.status] ?? RESIDENT_STATUS_CONFIG.Pending;
-                    const StatusIcon = sCfg.icon;
+                  {residents.map((r, i) => {
                     const isActing = acting === r.id;
                     return (
                       <MotionTableRow key={r.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -483,43 +402,13 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
                             {r.email && <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8' }}>{r.email}</Typography>}
                           </Box>
                         </TableCell>
-                        <TableCell>
-                          <Chip icon={<StatusIcon sx={{ fontSize: '13px !important' }} />} label={sCfg.label} size="small"
-                            sx={{ bgcolor: sCfg.bg, color: sCfg.color, fontWeight: 700, fontSize: '0.82rem', height: 24 }} />
-                        </TableCell>
                         <TableCell align="center">
-                          {r.status === 'Pending' ? (
-                            <Box sx={{ display: 'flex', gap: 0.75, justifyContent: 'center', alignItems: 'center' }}>
-                              <Tooltip title="View full details">
-                                <Button size="small" onClick={() => setPreview(r)}
-                                  sx={{ color: ACCENT, fontSize: '0.82rem', textTransform: 'none', fontWeight: 600, minWidth: 0, px: 1 }}>
-                                  View
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title="Approve — activate account">
-                                <Button size="small" variant="contained" disabled={isActing}
-                                  startIcon={<CheckCircle sx={{ fontSize: 14 }} />}
-                                  onClick={() => handleAction(r.id, 'approve')}
-                                  sx={{ bgcolor: '#22c55e', '&:hover': { bgcolor: '#16a34a' }, borderRadius: 1.5, textTransform: 'none', fontSize: '0.86rem', py: 0.5, px: 1.25, minWidth: 72 }}>
-                                  Verify
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title="Reject registration">
-                                <Button size="small" variant="outlined" disabled={isActing}
-                                  startIcon={<Cancel sx={{ fontSize: 14 }} />}
-                                  onClick={() => { setRejectDialog(r); setRejectReason(''); }}
-                                  sx={{ borderColor: '#ef4444', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2' }, borderRadius: 1.5, textTransform: 'none', fontSize: '0.86rem', py: 0.5, px: 1.25, minWidth: 72 }}>
-                                  Reject
-                                </Button>
-                              </Tooltip>
-                            </Box>
-                          ) : (
                             <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', alignItems: 'center' }}>
                               {r.emailVerified === false && (
                                 <Tooltip title="Their email provider can't reach this inbox — mark the email verified so they can log in">
                                   <Button size="small" variant="outlined" disabled={isActing}
                                     startIcon={<CheckCircle sx={{ fontSize: 14 }} />}
-                                    onClick={() => handleAction(r.id, 'verify_email')}
+                                    onClick={() => verifyEmail(r.id)}
                                     sx={{ borderColor: '#14b8a6', color: '#0a7c6b', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' }, borderRadius: 1.5, textTransform: 'none', fontSize: '0.82rem', py: 0.4, px: 1 }}>
                                     Verify Email
                                   </Button>
@@ -537,7 +426,6 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
                                 </IconButton>
                               </Tooltip>
                             </Box>
-                          )}
                         </TableCell>
                       </MotionTableRow>
                     );
@@ -554,8 +442,7 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
         resident={preview}
         acting={Boolean(acting)}
         onClose={() => setPreview(null)}
-        onAction={handleAction}
-        onReject={r => { setRejectDialog(r); setRejectReason(''); setPreview(null); }}
+        onVerifyEmail={verifyEmail}
         onDelete={r => { setDeleteDialog(r); setDeleteConfirm(''); }}
       />
 
@@ -602,30 +489,6 @@ function ResidentsPanel({ residents }: { residents: Resident[] }) {
             startIcon={acting ? <CircularProgress size={15} color="inherit" /> : <DeleteOutlined sx={{ fontSize: 17 }} />}
             sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' } }}>
             {acting ? 'Deleting…' : 'Delete Account'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Reject reason dialog */}
-      <Dialog open={Boolean(rejectDialog)} onClose={() => setRejectDialog(null)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
-        <DialogTitle sx={{ fontWeight: 700, color: '#0c1e46' }}>Reject Registration</DialogTitle>
-        <DialogContent sx={{ pt: 1.5 }}>
-          {rejectDialog && (
-            <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontSize: '0.9rem' }}>
-              Rejecting <strong>{rejectDialog.firstName} {rejectDialog.lastName}</strong> will prevent them from logging in. They can resubmit a clearer ID.
-            </Alert>
-          )}
-          <TextField fullWidth size="small" multiline rows={3}
-            label="Reason for rejection (shown to resident)"
-            value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-            placeholder="e.g. ID image is blurry or unclear, invalid/expired document…"
-            slotProps={{ input: { sx: { borderRadius: 2 } } }} />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={() => setRejectDialog(null)} sx={{ borderRadius: 2, textTransform: 'none' }}>Cancel</Button>
-          <Button variant="contained" onClick={() => rejectDialog && handleAction(rejectDialog.id, 'reject', rejectReason || undefined)}
-            sx={{ borderRadius: 2, textTransform: 'none', bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' } }}>
-            Confirm Reject
           </Button>
         </DialogActions>
       </Dialog>
@@ -780,12 +643,11 @@ function MiniStat({ value, label, color }: { value: number; label: string; color
   );
 }
 
-function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, onDelete }: {
+function ResidentDetailDialog({ resident, acting, onClose, onVerifyEmail, onDelete }: {
   resident: Resident | null;
   acting: boolean;
   onClose: () => void;
-  onAction: (id: string, action: 'approve' | 'reject' | 'verify_email', reason?: string) => void;
-  onReject: (r: Resident) => void;
+  onVerifyEmail: (id: string) => void;
   onDelete: (r: Resident) => void;
 }) {
   const { data, isLoading, error } = useSWR<ResidentDetail>(
@@ -798,8 +660,6 @@ function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, o
   const r = data ?? (resident as ResidentDetail | null);
   if (!resident || !r) return null;
 
-  const s = RESIDENT_STATUS_CONFIG[r.status] ?? RESIDENT_STATUS_CONFIG.Pending;
-  const StatusIcon = s.icon;
   const verified = r.emailVerified !== false;
   // Only known once the full record arrives — don't claim "no credentials" while loading.
   const method = data ? SIGN_IN_METHOD[data.signInMethod] : null;
@@ -820,8 +680,9 @@ function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, o
                 {r.residentNumber}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.6, mt: 0.75, flexWrap: 'wrap' }}>
-                <Chip icon={<StatusIcon sx={{ fontSize: '13px !important' }} />} label={s.label} size="small"
-                  sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
+                {r.status === 'Inactive' && (
+                  <Chip label="Inactive" size="small" sx={{ bgcolor: '#f8fafc', color: '#94a3b8', fontWeight: 700, fontSize: '0.78rem', height: 24 }} />
+                )}
                 <Chip
                   icon={verified ? <VerifiedUser sx={{ fontSize: '12px !important' }} /> : <WarningAmber sx={{ fontSize: '12px !important' }} />}
                   label={verified ? 'Email verified' : 'Email unverified'} size="small"
@@ -910,22 +771,6 @@ function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, o
               />
               <Field icon={CalendarToday} label="Registered" value={fullDate(r.registeredAt)} />
               <Field icon={Update} label="Last updated" value={data ? fullDate(data.updatedAt) : null} />
-              {/* Legacy accounts only — ID upload was removed from registration. */}
-              {r.idDocument && (
-                <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', py: 0.9 }}>
-                  <InsertDriveFile sx={{ fontSize: 16, color: '#94a3b8', mt: '3px' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                      Submitted ID (archived)
-                    </Typography>
-                    <Button size="small" href={r.idDocument} target="_blank" rel="noopener noreferrer"
-                      endIcon={<OpenInNew sx={{ fontSize: 13 }} />}
-                      sx={{ p: 0, minWidth: 0, color: ACCENT, fontSize: '0.9rem', textTransform: 'none', fontWeight: 600 }}>
-                      {isImageDoc(r.idDocument) ? 'View image' : 'Open document'}
-                    </Button>
-                  </Box>
-                </Box>
-              )}
             </Section>
           </Grid>
 
@@ -1011,24 +856,9 @@ function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, o
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid #f1f5f9', gap: 1, flexWrap: 'wrap' }}>
-        {r.status === 'Pending' ? (
-          <>
-            <Button variant="contained" disabled={acting} startIcon={<HowToReg />}
-              onClick={() => onAction(r.id, 'approve')}
-              sx={{ bgcolor: '#22c55e', '&:hover': { bgcolor: '#16a34a' }, borderRadius: 2, fontWeight: 700, textTransform: 'none' }}>
-              Verify &amp; Activate
-            </Button>
-            <Button variant="outlined" disabled={acting} startIcon={<Cancel />}
-              onClick={() => onReject(resident)}
-              sx={{ borderColor: '#ef4444', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2' }, borderRadius: 2, fontWeight: 700, textTransform: 'none' }}>
-              Reject
-            </Button>
-          </>
-        ) : (
-          <>
             {!verified && (
               <Button variant="outlined" disabled={acting} startIcon={<FactCheck />}
-                onClick={() => onAction(r.id, 'verify_email')}
+                onClick={() => onVerifyEmail(r.id)}
                 sx={{ borderColor: '#14b8a6', color: '#0a7c6b', '&:hover': { bgcolor: 'rgba(20,184,166,0.06)' }, borderRadius: 2, fontWeight: 700, textTransform: 'none' }}>
                 Mark Email Verified
               </Button>
@@ -1038,8 +868,6 @@ function ResidentDetailDialog({ resident, acting, onClose, onAction, onReject, o
               sx={{ borderColor: '#fecaca', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2', borderColor: '#ef4444' }, borderRadius: 2, fontWeight: 700, textTransform: 'none' }}>
               Delete Account
             </Button>
-          </>
-        )}
         <Box sx={{ flex: 1 }} />
         <Button onClick={onClose} sx={{ borderRadius: 2, textTransform: 'none', color: '#64748b' }}>Close</Button>
       </DialogActions>

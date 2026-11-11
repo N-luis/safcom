@@ -499,10 +499,6 @@ export type CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.CaseAttachmentScalarWhereInput | Prisma.CaseAttachmentScalarWhereInput[]
 }
 
-export type BytesFieldUpdateOperationsInput = {
-  set?: runtime.Bytes
-}
-
 export type CaseAttachmentCreateNestedManyWithoutFollowUpInput = {
   create?: Prisma.XOR<Prisma.CaseAttachmentCreateWithoutFollowUpInput, Prisma.CaseAttachmentUncheckedCreateWithoutFollowUpInput> | Prisma.CaseAttachmentCreateWithoutFollowUpInput[] | Prisma.CaseAttachmentUncheckedCreateWithoutFollowUpInput[]
   connectOrCreate?: Prisma.CaseAttachmentCreateOrConnectWithoutFollowUpInput | Prisma.CaseAttachmentCreateOrConnectWithoutFollowUpInput[]

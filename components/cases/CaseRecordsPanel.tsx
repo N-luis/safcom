@@ -344,7 +344,7 @@ function ReferralDialog({ caseId, desk, referral, onClose, onSaved }: {
       <DialogTitle sx={{ fontWeight: 800, color: NAVY }}>
         {editing ? 'Referral form' : 'Record a referral'}
         <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
-          Annex B - Referral Form. Blank fields print as lines to fill in by hand; the signature is signed on the printed copy.
+          Referral Form. Blank fields print as lines to fill in by hand; the signature is signed on the printed copy.
         </Typography>
       </DialogTitle>
       <DialogContent dividers sx={{ display: 'grid', gap: 1.5 }}>
@@ -448,7 +448,12 @@ function ReferralDialog({ caseId, desk, referral, onClose, onSaved }: {
 
 // ─── The panel ───────────────────────────────────────────────────────────────
 
-export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string; onChanged?: () => void }) {
+/**
+ * formPath: where a blotter case's Referral Form opens as its own page, with
+ * the live preview (${formPath}/new, ${formPath}/<referral id>). Without it -
+ * and always on a VAWC case - the referral dialog is used.
+ */
+export default function CaseRecordsPanel({ caseId, onChanged, formPath }: { caseId: string; onChanged?: () => void; formPath?: string }) {
   const { data, error, isLoading, mutate } = useSWR<Records>(`/api/cases/${caseId}/records`, fetcher);
   const [party, setParty] = useState<{ role: 'AFFECTED' | 'REPORTED'; start: Party | null } | null>(null);
   const [safetyOpen, setSafetyOpen] = useState(false);
@@ -484,6 +489,8 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
         {data && (() => {
           const vawc = data.report.desk === 'VAWC';
           const edit = data.access.edit;
+          // A blotter case's Referral Form opens on its own page, with the live preview.
+          const livePage = Boolean(formPath) && !vawc;
           const r = data.report;
           return (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -612,7 +619,8 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                   <Share sx={{ fontSize: 16, color: '#7c3aed' }} />
                   <Typography sx={label}>Referrals</Typography>
                   {edit && (
-                    <Button size="small" startIcon={<Add sx={{ fontSize: 14 }} />} onClick={() => setReferralOpen(true)}
+                    <Button size="small" startIcon={<Add sx={{ fontSize: 14 }} />}
+                      {...(livePage ? { href: `${formPath}/new` } : { onClick: () => setReferralOpen(true) })}
                       sx={{ ml: 'auto', textTransform: 'none', minHeight: 32 }}>Add referral</Button>
                   )}
                 </Box>
@@ -646,7 +654,8 @@ export default function CaseRecordsPanel({ caseId, onChanged }: { caseId: string
                         Download referral form (PDF)
                       </Button>
                       {edit && (
-                        <Button size="small" startIcon={<Edit sx={{ fontSize: 15 }} />} onClick={() => setEditingReferral(ref)} sx={{ textTransform: 'none', minHeight: 32 }}>
+                        <Button size="small" startIcon={<Edit sx={{ fontSize: 15 }} />} sx={{ textTransform: 'none', minHeight: 32 }}
+                          {...(livePage ? { href: `${formPath}/${ref.id}` } : { onClick: () => setEditingReferral(ref) })}>
                           {ref.formUpdatedAt ? 'Edit form' : 'Fill in the form'}
                         </Button>
                       )}

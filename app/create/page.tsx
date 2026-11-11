@@ -21,7 +21,6 @@ import Typography from "@mui/material/Typography";
 
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
-import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
@@ -479,66 +478,6 @@ export default function RegisterPage() {
                     },
                 }}
             />
-                    </Grid>
-
-                    {/* FILE UPLOAD */}
-                    <Grid
-                      size={{
-                        xs: 12,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          border:
-                            "2px dashed #d1d5db",
-                          borderRadius: "16px",
-                          p: 5,
-                          textAlign: "center",
-                          backgroundColor: "#fafafa",
-                        }}
-                      >
-                        <CloudUploadOutlinedIcon
-                          sx={{
-                            fontSize: 42,
-                            color: "#6b7280",
-                            mb: 2,
-                          }}
-                        />
-
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            color: "#374151",
-                            mb: 1,
-                          }}
-                        >
-                          Upload Valid ID
-                          (Optional)
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            color: "#9ca3af",
-                            fontSize: "0.9rem",
-                            mb: 3,
-                          }}
-                        >
-                          Accepted: Passport,
-                          Driver&apos;s License,
-                          National ID (Max 5MB)
-                        </Typography>
-
-                        <Button
-                          variant="text"
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: 700,
-                            color: "#00796b",
-                          }}
-                        >
-                          Browse files
-                        </Button>
-                      </Box>
                     </Grid>
 
                     {/* PRIVACY */}

@@ -61,6 +61,9 @@ export const ModelName = {
   CaseParty: 'CaseParty',
   CaseSafetyAssessment: 'CaseSafetyAssessment',
   CaseReferral: 'CaseReferral',
+  ServiceReferral: 'ServiceReferral',
+  ServiceReferralEvent: 'ServiceReferralEvent',
+  ServiceReferralAttachment: 'ServiceReferralAttachment',
   CaseAssessment: 'CaseAssessment',
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
@@ -355,6 +358,75 @@ export const CaseReferralScalarFieldEnum = {
 export type CaseReferralScalarFieldEnum = (typeof CaseReferralScalarFieldEnum)[keyof typeof CaseReferralScalarFieldEnum]
 
 
+export const ServiceReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  requestKey: 'requestKey',
+  status: 'status',
+  destination: 'destination',
+  services: 'services',
+  receivingOrganization: 'receivingOrganization',
+  form: 'form',
+  prefilled: 'prefilled',
+  formVersion: 'formVersion',
+  version: 'version',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  issuedVia: 'issuedVia',
+  recipientVerifiedAt: 'recipientVerifiedAt',
+  documentSha256: 'documentSha256',
+  issuedDocument: 'issuedDocument',
+  ackStatus: 'ackStatus',
+  ackReceivedByName: 'ackReceivedByName',
+  ackPosition: 'ackPosition',
+  ackClientCode: 'ackClientCode',
+  ackDateReceived: 'ackDateReceived',
+  ackRemarks: 'ackRemarks',
+  ackBasis: 'ackBasis',
+  ackRecordedById: 'ackRecordedById',
+  ackRecordedAt: 'ackRecordedAt',
+  cancelledById: 'cancelledById',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceReferralScalarFieldEnum = (typeof ServiceReferralScalarFieldEnum)[keyof typeof ServiceReferralScalarFieldEnum]
+
+
+export const ServiceReferralEventScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  caseId: 'caseId',
+  type: 'type',
+  version: 'version',
+  changedKeys: 'changedKeys',
+  note: 'note',
+  actorId: 'actorId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceReferralEventScalarFieldEnum = (typeof ServiceReferralEventScalarFieldEnum)[keyof typeof ServiceReferralEventScalarFieldEnum]
+
+
+export const ServiceReferralAttachmentScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  kind: 'kind',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceReferralAttachmentScalarFieldEnum = (typeof ServiceReferralAttachmentScalarFieldEnum)[keyof typeof ServiceReferralAttachmentScalarFieldEnum]
+
+
 export const CaseAssessmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
@@ -423,7 +495,6 @@ export const ResidentScalarFieldEnum = {
   username: 'username',
   clerkId: 'clerkId',
   password: 'password',
-  idDocument: 'idDocument',
   status: 'status',
   riskLevel: 'riskLevel',
   notes: 'notes',

@@ -94,6 +94,37 @@ export type CaseSafetyAssessment = Prisma.CaseSafetyAssessmentModel
  */
 export type CaseReferral = Prisma.CaseReferralModel
 /**
+ * Model ServiceReferral
+ * A Service Referral Form ("Referral Form.pdf", IACVAWC) for a VAWC case -
+ * SafeComm's digital copy of that form, not a certified government record.
+ * lib/serviceReferralForm.ts holds its fields and rules.
+ * 
+ * One row is one referral to ONE receiving organization (a barangay, or a
+ * social welfare and development office): its own document, its own Section
+ * C acknowledgement. A case referred to two offices has two rows.
+ * 
+ * Sections A and B and the signature choice are in `form` (JSON, checked by
+ * the server on every save). Section C - what the receiving organization
+ * fills in - is in the ack* columns, which only the acknowledgement route
+ * writes, and only after the referral is issued. Issuing freezes `form`:
+ * the issued document is rebuilt from it byte for byte (documentSha256).
+ */
+export type ServiceReferral = Prisma.ServiceReferralModel
+/**
+ * Model ServiceReferralEvent
+ * Everything that happened to a service referral, in order. Append-only
+ * (database trigger, prisma/sql/012_service_referral.sql). Carries field
+ * keys, never field values.
+ */
+export type ServiceReferralEvent = Prisma.ServiceReferralEventModel
+/**
+ * Model ServiceReferralAttachment
+ * A scan or photo of a signed paper copy, or of the receiving organization's
+ * acknowledgement. Kept apart from CaseAttachment on purpose: a report's
+ * photos can be opened by the resident who filed it, a referral's never.
+ */
+export type ServiceReferralAttachment = Prisma.ServiceReferralAttachmentModel
+/**
  * Model CaseAssessment
  * *
  *  * The AI-assisted triage stored with the case, so an officer sees what the

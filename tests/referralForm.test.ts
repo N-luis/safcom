@@ -13,7 +13,7 @@ import { signResidentToken } from '../lib/residentAuth';
 import { EMERGENCY_CONTACTS } from '../lib/safecommConfig';
 import { referralFormSchema } from '../lib/referralForm';
 import { GET as prefillGET, POST as referralPOST } from '../app/api/cases/[id]/referrals/route';
-import { PATCH as referralPATCH, PUT as referralPUT } from '../app/api/cases/[id]/referrals/[rid]/route';
+import { GET as referralGET, PATCH as referralPATCH, PUT as referralPUT } from '../app/api/cases/[id]/referrals/[rid]/route';
 import { GET as pdfGET } from '../app/api/cases/[id]/referrals/[rid]/pdf/route';
 import { GET as recordsGET } from '../app/api/cases/[id]/records/route';
 
@@ -102,12 +102,20 @@ async function main() {
     ok('the case\'s records list it with the form', recs.referrals.some((r: Body) => r.id === rid && r.servicesRequested === 'Blotter certification and patrol visit'));
     ok('a VAWC case still cannot be referred to the Lupon', (await json(await referralPOST(req(`/api/cases/${vc.id}/referrals`, V.cookie, 'POST', { agency: 'LUPON', referredAt: todayPh, form: {} }), P(vc.id)))).status === 422);
 
+    console.log('\nThe live form editor');
+    const one = await json(await referralGET(req(`/api/cases/${bc.id}/referrals/${rid}`, B.cookie), PR(bc.id, rid)));
+    ok('reopens a saved referral with its form and its desk', one.status === 200 && one.body.data.referral.form.toContactPerson === 'PCpl. Ana Probe'
+      && one.body.data.desk === 'BLOTTER' && one.body.data.caseNumber === bc.caseNumber && one.body.data.access.edit === true, `${one.status} ${one.body.error ?? ''}`);
+    ok('...for the officer the case is assigned to, not another', (await json(await referralGET(req(`/api/cases/${bc.id}/referrals/${rid}`, B2.cookie), PR(bc.id, rid)))).status === 403);
+    ok('a blotter officer cannot open a VAWC case\'s referral that way (not found)', (await json(await referralGET(req(`/api/cases/${vc.id}/referrals/${rid}`, B.cookie), PR(vc.id, rid)))).status === 404);
+    ok('the new-form prefill names the desk, so only that desk\'s offices are offered', pb.desk === 'BLOTTER' && pv.desk === 'VAWC');
+
     console.log('\nThe PDF');
     const pdfRes = await pdfGET(req(`/api/cases/${bc.id}/referrals/${rid}/pdf`, B.cookie), PR(bc.id, rid));
     ok('downloads as a PDF file named after the case', pdfRes.status === 200 && pdfRes.headers.get('content-type') === 'application/pdf'
       && /attachment; filename="Referral-PROBE-RF-B-\d+-\d{4}-\d{2}-\d{2}\.pdf"/.test(pdfRes.headers.get('content-disposition') ?? ''), pdfRes.headers.get('content-disposition') ?? String(pdfRes.status));
     const t = await pdfText(pdfRes);
-    ok('one page, headed ANNEX B - REFERRAL FORM', t.pages === 1 && t.text.includes('ANNEX B') && t.text.includes('REFERRAL FORM'));
+    ok('one page, headed REFERRAL FORM as on the form - no ANNEX B, nothing added', t.pages === 1 && t.text.includes('REFERRAL FORM') && !t.text.includes('ANNEX B') && !t.text.includes('Prepared in SafeComm'));
     ok('every label of the form, in its order', ['Case No.', 'Date of Referral', 'To:', 'Address', 'Contact Person', 'Name of Client', 'Age', 'Sex', 'Name of Family/Guardian', 'Contact No.',
       'Reason/s for Referral', 'Specific Service/s Requested', 'Please refer to attached report/ intake form/case summary for more information.',
       'Feedback requested and send to Referring Party/Agency:', 'Cell Phone No.', 'Landline No.', 'Email address:', 'Fax No.', 'Referred by:', 'Signature over Printed Name', 'Designation']

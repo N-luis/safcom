@@ -4,7 +4,7 @@ import { clerkMiddleware } from '@clerk/nextjs/server';
 const PUBLIC_PATHS = [
   '/login', '/register',
   '/api/auth/login', '/api/residents/register',
-  '/api/auth/check-email', '/api/upload/id',
+  '/api/auth/check-email',
   '/resident-login', '/api/auth/resident-login',
   '/vawc-login',
   '/verify-email', '/api/auth/verify-email', '/api/auth/resend-verification',
@@ -12,7 +12,6 @@ const PUBLIC_PATHS = [
   '/sign-in', '/sign-up', '/__clerk', '/api/auth/clerk-session', '/complete-profile',
   // Deployment diagnostics - must be reachable before anyone can sign in.
   '/api/health',
-  '/uploads',
 ];
 
 /**

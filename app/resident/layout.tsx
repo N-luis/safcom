@@ -33,11 +33,10 @@ const NAV = [
 interface SidebarProps {
   onClose: () => void;
   residentName: string;
-  residentStatus: string;
   unreadCount: number;
 }
 
-function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: SidebarProps) {
+function SidebarContent({ onClose, residentName, unreadCount }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useClerk();
@@ -151,7 +150,7 @@ function SidebarContent({ onClose, residentName, residentStatus, unreadCount }: 
             {residentName || 'Resident'}
           </Typography>
           <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.38)' }}>
-            {residentStatus || 'Verified Resident'}
+            Resident
           </Typography>
         </Box>
         <Tooltip title="Sign Out">
@@ -169,7 +168,6 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [residentName, setResidentName] = useState('');
-  const [residentStatus, setResidentStatus] = useState('');
   const [lastSeen, setLastSeen] = useState<number | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -204,7 +202,6 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
         if (!json?.data) return;
         const d = json.data;
         setResidentName(`${d.firstName} ${d.lastName}`);
-        setResidentStatus(d.status === 'Active' ? 'Verified Resident' : d.status);
       })
       .catch(() => router.push('/resident-login'));
   }, [router]);
@@ -215,7 +212,7 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
       {!isMobile && (
         <Box sx={{ width: SIDEBAR_W, flexShrink: 0 }}>
           <Box sx={{ position: 'fixed', top: 0, left: 0, width: SIDEBAR_W, height: '100vh', zIndex: 100 }}>
-            <SidebarContent onClose={() => {}} residentName={residentName} residentStatus={residentStatus} unreadCount={unreadCount} />
+            <SidebarContent onClose={() => {}} residentName={residentName} unreadCount={unreadCount} />
           </Box>
         </Box>
       )}
@@ -227,7 +224,7 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
         sx={{ '& .MuiDrawer-paper': { width: SIDEBAR_W, border: 'none' } }}
         ModalProps={{ keepMounted: true }}
       >
-        <SidebarContent onClose={() => setDrawerOpen(false)} residentName={residentName} residentStatus={residentStatus} unreadCount={unreadCount} />
+        <SidebarContent onClose={() => setDrawerOpen(false)} residentName={residentName} unreadCount={unreadCount} />
       </Drawer>
 
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', overflow: 'hidden' }}>

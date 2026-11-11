@@ -10,7 +10,7 @@ import {
   Box, Typography, Card, CardContent, Grid, Chip, Button, IconButton, Divider, LinearProgress, Skeleton, TextField, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper, Collapse, CircularProgress, Checkbox, FormControlLabel,
 } from '@mui/material';
 import {
-  ArrowBack, Add, Save, Edit, Delete, CheckCircle, LocationOn, Person, AccessTime, FolderOpen, Shield, Search, AutoAwesome, Psychology, Notes, Update, Close, OpenInNew,
+  ArrowBack, Add, Save, Edit, Delete, CheckCircle, LocationOn, Person, AccessTime, FolderOpen, Shield, Search, AutoAwesome, Psychology, Notes, Update, Close, OpenInNew, Share,
 } from '@mui/icons-material';
 import {
   motion, AnimatePresence,
@@ -35,6 +35,7 @@ import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
 import ReportingDeskPanel from '@/components/cases/ReportingDeskPanel';
 import { caseNumberLabel, RESOLUTION_TYPES, resolutionTypesFor, pathOfType, type ResolutionType } from '@/lib/caseRecords';
 import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
+import ServiceReferralHistory, { CreateServiceReferralButton } from '@/components/referrals/ServiceReferralHistory';
 import { triageOf } from '@/lib/triageLabels';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -919,6 +920,15 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
           {/* The official intake for this case: start, continue, view, edit, export */}
           <IntakeFormButton caseId={id} basePath={basePath} intake={caseData.officialIntake ?? null} caseType={caseData.caseType} />
+          {/* The Service Referral Form (VAWC only); who may create one is decided by its API */}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <CreateServiceReferralButton caseId={id} basePath={basePath} />}
+          {/* The Referral Form with its live preview (blotter cases); who may fill it in is decided by its API */}
+          {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && (
+            <Button variant="outlined" href={`${basePath}/${id}/referrals/new`} startIcon={<Share sx={{ fontSize: 17 }} />}
+              sx={{ borderRadius: 2, fontWeight: 800, fontSize: '0.86rem', borderColor: '#99f6e4', color: '#0f766e' }}>
+              Referral Form
+            </Button>
+          )}
           <Tooltip title="View in full list">
             <Button
               variant="outlined" size="small"
@@ -999,7 +1009,10 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
 
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}
-          <CaseRecordsPanel caseId={id} onChanged={onSaved} />
+          <CaseRecordsPanel caseId={id} onChanged={onSaved} formPath={`${basePath}/${id}/referrals`} />
+
+          {/* Service Referral Forms and their acknowledgements - VAWC cases, VAWC desk and the captain only */}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
 
           {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}

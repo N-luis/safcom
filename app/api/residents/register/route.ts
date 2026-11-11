@@ -24,7 +24,6 @@ const registerSchema = z.object({
   username: z.string().regex(/^[a-zA-Z0-9._-]{3,20}$/, 'Username must be 3–20 characters (letters, numbers, . _ -)'),
   // Optional: when Clerk owns the credentials there is no password to store.
   password: z.string().min(8, 'Password must be at least 8 characters').optional(),
-  idDocument: z.string().optional(),
 });
 
 /** Next unissued resident number for the current year. */
@@ -59,7 +58,7 @@ export async function POST(req: NextRequest) {
       return errorResponse(parsed.error.issues[0]?.message ?? 'Validation error', 400);
     }
 
-    const { firstName, lastName, age, gender, barangay, address, contactNumber, email, username, password, idDocument } = parsed.data;
+    const { firstName, lastName, age, gender, barangay, address, contactNumber, email, username, password } = parsed.data;
 
     const existing = await prisma.resident.findFirst({ where: { email } });
     if (existing) return errorResponse('An account with this email already exists', 409);
@@ -108,8 +107,7 @@ export async function POST(req: NextRequest) {
             username,
             clerkId: clerkId ?? null,
             password: hashed,
-            idDocument: idDocument ?? null,
-            status: 'Pending',
+            status: 'Active',
             riskLevel: 'Low',
             emailVerified: Boolean(clerkId),
           },

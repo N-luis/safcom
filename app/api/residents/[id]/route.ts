@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         id: true, residentNumber: true, firstName: true, lastName: true,
         age: true, gender: true, barangay: true, address: true,
         contactNumber: true, email: true, username: true, emailVerified: true,
-        clerkId: true, idDocument: true, status: true, riskLevel: true,
+        clerkId: true, status: true, riskLevel: true,
         notes: true, registeredAt: true, updatedAt: true,
         // Anonymous reports are not listed under the resident who filed them.
         cases: {

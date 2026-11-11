@@ -1,8 +1,8 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, type PDFPage } from 'pdf-lib';
 import type { ReferralFormKey } from './referralForm';
 
 /**
- * Annex B - Referral Form, laid out as the paper form: the same headings,
+ * The Referral Form, laid out as the paper form: the same title, headings,
  * labels, order and lines. What was recorded is printed on its line; a blank
  * stays a line to fill in by hand. The signature is left for a hand.
  */
@@ -18,14 +18,14 @@ export interface ReferralPdfInput {
 }
 
 const W = 612, H = 792, ML = 56, MR = W - 56;
-const RED = rgb(0.78, 0.13, 0.13), INK = rgb(0, 0, 0), VALUE = rgb(0.05, 0.12, 0.35), GRAY = rgb(0.45, 0.45, 0.45);
+const INK = rgb(0, 0, 0), VALUE = rgb(0.05, 0.12, 0.35), HIGHLIGHT = rgb(0.6, 0.8, 0);
 const SIZE = 10.5, VSIZE = 10.5, ROW = 22.5;
 const fmtDate = (d: Date) => d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
 
 export async function buildReferralFormPdf(input: ReferralPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(`Referral Form - ${input.caseNumber}`);
-  pdf.setSubject('Annex B - Referral Form');
+  pdf.setSubject('Referral Form');
   pdf.setProducer('SafeComm');
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const page = pdf.addPage([W, H]);
@@ -34,14 +34,13 @@ export async function buildReferralFormPdf(input: ReferralPdfInput): Promise<Uin
   // Only characters the standard font can print; anything else becomes "?".
   const clean = (s: string) => [...s.replace(/\s+/g, ' ')].map(ch => { try { font.encodeText(ch); return ch; } catch { return '?'; } }).join('');
 
+  // The title as on the form: "REFERRAL FORM", centred, on a green highlight.
   let y = H - 58;
-  const centered = (s: string, fnt: PDFFont, size: number, color = INK) => {
-    page.drawText(s, { x: (W - fnt.widthOfTextAtSize(s, size)) / 2, y, size, font: fnt, color });
-  };
-  centered('ANNEX B', font, 11, RED);
-  y -= 20;
-  centered('REFERRAL FORM', font, 11);
-  y -= 42;
+  const title = 'REFERRAL FORM';
+  const tw = font.widthOfTextAtSize(title, 11);
+  page.drawRectangle({ x: (W - tw) / 2 - 2, y: y - 3.5, width: tw + 4, height: 14.5, color: HIGHLIGHT });
+  page.drawText(title, { x: (W - tw) / 2, y, size: 11, font, color: INK });
+  y -= 50;
 
   /**
    * One "Label ______" on the current row, from x to end: the value printed
@@ -144,8 +143,6 @@ export async function buildReferralFormPdf(input: ReferralPdfInput): Promise<Uin
   page.drawText(cap1, { x: ML + (sigEnd - ML - font.widthOfTextAtSize(cap1, SIZE)) / 2, y: y + 4, size: SIZE, font, color: INK });
   page.drawText(cap2, { x: desStart + (desEnd - desStart - font.widthOfTextAtSize(cap2, SIZE)) / 2, y: y + 4, size: SIZE, font, color: INK });
 
-  // A small reference line, so a printed copy can be traced back to the case.
-  const foot = clean(`Prepared in SafeComm for case ${input.caseNumber} on ${fmtDate(input.generatedAt)}. Confidential - for the receiving office only.`);
-  page.drawText(foot, { x: (W - font.widthOfTextAtSize(foot, 7.5)) / 2, y: 30, size: 7.5, font, color: GRAY });
+  // Nothing is added below the form: it prints as the paper form does.
   return pdf.save();
 }

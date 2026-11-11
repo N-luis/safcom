@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const [cases, residentTotal, residentPending, staff, alerts, activities] = await Promise.all([
+    const [cases, residentTotal, staff, alerts, activities] = await Promise.all([
       prisma.case.findMany({
         orderBy: { filedAt: 'desc' },
         select: {
@@ -53,7 +53,6 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.resident.count(),
-      prisma.resident.count({ where: { status: 'Pending' } }),
       prisma.user.findMany({
         where: { active: true },
         select: {
@@ -136,7 +135,7 @@ export async function GET(req: NextRequest) {
 
     return successResponse({
       generatedAt: new Date().toISOString(),
-      residents: { total: residentTotal, pending: residentPending, active: residentTotal - residentPending },
+      residents: { total: residentTotal },
       staff: {
         total: staff.length,
         byRole: Object.entries(byRoleMap).map(([role, count]) => ({ role, count })),

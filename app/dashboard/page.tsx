@@ -50,7 +50,7 @@ interface ModuleSummary {
 }
 interface Overview {
   generatedAt: string;
-  residents: { total: number; pending: number; active: number };
+  residents: { total: number };
   staff: {
     total: number;
     byRole: { role: string; count: number }[];
@@ -402,7 +402,7 @@ export default function KapitanDashboardPage() {
             <StatCard label="Total Residents" color="#0f766e" loading={loading}
               icon={<PersonOutlined sx={{ fontSize: 18 }} />}
               value={data?.residents.total ?? 0}
-              sub={`${data?.residents.pending ?? 0} pending verification`}
+              sub="registered accounts"
               onClick={() => router.push('/residents')} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>

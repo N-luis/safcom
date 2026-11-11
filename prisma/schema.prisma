@@ -146,6 +146,8 @@ model Case {
   parties          CaseParty[]
   safetyAssessment CaseSafetyAssessment?
   referrals        CaseReferral[]
+  /// IACVAWC Service Referral Forms (VAWC cases only) - one per receiving organization.
+  serviceReferrals ServiceReferral[]
   hearings         CaseHearing[]
   acknowledgement  AcknowledgementLetter?
   kpReviews        CaseKpReview[]
@@ -430,6 +432,117 @@ model CaseReferral {
   @@index([caseId])
 }
 
+/// A Service Referral Form ("Referral Form.pdf", IACVAWC) for a VAWC case -
+/// SafeComm's digital copy of that form, not a certified government record.
+/// lib/serviceReferralForm.ts holds its fields and rules.
+///
+/// One row is one referral to ONE receiving organization (a barangay, or a
+/// social welfare and development office): its own document, its own Section
+/// C acknowledgement. A case referred to two offices has two rows.
+///
+/// Sections A and B and the signature choice are in `form` (JSON, checked by
+/// the server on every save). Section C - what the receiving organization
+/// fills in - is in the ack* columns, which only the acknowledgement route
+/// writes, and only after the referral is issued. Issuing freezes `form`:
+/// the issued document is rebuilt from it byte for byte (documentSha256).
+model ServiceReferral {
+  id                     String                      @id @default(cuid())
+  caseId                 String
+  case                   Case                        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// SR-<case number>-<n>: the referral's own number, safe for a file name.
+  reference              String                      @unique
+  /// The browser's id for one "Create Service Referral" click. A repeated
+  /// click sends the same key and gets the same draft back.
+  requestKey             String
+  /// DRAFT | ISSUED | CANCELLED
+  status                 String                      @default("DRAFT")
+  /// BARANGAY | SWDO - which block of Section B this referral is for. Null
+  /// on a new draft until the officer chooses.
+  destination            String?
+  /// The selected service keys, copied from `form` for the history list.
+  services               String[]
+  /// The receiving organization's name, copied from `form` for the history list.
+  receivingOrganization  String?
+  form                   Json
+  /// Field -> where a prefilled value came from (for the officer to check).
+  prefilled              Json?
+  formVersion            String
+  /// Rises by one on every save; a save names the version it edited.
+  version                Int                         @default(1)
+  createdById            String
+  updatedById            String
+  issuedById             String?
+  issuedAt               DateTime?
+  /// How it was given: HAND_DELIVERED | EMAIL | ESCORTED | OTHER.
+  issuedVia              String?
+  /// The officer confirmed the recipient before issuing.
+  recipientVerifiedAt    DateTime?
+  /// SHA-256 (hex) of the PDF made when issued - the generated document reference.
+  documentSha256         String?
+  /// That PDF itself, kept privately in the database (no file URL exists for
+  /// it): the issued copy is served from here, never rebuilt.
+  issuedDocument         Bytes?
+  /// Section C. AWAITING | ACKNOWLEDGED | RETURNED; null while a draft.
+  ackStatus              String?
+  ackReceivedByName      String?
+  ackPosition            String?
+  ackClientCode          String?
+  /// YYYY-MM-DD, as the receiving organization wrote it.
+  ackDateReceived        String?
+  ackRemarks             String?
+  /// What the acknowledgement rests on: SIGNED_COPY | WRITTEN | VERBAL.
+  ackBasis               String?
+  ackRecordedById        String?
+  ackRecordedAt          DateTime?
+  cancelledById          String?
+  cancelledAt            DateTime?
+  cancelReason           String?
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+  events                 ServiceReferralEvent[]
+  attachments            ServiceReferralAttachment[]
+
+  @@unique([caseId, requestKey])
+  @@index([caseId])
+}
+
+/// Everything that happened to a service referral, in order. Append-only
+/// (database trigger, prisma/sql/012_service_referral.sql). Carries field
+/// keys, never field values.
+model ServiceReferralEvent {
+  id          String          @id @default(cuid())
+  referralId  String
+  referral    ServiceReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  caseId      String
+  /// CREATED | SAVED | ISSUED | ACKNOWLEDGED | RETURNED | CANCELLED | SCAN_ADDED | DOCUMENT_GENERATED
+  type        String
+  version     Int?
+  changedKeys String[]
+  note        String?
+  actorId     String
+  createdAt   DateTime        @default(now())
+
+  @@index([referralId, createdAt])
+}
+
+/// A scan or photo of a signed paper copy, or of the receiving organization's
+/// acknowledgement. Kept apart from CaseAttachment on purpose: a report's
+/// photos can be opened by the resident who filed it, a referral's never.
+model ServiceReferralAttachment {
+  id           String          @id @default(cuid())
+  referralId   String
+  referral     ServiceReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  /// SIGNED_REFERRAL | ACKNOWLEDGEMENT
+  kind         String
+  mimeType     String
+  size         Int
+  data         Bytes
+  uploadedById String
+  createdAt    DateTime        @default(now())
+
+  @@index([referralId])
+}
+
 /**
  * The AI-assisted triage stored with the case, so an officer sees what the
  * assessment was based on rather than only its conclusion. An officer may
@@ -523,7 +636,6 @@ model Resident {
   // email verification; this row holds the barangay profile data.
   clerkId            String?                  @unique
   password           String?
-  idDocument         String?
   status             String                   @default("Active")
   riskLevel          String                   @default("Low")
   notes              String?

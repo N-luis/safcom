@@ -2,8 +2,29 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import { gateCaseRecords, noStore } from '@/lib/caseRecordsServer';
-import { referralUpdateSchema, REFERRAL_STATUSES } from '@/lib/caseRecords';
-import { referralFormSchema } from '@/lib/referralForm';
+import { referralUpdateSchema, REFERRAL_STATUSES, pathOfType } from '@/lib/caseRecords';
+import { referralFormSchema, formOf } from '@/lib/referralForm';
+
+/**
+ * GET - one referral with its referral form, for the live form editor. The
+ * officials who may see the case's records; the referral must belong to this case.
+ */
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string; rid: string }> }) {
+  const { id, rid } = await params;
+  const g = await gateCaseRecords(req, id, 'view', 'referral_form');
+  if ('error' in g) return g.error;
+  try {
+    const r = await prisma.caseReferral.findUnique({ where: { id: rid } });
+    if (!r || r.caseId !== id) { await g.log('denied', 'referral_not_found'); return errorResponse('Referral not found', 404); }
+    await g.log('permitted', g.access.code);
+    return noStore({ success: true, data: {
+      referral: { id: r.id, agency: r.agency, agencyOther: r.agencyOther, referredAt: r.referredAt.toISOString(), reason: r.reason, form: formOf(r) },
+      caseNumber: g.c.caseNumber, desk: pathOfType(g.c.caseType), access: { edit: g.access.edit, message: g.access.message },
+    } });
+  } catch {
+    return errorResponse('The referral could not be loaded right now.', 503);
+  }
+}
 
 /** Update a referral's status or notes - officer-only. The referral must belong to this case. */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string; rid: string }> }) {

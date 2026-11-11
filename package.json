@@ -43,7 +43,14 @@
     "test:reportinganalytics": "npx tsx --env-file=.env --conditions=react-server tests/reportingAnalytics.test.ts",
     "test:reportreview": "npx tsx --env-file=.env --conditions=react-server tests/reportReview.test.ts",
     "test:referralform": "npx tsx --env-file=.env --conditions=react-server tests/referralForm.test.ts",
-    "test:interviewanswers": "npx tsx tests/interviewAnswers.test.ts"
+    "test:interviewanswers": "npx tsx tests/interviewAnswers.test.ts",
+    "test:servicereferral": "npx tsx tests/serviceReferralForm.test.tsx",
+    "test:referralpreview": "npx tsx tests/referralFormPreview.test.tsx",
+    "test:hotlines": "npx tsx tests/emergencyHotlines.test.tsx",
+    "test:noidverification": "npx tsx tests/idVerificationRemoved.test.ts",
+    "db:remove-id-verification": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/013_remove_id_verification.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/014_drop_resident_id_document.sql",
+    "test:servicereferral:db": "npx tsx --env-file=.env --conditions=react-server tests/serviceReferral.test.ts",
+    "db:service-referral": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.schema.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.sql"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
