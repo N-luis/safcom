@@ -193,11 +193,12 @@ export default function ReferralFormEditor({ caseId, referralId, basePath }: { c
       </Box>
     );
   };
+  /** One section of the form, inside the single form card; a line separates it from the one above. */
   const group = (title: string, children: React.ReactNode) => (
-    <Card><CardContent sx={{ p: { xs: 1.75, sm: 2.25 } }}>
-      <Typography sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0c1e46', mb: 1.25 }}>{title}</Typography>
+    <Box component="section" sx={{ '&:not(:first-of-type)': { borderTop: '1px solid #e2e8f0', mt: 2.5, pt: 2.5 } }}>
+      <Typography component="h2" sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0c1e46', mb: 1.5 }}>{title}</Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>{children}</Box>
-    </CardContent></Card>
+    </Box>
   );
 
   return (
@@ -237,8 +238,11 @@ export default function ReferralFormEditor({ caseId, referralId, basePath }: { c
 
       <Box sx={twoPanel ? { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 2.5, flex: 1, minHeight: 0 } : undefined}>
         {/* The fields stay mounted while the preview tab is shown, so nothing typed is lost. */}
-        <Box data-testid="referral-form-input" sx={{ minWidth: 0, display: !twoPanel && panel === 'preview' ? 'none' : 'flex', flexDirection: 'column', gap: 2,
+        {/* One card for the whole form. It scrolls inside its column and never shrinks to fit it
+            (a shrinking card cut its fields off). */}
+        <Box data-testid="referral-form-input" sx={{ minWidth: 0, display: !twoPanel && panel === 'preview' ? 'none' : 'block',
           ...(twoPanel && { overflowY: 'auto', minHeight: 0, pr: 1 }) }}>
+          <Card><CardContent sx={{ p: { xs: 1.75, sm: 2.5 }, '&:last-child': { pb: { xs: 2.25, sm: 3 } } }}>
           {group('Referred to', <>
             <TextField size="small" label="Case No." value={loaded.caseNumber} disabled />
             <Box id="rf-referredAt">
@@ -299,6 +303,7 @@ export default function ReferralFormEditor({ caseId, referralId, basePath }: { c
             {tf('referredByName', { label: 'Printed name', max: 160 })}
             {tf('referredByDesignation', { max: 160 })}
           </>)}
+          </CardContent></Card>
         </Box>
 
         {(twoPanel || panel === 'preview') && (

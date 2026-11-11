@@ -69,7 +69,7 @@ export default function ReferralFormPreview(props: ReferralFormPreviewProps) {
 /** The page itself. */
 export function Sheet(p: ReferralFormPreviewProps) {
   const f = p.form;
-  const L = (key: PreviewKey, label: string, value: string, grow = 1) => <Line key={key} k={key} label={label} value={value} grow={grow} p={p} />;
+  const L = (key: PreviewKey, label: string, value: string, grow = 1, nowrap = false) => <Line key={key} k={key} label={label} value={value} grow={grow} nowrap={nowrap} p={p} />;
   return (
     <Box component="section" aria-label="Referral form"
       sx={{ bgcolor: '#fff', color: INK, fontFamily: FONT, fontSize: { xs: 12.5, sm: 14 }, maxWidth: 760, mx: 'auto', minHeight: { md: 980 },
@@ -77,10 +77,10 @@ export function Sheet(p: ReferralFormPreviewProps) {
       <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4.5 } }}>
         <Box component="span" sx={{ bgcolor: '#99cc00', px: 0.5, fontSize: { xs: 13, sm: 15 } }}>REFERRAL FORM</Box>
       </Box>
-      <Row>
-        {L('caseNumber', 'Case No.', p.caseNumber, 0.6)}
+      <Row wrap>
+        {L('caseNumber', 'Case No.', p.caseNumber, 0.6, true)}
         <Box sx={{ width: { xs: 12, sm: 60 } }} />
-        {L('referredAt', 'Date of Referral', longDate(p.referredAt), 1)}
+        {L('referredAt', 'Date of Referral', longDate(p.referredAt), 1, true)}
       </Row>
       <Row>{L('to', 'To:', p.to)}</Row>
       <Row>{L('toAddress', 'Address', f.toAddress)}</Row>
@@ -126,8 +126,8 @@ export function Sheet(p: ReferralFormPreviewProps) {
   );
 }
 
-const Row = ({ children }: { children: React.ReactNode }) => (
-  <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: { xs: 1, sm: 1.5 }, py: 0.6, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>{children}</Box>
+const Row = ({ children, wrap = false }: { children: React.ReactNode; wrap?: boolean }) => (
+  <Box sx={{ display: 'flex', alignItems: 'flex-end', columnGap: { xs: 1, sm: 1.5 }, rowGap: 0.6, py: 0.6, flexWrap: wrap ? 'wrap' : { xs: 'wrap', sm: 'nowrap' } }}>{children}</Box>
 );
 
 const jump = (p: ReferralFormPreviewProps, key: PreviewKey) => (p.onJump ? {
@@ -139,12 +139,13 @@ const flash = (p: ReferralFormPreviewProps, key: PreviewKey) => (p.changed?.key 
   ? { animation: `${p.changed.n % 2 ? flashA : flashB} 1.4s ease-out`, '@media (prefers-reduced-motion: reduce)': { animation: 'none' } } : {});
 
 /** "Label ______" with what was typed on the line. */
-function Line({ k, label, value, grow, p }: { k: PreviewKey; label: string; value: string; grow: number; p: ReferralFormPreviewProps }) {
+/** nowrap: a value that must stay on one line (the case number, the date) - its line is as wide as it needs. */
+function Line({ k, label, value, grow, nowrap = false, p }: { k: PreviewKey; label: string; value: string; grow: number; nowrap?: boolean; p: ReferralFormPreviewProps }) {
   return (
     <Box data-key={k} {...jump(p, k)}
-      sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, flex: `${grow} 1 0`, minWidth: { xs: label ? '45%' : '100%', sm: 0 }, cursor: p.onJump ? 'pointer' : 'default', ...flash(p, k) }}>
+      sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, flex: nowrap ? `${grow} 0 auto` : `${grow} 1 0`, minWidth: { xs: label ? '45%' : '100%', sm: 0 }, cursor: p.onJump ? 'pointer' : 'default', ...flash(p, k) }}>
       {label && <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{label}</Box>}
-      <Box component="span" sx={{ flex: 1, minWidth: 24, borderBottom: `1px solid ${INK}`, color: VALUE, minHeight: '1.35em', px: 0.5, overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
+      <Box component="span" sx={{ flex: 1, minWidth: 24, borderBottom: `1px solid ${INK}`, color: VALUE, minHeight: '1.35em', px: 0.5, ...(nowrap ? { whiteSpace: 'nowrap' } : { overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }) }}>
         {value.trim()}
       </Box>
     </Box>

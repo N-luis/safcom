@@ -276,6 +276,8 @@ export default function ServiceReferralEditor({ caseId, referralId, basePath }: 
       <Box sx={twoPanel ? { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 2.5, flex: 1, minHeight: 0 } : undefined}>
         {/* The fields stay mounted while the preview tab is shown, so nothing typed is lost. */}
         <Box data-testid="referral-edit-pane" sx={{ minWidth: 0, display: !twoPanel && panel === 'preview' ? 'none' : 'flex', flexDirection: 'column', gap: 2,
+          // The cards keep their full height and the column scrolls; a shrinking card cut its fields off.
+          '& > *': { flexShrink: 0 },
           ...(twoPanel && { overflowY: 'auto', minHeight: 0, pr: 1 }) }}>
 
           <CaseContextCard ctx={ctx} />
