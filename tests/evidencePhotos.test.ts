@@ -88,10 +88,17 @@ async function main() {
       && (await prisma.caseAttachment.count({ where: { caseId: many.body.data.id } })) === 2);
     const fill = await file(R.cookie, { submissionKey: `${TAG}-many-${process.pid}`, attachments: [{ name: 'front.jpg', dataUrl: dataUrl(A) }, { name: 'back.jpg', dataUrl: dataUrl(C) }] });
     ok('a retry carrying a photo that did not arrive the first time adds just that one', fill.body.data.photosAdded === 1 && (await prisma.caseAttachment.count({ where: { caseId: many.body.data.id } })) === 3);
-    const key = `${TAG}-race-${process.pid}`;
-    const [r1, r2] = await Promise.all([1, 2].map(() => file(R.cookie, { submissionKey: key, attachments: [{ name: 'race.jpg', dataUrl: dataUrl(D) }] })));
-    ok('two taps at the same moment: one case, one photo', (await prisma.case.count({ where: { residentId: R.id, submissionKey: key } })) === 1
-      && r1.body.data?.id === r2.body.data?.id && (await prisma.caseAttachment.count({ where: { caseId: r1.body.data.id } })) === 1, `${r1.status}/${r2.status}`);
+    // Several rounds of three taps at once: the outcome must be the same every time, not just usually.
+    const rounds: string[] = [];
+    for (let round = 1; round <= 5; round++) {
+      const key = `${TAG}-race-${process.pid}-${round}`;
+      const rs = await Promise.all([1, 2, 3].map(() => file(R.cookie, { submissionKey: key, attachments: [{ name: 'race.jpg', dataUrl: dataUrl(D) }] })));
+      const cases = await prisma.case.count({ where: { residentId: R.id, submissionKey: key } });
+      const photos = await prisma.caseAttachment.count({ where: { caseId: rs[0].body.data?.id ?? '-' } });
+      const sameCase = rs.every(x => x.body.data?.id === rs[0].body.data?.id);
+      if (cases !== 1 || photos !== 1 || !sameCase) rounds.push(`round ${round}: ${cases} cases, ${photos} photos, statuses ${rs.map(x => x.status).join('/')}`);
+    }
+    ok('three taps at the same moment, five times over: always one case and one photo', rounds.length === 0, rounds.join('; '));
 
     console.log('\n9. Upload failures are refused with a clear reason - and nothing is filed');
     const before = await prisma.case.count({ where: { residentId: R.id } });

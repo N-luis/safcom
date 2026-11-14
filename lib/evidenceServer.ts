@@ -31,15 +31,23 @@ export function parsePhotos(incoming: { name: string; dataUrl: string }[]): { ph
  * Store a resident's report photos on their case - only those not already on
  * it (by fingerprint), so a retried submission never stores a photo twice and a
  * retry after a partial failure fills in what is missing. Returns how many were added.
+ *
+ * The check and the insert happen under a lock held for this case, so two
+ * submissions arriving at the same moment take turns: the second sees what the
+ * first stored, and the same photo is never stored twice.
  */
 export async function storeResidentPhotos(caseId: string, residentId: string, photos: IncomingPhoto[]): Promise<number> {
   if (!photos.length) return 0;
-  const have = new Set((await prisma.caseAttachment.findMany({
-    where: { caseId, hearingId: null, sha256: { in: photos.map(p => p.sha256) } }, select: { sha256: true },
-  })).map(a => a.sha256));
-  const add = photos.filter(p => !have.has(p.sha256));
-  if (add.length) await prisma.caseAttachment.createMany({ data: add.map(p => ({ ...p, caseId, uploadedByResidentId: residentId })) });
-  return add.length;
+  return prisma.$transaction(async tx => {
+    // Released when the transaction ends.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`evidence:${caseId}`}))`;
+    const have = new Set((await tx.caseAttachment.findMany({
+      where: { caseId, hearingId: null, sha256: { in: photos.map(p => p.sha256) } }, select: { sha256: true },
+    })).map(a => a.sha256));
+    const add = photos.filter(p => !have.has(p.sha256));
+    if (add.length) await tx.caseAttachment.createMany({ data: add.map(p => ({ ...p, caseId, uploadedByResidentId: residentId })) });
+    return add.length;
+  }, { timeout: 20_000 });
 }
 
 const select = {
