@@ -35,7 +35,7 @@ const MONTH_NAME = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 
 const pad = (n: number) => String(n).padStart(2, '0');
 /** A calendar date that exists ("2026-02-30" does not), as "YYYY-MM-DD". */
-function realDate(y: number, m: number, d: number): string | null {
+export function realDate(y: number, m: number, d: number): string | null {
   if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null;
   const iso = `${y}-${pad(m)}-${pad(d)}`;
   const t = new Date(`${iso}T00:00:00Z`);

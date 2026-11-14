@@ -12,10 +12,12 @@ import {
 import {
   Add, Search, FilterList, Visibility, Edit, FolderOpen,
   CheckCircle, Warning, Circle, RefreshOutlined, LocationOn, Person,
-  AccessTime, ArrowBack, Save, OpenInNew,
+  AccessTime, ArrowBack, Save, OpenInNew, FileDownload,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import { useCases, useCaseStats } from '@/hooks/useApi';
+import { useCases, useCaseStats, useCurrentUser } from '@/hooks/useApi';
+import CaseExportDialog from '@/components/cases/CaseExportDialog';
+import { canExportCases } from '@/lib/caseExport';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
@@ -226,6 +228,8 @@ export default function CaseManagementPage() {
   }, [search, statusFilter, riskFilter, triageFilter, page]);
 
   const { data, isLoading } = useCases(params, { keepPreviousData: true });
+  const { data: me } = useCurrentUser();
+  const [exporting, setExporting] = useState(false);
   const { data: stats } = useCaseStats();
 
   const cases: CaseRow[] = data?.cases ?? [];
@@ -252,14 +256,24 @@ export default function CaseManagementPage() {
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Case Management</Typography>
           <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Manage, track and resolve blotter cases</Typography>
         </Box>
-        <Button
-          variant="contained" startIcon={<Add />}
-          onClick={() => router.push('/blotter-officer/walk-in-report')}
-          sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, fontWeight: 600 }}
-        >
-          New Case
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {/* Officials who may export; the server checks the role and every row again */}
+          {canExportCases(me?.role) && (
+            <Button variant="outlined" startIcon={<FileDownload />} onClick={() => setExporting(true)}
+              sx={{ borderRadius: 2, fontWeight: 600, borderColor: '#0c1e46', color: '#0c1e46' }}>
+              Export CSV
+            </Button>
+          )}
+          <Button
+            variant="contained" startIcon={<Add />}
+            onClick={() => router.push('/blotter-officer/walk-in-report')}
+            sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, fontWeight: 600 }}
+          >
+            New Case
+          </Button>
+        </Box>
       </Box>
+      {exporting && <CaseExportDialog onClose={() => setExporting(false)} />}
 
       {/* Summary cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
