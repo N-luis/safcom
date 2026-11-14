@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionTableRow = motion(TableRow);
 import useSWR from 'swr';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -38,6 +39,7 @@ interface CaseRow {
 
 interface CasesData {
   cases: CaseRow[]; total: number; page: number; limit: number; totalPages: number;
+  search?: { incidentDate: string | null; note: string | null } | null;
 }
 
 function timeAgo(d: string) {
@@ -139,7 +141,9 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
 function MyCasesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [search, setSearch] = useState('');
+  // One search bar: what is typed, and what is searched once typing pauses.
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebouncedValue(searchInput.trim(), 300);
   // The dashboard stat cards link here with ?status=, which may name a group
   // ("Resolved,Closed") so the list total matches the number that was clicked.
   // Seeded as the initial state rather than set from an effect: an effect would
@@ -214,15 +218,19 @@ function MyCasesPage() {
       {/* Search */}
       <Box sx={{ mb: 2.5 }}>
         <TextField
-          size="small" placeholder="Search by case number, type, or description…"
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          sx={{ width: { xs: '100%', sm: 380 } }}
+          size="small" placeholder="Search case number, type, what you wrote, or incident date…"
+          value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+          sx={{ width: { xs: '100%', sm: 420 } }}
           slotProps={{
+            htmlInput: { 'aria-label': 'Search my cases', maxLength: 100 },
             input: {
               startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18, color: '#94a3b8' }} /></InputAdornment>,
             },
           }}
         />
+        {search && data?.search?.note && (
+          <Typography role="status" sx={{ fontSize: '0.78rem', color: '#475569', mt: 0.75 }}>{data.search.note}</Typography>
+        )}
       </Box>
 
       {/* Table */}

@@ -21,6 +21,8 @@ import { deskFor, deskHistoryRow } from '@/lib/reportDeskServer';
 import { DESK_DECISION_LABEL } from '@/lib/reportDesk';
 import { draftQuietly } from '@/lib/reportReviewServer';
 import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
+import { parseCaseSearch, searchSummary } from '@/lib/caseSearch';
+import { caseSearchWhere } from '@/lib/caseSearchServer';
 
 /**
  * Fields only the server sets. A report that carries any of them is refused
@@ -115,17 +117,14 @@ export async function GET(req: NextRequest) {
   // Closed, which a single exact status could not express.
   const status = (searchParams.get('status') || '')
     .split(',').map(v => v.trim()).filter(Boolean);
-  const search = searchParams.get('search') || '';
+  const search = parseCaseSearch(searchParams.get('search'));
 
+  // Only this resident's own reports; the search narrows those, never widens them.
   const where: Record<string, unknown> = { residentId: auth.resident.residentId };
   if (status.length) where.status = { in: status };
-  if (search) {
-    where.OR = [
-      { caseNumber: { contains: search } },
-      { caseType: { contains: search } },
-      { description: { contains: search } },
-    ];
-  }
+  // Their own words: the reference, the type, the narrative, the incident date, and the person
+  // they reported - as they wrote it (an official's records are not searched from here).
+  if (search) where.AND = [caseSearchWhere(search, { reporterName: false, description: true, peopleVisible: {}, reporterSuppliedOnly: true })];
 
   try {
     const [cases, total] = await Promise.all([
@@ -142,7 +141,7 @@ export async function GET(req: NextRequest) {
       }),
       prisma.case.count({ where }),
     ]);
-    return rSuccess({ cases, total, page, limit, totalPages: Math.ceil(total / limit) });
+    return rSuccess({ cases, total, page, limit, totalPages: Math.ceil(total / limit), search: searchSummary(search) });
   } catch {
     return rError('Server error', 500);
   }

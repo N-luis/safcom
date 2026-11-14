@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useCases, useCaseStats } from '@/hooks/useApi';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
@@ -189,7 +190,9 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
 
 export default function CaseManagementPage() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  // One search bar: what is typed, and what is searched once typing pauses.
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebouncedValue(searchInput.trim(), 300);
   const [statusFilter, setStatusFilter] = useState('');
   const [riskFilter, setRiskFilter] = useState('');
   const [triageFilter, setTriageFilter] = useState('');
@@ -204,8 +207,8 @@ export default function CaseManagementPage() {
     const q = sp.get('search');
     const st = sp.get('status');
     const risk = sp.get('riskLevel');
-    if (cn) { setSearch(cn); setAutoOpenTarget(cn); }
-    else if (q) setSearch(q);
+    if (cn) { setSearchInput(cn); setAutoOpenTarget(cn); }
+    else if (q) setSearchInput(q);
     if (st) setStatusFilter(st);
     if (risk) setRiskFilter(risk);
   }, []);
@@ -219,7 +222,7 @@ export default function CaseManagementPage() {
     return p;
   }, [search, statusFilter, riskFilter, triageFilter, page]);
 
-  const { data, isLoading } = useCases(params);
+  const { data, isLoading } = useCases(params, { keepPreviousData: true });
   const { data: stats } = useCaseStats();
 
   const cases: CaseRow[] = data?.cases ?? [];
@@ -279,9 +282,9 @@ export default function CaseManagementPage() {
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
             <TextField
-              size="small" placeholder="Search by name, case ID, type…"
-              value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-              slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 16 }} /></InputAdornment> } }}
+              size="small" placeholder="Search case no., reporter, respondent, type or incident date…"
+              value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+              slotProps={{ htmlInput: { 'aria-label': 'Search cases', maxLength: 100 }, input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 16 }} /></InputAdornment> } }}
               sx={{ flex: 1, minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
             <FormControl size="small" sx={{ minWidth: 140 }}>
@@ -307,8 +310,8 @@ export default function CaseManagementPage() {
                 {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
               </Select>
             </FormControl>
-            {(search || statusFilter || riskFilter || triageFilter) && (
-              <Button size="small" variant="outlined" onClick={() => { setSearch(''); setStatusFilter(''); setRiskFilter(''); setTriageFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
+            {(searchInput || statusFilter || riskFilter || triageFilter) && (
+              <Button size="small" variant="outlined" onClick={() => { setSearchInput(''); setStatusFilter(''); setRiskFilter(''); setTriageFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
                 Clear
               </Button>
             )}
@@ -318,6 +321,10 @@ export default function CaseManagementPage() {
               </IconButton>
             </Tooltip>
           </Box>
+          {/* How a date in the search was read - said, never silently assumed */}
+          {search && data?.search?.note && (
+            <Typography role="status" sx={{ fontSize: '0.78rem', color: '#475569', mt: 1 }}>{data.search.note}</Typography>
+          )}
         </CardContent>
       </Card>
 

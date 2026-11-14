@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 
 const fetcher = (url: string) =>
@@ -207,7 +208,9 @@ const PRESETS: Record<string, { label: string; params: Record<string, string>; b
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function VawcCasesPage() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  // One search bar: what is typed, and what is searched once typing pauses.
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebouncedValue(searchInput.trim(), 300);
   const [status, setStatus] = useState('');
   const [risk, setRisk] = useState('');
   const [triageFilter, setTriageFilter] = useState('');
@@ -234,7 +237,7 @@ export default function VawcCasesPage() {
     // because it can express groups the dropdowns cannot.
     if (riskParam) setRisk(riskParam);
     if (statusParam) setStatus(statusParam);
-    if (searchParam) setSearch(searchParam);
+    if (searchParam) setSearchInput(searchParam);
     if (typeParam) setType(typeParam);
   }, []);
 
@@ -244,7 +247,7 @@ export default function VawcCasesPage() {
     ...(type && { type }), ...(search && { search }), ...(triageFilter && { triage: triageFilter }),
   }).toString();
 
-  const { data, isLoading, mutate } = useSWR<{ cases: CaseRow[]; total: number; totalPages: number }>(
+  const { data, isLoading, mutate } = useSWR<{ cases: CaseRow[]; total: number; totalPages: number; search?: { incidentDate: string | null; note: string | null } | null }>(
     `/api/vawc/cases?${query}`, fetcher, { keepPreviousData: true }
   );
 
@@ -281,10 +284,10 @@ export default function VawcCasesPage() {
             sx={{ bgcolor: PRESETS[preset].bg, color: PRESETS[preset].fg, fontWeight: 700, fontSize: '0.86rem' }}
           />
         )}
-        <TextField size="small" placeholder="Search name, case no…"
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          sx={{ width: { xs: '100%', sm: 260 } }}
-          slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 17, color: '#94a3b8' }} /></InputAdornment> } }}
+        <TextField size="small" placeholder="Search case no., name, type or incident date…"
+          value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+          sx={{ width: { xs: '100%', sm: 320 } }}
+          slotProps={{ htmlInput: { 'aria-label': 'Search cases', maxLength: 100 }, input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 17, color: '#94a3b8' }} /></InputAdornment> } }}
         />
         <FormControl size="small" sx={{ minWidth: 130 }} disabled={!!preset}>
           <InputLabel>Status</InputLabel>
@@ -315,6 +318,10 @@ export default function VawcCasesPage() {
           </Select>
         </FormControl>
       </Box>
+      {/* How a date in the search was read - said, never silently assumed */}
+      {search && data?.search?.note && (
+        <Typography role="status" sx={{ fontSize: '0.78rem', color: '#475569', mt: -1, mb: 1.5 }}>{data.search.note}</Typography>
+      )}
 
       <Card>
         {/* On a narrow screen the table scrolls inside its card instead of squeezing its columns. */}

@@ -1,6 +1,6 @@
 'use client';
 
-import useSWR, { mutate } from 'swr';
+import useSWR, { mutate, type SWRConfiguration } from 'swr';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(res => {
@@ -20,9 +20,10 @@ export function useNotifications(limit = 50) {
   return useSWR(`/api/notifications?limit=${limit}`, fetcher, { refreshInterval: 30000 });
 }
 
-export function useCases(params?: Record<string, string | number>) {
+export function useCases(params?: Record<string, string | number>, options?: SWRConfiguration) {
   const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
-  return useSWR(`/api/cases${query}`, fetcher);
+  // Keyed by the full query: a slower answer to an earlier search never replaces the current one.
+  return useSWR(`/api/cases${query}`, fetcher, options);
 }
 
 export function useCaseStats() {

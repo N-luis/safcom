@@ -65,20 +65,25 @@ export default function CaseSearch({ basePath, quickFilters: QUICK_FILTERS }: Ca
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
+  // Each search is numbered; an answer that arrives after a newer search started is dropped,
+  // so a slow earlier request can never replace the results of what is typed now.
+  const latestRef = useRef(0);
   const doSearch = useCallback(async (q: string, s: string) => {
-    if (!q.trim()) { setResults(null); return; }
+    const mine = ++latestRef.current;
+    if (!q.trim()) { setResults(null); setLoading(false); return; }
     setLoading(true);
     try {
       const [casesRes, residentsRes] = await Promise.all([
         (s === 'all' || s === 'cases') ? fetch(`/api/cases?search=${encodeURIComponent(q)}&limit=6`, { credentials: 'include' }).then(r => r.json()) : Promise.resolve({ data: { cases: [] } }),
         (s === 'all' || s === 'residents') ? fetch(`/api/residents?search=${encodeURIComponent(q)}&limit=6`, { credentials: 'include' }).then(r => r.json()) : Promise.resolve({ data: { residents: [] } }),
       ]);
+      if (mine !== latestRef.current) return;
       setResults({
         cases: casesRes?.data?.cases ?? [],
         residents: residentsRes?.data?.residents ?? [],
       });
-    } catch { setResults({ cases: [], residents: [] }); }
-    finally { setLoading(false); }
+    } catch { if (mine === latestRef.current) setResults({ cases: [], residents: [] }); }
+    finally { if (mine === latestRef.current) setLoading(false); }
   }, []);
 
   const handleInput = (val: string) => {

@@ -8,6 +8,8 @@ import { computeRisk } from '@/lib/riskEngine';
 import { analyzeIntake, triageStatusFor } from '@/lib/intake';
 import { TRIAGE_VALUES } from '@/lib/triageLabels';
 import { nextCaseNumber } from '@/lib/caseNumber';
+import { parseCaseSearch, searchSummary } from '@/lib/caseSearch';
+import { caseSearchWhere, peopleVisibleTo } from '@/lib/caseSearchServer';
 
 /** Reads a filter param that may hold one value or a comma-separated group. */
 function csv(raw: string | null): string[] {
@@ -38,13 +40,15 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const page = Math.max(1, Number(sp.get('page') ?? 1));
   const limit = Math.min(Number(sp.get('limit') ?? 20), 100);
-  const search = sp.get('search') ?? '';
+  const search = parseCaseSearch(sp.get('search'));
   // Status and risk accept a comma-separated list so a caller can ask for a
   // group the dashboard actually counts as one number - e.g. the Resolved card
   // counts 'Resolved' plus 'Closed', and High-Risk counts 'High' plus 'Critical'.
   const status = csv(sp.get('status'));
   const risk = csv(sp.get('risk'));
-  const type = sp.get('type') ?? '';
+  // Only a VAWC type narrows this list - any other value would reach blotter cases.
+  const typeParam = sp.get('type') ?? '';
+  const type = (VAWC_TYPES as readonly string[]).includes(typeParam) ? typeParam : '';
   const urgent = sp.get('urgent') === 'true';
   const triage = csv(sp.get('triage')).filter(t => TRIAGE_VALUES.includes(t));
   const fromParam = sp.get('from');
@@ -67,17 +71,13 @@ export async function GET(req: NextRequest) {
       }
     }
     if (triage.length) and.push({ triageStatus: { in: triage } });
+    // One search bar: reference, category, reporter, respondent, victim-survivor, incident date
+    // (lib/caseSearchServer.ts). A person in a case is matched only where this user may open its records.
+    if (search) and.push(caseSearchWhere(search, { reporterName: true, victimSurvivor: true, peopleVisible: peopleVisibleTo({ id: auth.user.userId, role: auth.user.role }) }));
     const where = {
       caseType: type ? { equals: type } : { in: [...VAWC_TYPES] },
       ...(and.length && { AND: and }),
       ...(validFrom && { filedAt: { gte: validFrom } }),
-      ...(search && {
-        OR: [
-          { residentName: { contains: search, mode: 'insensitive' as const } },
-          { caseNumber: { contains: search, mode: 'insensitive' as const } },
-          { description: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }),
     };
 
     const [cases, total] = await Promise.all([
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
       prisma.case.count({ where }),
     ]);
 
-    return successResponse({ cases, ...paginationMeta(total, page, limit) });
+    return successResponse({ cases, ...paginationMeta(total, page, limit), search: searchSummary(search) });
   } catch {
     return errorResponse('Server error', 500);
   }

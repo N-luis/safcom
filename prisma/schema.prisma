@@ -159,6 +159,11 @@ model Case {
   interviews       CaseInterview[]
 
   @@index([progressState])
+  /// Case search (lib/caseSearch.ts): the incident date, and partial, case-insensitive
+  /// matches on the reference and the reporter name (pg_trgm).
+  @@index([incidentDate])
+  @@index([caseNumber(ops: raw("gin_trgm_ops"))], type: Gin, map: "Case_caseNumber_trgm_idx")
+  @@index([residentName(ops: raw("gin_trgm_ops"))], type: Gin, map: "Case_residentName_trgm_idx")
 }
 
 /// Report review: everything added to a report after it was filed. The
@@ -350,6 +355,8 @@ model CaseParty {
 
   @@index([caseId])
   @@index([residentId])
+  /// Case search by a party's name (pg_trgm).
+  @@index([fullName(ops: raw("gin_trgm_ops"))], type: Gin, map: "CaseParty_fullName_trgm_idx")
 }
 
 /// The officer's initial safety assessment. Officer-only; one per case, and

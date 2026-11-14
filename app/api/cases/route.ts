@@ -8,6 +8,8 @@ import { detectLanguageSafe } from '@/lib/detectLanguage';
 import { vawcFilter, isVawcCaseHidden, withholdReporter } from '@/lib/caseAccess';
 import { analyzeIntake, triageStatusFor } from '@/lib/intake';
 import { TRIAGE_VALUES } from '@/lib/triageLabels';
+import { parseCaseSearch, searchSummary } from '@/lib/caseSearch';
+import { caseSearchWhere, peopleVisibleTo } from '@/lib/caseSearchServer';
 
 const createSchema = z.object({
   caseNumber: z.string().min(1),
@@ -30,7 +32,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, Number(searchParams.get('page') || 1));
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') || 20)));
-  const search = searchParams.get('search') || '';
+  const search = parseCaseSearch(searchParams.get('search'));
   const status = searchParams.get('status') || '';
   const riskLevel = searchParams.get('riskLevel') || '';
   const sortBy = searchParams.get('sortBy') || 'filedAt';
@@ -39,14 +41,11 @@ export async function GET(req: NextRequest) {
   // VAWC cases are the VAWC desk's to read. Applied to the query itself, so
   // no later change to the response shape can let one through.
   const where: Record<string, unknown> = { ...vawcFilter(auth.user.role) };
-  if (search) {
-    where.OR = [
-      { caseNumber: { contains: search } },
-      { residentName: { contains: search } },
-      { barangay: { contains: search } },
-      { caseType: { contains: search } },
-    ];
-  }
+  // Each OR group is its own AND clause, so the search and the overdue filter never overwrite each other.
+  const and: Record<string, unknown>[] = [];
+  // One search bar: reference, category, reporter, respondent, incident date (lib/caseSearchServer.ts).
+  // A person in a case is matched only where this user may open the case's records.
+  if (search) and.push(caseSearchWhere(search, { reporterName: true, barangay: true, peopleVisible: peopleVisibleTo({ id: auth.user.userId, role: auth.user.role }) }));
   // One status, or a comma-separated group ("Resolved,Closed") from the analytics cards.
   if (status) where.status = status.includes(',') ? { in: status.split(',').map(s => s.trim()).filter(Boolean) } : status;
 
@@ -60,10 +59,10 @@ export async function GET(req: NextRequest) {
     where.progressState = 'worsening';
   } else if (progressFilter === 'overdue') {
     where.status = { notIn: ['Resolved', 'Closed'] };
-    where.OR = [
+    and.push({ OR: [
       { lastOfficerActionAt: { lt: overdueCutoff } },
       { lastOfficerActionAt: null, filedAt: { lt: overdueCutoff } },
-    ];
+    ] });
   } else if (progressFilter === 'new_follow_up') {
     where.lastResidentUpdateAt = { gte: newFollowUpCutoff };
   }
@@ -72,6 +71,7 @@ export async function GET(req: NextRequest) {
   // Triage status: one of lib/triageLabels.ts. Anything else is ignored rather than matched.
   const triage = searchParams.get('triage') || '';
   if (TRIAGE_VALUES.includes(triage)) where.triageStatus = triage;
+  if (and.length) where.AND = and;
 
   // Undetermined sorts above Low on purpose: an unknown risk is not a low
   // one, and must not sink to the bottom of the queue.
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
       ]);
     }
 
-    return successResponse({ cases: cases.map(withholdReporter), pagination: paginationMeta(total, page, limit) });
+    return successResponse({ cases: cases.map(withholdReporter), pagination: paginationMeta(total, page, limit), search: searchSummary(search) });
   } catch {
     return errorResponse('Server error', 500);
   }
