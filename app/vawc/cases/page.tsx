@@ -18,6 +18,7 @@ import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 
 const fetcher = (url: string) =>
@@ -111,6 +112,8 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
         <Divider sx={{ mb: 2 }} />
         <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>Description</Typography>
         <Typography sx={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.7, bgcolor: '#f8fafc', p: 1.75, borderRadius: 2, mb: 2 }}>{c.description}</Typography>
+        {/* The reporter's photos, from the stored files - VAWC desk only (the API refuses others) */}
+        <Box sx={{ mb: 2 }}><EvidenceGallery caseId={c.id} audience="staff" compact bare /></Box>
 
         {editing ? (
           <Grid container spacing={2}>

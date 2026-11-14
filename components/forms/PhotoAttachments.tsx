@@ -91,6 +91,11 @@ export default function PhotoAttachments({ photos, onChange, disabled, accent = 
             setError(`${file.name} is still too large after resizing`);
             continue;
           }
+          // The same photo twice is one piece of evidence: kept once.
+          if (next.some(p => p.dataUrl === dataUrl)) {
+            setError(`${file.name} is already attached`);
+            continue;
+          }
           next.push({ key: `${file.name}-${Date.now()}-${next.length}`, name: file.name, dataUrl, size });
         } catch (e) {
           setError(e instanceof Error ? e.message : 'That image could not be read');

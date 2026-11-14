@@ -17,6 +17,7 @@ import {
 import { motion } from 'framer-motion';
 import { useCases, useCaseStats } from '@/hooks/useApi';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
@@ -144,6 +145,8 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
             <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: '#f8fafc' }}>
               <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#475569' }}>{c.description}</Typography>
             </Paper>
+            {/* The reporter's photos, from the stored files */}
+            <Box sx={{ mt: 2 }}><EvidenceGallery caseId={c.id} audience="staff" compact bare /></Box>
             {c.notes && (
               <Box sx={{ mt: 2 }}>
                 <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1 }}>Notes</Typography>

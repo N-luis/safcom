@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MotionTableRow = motion(TableRow);
 import useSWR from 'swr';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import EvidenceGallery from '@/components/cases/EvidenceGallery';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -118,6 +119,11 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         {/* SafeComm AI guidance: between what the resident reported and what
             has happened since. A check-in here writes to the same follow-up
             endpoint the timeline reads, so the key refreshes both. */}
+        {/* The photos stored with this report - theirs, and any on updates shared with them */}
+        <Box sx={{ mt: 2 }}>
+          <EvidenceGallery caseId={c.id} audience="resident" compact bare title="Your photos" />
+        </Box>
+
         <Box sx={{ mt: 2 }}>
           <CaseGuidance
             caseId={c.id}

@@ -28,6 +28,7 @@ import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
 import ReportReviewPanel from '@/components/cases/ReportReviewPanel';
+import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
 import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
@@ -1048,25 +1049,13 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
                   {caseData.description}
                 </Typography>
               </Paper>
+              {/* The photos are in Evidence Attachments, at the top of the right-hand column. */}
               {(caseData.attachments ?? []).length > 0 && (
-                <Box sx={{ mt: 1.5 }}>
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>
-                    Photos from the reporter ({(caseData.attachments ?? []).length})
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1.25, flexWrap: 'wrap' }}>
-                    {(caseData.attachments ?? []).map((a, i) => (
-                      <a key={a.id} href={`/api/attachments/${a.id}`} target="_blank" rel="noopener noreferrer"
-                        title={`${a.filename} - open full size`}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={`/api/attachments/${a.id}`}
-                          alt={`Photo ${i + 1} filed with this report: ${a.filename}`}
-                          style={{ width: 104, height: 104, objectFit: 'cover', borderRadius: 8, border: '1px solid #e2e8f0', display: 'block' }}
-                        />
-                      </a>
-                    ))}
-                  </Box>
-                </Box>
+                <Typography sx={{ mt: 1.25, fontSize: '0.8rem', color: '#0369a1' }}>
+                  <a href="#evidence-attachments" style={{ color: 'inherit' }}>
+                    {(caseData.attachments ?? []).length} photo{(caseData.attachments ?? []).length === 1 ? '' : 's'} with this report - see Evidence Attachments
+                  </a>
+                </Typography>
               )}
               {caseData.notes && (
                 <Box sx={{ mt: 1.5 }}>
@@ -1086,6 +1075,8 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
         {/* Right: Report Review and Clarification, then the timeline */}
         <Grid size={{ xs: 12, md: 7 }}>
+          {/* Evidence Attachments: every photo the reporter sent, from the stored files */}
+          <Box sx={{ mb: 2.5 }}><EvidenceGallery caseId={id} audience="staff" /></Box>
           {/* The original report and SafeComm AI's organized draft; clarification, interviews, approval */}
           <Box sx={{ mb: 2.5 }}><ReportReviewPanel caseId={id} /></Box>
           <Card sx={{ height: 'fit-content' }}>

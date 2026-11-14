@@ -158,6 +158,11 @@ model Case {
   clarifications   ClarificationRequest[]
   interviews       CaseInterview[]
 
+  /// The resident form's key for one submission: a retried submit (a lost
+  /// response, a second tap) returns the case already filed instead of
+  /// filing it - and its photos - twice.
+  submissionKey String?
+  @@unique([residentId, submissionKey])
   @@index([progressState])
   /// Case search (lib/caseSearch.ts): the incident date, and partial, case-insensitive
   /// matches on the reference and the reporter name (pg_trgm).
@@ -608,9 +613,17 @@ model CaseAttachment {
   mimeType   String
   size       Int
   data       Bytes
+  /// Who uploaded it: the resident (their report or follow-up) or an official.
+  /// Null on photos stored before this was recorded.
+  uploadedByResidentId String?
+  uploadedByUserId     String?
+  /// SHA-256 of the stored bytes (hex): the same photo is never stored twice
+  /// for one case, and the file can be shown to be the one received.
+  sha256     String?
   createdAt  DateTime      @default(now())
 
   @@index([caseId])
+  @@index([caseId, sha256])
 }
 
 model Report {

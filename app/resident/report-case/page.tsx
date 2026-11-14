@@ -21,6 +21,7 @@ import StreetSelect from '@/components/forms/StreetSelect';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 import { useLanguage } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
+import { postWithProgress, newSubmissionKey } from '@/lib/postWithProgress';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
 import dynamicImport from 'next/dynamic';
@@ -186,6 +187,11 @@ export default function ReportCasePage() {
   const desk = intakeResult?.route ?? null;
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  // One key per report: sent again on Retry, so a lost answer or a second tap
+  // never files the report - or stores its photos - twice. A new key after it is filed.
+  const [submissionKey, setSubmissionKey] = useState(() => newSubmissionKey());
+  // How much of the photos has been sent, while they are being sent.
+  const [upload, setUpload] = useState<{ label: string; percent: number } | null>(null);
 
   // SafeComm Assist: the answers given so far, and its latest reading.
   const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswer[]>([]);
@@ -279,11 +285,10 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
       setStage(s2 => s2 + 1);
       setPhase('assessing');
 
-      const res = await fetch('/api/resident/cases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+      const photoLabel = photos.length ? `Uploading ${photos.length} photo${photos.length === 1 ? '' : 's'}` : null;
+      if (photoLabel) setUpload({ label: photoLabel, percent: 0 });
+      const res = await postWithProgress('/api/resident/cases', JSON.stringify({
+          submissionKey,
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
@@ -310,32 +315,43 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           incidentTimeApprox: data.incidentTimeApprox?.trim() || undefined,
           witnessInfo: data.witnessInfo?.trim() || undefined,
           ...peoplePayload(people, null, data.reportingRelationship as ReportingRelationship),
-        }),
-      });
-      const json = await res.json();
+        }), percent => { if (photoLabel) setUpload({ label: photoLabel, percent }); });
+      const json = res.json as { error?: string; data?: Record<string, unknown> & { caseNumber: string } };
       if (cancelled.current) return;
-      if (!res.ok) {
+      if (!res.ok || !json.data) {
         setPhase('error');
-        setApiError(json.error || 'Submission failed');
+        setUpload(null);
+        // Said plainly: which photo, or that the photos together were too large to send.
+        setApiError(res.status === 413
+          ? 'The photos are too large to send together. Remove one or two and submit again - nothing was filed.'
+          : json.error || `The report could not be submitted (error ${res.status}). Nothing was filed - please try again.`);
         return;
       }
+      setUpload(null);
+      // Filed: the next report gets a key of its own.
+      setSubmissionKey(newSubmissionKey());
       // Only now is the assessment real, so only now do the last stages tick
       // over and the bar reach the end.
       setStage(stages.length);
       setPhase('done');
+      const d = json.data;
       pendingResult.current = {
-        caseNumber: json.data.caseNumber,
-        assessment: json.data.assessment ?? null,
-        intake: json.data.intake ?? null,
-        triageStatus: json.data.triageStatus ?? null,
-        desk: json.data.desk ?? null,
+        caseNumber: d.caseNumber,
+        assessment: (d.assessment ?? null) as CaseAssessment | null,
+        intake: (d.intake ?? null) as IntakeResult | null,
+        triageStatus: (d.triageStatus ?? null) as string | null,
+        desk: (d.desk ?? null) as ResidentDesk | null,
       };
       try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
       toast.success('Report submitted successfully!');
     } catch {
       if (cancelled.current) return;
       setPhase('error');
-      setApiError('Network error. Please try again.');
+      setUpload(null);
+      // Retry sends the same key: if the report did arrive, it is not filed a second time.
+      setApiError(photos.length
+        ? 'The connection dropped while sending your report and photos. Press Retry - if it did arrive, it will not be filed twice.'
+        : 'Network error. Please try again.');
     }
   };
 
@@ -795,6 +811,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         slow={slow}
         error={apiError}
         accent={ACCENT}
+        upload={upload}
         onMinimize={() => setMinimized(true)}
         onExpand={() => setMinimized(false)}
         onCancel={() => {

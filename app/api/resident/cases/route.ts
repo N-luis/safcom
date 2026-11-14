@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { computeRisk } from '@/lib/riskEngine';
-import { parseImageDataUrl, MAX_ATTACHMENTS } from '@/lib/attachments';
-import { createWithCaseNumber } from '@/lib/caseNumber';
+import { MAX_ATTACHMENTS } from '@/lib/attachments';
+import { parsePhotos, storeResidentPhotos } from '@/lib/evidenceServer';
+import { createWithCaseNumber, isUniqueViolationOn } from '@/lib/caseNumber';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
 import { detectLanguageSafe } from '@/lib/detectLanguage';
 import { isValidCoordinate } from '@/lib/geo';
@@ -92,6 +93,9 @@ const createSchema = z.object({
   // older page may still send it; "VAWC" is then one more reason to keep the
   // report confidential - never a reason for less.
   reportPath: z.enum(REPORT_PATHS).optional(),
+  // The form's key for this one submission: sent again on a retry, so a lost
+  // response or a second tap never files the report - or its photos - twice.
+  submissionKey: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/, 'Invalid submission key').optional(),
   // When it happened, if they know. Never required.
   incidentDate: incidentDateSchema,
   // Chosen on the form: a part of the day or an exact time (lib/incidentTime.ts).
@@ -166,6 +170,25 @@ export async function POST(req: NextRequest) {
       select: { firstName: true, lastName: true, barangay: true, gender: true },
     });
     if (!resident) return rError('Resident not found', 404);
+
+    // The photos first: a bad file is reported (by name) before any work is done,
+    // and the same photo picked twice is kept once.
+    const photoParse = parsePhotos(parsed.data.attachments ?? []);
+    if ('error' in photoParse) return rError(photoParse.error, 400);
+    const photos = photoParse.photos;
+
+    // Already filed with this key (a retry): the same case, not a second one. Any of
+    // its photos that did not arrive the first time are added now - never twice.
+    const submissionKey = parsed.data.submissionKey ?? null;
+    const alreadyFiled = async () => {
+      const existing = submissionKey ? await prisma.case.findFirst({ where: { residentId: auth.resident.residentId, submissionKey },
+        select: { id: true, caseNumber: true, caseType: true, status: true, triageStatus: true, filedAt: true } }) : null;
+      if (!existing) return null;
+      const photosAdded = await storeResidentPhotos(existing.id, auth.resident.residentId, photos);
+      return rSuccess({ ...existing, duplicate: true, photosAdded }, 200);
+    };
+    const repeat = await alreadyFiled();
+    if (repeat) return repeat;
 
     const barangay = parsed.data.barangay || resident.barangay;
 
@@ -261,16 +284,6 @@ export async function POST(req: NextRequest) {
 
     const notesValue = additionalNotes ? `Notes: ${additionalNotes}` : undefined;
 
-    const incoming = parsed.data.attachments ?? [];
-    const photos: { filename: string; mimeType: string; size: number; data: Uint8Array<ArrayBuffer> }[] = [];
-    for (const a of incoming) {
-      const result = parseImageDataUrl(a.dataUrl);
-      if ('error' in result) return rError(`${a.name}: ${result.error}`, 400);
-      photos.push({
-        filename: a.name, mimeType: result.mimeType,
-        size: result.bytes.length, data: result.bytes,
-      });
-    }
 
     // A photographed document is evidence, but an unclear reading is not: the
     // guard drops any factor that rests on a word the reader was unsure of and
@@ -339,10 +352,13 @@ export async function POST(req: NextRequest) {
 
     // Retried: two residents filing at the same moment can be handed the same
     // number, and the unique constraint rejects the loser.
-    const newCase = await createWithCaseNumber('SC', caseNumber =>
+    let newCase;
+    try {
+      newCase = await createWithCaseNumber('SC', caseNumber =>
       prisma.case.create({
         data: {
           caseNumber,
+          submissionKey,
           // Anonymous: officials see no name. The account stays linked so the
           // reporter can follow their own report in My Cases.
           residentName: anonymous ? ANONYMOUS_NAME : `${resident.firstName} ${resident.lastName}`,
@@ -374,6 +390,14 @@ export async function POST(req: NextRequest) {
         },
       }),
     );
+    } catch (err) {
+      // The same submission arrived twice at once: the other request filed it.
+      if (isUniqueViolationOn(err, 'submissionKey')) {
+        const repeatNow = await alreadyFiled();
+        if (repeatNow) return repeatNow;
+      }
+      throw err;
+    }
     const caseNumber = newCase.caseNumber;
 
     // The person affected and the person reported, each a record of its own.
@@ -389,11 +413,8 @@ export async function POST(req: NextRequest) {
 
     // The resident's photos first, on their own: they are evidence, and they
     // must survive even if the assessment below cannot be written.
-    if (photos.length) {
-      await prisma.caseAttachment.createMany({
-        data: photos.map(p => ({ ...p, caseId: newCase.id })),
-      });
-    }
+    // Stored with who sent them and each one's fingerprint (lib/evidenceServer).
+    await storeResidentPhotos(newCase.id, auth.resident.residentId, photos);
 
     const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || deskUnsettled;
     const reviewReasons = [

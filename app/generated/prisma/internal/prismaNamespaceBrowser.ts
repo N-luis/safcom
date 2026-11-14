@@ -165,7 +165,8 @@ export const CaseScalarFieldEnum = {
   resolutionType: 'resolutionType',
   resolutionSummary: 'resolutionSummary',
   resolvedById: 'resolvedById',
-  witnessInfo: 'witnessInfo'
+  witnessInfo: 'witnessInfo',
+  submissionKey: 'submissionKey'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -459,6 +460,9 @@ export const CaseAttachmentScalarFieldEnum = {
   mimeType: 'mimeType',
   size: 'size',
   data: 'data',
+  uploadedByResidentId: 'uploadedByResidentId',
+  uploadedByUserId: 'uploadedByUserId',
+  sha256: 'sha256',
   createdAt: 'createdAt'
 } as const
 

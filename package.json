@@ -51,7 +51,8 @@
     "db:remove-id-verification": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/013_remove_id_verification.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/014_drop_resident_id_document.sql",
     "test:servicereferral:db": "npx tsx --env-file=.env --conditions=react-server tests/serviceReferral.test.ts",
     "db:service-referral": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.schema.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.sql",
-    "test:casesearch": "npx tsx --env-file=.env --conditions=react-server tests/caseSearch.test.ts"
+    "test:casesearch": "npx tsx --env-file=.env --conditions=react-server tests/caseSearch.test.ts",
+    "test:evidencephotos": "npx tsx --env-file=.env --conditions=react-server tests/evidencePhotos.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
