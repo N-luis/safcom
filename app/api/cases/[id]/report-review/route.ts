@@ -27,7 +27,11 @@ import {
  *          field-by-field changes since the first draft.
  *   POST { action } -
  *     request_clarification { items: [{ key, question }], message? }
- *     cancel_request        { requestId, reason }
+ *     cancel_request        { requestId, reason }   - an unanswered request is withdrawn
+ *     review_request        { requestId }           - an official starts reviewing the resident's response
+ *     complete_request      { requestId, note? }    - the clarification is done
+ *   A request's own progress, apart from the case status: OPEN (awaiting the
+ *   resident) -> ANSWERED -> IN_REVIEW -> COMPLETED, or CANCELLED.
  *     record_interview      { interviewedAt, contactMethod, questions: [{ question, answer, fieldKey? }], notes?, followUpActions?, safetyConfirmed? }
  *                           - also redrafts the report with the answers, and re-runs the
  *                             AI assessment when they change what happened
@@ -45,6 +49,8 @@ const actionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('request_clarification'), message: z.string().trim().max(500).optional(),
     items: z.array(z.object({ key: z.string().trim().min(1).max(40), question: z.string().trim().min(5, 'Write each question in full').max(300) })).min(1, 'Choose at least one thing to clarify').max(8) }),
   z.object({ action: z.literal('cancel_request'), requestId: z.string().max(64), reason: z.string().trim().min(3, 'Say why the request is withdrawn').max(300) }),
+  z.object({ action: z.literal('review_request'), requestId: z.string().max(64) }),
+  z.object({ action: z.literal('complete_request'), requestId: z.string().max(64), note: z.string().trim().max(500).optional() }),
   z.object({ action: z.literal('record_interview'), interviewedAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)),
     contactMethod: z.enum(CONTACT_METHODS), interviewerId: z.string().max(64).optional(),
     questions: z.array(z.object({ question: z.string().trim().min(3).max(300), answer: z.string().trim().max(2000), fieldKey: z.string().max(40).optional() })).min(1, 'Record at least one question').max(20),
@@ -54,6 +60,9 @@ const actionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('confirm_field'), draftId: z.string().max(64), key: z.string().max(40) }),
   z.object({ action: z.literal('approve'), draftId: z.string().max(64), note: z.string().trim().max(1000).optional(), acknowledgeOutstanding: z.boolean().optional() }),
 ]);
+
+/** The report versions that are a resident's response to a clarification request. */
+const responseVersionsOf = (c: LoadedReport) => new Set(c.reportAddenda.filter(a => a.source === 'RESIDENT_CLARIFICATION').map(a => a.version));
 
 async function names(ids: (string | null | undefined)[]) {
   const list = [...new Set(ids.filter((x): x is string => Boolean(x)))];
@@ -102,7 +111,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       prisma.clarificationRequest.findMany({ where: { caseId: id }, orderBy: { createdAt: 'desc' } }),
       prisma.caseInterview.findMany({ where: { caseId: id }, orderBy: { interviewedAt: 'desc' } }),
     ]);
-    const name = await names([...requests.map(r => r.requestedById), ...requests.map(r => r.cancelledById), ...interviews.flatMap(i => [i.interviewerId, i.recordedById]),
+    const name = await names([...requests.flatMap(r => [r.requestedById, r.cancelledById, r.reviewStartedById, r.completedById]), ...interviews.flatMap(i => [i.interviewerId, i.recordedById]),
       ...c.reportDrafts.flatMap(d => [d.createdById, d.approvedById]), ...c.reportAddenda.map(a => a.actorUserId)]);
     const createdBy = (d: LoadedReport['reportDrafts'][number]) => (d.createdById ? name(d.createdById) : d.createdByResident ? 'After the resident\'s update' : null);
     const drafts = c.reportDrafts.map(d => ({ ...draftRow(d), createdBy: createdBy(d) ?? (d.generator === 'ai' ? 'SafeComm AI' : 'SafeComm'), approvedBy: name(d.approvedById) }));
@@ -121,10 +130,15 @@ export async function GET(req: NextRequest, { params }: Params) {
       versions: c.reportAddenda.map(a => ({ ...versionRow(a), by: a.residentId ? 'The resident' : name(a.actorUserId) ?? 'An official' })),
       drafts, latestDraft: latest,
       required: requiredKeys(template),
-      attention: latest && latest.template === template ? needsAttention(template, latest.fields) : [],
+      attention: latest && latest.template === template ? needsAttention(template, latest.fields, responseVersionsOf(c)) : [],
       changes: fieldChanges(template, sameTemplate),
       approved: drafts.find(d => d.status === 'APPROVED') ?? null,
-      requests: requests.map(r => ({ ...r, requestedBy: name(r.requestedById), cancelledBy: name(r.cancelledById) })),
+      // Each request with the resident's response, as they sent it (a report version of its own).
+      requests: requests.map(r => {
+        const a = r.addendumId ? c.reportAddenda.find(x => x.id === r.addendumId) : null;
+        return { ...r, requestedBy: name(r.requestedById), cancelledBy: name(r.cancelledById), reviewStartedBy: name(r.reviewStartedById), completedBy: name(r.completedById),
+          response: a ? { version: a.version, text: a.text, fields: a.fields as unknown as AddendumField[], at: a.createdAt } : null };
+      }),
       interviews: interviews.map(i => ({ ...i, interviewer: name(i.interviewerId), recordedBy: name(i.recordedById) })),
       // What could still be asked of the resident, from the latest draft's gaps.
       suggestions: [
@@ -179,6 +193,30 @@ export async function POST(req: NextRequest, { params }: Params) {
       if (r.status !== 'OPEN') return errorResponse('That request is already closed.', 409);
       await prisma.clarificationRequest.update({ where: { id: r.id }, data: { status: 'CANCELLED', cancelledById: me, cancelledAt: new Date(), cancelReason: d.reason } });
       await g.log('permitted', `${g.access.code}:clarification_cancel`);
+      return noStore({ success: true });
+    }
+
+    if (d.action === 'review_request' || d.action === 'complete_request') {
+      const r = await prisma.clarificationRequest.findFirst({ where: { id: d.requestId, caseId: id } });
+      if (!r) return errorResponse('Not found', 404);
+      const now = new Date();
+      if (d.action === 'review_request') {
+        if (r.status !== 'ANSWERED') return errorResponse(r.status === 'OPEN' ? 'The resident has not responded yet.' : 'This response is already under review or closed.', 409);
+        await prisma.$transaction(async tx => {
+          await tx.clarificationRequest.update({ where: { id: r.id }, data: { status: 'IN_REVIEW', reviewStartedAt: now, reviewStartedById: me } });
+          await tx.activity.create({ data: { type: 'clarification_review', message: `Resident's clarification response under review by ${myName}`,
+            entityId: r.id, entityType: 'ClarificationRequest', userId: me, caseId: id, color: '#0369a1' } });
+        });
+      } else {
+        if (r.status !== 'ANSWERED' && r.status !== 'IN_REVIEW') return errorResponse(r.status === 'OPEN' ? 'The resident has not responded yet - withdraw the request instead.' : 'This request is already closed.', 409);
+        await prisma.$transaction(async tx => {
+          await tx.clarificationRequest.update({ where: { id: r.id }, data: { status: 'COMPLETED', completedAt: now, completedById: me, completionNote: d.note || null,
+            ...(r.reviewStartedAt ? {} : { reviewStartedAt: now, reviewStartedById: me }) } });
+          await tx.activity.create({ data: { type: 'clarification_completed', message: `Clarification marked complete by ${myName}`,
+            entityId: r.id, entityType: 'ClarificationRequest', userId: me, caseId: id, color: '#15803d' } });
+        });
+      }
+      await g.log('permitted', `${g.access.code}:${d.action === 'review_request' ? 'clarification_review' : 'clarification_complete'}`);
       return noStore({ success: true });
     }
 
@@ -277,7 +315,7 @@ export async function POST(req: NextRequest, { params }: Params) {
       return noStore({ success: false, code: 'required_missing', missing: missing.map(k => fieldOf(template, k)!.label),
         error: `Still needed before approval: ${missing.map(k => fieldOf(template, k)!.label).join(', ')}. Record them, mark them Unknown, Declined or N/A, or keep the draft and continue clarifying.` }, 409);
     }
-    const unconfirmed = needsAttention(template, fields).filter(a => a.reason !== 'missing');
+    const unconfirmed = needsAttention(template, fields, responseVersionsOf(c)).filter(a => a.reason !== 'missing');
     if (unconfirmed.length && !d.acknowledgeOutstanding) {
       return noStore({ success: false, code: 'unconfirmed', items: unconfirmed.map(a => a.label),
         error: `Check these before approving: ${unconfirmed.map(a => a.label).join(', ')}.` }, 409);

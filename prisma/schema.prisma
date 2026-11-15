@@ -217,13 +217,21 @@ model ClarificationRequest {
   /// [{ key, label, question }] - what needs clarifying.
   items         Json
   message       String?
-  /// OPEN | ANSWERED | CANCELLED
+  /// The request's own progress, apart from the case status:
+  /// OPEN (sent, awaiting the resident) | ANSWERED (the resident responded) |
+  /// IN_REVIEW (an official is reviewing the response) | COMPLETED | CANCELLED
   status        String    @default("OPEN")
   answeredAt    DateTime?
   addendumId    String?
   cancelledById String?
   cancelledAt   DateTime?
   cancelReason  String?
+  /// An official started reviewing the response / marked the clarification complete.
+  reviewStartedAt   DateTime?
+  reviewStartedById String?
+  completedAt       DateTime?
+  completedById     String?
+  completionNote    String?
   createdAt     DateTime  @default(now())
 
   @@index([caseId])

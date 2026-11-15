@@ -228,15 +228,17 @@ export function requiredKeys(t: TemplateName): string[] {
   return TEMPLATES[t].fields.filter(f => items[f.key] && !items[f.key].applies).map(f => f.key);
 }
 
-export type AttentionReason = 'missing' | 'unclear' | 'conflict' | 'verify';
+export type AttentionReason = 'missing' | 'unclear' | 'conflict' | 'verify' | 'response';
 export interface Attention { key: string; label: string; section: string; reason: AttentionReason; required: boolean; field: DraftField }
 /**
  * What an official still has to look at in a draft: missing, unclear,
- * conflicting, or organized by SafeComm AI and not yet confirmed. Values the
- * resident answered directly, the case's records and officials' own entries
- * are not listed. The original narrative never is.
+ * conflicting, organized by SafeComm AI and not yet confirmed, or answered by
+ * the resident in response to a clarification request (`responseVersions`:
+ * the report versions that are such responses) - an official decides whether
+ * the draft keeps it. The case's records and officials' own entries are not
+ * listed. The original narrative never is.
  */
-export function needsAttention(t: TemplateName, fields: DraftFields): Attention[] {
+export function needsAttention(t: TemplateName, fields: DraftFields, responseVersions: ReadonlySet<number> = new Set()): Attention[] {
   const req = new Set(requiredKeys(t));
   const out: Attention[] = [];
   for (const f of TEMPLATES[t].fields) {
@@ -247,6 +249,7 @@ export function needsAttention(t: TemplateName, fields: DraftFields): Attention[
       : v.conflictWith ? 'conflict'
       : v.status === 'UNVERIFIED' ? 'unclear'
       : v.status === 'AI_ORGANIZED' || ((v.status === 'ORIGINAL' || v.status === 'NEW') && v.note !== 'From a recorded interview') ? 'verify'
+      : v.status === 'RESIDENT_CONFIRMED' && /^v\d+$/.test(v.source ?? '') && responseVersions.has(Number(v.source!.slice(1))) ? 'response'
       : null;
     if (reason) out.push({ key: f.key, label: f.label, section: f.section, reason, required: req.has(f.key), field: v });
   }

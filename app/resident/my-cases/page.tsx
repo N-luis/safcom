@@ -53,18 +53,18 @@ function timeAgo(d: string) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
+function CaseDetailDialog({ c, onClose, clarifyId = null }: { c: CaseRow; onClose: () => void; clarifyId?: string | null }) {
   const color = STATUS_COLOR[c.status] ?? '#64748b';
   // Bumped when a one-tap check-in is filed, so the progress pill and the
   // timeline below re-read rather than showing the case as it was on open.
   const [timelineKey, setTimelineKey] = useState(0);
-  const [editing, setEditing] = useState(false);
+  // Opened from a "more information requested" notice: straight to that request.
+  const [editing, setEditing] = useState(Boolean(clarifyId));
   // A request from the barangay for more information is shown up front.
   const { data: report } = useSWR<{ requests: { status: string }[] }>(`/api/resident/cases/${c.id}/report`, fetcher);
   const openRequests = report?.requests?.filter(r => r.status === 'OPEN').length ?? 0;
   return (
     <>
-    {editing && <ReportEditor caseId={c.id} onClose={() => { setEditing(false); setTimelineKey(k => k + 1); }} />}
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth
       sx={{ '& .MuiDialog-paper': { m: { xs: 1, sm: 4 }, width: { xs: 'calc(100% - 16px)', sm: 'auto' } } }}
       slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
@@ -78,8 +78,8 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
       <DialogContent>
         {openRequests > 0 && (
           <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}
-            action={<Button color="inherit" size="small" onClick={() => setEditing(true)} sx={{ textTransform: 'none', fontWeight: 700 }}>Answer</Button>}>
-            The barangay asked for more information about this report. You can skip anything you cannot or would rather not answer.
+            action={<Button color="inherit" size="small" onClick={() => setEditing(true)} sx={{ textTransform: 'none', fontWeight: 700 }}>Respond</Button>}>
+            Additional information requested. An official reviewing your report needs clarification.
           </Alert>
         )}
         <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -140,6 +140,8 @@ function CaseDetailDialog({ c, onClose }: { c: CaseRow; onClose: () => void }) {
         <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#14b8a6', '&:hover': { bgcolor: '#0d9488' }, borderRadius: 2, minHeight: 44 }}>Close</Button>
       </DialogActions>
     </Dialog>
+    {/* After the case dialog, so the response form opens on top of it */}
+    {editing && <ReportEditor caseId={c.id} focusRequestId={clarifyId} onClose={() => { setEditing(false); setTimelineKey(k => k + 1); }} />}
     </>
   );
 }
@@ -157,6 +159,8 @@ function MyCasesPage() {
   const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') ?? '');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<CaseRow | null>(null);
+  // ?clarify=<request id>: open the case at that request (still only one of this resident's own cases).
+  const [clarifyId, setClarifyId] = useState<string | null>(() => searchParams.get('clarify'));
 
   // A notification links straight to one case. The id arrives before the list
   // does, so it is held until the matching row loads and then opened once -
@@ -319,7 +323,7 @@ function MyCasesPage() {
         )}
       </Card>
 
-      {selected && <CaseDetailDialog c={selected} onClose={() => setSelected(null)} />}
+      {selected && <CaseDetailDialog c={selected} clarifyId={clarifyId} onClose={() => { setSelected(null); setClarifyId(null); }} />}
     </Box>
   );
 }

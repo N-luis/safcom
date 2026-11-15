@@ -3389,6 +3389,11 @@ export const ClarificationRequestScalarFieldEnum = {
   cancelledById: 'cancelledById',
   cancelledAt: 'cancelledAt',
   cancelReason: 'cancelReason',
+  reviewStartedAt: 'reviewStartedAt',
+  reviewStartedById: 'reviewStartedById',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  completionNote: 'completionNote',
   createdAt: 'createdAt'
 } as const
 

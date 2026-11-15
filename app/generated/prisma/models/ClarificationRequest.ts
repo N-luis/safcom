@@ -37,6 +37,11 @@ export type ClarificationRequestMinAggregateOutputType = {
   cancelledById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  reviewStartedAt: Date | null
+  reviewStartedById: string | null
+  completedAt: Date | null
+  completedById: string | null
+  completionNote: string | null
   createdAt: Date | null
 }
 
@@ -51,6 +56,11 @@ export type ClarificationRequestMaxAggregateOutputType = {
   cancelledById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  reviewStartedAt: Date | null
+  reviewStartedById: string | null
+  completedAt: Date | null
+  completedById: string | null
+  completionNote: string | null
   createdAt: Date | null
 }
 
@@ -66,6 +76,11 @@ export type ClarificationRequestCountAggregateOutputType = {
   cancelledById: number
   cancelledAt: number
   cancelReason: number
+  reviewStartedAt: number
+  reviewStartedById: number
+  completedAt: number
+  completedById: number
+  completionNote: number
   createdAt: number
   _all: number
 }
@@ -82,6 +97,11 @@ export type ClarificationRequestMinAggregateInputType = {
   cancelledById?: true
   cancelledAt?: true
   cancelReason?: true
+  reviewStartedAt?: true
+  reviewStartedById?: true
+  completedAt?: true
+  completedById?: true
+  completionNote?: true
   createdAt?: true
 }
 
@@ -96,6 +116,11 @@ export type ClarificationRequestMaxAggregateInputType = {
   cancelledById?: true
   cancelledAt?: true
   cancelReason?: true
+  reviewStartedAt?: true
+  reviewStartedById?: true
+  completedAt?: true
+  completedById?: true
+  completionNote?: true
   createdAt?: true
 }
 
@@ -111,6 +136,11 @@ export type ClarificationRequestCountAggregateInputType = {
   cancelledById?: true
   cancelledAt?: true
   cancelReason?: true
+  reviewStartedAt?: true
+  reviewStartedById?: true
+  completedAt?: true
+  completedById?: true
+  completionNote?: true
   createdAt?: true
   _all?: true
 }
@@ -199,6 +229,11 @@ export type ClarificationRequestGroupByOutputType = {
   cancelledById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  reviewStartedAt: Date | null
+  reviewStartedById: string | null
+  completedAt: Date | null
+  completedById: string | null
+  completionNote: string | null
   createdAt: Date
   _count: ClarificationRequestCountAggregateOutputType | null
   _min: ClarificationRequestMinAggregateOutputType | null
@@ -235,6 +270,11 @@ export type ClarificationRequestWhereInput = {
   cancelledById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  reviewStartedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completionNote?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ClarificationRequest"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }
@@ -251,6 +291,11 @@ export type ClarificationRequestOrderByWithRelationInput = {
   cancelledById?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  completionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
 }
@@ -270,6 +315,11 @@ export type ClarificationRequestWhereUniqueInput = Prisma.AtLeast<{
   cancelledById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  reviewStartedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completionNote?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ClarificationRequest"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
 }, "id">
@@ -286,6 +336,11 @@ export type ClarificationRequestOrderByWithAggregationInput = {
   cancelledById?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewStartedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  completionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ClarificationRequestCountOrderByAggregateInput
   _max?: Prisma.ClarificationRequestMaxOrderByAggregateInput
@@ -307,6 +362,11 @@ export type ClarificationRequestScalarWhereWithAggregatesInput = {
   cancelledById?: Prisma.StringNullableWithAggregatesFilter<"ClarificationRequest"> | string | null
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ClarificationRequest"> | Date | string | null
   cancelReason?: Prisma.StringNullableWithAggregatesFilter<"ClarificationRequest"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ClarificationRequest"> | Date | string | null
+  reviewStartedById?: Prisma.StringNullableWithAggregatesFilter<"ClarificationRequest"> | string | null
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ClarificationRequest"> | Date | string | null
+  completedById?: Prisma.StringNullableWithAggregatesFilter<"ClarificationRequest"> | string | null
+  completionNote?: Prisma.StringNullableWithAggregatesFilter<"ClarificationRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ClarificationRequest"> | Date | string
 }
 
@@ -321,6 +381,11 @@ export type ClarificationRequestCreateInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutClarificationsInput
 }
@@ -337,6 +402,11 @@ export type ClarificationRequestUncheckedCreateInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
 }
 
@@ -351,6 +421,11 @@ export type ClarificationRequestUpdateInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutClarificationsNestedInput
 }
@@ -367,6 +442,11 @@ export type ClarificationRequestUncheckedUpdateInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -382,6 +462,11 @@ export type ClarificationRequestCreateManyInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
 }
 
@@ -396,6 +481,11 @@ export type ClarificationRequestUpdateManyMutationInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -411,6 +501,11 @@ export type ClarificationRequestUncheckedUpdateManyInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -436,6 +531,11 @@ export type ClarificationRequestCountOrderByAggregateInput = {
   cancelledById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  reviewStartedById?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  completionNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -450,6 +550,11 @@ export type ClarificationRequestMaxOrderByAggregateInput = {
   cancelledById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  reviewStartedById?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  completionNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -464,6 +569,11 @@ export type ClarificationRequestMinOrderByAggregateInput = {
   cancelledById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  reviewStartedAt?: Prisma.SortOrder
+  reviewStartedById?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
+  completedById?: Prisma.SortOrder
+  completionNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -520,6 +630,11 @@ export type ClarificationRequestCreateWithoutCaseInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
 }
 
@@ -534,6 +649,11 @@ export type ClarificationRequestUncheckedCreateWithoutCaseInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
 }
 
@@ -578,6 +698,11 @@ export type ClarificationRequestScalarWhereInput = {
   cancelledById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  reviewStartedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  reviewStartedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"ClarificationRequest"> | Date | string | null
+  completedById?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
+  completionNote?: Prisma.StringNullableFilter<"ClarificationRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ClarificationRequest"> | Date | string
 }
 
@@ -592,6 +717,11 @@ export type ClarificationRequestCreateManyCaseInput = {
   cancelledById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  reviewStartedAt?: Date | string | null
+  reviewStartedById?: string | null
+  completedAt?: Date | string | null
+  completedById?: string | null
+  completionNote?: string | null
   createdAt?: Date | string
 }
 
@@ -606,6 +736,11 @@ export type ClarificationRequestUpdateWithoutCaseInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -620,6 +755,11 @@ export type ClarificationRequestUncheckedUpdateWithoutCaseInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -634,6 +774,11 @@ export type ClarificationRequestUncheckedUpdateManyWithoutCaseInput = {
   cancelledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStartedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -651,6 +796,11 @@ export type ClarificationRequestSelect<ExtArgs extends runtime.Types.Extensions.
   cancelledById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  reviewStartedAt?: boolean
+  reviewStartedById?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  completionNote?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["clarificationRequest"]>
@@ -667,6 +817,11 @@ export type ClarificationRequestSelectCreateManyAndReturn<ExtArgs extends runtim
   cancelledById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  reviewStartedAt?: boolean
+  reviewStartedById?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  completionNote?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["clarificationRequest"]>
@@ -683,6 +838,11 @@ export type ClarificationRequestSelectUpdateManyAndReturn<ExtArgs extends runtim
   cancelledById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  reviewStartedAt?: boolean
+  reviewStartedById?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  completionNote?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["clarificationRequest"]>
@@ -699,10 +859,15 @@ export type ClarificationRequestSelectScalar = {
   cancelledById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  reviewStartedAt?: boolean
+  reviewStartedById?: boolean
+  completedAt?: boolean
+  completedById?: boolean
+  completionNote?: boolean
   createdAt?: boolean
 }
 
-export type ClarificationRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "requestedById" | "items" | "message" | "status" | "answeredAt" | "addendumId" | "cancelledById" | "cancelledAt" | "cancelReason" | "createdAt", ExtArgs["result"]["clarificationRequest"]>
+export type ClarificationRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "requestedById" | "items" | "message" | "status" | "answeredAt" | "addendumId" | "cancelledById" | "cancelledAt" | "cancelReason" | "reviewStartedAt" | "reviewStartedById" | "completedAt" | "completedById" | "completionNote" | "createdAt", ExtArgs["result"]["clarificationRequest"]>
 export type ClarificationRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
 }
@@ -728,7 +893,9 @@ export type $ClarificationRequestPayload<ExtArgs extends runtime.Types.Extension
     items: runtime.JsonValue
     message: string | null
     /**
-     * OPEN | ANSWERED | CANCELLED
+     * The request's own progress, apart from the case status:
+     * OPEN (sent, awaiting the resident) | ANSWERED (the resident responded) |
+     * IN_REVIEW (an official is reviewing the response) | COMPLETED | CANCELLED
      */
     status: string
     answeredAt: Date | null
@@ -736,6 +903,14 @@ export type $ClarificationRequestPayload<ExtArgs extends runtime.Types.Extension
     cancelledById: string | null
     cancelledAt: Date | null
     cancelReason: string | null
+    /**
+     * An official started reviewing the response / marked the clarification complete.
+     */
+    reviewStartedAt: Date | null
+    reviewStartedById: string | null
+    completedAt: Date | null
+    completedById: string | null
+    completionNote: string | null
     createdAt: Date
   }, ExtArgs["result"]["clarificationRequest"]>
   composites: {}
@@ -1172,6 +1347,11 @@ export interface ClarificationRequestFieldRefs {
   readonly cancelledById: Prisma.FieldRef<"ClarificationRequest", 'String'>
   readonly cancelledAt: Prisma.FieldRef<"ClarificationRequest", 'DateTime'>
   readonly cancelReason: Prisma.FieldRef<"ClarificationRequest", 'String'>
+  readonly reviewStartedAt: Prisma.FieldRef<"ClarificationRequest", 'DateTime'>
+  readonly reviewStartedById: Prisma.FieldRef<"ClarificationRequest", 'String'>
+  readonly completedAt: Prisma.FieldRef<"ClarificationRequest", 'DateTime'>
+  readonly completedById: Prisma.FieldRef<"ClarificationRequest", 'String'>
+  readonly completionNote: Prisma.FieldRef<"ClarificationRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"ClarificationRequest", 'DateTime'>
 }
     

@@ -54,6 +54,12 @@ function tagOf(v: DraftField | undefined): { label: string; color: string; bg: s
 const Tag = ({ v }: { v: DraftField | undefined }) => { const t = tagOf(v); return <Chip size="small" label={t.label} sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700, color: t.color, bgcolor: t.bg }} />; };
 const REASON: Record<Attention['reason'], { label: string; color: string }> = {
   missing: { label: 'Missing', color: '#b91c1c' }, unclear: { label: 'Unclear', color: '#a16207' }, conflict: { label: 'Conflicts', color: '#c2410c' }, verify: { label: 'Check', color: '#7c3aed' },
+  response: { label: 'Resident answer', color: '#0f766e' },
+};
+/** A clarification request's own progress - separate from the case status. */
+const REQUEST_STATUS: Record<string, { label: string; color: string }> = {
+  OPEN: { label: 'Awaiting resident response', color: '#0369a1' }, ANSWERED: { label: 'Resident responded', color: '#0f766e' },
+  IN_REVIEW: { label: 'Under official review', color: '#a16207' }, COMPLETED: { label: 'Clarification completed', color: '#047857' }, CANCELLED: { label: 'Withdrawn', color: '#64748b' },
 };
 
 /** A section with a heading that opens and closes it. */
@@ -78,7 +84,7 @@ export default function ReportReviewPanel({ caseId }: { caseId: string }) {
   const [dialog, setDialog] = useState<null | 'request' | 'interview' | 'changes' | 'approve'>(null);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [open, setOpen] = useState({ original: true, organized: true, confirm: true, history: false, added: false, optional: false });
+  const [open, setOpen] = useState({ original: true, organized: true, confirm: true, requests: true, history: false, added: false, optional: false });
   const toggle = (k: keyof typeof open) => setOpen(o => ({ ...o, [k]: !o[k] }));
   const run = async (body: unknown, msg: string) => {
     setBusy(true);
@@ -128,12 +134,6 @@ export default function ReportReviewPanel({ caseId }: { caseId: string }) {
         {error ? <Alert severity="warning" sx={{ borderRadius: 2, mt: 1 }}>{error.message}</Alert> : isLoading || !data ? <Skeleton variant="rounded" height={220} sx={{ mt: 1 }} /> : (
           <>
             {!data.canEdit && <Typography sx={{ ...small, mt: 0.5 }}>View only - the officer assigned to this case reviews it.</Typography>}
-            {data.requests.filter((r: Data) => r.status === 'OPEN').map((r: Data) => (
-              <Alert key={r.id} severity="info" sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem' }}
-                action={data.canEdit ? <Button size="small" color="inherit" onClick={() => { const reason = window.prompt('Why is the request withdrawn?'); if (reason) void run({ action: 'cancel_request', requestId: r.id, reason }, 'Request withdrawn'); }}>Withdraw</Button> : undefined}>
-                Waiting for the resident ({(r.items as Data[]).length} question{(r.items as Data[]).length === 1 ? '' : 's'}, sent {when(r.createdAt)})
-              </Alert>
-            ))}
 
             {/* A. The resident's report, as filed */}
             <Section title="Original Resident Report" open={open.original} onToggle={() => toggle('original')}>
@@ -223,6 +223,56 @@ export default function ReportReviewPanel({ caseId }: { caseId: string }) {
               )}
             </Section>
 
+            {/* Requests to the resident, and what they answered - kept, newest first */}
+            {data.requests.length > 0 && (
+              <Section title="Clarification Requests" count={data.requests.length} open={open.requests} onToggle={() => toggle('requests')}>
+                {data.requests.map((r: Data) => (
+                  <Box key={r.id} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <Chip size="small" label={REQUEST_STATUS[r.status]?.label ?? r.status} sx={{ height: 22, fontSize: '0.72rem', fontWeight: 700, color: REQUEST_STATUS[r.status]?.color, bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }} />
+                      <Typography sx={{ ...small, flex: 1 }}>Sent {when(r.createdAt)}{r.requestedBy ? ` by ${r.requestedBy}` : ''}</Typography>
+                      {data.canEdit && r.status === 'OPEN' && (
+                        <Button size="small" disabled={busy} onClick={() => { const reason = window.prompt('Why is the request withdrawn?'); if (reason) void run({ action: 'cancel_request', requestId: r.id, reason }, 'Request withdrawn'); }} sx={{ textTransform: 'none' }}>Withdraw</Button>
+                      )}
+                      {data.canEdit && r.status === 'ANSWERED' && (
+                        <Button size="small" variant="outlined" disabled={busy} onClick={() => void run({ action: 'review_request', requestId: r.id }, 'Review started')} sx={{ textTransform: 'none' }}>Start review</Button>
+                      )}
+                      {data.canEdit && (r.status === 'ANSWERED' || r.status === 'IN_REVIEW') && (
+                        <Button size="small" variant="contained" disabled={busy} onClick={() => void run({ action: 'complete_request', requestId: r.id }, 'Clarification completed')} sx={{ textTransform: 'none', bgcolor: '#047857' }}>Mark complete</Button>
+                      )}
+                    </Box>
+                    {r.message && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mt: 0.5 }}>&ldquo;{r.message}&rdquo;</Typography>}
+                    {(r.items as Data[]).map(i => {
+                      const ans = (r.response?.fields as Data[] | undefined)?.find(f => f.key === i.key);
+                      return (
+                        <Box key={i.key} sx={{ mt: 0.75 }}>
+                          <Typography sx={{ fontSize: '0.82rem', color: NAVY, fontWeight: 600 }}>{i.question}</Typography>
+                          {r.response && (
+                            <Typography sx={{ fontSize: '0.84rem', color: ans?.value ? '#0f766e' : '#94a3b8', overflowWrap: 'anywhere' }}>
+                              {ans?.value ? ans.value : ans?.skipped ? 'Skipped by the resident' : 'No answer'}
+                            </Typography>
+                          )}
+                        </Box>
+                      );
+                    })}
+                    {r.response && (
+                      <Box sx={{ mt: 1, pt: 0.75, borderTop: '1px dashed #e2e8f0' }}>
+                        <Typography sx={small}>Resident&apos;s response · {when(r.response.at)} · report version {r.response.version}</Typography>
+                        {r.response.text && <Typography sx={{ fontSize: '0.86rem', color: '#0f766e', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{r.response.text}</Typography>}
+                      </Box>
+                    )}
+                    {(r.reviewStartedAt || r.completedAt || r.cancelledAt) && (
+                      <Typography sx={{ ...small, mt: 0.5 }}>
+                        {r.reviewStartedAt ? `Review started by ${r.reviewStartedBy ?? 'an official'}, ${when(r.reviewStartedAt)}. ` : ''}
+                        {r.completedAt ? `Completed by ${r.completedBy ?? 'an official'}, ${when(r.completedAt)}${r.completionNote ? ` - "${r.completionNote}"` : ''}. ` : ''}
+                        {r.cancelledAt ? `Withdrawn by ${r.cancelledBy ?? 'an official'}, ${when(r.cancelledAt)}${r.cancelReason ? ` - "${r.cancelReason}"` : ''}.` : ''}
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Section>
+            )}
+
             {/* D. Review actions */}
             {data.canEdit && (
               <Box sx={{ borderTop: '1px solid #e2e8f0', pt: 1.25, mt: 1.25 }}>
@@ -241,7 +291,6 @@ export default function ReportReviewPanel({ caseId }: { caseId: string }) {
             {/* The record of how the report got here */}
             <Section title="History" open={open.history} onToggle={() => toggle('history')}>
               <History title="Drafts" rows={data.drafts.map((x: Data) => `Draft ${x.draftNumber} · ${x.status.toLowerCase()} · ${x.createdBy ?? ''}, ${when(x.createdAt)}${x.approvedAt ? ` · approved by ${x.approvedBy}, ${when(x.approvedAt)}${x.approvalNote ? ` - "${x.approvalNote}"` : ''}` : ''}`)} />
-              <History title="Requests to the resident" rows={data.requests.map((r: Data) => `${when(r.createdAt)} · ${r.requestedBy ?? 'an official'} · ${r.status.toLowerCase()} · ${(r.items as Data[]).map(i => i.question).join(' / ')}`)} />
               <History title="Interviews" rows={data.interviews.map((i: Data) => `${when(i.interviewedAt)} · ${CONTACT[i.contactMethod as keyof typeof CONTACT] ?? i.contactMethod} · ${i.interviewer ?? 'an official'}`)} />
             </Section>
           </>
