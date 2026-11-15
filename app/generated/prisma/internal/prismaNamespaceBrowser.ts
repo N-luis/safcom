@@ -718,7 +718,8 @@ export const ReporterAccessLogScalarFieldEnum = {
   fields: 'fields',
   outcome: 'outcome',
   code: 'code',
-  reason: 'reason'
+  reason: 'reason',
+  residentId: 'residentId'
 } as const
 
 export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]

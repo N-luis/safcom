@@ -1006,7 +1006,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </CardContent>
           </Card>
 
-          {/* Reporter contact: masked, revealed only after the server allows it */}
+          {/* Reporter information: masked until "View Resident Information" - access decided and logged on the server */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
 
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}

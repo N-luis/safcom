@@ -1,5 +1,7 @@
 /**
- * Reporter contact access: the policy, then the live endpoints.
+ * Reporter resident information: the policy, then the live endpoints.
+ * Opening it asks for no reason or confirmation; every view is still decided
+ * on the server and logged.
  * Run with:  npm run test:reporter   (the dev server must be running; BASE_URL
  * defaults to http://localhost:3000)
  *
@@ -25,6 +27,7 @@ const TAG = 'PROBE-RA';
 const PHONE_A = '09170000101';
 const PHONE_B = '09170000202';
 const PHONE_U = '09170000303';
+const SECRET_HASH = '$2a$04$PROBERAsecretHASHnotARealPassword000000000000000000000';
 
 function policy() {
   console.log('1. the policy');
@@ -33,25 +36,24 @@ function policy() {
   const captain: Actor = { id: 'c1', role: 'admin', active: true };
   const base: CaseFacts = { caseType: 'Noise Complaint', assignedToId: 'o1', riskLevel: 'Low', requiresOfficerReview: false, immediateSafetyConcern: false };
   const vawc: CaseFacts = { ...base, caseType: 'Domestic Violence', assignedToId: 'v1' };
-  const reason = 'Need to schedule the mediation visit';
 
-  ok('blotter officer, own blotter case -> allowed, no reason needed', decideReporterAccess(officer, base).allowed
-    && !decideReporterAccess(officer, base).reasonRequired);
+  ok('blotter officer, own blotter case -> allowed, no reason needed', decideReporterAccess(officer, base).allowed);
   ok('blotter officer, VAWC case -> denied and hidden', (d => !d.allowed && d.code === 'vawc_restricted' && d.hidden)(decideReporterAccess(officer, vawc)));
   ok('...even if assigned to them and urgent', !decideReporterAccess(officer, { ...vawc, assignedToId: 'o1', riskLevel: 'Critical' }).allowed);
   ok('blotter officer, someone else’s case -> not_assigned, cannot take it', (d => !d.allowed && d.code === 'not_assigned' && !d.canClaim)(decideReporterAccess(officer, { ...base, assignedToId: 'o2' })));
   ok('blotter officer, unassigned case -> not_assigned, may take it', (d => !d.allowed && d.canClaim)(decideReporterAccess(officer, { ...base, assignedToId: null })));
   ok('a Critical label alone does not open someone else’s case', !decideReporterAccess(officer, { ...base, assignedToId: 'o2', riskLevel: 'Critical', immediateSafetyConcern: true }).allowed);
-  ok('VAWC officer, own VAWC case -> needs a reason', (d => !d.allowed && d.code === 'reason_required')(decideReporterAccess(vawcOfficer, vawc)));
-  ok('...given one -> allowed', decideReporterAccess(vawcOfficer, vawc, reason).allowed);
-  ok('...a too-short reason is not one', !decideReporterAccess(vawcOfficer, vawc, 'call').allowed);
+  ok('VAWC officer, own VAWC case -> allowed directly, no reason asked', (d => d.allowed && d.basis === 'assigned')(decideReporterAccess(vawcOfficer, vawc)));
+  ok('VAWC officer, someone else’s VAWC case -> not_assigned', decideReporterAccess(vawcOfficer, { ...vawc, assignedToId: 'v2' }).code === 'not_assigned');
   ok('VAWC officer, blotter case -> wrong desk', decideReporterAccess(vawcOfficer, { ...base, assignedToId: 'v1' }).code === 'wrong_desk');
-  ok('captain, case another officer holds, not urgent -> not applicable', decideReporterAccess(captain, base, reason).code === 'oversight_not_applicable');
-  ok('captain, urgent case, with reason -> oversight', (d => d.allowed && d.basis === 'oversight')(decideReporterAccess(captain, { ...base, riskLevel: 'High' }, reason)));
-  ok('captain, urgent case, no reason -> reason_required', decideReporterAccess(captain, { ...base, riskLevel: 'High' }).code === 'reason_required');
-  ok('captain, unassigned blotter case -> oversight with reason', decideReporterAccess(captain, { ...base, assignedToId: null }, reason).allowed);
-  ok('captain, unassigned VAWC case that is not urgent -> denied (stricter)', !decideReporterAccess(captain, { ...vawc, assignedToId: null }, reason).allowed);
-  ok('captain, urgent VAWC case -> oversight with reason', decideReporterAccess(captain, { ...vawc, assignedToId: null, immediateSafetyConcern: true }, reason).allowed);
+  ok('captain, case another officer holds, not urgent -> not applicable', decideReporterAccess(captain, base).code === 'oversight_not_applicable');
+  ok('captain, urgent case -> oversight', (d => d.allowed && d.basis === 'oversight')(decideReporterAccess(captain, { ...base, riskLevel: 'High' })));
+  ok('captain, unassigned blotter case -> oversight', decideReporterAccess(captain, { ...base, assignedToId: null }).allowed);
+  ok('captain, unassigned VAWC case that is not urgent -> denied (stricter)', !decideReporterAccess(captain, { ...vawc, assignedToId: null }).allowed);
+  ok('captain, urgent VAWC case -> oversight', decideReporterAccess(captain, { ...vawc, assignedToId: null, immediateSafetyConcern: true }).allowed);
+  ok('captain, own case -> assigned', (d => d.allowed && d.basis === 'assigned')(decideReporterAccess(captain, { ...vawc, assignedToId: 'c1' })));
+  ok('anonymous report -> withheld for every role', [officer, vawcOfficer, captain].every(a => decideReporterAccess(a, { ...base, assignedToId: a.id, identityWithheld: true }).code === 'identity_withheld'));
+  ok('no decision carries a reason requirement any more', !('reasonRequired' in decideReporterAccess(officer, base)) && !('reasonRequired' in decideReporterAccess(officer, { ...base, assignedToId: 'o2' })));
   ok('a deactivated account -> denied', decideReporterAccess({ ...officer, active: false }, base).code === 'inactive');
   ok('an unknown role -> denied', decideReporterAccess({ id: 'x', role: 'resident', active: true }, base).code === 'role_not_permitted');
   ok('urgency: High, Critical, review or danger now', isUrgent({ riskLevel: 'High', requiresOfficerReview: false, immediateSafetyConcern: false })
@@ -70,9 +72,10 @@ async function live() {
   const mkUser = (key: string, role: string, active = true) => prisma.user.create({
     data: { email: `probe.ra.${key}@safcom.local`, name: `${TAG} ${key}`, password: pw, role, active },
   });
-  const mkResident = (key: string, phone: string | null) => prisma.resident.create({
+  // Resident A also has sign-in details, to prove they never leave the server.
+  const mkResident = (key: string, phone: string | null, extra: Record<string, unknown> = {}) => prisma.resident.create({
     data: { residentNumber: `${TAG}-${key}`, firstName: 'Probe', lastName: key, age: 30, gender: 'Female', barangay: 'Ayukit',
-      address: 'temporary test row', contactNumber: phone, email: phone ? `probe.ra.res.${key}@safcom.local` : null, emailVerified: true },
+      address: 'temporary test row', contactNumber: phone, email: phone ? `probe.ra.res.${key}@safcom.local` : null, emailVerified: true, ...extra },
   });
   const users: { id: string }[] = [];
   const residents: { id: string }[] = [];
@@ -83,18 +86,20 @@ async function live() {
     const vawcO = await mkUser('vawc', 'vawc_officer'); users.push(vawcO);
     const captain = await mkUser('captain', 'admin'); users.push(captain);
     const inactive = await mkUser('inactive', 'officer', false); users.push(inactive);
-    const resA = await mkResident('A', PHONE_A); residents.push(resA);
+    const resA = await mkResident('A', PHONE_A, { username: 'probe.ra.username.a', password: SECRET_HASH, clerkId: 'probe_ra_clerk_a' }); residents.push(resA);
     const resB = await mkResident('B', PHONE_B); residents.push(resB);
-    const resNone = await mkResident('NONE', null); residents.push(resNone);
+    // Nothing optional on file, and blank required text: the view must not break.
+    const resNone = await mkResident('NONE', null, { address: '', gender: '', emailVerified: false }); residents.push(resNone);
     const resU = await mkResident('U', PHONE_U); residents.push(resU);
 
     let n = 0;
     const mkCase = async (d: { caseType: string; residentId: string; assignedToId: string | null; riskLevel?: string;
-      requiresOfficerReview?: boolean; contactPreference?: string; contactSafetyNote?: string }) => {
+      requiresOfficerReview?: boolean; contactPreference?: string; contactSafetyNote?: string; reportingRelationship?: string }) => {
       const c = await prisma.case.create({ data: {
         caseNumber: `${TAG}-${process.pid}-${++n}`, residentName: 'Probe', barangay: 'Ortega Compound', description: 'temporary test case',
         status: 'Open', riskLevel: d.riskLevel ?? 'Low', caseType: d.caseType, residentId: d.residentId, assignedToId: d.assignedToId,
         requiresOfficerReview: d.requiresOfficerReview ?? false, contactPreference: d.contactPreference ?? null, contactSafetyNote: d.contactSafetyNote ?? null,
+        reportingRelationship: d.reportingRelationship ?? null,
       } });
       caseIds.push(c.id); return c;
     };
@@ -125,13 +130,14 @@ async function live() {
       try { json = JSON.parse(text); } catch { /* not JSON */ }
       return { status: res.status, text, json, cache: res.headers.get('cache-control') ?? '' };
     };
-    const reveal = (id: string, cookie: string | null, reason?: string) =>
-      call(`/api/cases/${id}/reporter/reveal`, cookie, { fields: ['phone', 'email'], ...(reason && { reason }) });
+    // Opening the resident information: a plain POST, no reason, no confirmation.
+    const reveal = (id: string, cookie: string | null) => call(`/api/cases/${id}/reporter/resident-info`, cookie, {});
     const data = (r: { json: Record<string, unknown> }) => (r.json.data ?? {}) as Record<string, unknown>;
+    type Res = Record<string, unknown> & { phone: string | null; email: string | null };
+    const res = (r: { json: Record<string, unknown> }) => (data(r).resident ?? {}) as Res;
     const lastLog = async (caseId: string, actorId?: string) => prisma.reporterAccessLog.findFirst({
       where: { caseId, ...(actorId && { actorId }) }, orderBy: { createdAt: 'desc' },
     });
-    const REASON = 'Scheduling the follow-up visit with the reporter';
 
     // 1. An authorised blotter officer, assigned case
     const sum1 = await call(`/api/cases/${mine.id}/reporter`, T.blotter);
@@ -139,30 +145,46 @@ async function live() {
       && (data(sum1).access as { canReveal: boolean }).canReveal === true, sum1.text.slice(0, 200));
     ok('[1] the summary never carries the full number', !sum1.text.includes(PHONE_A) && /no-store/.test(sum1.cache));
     const r1 = await reveal(mine.id, T.blotter);
-    ok('[1] reveal -> the number and a tel: link', r1.status === 200 && data(r1).phone === PHONE_A && data(r1).telHref === `tel:${PHONE_A}`, r1.text.slice(0, 200));
+    ok('[1] opened directly, with no reason -> the number and a tel: link', r1.status === 200 && res(r1).phone === PHONE_A && data(r1).telHref === `tel:${PHONE_A}`, r1.text.slice(0, 200));
     ok('[1] ...not cached', /no-store/.test(r1.cache));
+    const p1 = res(r1);
+    ok('[1] every stored field is there', p1.fullName === 'Probe A' && p1.residentNumber === `${TAG}-A` && p1.age === 30 && p1.sex === 'Female'
+      && p1.address === 'temporary test row' && p1.barangay === 'Ayukit' && p1.email === 'probe.ra.res.A@safcom.local'
+      && p1.accountStatus === 'Active' && p1.emailVerified === true
+      && new Date(String(p1.registeredAt)).getTime() === resA.registeredAt.getTime()
+      && new Date(String(p1.updatedAt)).getTime() === resA.updatedAt.getTime(), JSON.stringify(p1));
+    ok('[1] no sign-in detail leaves the server', !/password|username|clerk/i.test(r1.text) && !r1.text.includes(SECRET_HASH)
+      && !r1.text.includes('probe.ra.username.a') && !r1.text.includes('probe_ra_clerk_a'));
+    ok('[1] nothing is invented: only the stored fields are sent', Object.keys(p1).sort().join() ===
+      'accountStatus,address,age,barangay,email,emailVerified,fullName,phone,registeredAt,residentNumber,sex,updatedAt');
     const log1 = await lastLog(mine.id, blotter.id);
-    ok('[1] logged as permitted, without the number', log1?.outcome === 'permitted' && log1.code === 'assigned'
-      && log1.fields.join() === 'phone,email' && !JSON.stringify(log1).includes(PHONE_A));
+    ok('[1] audited: official, role, case, resident, what was shown - never the number', log1?.outcome === 'permitted' && log1.code === 'assigned'
+      && log1.actorId === blotter.id && log1.actorRole === 'officer' && log1.caseId === mine.id && log1.caseNumber === mine.caseNumber
+      && log1.residentId === resA.id && log1.fields.join() === 'profile,phone,email' && log1.reason === null
+      && Date.now() - log1.createdAt.getTime() < 120_000 && !JSON.stringify(log1).includes(PHONE_A));
+    const before1 = await prisma.reporterAccessLog.count({ where: { caseId: mine.id, actorId: blotter.id, outcome: 'permitted' } });
+    await reveal(mine.id, T.blotter);
+    ok('[1] each view is its own audit row', await prisma.reporterAccessLog.count({ where: { caseId: mine.id, actorId: blotter.id, outcome: 'permitted' } }) === before1 + 1);
     const detail = await call(`/api/cases/${mine.id}`, T.blotter);
     ok('[1] the general case detail never carries the number', detail.status === 200 && !detail.text.includes(PHONE_A));
 
     // 2. Blotter officer -> VAWC case
     const s2 = await call(`/api/cases/${vawcCase.id}/reporter`, T.blotter);
-    const r2 = await reveal(vawcCase.id, T.blotter, REASON);
+    const r2 = await reveal(vawcCase.id, T.blotter);
     ok('[2] blotter officer on a VAWC case: not found, nothing revealed', s2.status === 404 && r2.status === 404 && !r2.text.includes(PHONE_B));
     const log2 = await lastLog(vawcCase.id, blotter.id);
     ok('[2] the attempt is logged as denied (vawc_restricted)', log2?.outcome === 'denied' && log2.code === 'vawc_restricted');
     ok('[2] a forged "admin" session does not help: the role is read from the account',
-      (await reveal(vawcCase.id, T.forged, REASON)).status === 404);
+      (await reveal(vawcCase.id, T.forged)).status === 404);
 
     // 3. VAWC officer, assigned VAWC case
-    const r3a = await reveal(vawcCase.id, T.vawc);
-    ok('[3] VAWC officer without a reason -> 403 reason_required', r3a.status === 403 && r3a.json.code === 'reason_required' && !r3a.text.includes(PHONE_B));
-    const r3 = await reveal(vawcCase.id, T.vawc, REASON);
-    ok('[3] with a reason -> the number', r3.status === 200 && data(r3).phone === PHONE_B);
+    const r3 = await reveal(vawcCase.id, T.vawc);
+    ok('[3] VAWC officer, assigned VAWC case -> opened directly, no reason', r3.status === 200 && res(r3).phone === PHONE_B && res(r3).fullName === 'Probe B');
     const log3 = await lastLog(vawcCase.id, vawcO.id);
-    ok('[3] logged with the reason', log3?.outcome === 'permitted' && log3.reason === REASON);
+    ok('[3] audited with the VAWC officer’s role and the resident', log3?.outcome === 'permitted' && log3.actorRole === 'vawc_officer'
+      && log3.residentId === resB.id && log3.reason === null);
+    const r3x = await reveal(vawcCase.id, T.blotter2);
+    ok('[3] a blotter officer on that VAWC case -> 404, nothing shown', r3x.status === 404 && !r3x.text.includes(PHONE_B));
     const s3 = await call(`/api/cases/${vawcCase.id}/reporter`, T.vawc);
     ok('[3] VAWC caution shown on the case', typeof (data(s3).safety as { caution: string | null })?.caution === 'string');
 
@@ -223,9 +245,10 @@ async function live() {
     const s9 = await call(`/api/cases/${noPhone.id}/reporter`, T.blotter);
     const r9 = await reveal(noPhone.id, T.blotter);
     ok('[9] missing phone: summary says so', s9.status === 200 && (data(s9).contact as { hasPhone: boolean }).hasPhone === false);
-    ok('[9] reveal -> no number, no link, a plain message', r9.status === 200 && data(r9).phone === null && data(r9).telHref === null
-      && typeof data(r9).missing === 'string');
-    ok('[9] logged as no_contact_on_file', (await lastLog(noPhone.id, blotter.id))?.code === 'no_contact_on_file');
+    const p9 = res(r9);
+    ok('[9] missing fields -> nulls, not errors or guesses', r9.status === 200 && p9.phone === null && p9.email === null && p9.address === null
+      && p9.sex === null && p9.emailVerified === false && data(r9).telHref === null && typeof data(r9).missing === 'string', r9.text.slice(0, 300));
+    ok('[9] logged as a profile view with no contact disclosed', (await lastLog(noPhone.id, blotter.id))?.fields.join() === 'profile');
 
     // 10. Urgent, with a safe-contact warning
     const s10 = await call(`/api/cases/${urgent.id}/reporter`, T.blotter);
@@ -233,13 +256,35 @@ async function live() {
     ok('[10] urgent case shows its state and the reporter’s warning', (data(s10).urgency as { urgent: boolean }).urgent === true
       && sf?.preference === 'no_phone' && sf.allowCall === false && sf.note.includes('after 6 PM'));
     const r10 = await reveal(urgent.id, T.blotter);
-    ok('[10] the number is shown but no call or text link is offered', r10.status === 200 && data(r10).phone === PHONE_U
+    ok('[10] the number is shown but no call or text link is offered', r10.status === 200 && res(r10).phone === PHONE_U
       && data(r10).telHref === null && data(r10).smsHref === null);
+    ok('[10] the reporter’s instructions stay on the summary after the view', (data(await call(`/api/cases/${urgent.id}/reporter`, T.blotter)).safety as { preference: string })?.preference === 'no_phone');
     const c10 = await reveal(urgent.id, T.captain);
-    ok('[10] captain oversight on the urgent case needs a reason', c10.status === 403 && c10.json.code === 'reason_required');
-    const c10b = await reveal(urgent.id, T.captain, REASON);
-    ok('[10] ...and with one is allowed, logged as oversight', c10b.status === 200 && (await lastLog(urgent.id, captain.id))?.code === 'oversight');
-    ok('[10] captain on a non-urgent case another officer holds -> refused', (await reveal(mine.id, T.captain, REASON)).json.code === 'oversight_not_applicable');
+    ok('[10] captain oversight on the urgent case -> opened directly, logged as oversight', c10.status === 200 && res(c10).phone === PHONE_U
+      && (await lastLog(urgent.id, captain.id))?.code === 'oversight' && (await lastLog(urgent.id, captain.id))?.actorRole === 'admin');
+    ok('[10] captain on a non-urgent case another officer holds -> refused', (await reveal(mine.id, T.captain)).json.code === 'oversight_not_applicable');
+
+    // 11. The reporter is not the victim-survivor
+    const informant = await mkCase({ caseType: 'Assault', residentId: resA.id, assignedToId: blotter.id, reportingRelationship: 'THIRD_PARTY' });
+    // A victim-survivor and a respondent recorded by the reporter - one of them shares the reporter's name, and no account link.
+    await prisma.caseParty.create({ data: { caseId: informant.id, role: 'AFFECTED', fullName: 'Probe Victim', source: 'reporter' } });
+    await prisma.caseParty.create({ data: { caseId: informant.id, role: 'REPORTED', fullName: 'Probe A', source: 'reporter' } });
+    const s11 = await call(`/api/cases/${informant.id}/reporter`, T.blotter);
+    const r11 = await reveal(informant.id, T.blotter);
+    ok('[11] informant: the summary carries the stated relationship', (data(s11).reporter as { relationship: string }).relationship === 'THIRD_PARTY');
+    ok('[11] the profile is the reporter’s account, not the victim-survivor', res(r11).fullName === 'Probe A' && !r11.text.includes('Probe Victim'));
+    ok('[11] a party with the same name is not matched to the reporter', Array.isArray(data(r11).linkedAs) && (data(r11).linkedAs as string[]).length === 0);
+    // An official links the reporter's account to the affected person by resident id: now - and only now - it says so.
+    const selfCase = await mkCase({ caseType: 'Assault', residentId: resA.id, assignedToId: blotter.id, reportingRelationship: 'SELF' });
+    await prisma.caseParty.create({ data: { caseId: selfCase.id, role: 'AFFECTED', fullName: 'Probe A', source: 'official', residentId: resA.id } });
+    const r11b = await reveal(selfCase.id, T.blotter);
+    ok('[11] linked by resident id -> shown as also the person affected', (data(r11b).linkedAs as string[]).join() === 'AFFECTED');
+
+    // 12. The audit log is not served to anyone
+    for (const path of ['/api/reporter-access-log', '/api/audit', `/api/cases/${mine.id}/reporter/log`]) {
+      const a = await call(path, T.captain);
+      ok(`[12] no endpoint serves the access log (${path} -> ${a.status})`, a.status === 404 || a.status >= 300 && !a.text.includes(blotter.id));
+    }
 
     // Reassigning through the case editor is not a way in
     const put = async (id: string, cookie: string, body: unknown) => {

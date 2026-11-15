@@ -971,18 +971,21 @@ model ReporterAccessLog {
   actorRole  String?
   caseId     String
   caseNumber String?
-  /// What was asked for: phone | email.
+  /// What was disclosed: profile (the resident's stored details) | phone | email.
   fields     String[]
   /// permitted | denied
   outcome    String
   /// Why: assigned | oversight | not_assigned | vawc_restricted | inactive |
-  /// reason_required | not_found | no_contact_on_file | rate_limited | ...
+  /// not_found | no_contact_on_file | rate_limited | ... (reason_required on older rows)
   code       String
-  /// The official's stated reason, when the policy asks for one.
+  /// A reason the official typed - older rows only; none is asked for any more.
   reason     String?
+  /// The resident whose record was opened (the case's reporter), when there is one.
+  residentId String?
 
   @@index([caseId, createdAt])
   @@index([actorId, createdAt])
+  @@index([residentId, createdAt])
 }
 
 /// The official intake interview for a case, on the barangay's intake form

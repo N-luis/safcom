@@ -24,7 +24,7 @@ import { POST as filePOST, GET as myCasesGET } from '../app/api/resident/cases/r
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as casesGET } from '../app/api/cases/route';
 import { GET as residentGET } from '../app/api/residents/[id]/route';
-import { POST as revealPOST } from '../app/api/cases/[id]/reporter/reveal/route';
+import { POST as residentInfoPOST } from '../app/api/cases/[id]/reporter/resident-info/route';
 
 // Fast and roomy for a test run; the free-plan caps still bound them.
 process.env.AI_REQUESTS_PER_MINUTE = '30';
@@ -317,8 +317,8 @@ async function main() {
     ok('the case list has no resident link for it', list.body.data.cases.filter((c: { id: string }) => c.id === anon!.id).every((c: { residentId: string | null }) => c.residentId === null));
     const dir = await json(await residentGET(req(`/api/residents/${B.id}`, officer.cookie), params(B.id)));
     ok('the resident directory does not list it under the resident', !JSON.stringify(dir.body).includes(anon!.caseNumber));
-    const rv = await json(await revealPOST(req(`/api/cases/${anon!.id}/reporter/reveal`, officer.cookie, { fields: ['phone'], reason: 'Need to follow up on this' }), params(anon!.id)));
-    ok('contact reveal is refused for every role, and logged', rv.status === 403 && rv.body.code === 'identity_withheld'
+    const rv = await json(await residentInfoPOST(req(`/api/cases/${anon!.id}/reporter/resident-info`, officer.cookie, {}), params(anon!.id)));
+    ok('resident information is refused for every role, and logged', rv.status === 403 && rv.body.code === 'identity_withheld'
       && (await prisma.reporterAccessLog.count({ where: { caseId: anon!.id, code: 'identity_withheld' } })) === 1);
     const mine = await json(await myCasesGET(req('/api/resident/cases?limit=50', B.cookie)));
     ok('the reporter still sees it in My Cases', JSON.stringify(mine.body).includes(anon!.caseNumber));

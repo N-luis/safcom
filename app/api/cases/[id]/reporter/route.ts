@@ -8,8 +8,8 @@ import {
 /**
  * The Reporter Information panel's first look: who reported, whether contact
  * details exist, and whether this official may see them - with the number
- * masked. The full number is never in this response; it comes only from
- * ./reveal, after the policy allows it, and is logged there.
+ * masked. The resident's details are never in this response; they come only
+ * from ./resident-info, after the policy allows it, and are logged there.
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req);
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const decision = decideReporterAccess(actor, c.facts);
     // Not found, as the case page itself says, for a VAWC case outside this role.
     if (!decision.allowed && decision.hidden) return errorResponse('Case not found', 404);
-    const canReveal = decision.allowed || decision.code === 'reason_required';
+    const canReveal = decision.allowed;
 
     const pref = (CONTACT_PREFERENCES as readonly string[]).includes(c.contactPreference ?? '')
       ? c.contactPreference as ContactPreference : null;
@@ -75,7 +75,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       },
       access: {
         canReveal,
-        reasonRequired: decision.reasonRequired,
         basis: decision.allowed ? decision.basis : null,
         code: decision.code,
         message: decision.allowed ? null : DENY_MESSAGE[decision.code],
