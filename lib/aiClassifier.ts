@@ -561,12 +561,7 @@ async function callGroqOnce(req: GroqRequest, deps: ReadDeps): Promise<GroqResul
   const buckets = [appBucket, residentBucket];
   const giveBack = (requests: number) => store.adjust(buckets, -est, requests).catch(() => {});
 
-  // Groq admits a request only if the minute's usage plus this request's
-  // prompt AND its maximum completion fit under the per-minute cap ("Limit
-  // 8000, Used 5817, Requested 5287"); counting the prompt alone let two calls
-  // in a minute through, and the second was refused. Actual use is recorded after.
-  const maxCompletion = req.maxCompletionTokens ?? 2000;
-  const outcome = await pace.run(est + maxCompletion, cfg, async record => {
+  const outcome = await pace.run(est, cfg, async record => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), cfg.timeoutMs);
     try {
@@ -577,7 +572,7 @@ async function callGroqOnce(req: GroqRequest, deps: ReadDeps): Promise<GroqResul
         body: JSON.stringify({
           model: cfg.model,
           temperature: 0,
-          max_completion_tokens: maxCompletion,
+          max_completion_tokens: req.maxCompletionTokens ?? 2000,
           ...(cfg.model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low', include_reasoning: false } : {}),
           response_format: { type: 'json_schema', json_schema: { name: req.name, strict: true, schema: req.schema } },
           messages: [{ role: 'system', content: req.system }, { role: 'user', content: req.user }],
