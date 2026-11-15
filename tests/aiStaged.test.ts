@@ -169,6 +169,22 @@ async function contradictions() {
     { about: 'invented', quoteA: 'Sinuntok ako', quoteB: 'binaril niya ako' },
   ] }, { sourceText: text, chunks });
   ok('a contradiction quoted from the report is kept; one with words not in it is dropped', a?.contradictions?.length === 1);
+  console.log('\n5a. criteria as the model actually writes them');
+  const sidOf = (lv: number) => chunks.find(c => c.riskLevel === lv)!.sid;
+  const crit = (criteria: { level: number; criterion: string; source: string; reportQuote: string }[], sourceText: string) =>
+    checkAssessment({ ...base, criteria }, { sourceText, chunks })!;
+  const t2 = 'Nagtalo lang kami, walang nanakit. Pinagbantaan niya akong sasaktan.';
+  const hyphen = crit([{ level: 1, criterion: 'non‑threatening verbal misunderstandings', source: sidOf(1), reportQuote: 'Nagtalo lang kami' }], t2);
+  ok('a non-breaking hyphen ("non‑threatening") is the same indicator', hyphen.criteria.length === 1 && hyphen.droppedCriteria === 0, JSON.stringify(hyphen.droppedDetail));
+  const pasted = crit([{ level: 3, criterion: 'Credible verbal threats; persistent intimidation or slander; ...', source: sidOf(3), reportQuote: 'Pinagbantaan niya akong sasaktan' }], t2);
+  ok('several indicators pasted as one are checked one by one', pasted.criteria.some(c => c.criterion === 'Credible verbal threats') && pasted.criteria.length === 2);
+  const misplaced = crit([{ level: 2, criterion: 'Credible verbal threats', source: sidOf(2), reportQuote: 'Pinagbantaan niya akong sasaktan' }], t2);
+  ok('a real indicator cited under the wrong level takes the matrix\'s level (3), not the model\'s (2)', misplaced.level === 3 && misplaced.criteria[0]?.level === 3);
+  const label = crit([{ level: 1, criterion: 'Minor Community Disturbance', source: sidOf(1), reportQuote: 'Nagtalo lang kami' }], t2);
+  ok('a level\'s label is not an indicator, and is dropped with the reason', label.criteria.length === 0 && /not one of the indicators/.test(label.droppedDetail?.[0] ?? ''));
+  const invented = crit([{ level: 4, criterion: 'Witchcraft or curses', source: sidOf(4), reportQuote: 'Nagtalo lang kami' }], t2);
+  ok('an invented criterion is still dropped', invented.criteria.length === 0 && invented.droppedCriteria === 1);
+
   const old = checkAssessment(base, { sourceText: text, chunks });
   ok('an answer from before contradictions were asked for still reads (none)', Array.isArray(old?.contradictions) && old!.contradictions!.length === 0);
 }

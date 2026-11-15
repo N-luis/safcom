@@ -277,8 +277,8 @@ export function redact(text: string, names: string[] = []): string {
 
 const norm = (s: string) => s.toLowerCase()
   .replace(/[‘’‛`´]/g, "'").replace(/[“”‟]/g, '"')
-  .replace(/[–—]/g, '-').replace(/…/g, '...')
-  .replace(/\s+/g, ' ').trim();
+  .replace(/[\u2010-\u2015\u2212]/g, '-').replace(/…/g, '...')
+  .replace(/[\s\u00a0]+/g, ' ').trim();
 
 /** Whether a quote really is the resident's words: found in the text, and long enough to mean something. */
 export function quoteIsInText(quote: string, text: string): boolean {

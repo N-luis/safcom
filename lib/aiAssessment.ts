@@ -270,8 +270,10 @@ const RELATIONSHIP_LINE: Record<ReportingRelationship, string> = {
 
 // ─── Checking the answer ─────────────────────────────────────────────────────
 
+// Every dash and hyphen variant reads as "-": the model writes "non‑threatening"
+// with a non-breaking hyphen (U+2011), which made real indicators look invented.
 const norm = (s: string) => s.toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
-  .replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim();
+  .replace(/[\u2010-\u2015\u2212]/g, '-').replace(/[\s\u00a0]+/g, ' ').trim();
 
 /** The matrix's own wording for a criterion the model quoted, if it is one. */
 function matrixIndicator(fw: Framework, level: number, criterion: string): string | null {
@@ -290,20 +292,29 @@ export function checkAssessment(raw: unknown, ctx: { sourceText: string; chunks:
 
   const droppedDetail: string[] = [];
   const criteria: AiAssessment['criteria'] = [];
+  // The level of a criterion is the matrix's, never the model's: an indicator
+  // is looked up in the level passages that were sent, and takes the level of
+  // the passage it is written in. (A real indicator cited under the wrong
+  // level's passage used to be thrown out; it is now placed where it belongs.)
+  const levelRows = ctx.chunks.filter(s => s.documentType === usable && s.riskLevel !== null);
   for (const c of a.criteria) {
-    const chunk = ctx.chunks.find(s => s.sid === c.source.trim());
-    const why = !usable ? 'no matrix among the sources was chosen'
-      : !chunk ? `it cites passage "${c.source.slice(0, 10)}", which was not sent`
-        : chunk.documentType !== usable ? `it cites a ${chunk.documentType} passage for a ${usable} assessment`
-          : chunk.riskLevel !== c.level ? `it gives Level ${c.level} but cites the Level ${chunk.riskLevel ?? '-'} passage`
-            : !norm(chunk.content).includes(norm(c.criterion)) ? 'the criterion is not written in that passage'
-              : !matrixIndicator(usable, c.level, c.criterion) ? 'the criterion is not one of that level\'s indicators'
-                : !quoteIsInText(c.reportQuote, ctx.sourceText) ? 'its supporting words are not in the report'
-                  : null;
-    if (why) { droppedDetail.push(`Level ${c.level} "${c.criterion.slice(0, 60)}": ${why}`); continue; }
-    const indicator = matrixIndicator(usable!, c.level, c.criterion)!;
-    if (!criteria.some(x => x.level === c.level && x.criterion === indicator)) {
-      criteria.push({ level: c.level, criterion: indicator, source: chunk!.sid, reportQuote: c.reportQuote.trim().slice(0, 200) });
+    // Several of a level's indicators pasted as one ("A; B; ...") are checked one by one.
+    const parts = c.criterion.split(/\s*;\s*/).map(p => p.replace(/\.{3}|…/g, '').trim()).filter(p => p.length >= 4);
+    for (const part of parts.length ? parts : [c.criterion]) {
+      const chunk = ctx.chunks.find(s => s.sid === c.source.trim());
+      const home = usable ? levelRows.find(s => norm(s.content).includes(norm(part)) && matrixIndicator(usable, s.riskLevel!, part)) : undefined;
+      const why = !usable ? 'no matrix among the sources was chosen'
+        : !chunk ? `it cites passage "${c.source.slice(0, 10)}", which was not sent`
+          : chunk.documentType !== usable ? `it cites a ${chunk.documentType} passage for a ${usable} assessment`
+            : !home ? 'it is not one of the indicators written in the matrix passages sent'
+              : !quoteIsInText(c.reportQuote, ctx.sourceText) ? 'its supporting words are not in the report'
+                : null;
+      if (why) { droppedDetail.push(`Level ${c.level} "${part.slice(0, 60)}": ${why}`); continue; }
+      const level = home!.riskLevel!;
+      const indicator = matrixIndicator(usable!, level, part)!;
+      if (!criteria.some(x => x.level === level && x.criterion === indicator)) {
+        criteria.push({ level, criterion: indicator, source: home!.sid, reportQuote: c.reportQuote.trim().slice(0, 200) });
+      }
     }
   }
   criteria.sort((x, y) => y.level - x.level);
