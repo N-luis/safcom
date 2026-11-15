@@ -51,9 +51,36 @@
 html, body {
   min-height: 100%;
   max-width: 100%;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Dropdowns, menus and dialogs: no jumping when they open or close.
+ *
+ * While one is open, MUI locks the page's scrolling on <body> and adds the
+ * scrollbar's width as right padding so nothing moves. Two things broke that:
+ *  - overflow-x was also set on <html>, which made <html> the scroller - the
+ *    lock did nothing but add its padding, so the page narrowed: fields
+ *    jumped sideways and text re-wrapped under the open menu. Sideways
+ *    overflow is now hidden on <body> only (it still reaches the page: a
+ *    body's overflow is carried to the viewport), so the lock works;
+ *  - on closing, MUI removes the padding before the lock, so for a moment the
+ *    page is wider and shorter - at the bottom of a long page the browser
+ *    clamps the scroll position, and the page jumped up on every close.
+ * The scrollbar's space is now always kept (scrollbar-gutter), so locking
+ * changes nothing about the width, and the padding is not needed at all - on
+ * <body>, and on fixed bars MUI marks .mui-fixed (the app bar).
+ */
+html {
+  scrollbar-gutter: stable;
+}
+body {
+  overflow-x: hidden;
+}
+body,
+.mui-fixed {
+  padding-right: 0 !important;
 }
 
 body {
