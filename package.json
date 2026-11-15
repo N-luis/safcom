@@ -53,7 +53,9 @@
     "db:service-referral": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.schema.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.sql",
     "test:casesearch": "npx tsx --env-file=.env --conditions=react-server tests/caseSearch.test.ts",
     "test:evidencephotos": "npx tsx --env-file=.env --conditions=react-server tests/evidencePhotos.test.ts",
-    "test:caseexport": "npx tsx --env-file=.env --conditions=react-server tests/caseExport.test.ts"
+    "test:caseexport": "npx tsx --env-file=.env --conditions=react-server tests/caseExport.test.ts",
+    "test:staged": "npx tsx --env-file=.env --conditions=react-server tests/aiStaged.test.ts",
+    "eval:classification": "npx tsx --env-file=.env --conditions=react-server scripts/eval-classification.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

@@ -18,7 +18,7 @@ import { signResidentToken } from '../lib/residentAuth';
 import { dayKey } from '../lib/aiClassifier';
 import { recommendDesk, type DeskInput, type DeskRecommendation } from '../lib/reportDesk';
 import { runIntake } from '../lib/intakeServer';
-import { deskFor } from '../lib/reportDeskServer';
+import { deskFor, retryAwaitingDesk } from '../lib/reportDeskServer';
 import { POST as filePOST } from '../app/api/resident/cases/route';
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as casesGET } from '../app/api/cases/route';
@@ -223,8 +223,12 @@ async function main() {
     ok('a VAWC indicator from the rules alone keeps it confidential meanwhile', isVawcCase(d1s.caseType), d1s.caseType);
     ok('without one, it waits on the desk the rules read it for', !isVawcCase(d2s.caseType), d2s.caseType);
     process.env.CRON_SECRET = `${TAG}-secret`;
-    const cron = () => cronGET(req(`/api/cron/desk-classification?key=${TAG}-secret`, '')).then(json);
     ok('the retry is refused without the secret', (await cronGET(req('/api/cron/desk-classification?key=wrong', '')).then(json)).status === 401);
+    // The retry itself, limited to this test's two reports. Calling the cron
+    // route with the secret would re-read every waiting report in the
+    // database with this file's FAKE Groq replies - it once added fake desk
+    // recommendations to real cases. The route is a thin wrapper around this.
+    const cron = async () => ({ status: 200, body: { data: { results: await retryAwaitingDesk(5, new Date(), [d1.body.data.id, d2.body.data.id]) } } });
     const still = await cron();
     ok('while the AI is still down, the retry guesses nothing', still.status === 200 && still.body.data.results.filter((x: Body) => [d1s, d2s].length && x.result === 'still_waiting').length >= 2
       && (await stored(d1.body.data.id)).desks.length === 1);

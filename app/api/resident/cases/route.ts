@@ -43,7 +43,7 @@ const createSchema = z.object({
   // wrote, by the classification matrix. Accepted from an older client as
   // context only - it never decides the category.
   caseType: z.string().max(120).optional(),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters').max(NARRATIVE_MAX + 1000, 'The description is too long'),
   barangay: z.string().optional(),
   additionalNotes: z.string().optional(),
   // How it is safe to reach the reporter. Shown to the official handling the
@@ -564,6 +564,13 @@ export async function POST(req: NextRequest) {
               basis: ir.riskBasis, status: ir.assessmentStatus, why: ir.riskRationale,
               criteria: ir.matchedCriteria.map(m => `L${m.level} ${m.indicator}`),
               sourceVerified: intake.grounding.sourceVerified,
+              // What it was assessed with, so an officer's later decision can be
+              // compared with it: the model, the matrix version, the passages.
+              model: intake.grounding.ai?.used ? intake.grounding.ai.model : null,
+              aiLevel: aiAssessment?.level ?? null,
+              aiCriteria: (aiAssessment?.criteria ?? []).map(c => `L${c.level} ${c.criterion}`),
+              matrixVersions: intake.grounding.matrixVersions ?? [],
+              references: intake.grounding.references.map(x => ({ section: x.sectionTitle, level: x.riskLevel, page: x.pageNumber })),
             })),
             engineVersion: ir.engineVersion,
           },

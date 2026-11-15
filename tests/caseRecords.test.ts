@@ -38,12 +38,12 @@ function ok(label: string, cond: boolean, extra = '') {
 }
 
 // ─── A fake Groq that cites what it was sent, and records what that was ─────
-const fake = { sent: [] as string[], urgent: false };
+const fake = { sent: [] as string[], urgent: false, fact: null as { key: string; quote: string } | null };
 function reply(user: string) {
   const fw = /\] VAWC /.test(user) && !/\] BLOTTER /.test(user) ? 'VAWC' : 'BLOTTER';
   const sid = new RegExp(`\\[(S\\d+)\\] ${fw} [^\\n]*Level 1 `).exec(user)?.[1] ?? 'S0';
   return {
-    facts: [], slots: [], category: 'UNCLEAR', categoryConfidence: 'medium', alternativeCategories: [], reasons: [],
+    facts: fake.fact ? [fake.fact] : [], slots: [], category: 'UNCLEAR', categoryConfidence: 'medium', alternativeCategories: [], reasons: [],
     assessment: {
       framework: fw, riskLevel: null, riskLabel: 'x', criteria: [],
       informationSufficient: true, essentialMissing: [], classificationStatus: 'PRELIMINARY',
@@ -274,13 +274,16 @@ async function main() {
       && Boolean(listed.body.data.atFiling) && listed.body.data.reruns.length === 1 && 'official' in listed.body.data
       && listed.body.data.reruns[0].newInformation === 'Tatlong linggo na itong nangyayari gabi-gabi.');
     ok('the re-run carries the retrieved matrix references', Array.isArray(listed.body.data.reruns[0].references) && listed.body.data.reruns[0].references.length > 0);
+    // An urgent AI result counts when the AI's own checked facts back it (a
+    // flag with nothing behind it is shown, not acted on - tests/aiStaged).
     fake.urgent = true;
+    fake.fact = { key: 'threat', quote: 'sasaktan niya kami' };
     // New information, as an officer would bring: the same text again is
     // answered from the AI client's cache, which is the point of the cache.
-    const r2 = await rerun(bCase!.id, B.cookie, { reason: 'Bagong pahayag mula sa saksi', newInformation: 'Tatlong kapitbahay na rin ang nagreklamo tungkol dito.' });
-    ok('an urgent AI result raises urgent review, independently of the level', r2.body.data?.flaggedUrgent === true
+    const r2 = await rerun(bCase!.id, B.cookie, { reason: 'Bagong pahayag mula sa saksi', newInformation: 'Sinabi raw niyang sasaktan niya kami kapag nagreklamo pa kami.' });
+    ok('an urgent AI result backed by its facts raises urgent review, independently of the level', r2.body.data?.flaggedUrgent === true
       && (await prisma.case.findUnique({ where: { id: bCase!.id } }))?.triageStatus === 'URGENT_REVIEW');
-    fake.urgent = false;
+    fake.urgent = false; fake.fact = null;
     ok('both re-runs are kept', await prisma.assessmentHistory.count({ where: { caseId: bCase!.id, kind: 'ai_reassessment' } }) === 2);
     ok('a blotter officer cannot re-run a VAWC case', (await rerun(vCase!.id, B.cookie, { reason: 'Trying it' })).status === 404);
     const row = await prisma.assessmentHistory.findFirst({ where: { caseId: bCase!.id, kind: 'ai_reassessment' } });

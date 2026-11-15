@@ -17,7 +17,12 @@ import { REPORTING_RELATIONSHIPS, INTERVIEW_LIMITS, type InterviewTurn, type Rep
  * resident saw - and computed again, never trusted from the browser.
  */
 
-export const NARRATIVE_MAX = 4000;
+/**
+ * The longest narrative accepted. Long reports are read whole: the rules read
+ * every word, and the AI reads a report over STAGED_FROM_CHARS in sections
+ * (lib/aiAssessment.ts) - nothing is cut off.
+ */
+export const NARRATIVE_MAX = 12000;
 
 export const answerSchema = z.object({
   slot: z.enum(SLOT_ORDER as [SlotId, ...SlotId[]]),
@@ -162,7 +167,20 @@ function compareWithAssessment(r: IntakeAnalysis['result'], a: AiAssessment) {
       if (r.assessmentStatus !== 'NEEDS_MORE_INFORMATION') r.assessmentStatus = 'NEEDS_MORE_INFORMATION';
     }
     if (a.droppedCriteria) push(`${a.droppedCriteria} AI-cited criteria were not found in the matrix text and were discarded`);
-    if (a.urgentHumanReview) push('The AI assessment recommends urgent human review');
+    if (a.urgentHumanReview) {
+      push(a.urgentSupported === false
+        ? 'The AI suggested urgent review but named no harm or danger in the report; not treated as urgent on that alone'
+        : 'The AI assessment recommends urgent human review');
+    }
+    // Statements that cannot both be true as written - each side is the
+    // resident's own words, checked. Both are kept; the resident is asked.
+    for (const c of a.contradictions ?? []) {
+      const line = r.language === 'english'
+        ? `The report says both "${c.quoteA}" and "${c.quoteB}"${c.about ? ` (${c.about})` : ''}. Both are kept for the officer.`
+        : `Magkasalungat ang nakasulat: "${c.quoteA}" at "${c.quoteB}". Parehong itinala para sa opisyal.`;
+      if (!r.conflicts.includes(line)) r.conflicts.push(line);
+    }
+    if (a.contradictions?.length) { push('Parts of the report contradict each other'); toReview(); }
   }
   r.requiresOfficerReview = r.reviewReasons.length > 0;
 }
@@ -194,6 +212,8 @@ export interface Grounding {
   sourceVerified: boolean | null;
   /** How the assessment was made: the rules alone, or the rules with the AI reader. */
   assessedBy: string;
+  /** Which import of each matrix was used (file sha256, first 12, and import date). */
+  matrixVersions?: { documentType: string; documentName: string; sourceHash: string | null; importedAt: string | null }[];
   /** The AI reader's run, checked; null when it was not asked. */
   ai: AiReading | null;
 }
@@ -257,6 +277,12 @@ export async function runIntake(
   // so a Tagalog report finds the English source text.
   const search = await searchMatrix(r.framework, params.narrative, { facts: analysis.facts, limit: 3 }, db);
   const references = search.hits.map(toReference);
+  const versionOf = (h: { documentType?: string; documentName: string; sourceHash?: string; importedAt?: Date | string }) => ({
+    documentType: h.documentType ?? r.framework, documentName: h.documentName,
+    sourceHash: h.sourceHash ? h.sourceHash.slice(0, 12) : null, importedAt: h.importedAt ? new Date(h.importedAt).toISOString() : null,
+  });
+  const matrixVersions = ai?.assessment?.matrixVersions?.length ? [...ai.assessment.matrixVersions]
+    : search.hits[0] ? [versionOf(search.hits[0])] : [];
 
   let sourceVerified: boolean | null = null;
   if (r.matrixLevel && search.status !== 'unavailable') {
@@ -270,6 +296,7 @@ export async function runIntake(
       if (!references.some(x => x.riskLevel === r.matrixLevel)) {
         references.unshift(toReference(row));
       }
+      if (!matrixVersions.some(v => v.documentType === r.framework)) matrixVersions.push(versionOf(row));
     } else {
       sourceVerified = false;
     }
@@ -295,6 +322,7 @@ export async function runIntake(
         ? `${r.engineVersion} with ${ai.version} (Groq free plan, ${ai.model}); AI facts checked against the report text`
           + (ai.assessment?.status === 'COMPLETED' ? `; AI assessment ${ai.assessment.version} against retrieved matrix text` : '')
         : `${r.engineVersion} (rule-based; no external AI provider${ai ? ` - ${ai.note}` : ''})`,
+      matrixVersions,
       ai,
     },
   };

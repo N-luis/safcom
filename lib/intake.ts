@@ -340,6 +340,16 @@ const NEUTRAL_SAFETY: Record<Lang, string> = {
   en: 'Is anyone in danger right now because of this?',
 };
 
+/** The reporter saying in terms that they (or someone) are not safe now. */
+const EXPLICIT_UNSAFE = /hindi (?:ako|kami|siya|sila) ligtas|wala (?:akong|kaming) kaligtasan|nasa panganib|\b(?:not|isn'?t|aren'?t) safe\b|\bunsafe\b|\bin danger\b/i;
+/** Fear, said in the reporter's words - shown to the officer; not by itself danger now. */
+const FEAR = /\b(?:takot (?:ako|kami)|natatakot|kinakabahan|afraid|scared|frightened)\b/i;
+
+/** A threat and "now / tonight / later today" in one sentence ("ngayong buwan" - this month - is not "ngayon"). */
+const THREAT_WORDS = String.raw`(?:papatayin|sasaktan|bubugbugin|hahampasin|sasaksakin|babarilin|kill|hurt|stab|shoot)`;
+const NOW_TIME = String.raw`(?:\bngayon\b|ngayong gabi|mamaya|tonight|right now|later today)`;
+const THREAT_NOW = new RegExp(String.raw`[^.!?\n]*(?:${THREAT_WORDS}[^.!?\n]*${NOW_TIME}|${NOW_TIME}[^.!?\n]*${THREAT_WORDS})[^.!?\n]*`, 'i');
+
 /** "Reported before" is not something the classifier reads, so it is read here. */
 const PRIOR_REPORT_NO = /\b(?:hindi pa|wala pang|hindi ko pa|never|not yet|haven'?t|have not)\b[^.!?]{0,40}\b(?:naiulat|nai-?report|ni-?report|nireport|nagsumbong|isinumbong|reported)/i;
 const PRIOR_REPORT_YES = /\b(?:naiulat na|nai-?report na|nireport ko na|ni-?report ko na|nagsumbong na|isinumbong na|nag-?report na|reported (?:it )?(?:before|already)|already reported)\b/i;
@@ -509,8 +519,14 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
 
   // ── What the words already settle ──
   const fromReport: Partial<Record<SlotId, { value: 'yes' | 'no'; quote?: string }>> = {};
-  if (p.immediate_danger === 'yes' || p.reporter_safety === 'unsafe') {
-    fromReport.safety = { value: 'yes', quote: quoteFor('immediate_danger') ?? quoteFor('reporter_safety') };
+  // Danger now is what the words say: "hindi ako ligtas", "not safe", or a
+  // danger-now phrase ("nandito pa siya"). Fear on its own ("natatakot ako",
+  // "scared"), or "delikado" about a dark street, does not answer it: it used
+  // to, which made one word Critical. The question is asked instead - first -
+  // and the fear is shown to the officer (expressedFear below).
+  const explicitUnsafe = EXPLICIT_UNSAFE.exec(combined);
+  if (p.immediate_danger === 'yes' || (p.reporter_safety === 'unsafe' && explicitUnsafe)) {
+    fromReport.safety = { value: 'yes', quote: quoteFor('immediate_danger') ?? explicitUnsafe?.[0] ?? quoteFor('reporter_safety') };
   } else if (p.immediate_danger === 'no' || p.reporter_safety === 'safe') {
     fromReport.safety = { value: 'no', quote: quoteFor('immediate_danger') ?? quoteFor('reporter_safety') };
   }
@@ -782,6 +798,13 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (p.immediate_danger === 'yes' || slot('safety').value === 'yes' || facts.has('ongoing') || slot('timing').value === 'yes') {
     put('imminent', quoteFor('immediate_danger') ?? (facts.get('ongoing') as string | undefined) ?? slot('safety').quote ?? slot('timing').quote);
   }
+  // A threat said to be for now or tonight ("papatayin niya ako ngayon",
+  // "sasaktan daw ako mamaya", "he will kill me tonight") is about to happen,
+  // in the same sentence. Fear used to stand in for this; it no longer does.
+  if (!facts.has('imminent') && (facts.has('killThreat') || facts.has('explicitThreat') || facts.has('threat'))) {
+    const now = THREAT_NOW.exec(combined);
+    if (now) put('imminent', now[0].trim());
+  }
   // Said to have ended, or said to be a first time - facts, not defaults.
   if (slot('timing').value === 'no') put('ended', slot('timing').quote);
   if (slot('recurrence').value === 'no') put('firstTime', slot('recurrence').quote);
@@ -905,6 +928,17 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
       ? `Inilarawan ang pangyayaring nagbabanta sa buhay (Level 5 ng ${docName}).`
       : `A life-threatening event is described (Level 5 of the ${docName}).`);
   }
+  // VAWC Level 4's own Suggested Action is "Treat as an emergency". Its
+  // "Physical assault" already needs the violence to be happening now; the
+  // others (strangulation, sexual assault, a weapon displayed, confinement...)
+  // are urgent for a person to look at even when they have ended - the
+  // person responsible is usually still in the reporter's life.
+  if (framework === 'VAWC' && matrixLevel === 4) {
+    const crit = matrix.matched.find(m => m.level === 4)?.indicator ?? '';
+    safetyReasons.push(lang === 'tl'
+      ? `Tumutugma sa Level 4 ng ${docName} ("${crit}"), na ayon sa matrix ay dapat ituring na emergency.`
+      : `It meets Level 4 of the ${docName} ("${crit}"), which the matrix says to treat as an emergency.`);
+  }
   const immediateSafetyConcern = safetyReasons.length > 0;
 
   // ── Indicators, in the resident's own words ──
@@ -937,6 +971,10 @@ export function analyzeIntake(input: IntakeInput): IntakeAnalysis {
   if (classificationStatus === 'needs_review') reviewReasons.push('No category is supported by the description');
   if (route === 'VAWC') reviewReasons.push('Describes a VAWC concern; needs the VAWC desk');
   if (immediateSafetyConcern) reviewReasons.push('Immediate safety concern');
+  const fear = FEAR.exec(combined);
+  if (fear && slot('safety').value !== 'yes') {
+    reviewReasons.push(`The reporter says they are afraid ("${fear[0]}"); whether anyone is in danger now is not yet known`);
+  }
   if (!matrixLevel) reviewReasons.push(riskLevel ? 'No risk-matrix criterion met; the level comes from a safety rule' : 'No risk-matrix criterion met; the level is undetermined until an officer sets it');
   if (matrixLevel && completeness === 'INSUFFICIENT') reviewReasons.push('A criterion is met, but essential details are missing; the level may change');
   if (rulesApplied.includes('H3')) reviewReasons.push('Harm or a threat within a household or relationship is reported; an officer reviews it (the relationship alone does not set a level)');
@@ -1031,9 +1069,11 @@ export type TriageStatus = 'URGENT_REVIEW' | 'NEEDS_FOLLOW_UP' | 'FOR_REVIEW' | 
  *   PRELIMINARY            enough is known and the level is supported
  */
 export function triageStatusFor(r: Pick<IntakeResult, 'immediateSafetyConcern' | 'assessmentStatus' | 'informationCompleteness'>,
-  ai?: { urgentHumanReview?: boolean; informationSufficient?: boolean | null; status?: string; unavailableReason?: string | null } | null,
+  ai?: { urgentHumanReview?: boolean; urgentSupported?: boolean; informationSufficient?: boolean | null; status?: string; unavailableReason?: string | null } | null,
   knowledgeBaseUnavailable = false): Exclude<TriageStatus, 'REVIEWED'> {
-  if (r.immediateSafetyConcern || ai?.urgentHumanReview) return 'URGENT_REVIEW';
+  // The AI's urgency counts when its own checked facts back it (harm or
+  // danger); an older reading without that check is taken as it was.
+  if (r.immediateSafetyConcern || (ai?.urgentHumanReview && ai.urgentSupported !== false)) return 'URGENT_REVIEW';
   if (knowledgeBaseUnavailable || (ai?.status === 'ASSESSMENT_UNAVAILABLE' && /knowledge base|not been imported|retriev/i.test(ai.unavailableReason ?? ''))) {
     return 'ASSESSMENT_UNAVAILABLE';
   }

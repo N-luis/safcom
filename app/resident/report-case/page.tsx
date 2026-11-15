@@ -61,6 +61,14 @@ const IncidentLocationMap = dynamicImport(
 
 const ACCENT = '#14b8a6';
 
+/**
+ * How much a resident can write. It used to be 800 characters, which cut a
+ * detailed account short; long reports are now read whole on the server
+ * (lib/aiAssessment.ts reads them in sections), which accepts up to 12,000
+ * with the details the form appends.
+ */
+const DESCRIPTION_MAX = 8000;
+
 // Who a resident can report for. "Without identifying myself" (ANONYMOUS) is
 // no longer offered on this form; anonymous reports already filed keep their
 // protections (lib/interviewTypes.ts still knows the value).
@@ -86,7 +94,7 @@ const schema = z.object({
   affectedPersonNote: z.string().max(200, 'Keep this under 200 characters').optional(),
   // Ten characters, the server's own minimum. "Submit now" in an emergency
   // goes through this check too, and must not stop someone who wrote little.
-  description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least'),
+  description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least').max(DESCRIPTION_MAX, `Keep it under ${DESCRIPTION_MAX} characters`),
   // The street is stored on the case itself so reports and the risk heatmap
   // group by where the incident happened, not by the reporter's barangay.
   street:          z.string().min(1, 'Please select the street'),
@@ -510,9 +518,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     placeholder="In your own words — what happened, who was involved, and when. Write only what you know."
                     {...register('description')}
                     error={!!errors.description}
-                    helperText={errors.description?.message || `${descLen}/800 characters`}
-                    fullWidth multiline rows={5}
-                    slotProps={{ htmlInput: { maxLength: 800, 'aria-describedby': 'describe-label' } }}
+                    helperText={errors.description?.message || `${descLen}/${DESCRIPTION_MAX} characters`}
+                    fullWidth multiline minRows={5} maxRows={18}
+                    slotProps={{ htmlInput: { maxLength: DESCRIPTION_MAX, 'aria-describedby': 'describe-label' } }}
                   />
                   <Alert severity="info" icon={false} sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem', bgcolor: '#f5f3ff', color: '#4c1d95' }}>
                     Reports that may involve violence against a woman or a child are kept confidential and go only to the barangay officers
