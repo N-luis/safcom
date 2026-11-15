@@ -119,16 +119,20 @@ export function buildDraftFields(input: {
     }
     const carried = input.carried[f.key];
     if (carried && carried.status === 'OFFICIAL') { out[f.key] = carried; continue; }
+    const ai = input.ai?.accepted[f.key];
+    // A later answer or a record wins - but when the report's own words (as the AI read them) say
+    // something else, that is kept beside it as a conflict for an official, never silently dropped.
+    const differs = (v: string) => Boolean(ai?.value && ai.value.trim().toLowerCase() !== v.trim().toLowerCase());
+    const conflict = (v: string) => (differs(v) ? { conflictWith: `The report says: ${ai!.value}` } : {});
     const a = latest.get(f.key);
     if (a) {
       out[f.key] = a.by === 'resident'
-        ? { value: a.value, status: 'RESIDENT_CONFIRMED', source: `v${a.version}` }
-        : { value: a.value, status: 'NEW', source: `v${a.version}`, note: 'From a recorded interview' };
+        ? { value: a.value, status: 'RESIDENT_CONFIRMED', source: `v${a.version}`, ...conflict(a.value) }
+        : { value: a.value, status: 'NEW', source: `v${a.version}`, note: 'From a recorded interview', ...conflict(a.value) };
       continue;
     }
     const r = input.records[f.key];
-    if (r && r.value.trim()) { out[f.key] = { value: r.value, status: r.status, source: r.status === 'OFFICIAL' ? 'official' : 'records' }; continue; }
-    const ai = input.ai?.accepted[f.key];
+    if (r && r.value.trim()) { out[f.key] = { value: r.value, status: r.status, source: r.status === 'OFFICIAL' ? 'official' : 'records', ...conflict(r.value) }; continue; }
     if (ai) { out[f.key] = ai; continue; }
     out[f.key] = { value: null, status: 'NEEDS_CONFIRMATION', source: null, note: input.ai?.notes[f.key] ?? null };
   }
