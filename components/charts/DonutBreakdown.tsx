@@ -38,8 +38,8 @@ export const pctText = (p: number) => `${Number.isInteger(p) ? p : p.toFixed(1)}
 
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en-PH')} ${n === 1 ? one : many}`;
 
-/** In fill mode: the legend's narrowest, the gap beside it, and the narrowest a donut is drawn. */
-const LEGEND_MIN = 260, GAP = 24, DONUT_MIN = 180;
+/** In fill mode: the legend's narrowest, the gap beside it, the narrowest and the largest a donut is drawn. */
+const LEGEND_MIN = 260, GAP = 24, DONUT_MIN = 180, DONUT_MAX = 300;
 
 export default function DonutBreakdown({ slices, centerValue, centerLabel, unit = ['case', 'cases'], maxSize = 210, footer, ariaLabel, fill = false }: {
   slices: DonutSlice[];
@@ -70,9 +70,11 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
     ro.observe(el);
     return () => ro.disconnect();
   }, [fill]);
-  // Side by side when the legend keeps its room; the donut as tall as the space allows.
+  // Side by side when the legend keeps its room. The donut takes at most half the width, and is
+  // drawn well inside it - no taller than about three quarters of the card, and never past DONUT_MAX.
   const side = Boolean(fill && space && space.w - GAP - LEGEND_MIN >= DONUT_MIN && space.h >= DONUT_MIN);
-  const size = side && space ? Math.floor(Math.min(space.h, space.w - GAP - LEGEND_MIN)) : null;
+  const column = side && space ? Math.floor(Math.min(space.w - GAP - LEGEND_MIN, space.w * 0.5)) : null;
+  const size = side && space && column ? Math.floor(Math.max(DONUT_MIN, Math.min(space.h * 0.72, column * 0.85, DONUT_MAX))) : null;
   const total = slices.reduce((n, s) => n + s.count, 0);
   const pct = percentages(slices.map(s => s.count));
   // The ring draws only what has cases; the legend lists everything.
@@ -83,6 +85,7 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
     <Box ref={box} data-fill={fill ? (side ? 'side' : 'stacked') : undefined}
       sx={{ display: 'flex', flexWrap: side ? 'nowrap' : 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: `${GAP}px`, rowGap: 1.5,
         ...(fill && { height: '100%' }) }}>
+      <Box sx={column ? { flex: `0 0 ${column}px`, display: 'flex', justifyContent: 'center' } : { display: 'contents' }}>
       <Box role="img" aria-label={`${ariaLabel}: ${slices.map((s, i) => `${s.label} ${plural(s.count, ...unit)}, ${pctText(pct[i])}`).join('; ')}`}
         onMouseLeave={() => setActive(null)}
         sx={size ? { position: 'relative', width: size, height: size, flex: '0 0 auto' }
@@ -122,6 +125,7 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
             </>
           )}
         </Box>
+      </Box>
       </Box>
 
       {/* The legend: each row points at its slice; a row that opens something is a button. */}
