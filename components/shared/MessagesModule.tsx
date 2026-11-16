@@ -274,7 +274,7 @@ export default function MessagesModule({ accent }: Props) {
   };
 
   return (
-    <Box sx={{ maxWidth: 1300 }}>
+    <Box>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -307,10 +307,11 @@ export default function MessagesModule({ accent }: Props) {
       </Box>
 
       {/* Two-panel layout */}
-      <Box sx={{ display: 'flex', gap: 2.5, height: 'calc(100vh - 200px)', minHeight: 520 }}>
+      {/* Down to the bottom of the window (header + page padding = ~130px). */}
+      <Box sx={{ display: 'flex', gap: 2.5, height: 'calc(100vh - 132px)', minHeight: 520 }}>
 
         {/* ── Left: message list ─────────────────────────────────────────── */}
-        <Card sx={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column', border: '1px solid #e2e8f0' }}>
+        <Card sx={{ width: { xs: 320, xl: 380 }, flexShrink: 0, display: 'flex', flexDirection: 'column', border: '1px solid #e2e8f0' }}>
           {/* Folder switcher */}
           <Box sx={{ p: 1.75, display: 'flex', gap: 1 }}>
             <Button fullWidth size="small"

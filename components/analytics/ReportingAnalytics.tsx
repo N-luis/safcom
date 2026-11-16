@@ -204,7 +204,7 @@ export default function ReportingAnalytics({ scope, caseBase }: { scope: Analyti
                 </Block>
               </Grid>
             )}
-            {data.caseTypes.vawc && <VawcTypes v={data.caseTypes.vawc} exact={data.maySeeVawcRows} open={data.maySeeVawcRows ? open : undefined} />}
+            {data.caseTypes.vawc && <VawcTypes v={data.caseTypes.vawc} exact={data.maySeeVawcRows} open={data.maySeeVawcRows ? open : undefined} alone={!data.caseTypes.blotter} />}
           </Grid>
         )}
       </Panel>
@@ -230,9 +230,10 @@ const LABEL = {
   ai: { confirmed: 'confirmed by an officer', revised: 'revised by an officer', awaiting: 'awaiting officer review', none: 'none recorded', rerun: 're-run' },
 };
 
-function VawcTypes({ v, exact, open }: { v: Data; exact: boolean; open?: (segment: string, title: string) => void }) {
+function VawcTypes({ v, exact, open, alone = false }: { v: Data; exact: boolean; open?: (segment: string, title: string) => void; alone?: boolean }) {
+  // Alone (no Blotter block beside it), it takes the whole width, its two lists side by side.
   return (
-    <Grid size={{ xs: 12, md: 6 }}>
+    <Grid size={{ xs: 12, md: alone ? 12 : 6 }}>
       <Block title="VAWC - RA 9262 forms of violence"
         note={<>
           <b>A case can involve more than one form</b>: the bars count cases with each form, so they add up to more than the number of cases.
@@ -241,6 +242,7 @@ function VawcTypes({ v, exact, open }: { v: Data; exact: boolean; open?: (segmen
           {' '}Only what officials recorded counts - the forms ticked on a completed VAWC intake form, or a case category an officer confirmed - never an AI keyword match.
           {!exact && ' Counts below 3 are withheld.'}
         </>}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: alone && v.categories.length > 0 ? '1fr 1fr' : '1fr' }, columnGap: 4, alignItems: 'start' }}>
         <BarList unit="VAWC cases" denominator={v.cases} color={SERIES[0]}
           bars={[
             ...v.types.map((t: Data) => ({ key: t.key, label: t.label, value: t.count })),
@@ -249,12 +251,13 @@ function VawcTypes({ v, exact, open }: { v: Data; exact: boolean; open?: (segmen
           ]}
           onPick={open ? k => open(`abuse:${k}`, `VAWC: ${k in ABUSE_TYPES ? ABUSE_TYPES[k as keyof typeof ABUSE_TYPES] : k === 'awaiting_review' ? 'form not yet recorded' : 'none of the four recorded'}`) : undefined} />
         {v.categories.length > 0 && (
-          <Box sx={{ mt: 1.5 }}>
+          <Box sx={{ mt: { xs: 1.5, lg: alone ? 0 : 1.5 } }}>
             <Typography sx={{ fontSize: '0.76rem', fontWeight: 700, color: INK.secondary, mb: 0.5 }}>Case category on these VAWC cases</Typography>
             <BarList unit="VAWC cases" denominator={v.cases} color={SERIES[2]} bars={v.categories.map((c: Data) => ({ key: c.type, label: c.type, value: c.count }))}
               onPick={open ? k => open(`vawcCategory:${k}`, `VAWC category: ${k}`) : undefined} />
           </Box>
         )}
+        </Box>
       </Block>
     </Grid>
   );
