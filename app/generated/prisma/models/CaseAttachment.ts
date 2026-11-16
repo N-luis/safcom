@@ -47,6 +47,9 @@ export type CaseAttachmentMinAggregateOutputType = {
   mimeType: string | null
   size: number | null
   data: runtime.Bytes | null
+  uploadedByResidentId: string | null
+  uploadedByUserId: string | null
+  sha256: string | null
   createdAt: Date | null
 }
 
@@ -59,6 +62,9 @@ export type CaseAttachmentMaxAggregateOutputType = {
   mimeType: string | null
   size: number | null
   data: runtime.Bytes | null
+  uploadedByResidentId: string | null
+  uploadedByUserId: string | null
+  sha256: string | null
   createdAt: Date | null
 }
 
@@ -71,6 +77,9 @@ export type CaseAttachmentCountAggregateOutputType = {
   mimeType: number
   size: number
   data: number
+  uploadedByResidentId: number
+  uploadedByUserId: number
+  sha256: number
   createdAt: number
   _all: number
 }
@@ -93,6 +102,9 @@ export type CaseAttachmentMinAggregateInputType = {
   mimeType?: true
   size?: true
   data?: true
+  uploadedByResidentId?: true
+  uploadedByUserId?: true
+  sha256?: true
   createdAt?: true
 }
 
@@ -105,6 +117,9 @@ export type CaseAttachmentMaxAggregateInputType = {
   mimeType?: true
   size?: true
   data?: true
+  uploadedByResidentId?: true
+  uploadedByUserId?: true
+  sha256?: true
   createdAt?: true
 }
 
@@ -117,6 +132,9 @@ export type CaseAttachmentCountAggregateInputType = {
   mimeType?: true
   size?: true
   data?: true
+  uploadedByResidentId?: true
+  uploadedByUserId?: true
+  sha256?: true
   createdAt?: true
   _all?: true
 }
@@ -216,6 +234,9 @@ export type CaseAttachmentGroupByOutputType = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId: string | null
+  uploadedByUserId: string | null
+  sha256: string | null
   createdAt: Date
   _count: CaseAttachmentCountAggregateOutputType | null
   _avg: CaseAttachmentAvgAggregateOutputType | null
@@ -251,6 +272,9 @@ export type CaseAttachmentWhereInput = {
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
   data?: Prisma.BytesFilter<"CaseAttachment"> | runtime.Bytes
+  uploadedByResidentId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  uploadedByUserId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  sha256?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseAttachment"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   followUp?: Prisma.XOR<Prisma.CaseFollowUpNullableScalarRelationFilter, Prisma.CaseFollowUpWhereInput> | null
@@ -266,6 +290,9 @@ export type CaseAttachmentOrderByWithRelationInput = {
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  uploadedByResidentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  uploadedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sha256?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
   followUp?: Prisma.CaseFollowUpOrderByWithRelationInput
@@ -284,6 +311,9 @@ export type CaseAttachmentWhereUniqueInput = Prisma.AtLeast<{
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
   data?: Prisma.BytesFilter<"CaseAttachment"> | runtime.Bytes
+  uploadedByResidentId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  uploadedByUserId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  sha256?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseAttachment"> | Date | string
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   followUp?: Prisma.XOR<Prisma.CaseFollowUpNullableScalarRelationFilter, Prisma.CaseFollowUpWhereInput> | null
@@ -299,6 +329,9 @@ export type CaseAttachmentOrderByWithAggregationInput = {
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  uploadedByResidentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  uploadedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sha256?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CaseAttachmentCountOrderByAggregateInput
   _avg?: Prisma.CaseAttachmentAvgOrderByAggregateInput
@@ -319,6 +352,9 @@ export type CaseAttachmentScalarWhereWithAggregatesInput = {
   mimeType?: Prisma.StringWithAggregatesFilter<"CaseAttachment"> | string
   size?: Prisma.IntWithAggregatesFilter<"CaseAttachment"> | number
   data?: Prisma.BytesWithAggregatesFilter<"CaseAttachment"> | runtime.Bytes
+  uploadedByResidentId?: Prisma.StringNullableWithAggregatesFilter<"CaseAttachment"> | string | null
+  uploadedByUserId?: Prisma.StringNullableWithAggregatesFilter<"CaseAttachment"> | string | null
+  sha256?: Prisma.StringNullableWithAggregatesFilter<"CaseAttachment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseAttachment"> | Date | string
 }
 
@@ -328,6 +364,9 @@ export type CaseAttachmentCreateInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
   followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
@@ -343,6 +382,9 @@ export type CaseAttachmentUncheckedCreateInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -352,6 +394,9 @@ export type CaseAttachmentUpdateInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
   followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
@@ -367,6 +412,9 @@ export type CaseAttachmentUncheckedUpdateInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -379,6 +427,9 @@ export type CaseAttachmentCreateManyInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -388,6 +439,9 @@ export type CaseAttachmentUpdateManyMutationInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -400,6 +454,9 @@ export type CaseAttachmentUncheckedUpdateManyInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -422,6 +479,9 @@ export type CaseAttachmentCountOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  uploadedByResidentId?: Prisma.SortOrder
+  uploadedByUserId?: Prisma.SortOrder
+  sha256?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -438,6 +498,9 @@ export type CaseAttachmentMaxOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  uploadedByResidentId?: Prisma.SortOrder
+  uploadedByUserId?: Prisma.SortOrder
+  sha256?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -450,6 +513,9 @@ export type CaseAttachmentMinOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   size?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  uploadedByResidentId?: Prisma.SortOrder
+  uploadedByUserId?: Prisma.SortOrder
+  sha256?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -589,6 +655,9 @@ export type CaseAttachmentCreateWithoutCaseInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
   followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
   hearing?: Prisma.CaseHearingCreateNestedOneWithoutAttachmentsInput
@@ -602,6 +671,9 @@ export type CaseAttachmentUncheckedCreateWithoutCaseInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -643,6 +715,9 @@ export type CaseAttachmentScalarWhereInput = {
   mimeType?: Prisma.StringFilter<"CaseAttachment"> | string
   size?: Prisma.IntFilter<"CaseAttachment"> | number
   data?: Prisma.BytesFilter<"CaseAttachment"> | runtime.Bytes
+  uploadedByResidentId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  uploadedByUserId?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
+  sha256?: Prisma.StringNullableFilter<"CaseAttachment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseAttachment"> | Date | string
 }
 
@@ -652,6 +727,9 @@ export type CaseAttachmentCreateWithoutFollowUpInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
   hearing?: Prisma.CaseHearingCreateNestedOneWithoutAttachmentsInput
@@ -665,6 +743,9 @@ export type CaseAttachmentUncheckedCreateWithoutFollowUpInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -700,6 +781,9 @@ export type CaseAttachmentCreateWithoutHearingInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
   case: Prisma.CaseCreateNestedOneWithoutAttachmentsInput
   followUp?: Prisma.CaseFollowUpCreateNestedOneWithoutAttachmentsInput
@@ -713,6 +797,9 @@ export type CaseAttachmentUncheckedCreateWithoutHearingInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -750,6 +837,9 @@ export type CaseAttachmentCreateManyCaseInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -759,6 +849,9 @@ export type CaseAttachmentUpdateWithoutCaseInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
   hearing?: Prisma.CaseHearingUpdateOneWithoutAttachmentsNestedInput
@@ -772,6 +865,9 @@ export type CaseAttachmentUncheckedUpdateWithoutCaseInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -783,6 +879,9 @@ export type CaseAttachmentUncheckedUpdateManyWithoutCaseInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -794,6 +893,9 @@ export type CaseAttachmentCreateManyFollowUpInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -803,6 +905,9 @@ export type CaseAttachmentUpdateWithoutFollowUpInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
   hearing?: Prisma.CaseHearingUpdateOneWithoutAttachmentsNestedInput
@@ -816,6 +921,9 @@ export type CaseAttachmentUncheckedUpdateWithoutFollowUpInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -827,6 +935,9 @@ export type CaseAttachmentUncheckedUpdateManyWithoutFollowUpInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -838,6 +949,9 @@ export type CaseAttachmentCreateManyHearingInput = {
   mimeType: string
   size: number
   data: runtime.Bytes
+  uploadedByResidentId?: string | null
+  uploadedByUserId?: string | null
+  sha256?: string | null
   createdAt?: Date | string
 }
 
@@ -847,6 +961,9 @@ export type CaseAttachmentUpdateWithoutHearingInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneRequiredWithoutAttachmentsNestedInput
   followUp?: Prisma.CaseFollowUpUpdateOneWithoutAttachmentsNestedInput
@@ -860,6 +977,9 @@ export type CaseAttachmentUncheckedUpdateWithoutHearingInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -871,6 +991,9 @@ export type CaseAttachmentUncheckedUpdateManyWithoutHearingInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   size?: Prisma.IntFieldUpdateOperationsInput | number
   data?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  uploadedByResidentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -885,6 +1008,9 @@ export type CaseAttachmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   mimeType?: boolean
   size?: boolean
   data?: boolean
+  uploadedByResidentId?: boolean
+  uploadedByUserId?: boolean
+  sha256?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
@@ -900,6 +1026,9 @@ export type CaseAttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   mimeType?: boolean
   size?: boolean
   data?: boolean
+  uploadedByResidentId?: boolean
+  uploadedByUserId?: boolean
+  sha256?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
@@ -915,6 +1044,9 @@ export type CaseAttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   mimeType?: boolean
   size?: boolean
   data?: boolean
+  uploadedByResidentId?: boolean
+  uploadedByUserId?: boolean
+  sha256?: boolean
   createdAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
@@ -930,10 +1062,13 @@ export type CaseAttachmentSelectScalar = {
   mimeType?: boolean
   size?: boolean
   data?: boolean
+  uploadedByResidentId?: boolean
+  uploadedByUserId?: boolean
+  sha256?: boolean
   createdAt?: boolean
 }
 
-export type CaseAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "followUpId" | "hearingId" | "filename" | "mimeType" | "size" | "data" | "createdAt", ExtArgs["result"]["caseAttachment"]>
+export type CaseAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "followUpId" | "hearingId" | "filename" | "mimeType" | "size" | "data" | "uploadedByResidentId" | "uploadedByUserId" | "sha256" | "createdAt", ExtArgs["result"]["caseAttachment"]>
 export type CaseAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   followUp?: boolean | Prisma.CaseAttachment$followUpArgs<ExtArgs>
@@ -973,6 +1108,17 @@ export type $CaseAttachmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     mimeType: string
     size: number
     data: runtime.Bytes
+    /**
+     * Who uploaded it: the resident (their report or follow-up) or an official.
+     * Null on photos stored before this was recorded.
+     */
+    uploadedByResidentId: string | null
+    uploadedByUserId: string | null
+    /**
+     * SHA-256 of the stored bytes (hex): the same photo is never stored twice
+     * for one case, and the file can be shown to be the one received.
+     */
+    sha256: string | null
     createdAt: Date
   }, ExtArgs["result"]["caseAttachment"]>
   composites: {}
@@ -1408,6 +1554,9 @@ export interface CaseAttachmentFieldRefs {
   readonly mimeType: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly size: Prisma.FieldRef<"CaseAttachment", 'Int'>
   readonly data: Prisma.FieldRef<"CaseAttachment", 'Bytes'>
+  readonly uploadedByResidentId: Prisma.FieldRef<"CaseAttachment", 'String'>
+  readonly uploadedByUserId: Prisma.FieldRef<"CaseAttachment", 'String'>
+  readonly sha256: Prisma.FieldRef<"CaseAttachment", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseAttachment", 'DateTime'>
 }
     

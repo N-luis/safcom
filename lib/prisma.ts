@@ -8,7 +8,10 @@ function createPrismaClient() {
     ssl: { rejectUnauthorized: false },
   });
   const adapter = new PrismaPg(pool);
-  return new PrismaClient({ adapter } as any);
+  // Interactive transactions get room for a slow link to the database: with the
+  // defaults (5 s to run, 2 s to start) a single slow round trip expired a
+  // transaction mid-save - a report draft silently not made.
+  return new PrismaClient({ adapter, transactionOptions: { maxWait: 10_000, timeout: 20_000 } } as any);
 }
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };

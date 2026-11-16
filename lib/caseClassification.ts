@@ -243,7 +243,8 @@ const T = {
 
   injurySerious: ['malubha', 'nabali', 'nawalan ng malay', 'malubhang sugat', 'serious injury',
     'unconscious', 'broken bone', 'fracture'],
-  injuryTreatment: ['dinala sa ospital', 'ospital', 'tinahi', 'nagpagamot', 'hospital', 'stitches', 'treated'],
+  injuryTreatment: ['dinala sa ospital', 'ospital', 'tinahi', 'tahiin', 'tinahian', 'nagpatahi', 'nagpagamot',
+    'hospital', 'stitches', 'treated'],
   injuryMinor: ['sugat', 'pasa', 'galos', 'bruise', 'scratch', 'minor injury'],
   injuryNone: ['walang nasaktan', 'walang nasugatan', 'wala naman nasaktan', 'no one was hurt', 'nobody was hurt'],
 
@@ -259,7 +260,8 @@ const T = {
   worsening: ['lumalala', 'mas malala', 'mas matindi', 'dumadalas', 'getting worse', 'escalating', 'worse now'],
   stable: ['ganun pa rin', 'ganoon pa rin', 'wala pa ring pagbabago', 'same as before', 'no change'],
 
-  threatExplicit: ['papatayin', 'sasaktan', 'kill you', 'kill me', 'bugbugin kita', 'paparusahan'],
+  threatExplicit: ['papatayin', 'sasaktan', 'kill you', 'kill me', 'bugbugin kita', 'paparusahan',
+    'hahampasin', 'sasapakin', 'bubugbugin', 'babasagin ang mukha', 'would hurt me', 'will hurt me', 'going to hurt me'],
   threatVerbal: ['nagbanta', 'binantaan', 'pinagbantaan', 'threatened', 'nananakot', 'tinakot',
     // Veiled, but a threat all the same.
     'pagsisisihan mo', 'pagsisisihan ko', 'magsisisi ka', 'humanda ka', "you'll regret", 'you will regret', 'watch your back'],
@@ -294,7 +296,8 @@ const T = {
   // The root rather than one voice of it: the affix rule then reaches
   // ninakaw, nagnakaw, nakawan and nanakaw from the same entry.
   theft: ['nakaw', 'magnanakaw', 'nawala ang', 'holdap', 'nanloob', 'nilooban', 'pinasok ang bahay',
-    'stolen', 'stole', 'theft', 'robbery', 'snatched', 'burglary', 'broke into'],
+    'nadukutan', 'dinukutan', 'nandukot', 'snatcher', 'na-snatch',
+    'stolen', 'stole', 'theft', 'robbery', 'snatched', 'burglary', 'broke into', 'breaking into', 'break-in', 'pickpocket'],
   vandalism: ['vandalism', 'vandal', 'pintura', 'pipintura', 'pinintahan', 'binutas',
     'sinira ang pader', 'graffiti', 'spray paint'],
   hazard: ['sunog', 'baha', 'nasusunog', 'kuryente', 'fire', 'flood', 'hazard', 'leak', 'wire'],
@@ -317,8 +320,12 @@ const T = {
   physical: [
     'sinuntok', 'sinampal', 'sinipa', 'sinaktan', 'sinasaktan', 'pananakit', 'nanakit',
     'binugbog', 'bugbog', 'sinakal', 'sinabunutan', 'hinampas', 'tinulak', 'kinaladkad',
-    'suntukan', 'sapakan', 'nagsuntukan',
-    'punched', 'slapped', 'kicked', 'beaten', 'choked', 'hit me', 'hurt me', 'struck me',
+    'suntukan', 'sapakan', 'nagsuntukan', 'nagsusuntukan', 'rambol', 'nagrarambol',
+    'pinalo', 'pinapalo', 'pinagpapalo', 'hinagupit',
+    // "He hit me", never the bare "hit me" / "hurt me": "he said he would
+    // hurt me" is a threat, and was being read as force already used.
+    'punched', 'slapped', 'kicked', 'beaten', 'choked', 'he hit me', 'she hit me', 'they hit me',
+    'he hurt me', 'she hurt me', 'they hurt me', 'struck me',
     'fistfight', 'mauled', 'assaulted', 'pushed me', 'shoved', 'pushed her', 'pushed him',
     'beat me', 'strangled', 'grabbed me', 'dragged me', 'threw me',
   ],
@@ -761,5 +768,11 @@ export type TermGroup = keyof typeof T;
  * there.
  */
 export function mentions(text: string, group: TermGroup, blocked: string[] = []): string | null {
-  return find(text, text, T[group], blocked)?.quote ?? null;
+  // "away" is Tagalog for a fight, and English for "not here": "the family is
+  // away" was read as a quarrel. In English use it is not a quarrel term.
+  const terms = group === 'quarrel' && ENGLISH_AWAY.test(text) && !TAGALOG_AWAY.test(text) ? T.quarrel.filter(t => t !== 'away') : T[group];
+  return find(text, text, terms, blocked)?.quote ?? null;
 }
+
+const ENGLISH_AWAY = /\b(?:is|are|was|were|be|been|went|go|goes|going|gone|far|right|stay(?:ed|ing)?|ran|run|walk(?:ed)?|take|took|taken|get|got|moved?|throw|threw|thrown|put|kept|keep|look(?:ed)?|turn(?:ed)?|pass(?:ed)?)\s+away\b|\baway from\b/i;
+const TAGALOG_AWAY = /\b(?:nag-?a?away|mag-?a?away|may away|ang away|sa away|ng away|away sa|away namin|away nila)\b/i;

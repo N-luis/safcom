@@ -60,3 +60,34 @@ stand, and every affected case says so to the officer handling it.
 *"isolated rude behavior"* (VAWC L1) and *"isolated pet nuisances"* (Blotter L1)
 are now met only when the report says it happened once — not when nothing is
 said about repetition. An unknown history is not an isolated incident.
+
+## 3. Which Level 4 results are urgent (open)
+
+**What the documents say.** VAWC Level 4's Suggested Action begins *"Treat as an
+emergency."* Blotter Level 4's begins *"Activate emergency response; dispatch
+PNP immediately"* - and Blotter Level 4 includes *"theft or robbery"*.
+
+**How SafeComm reads it now (2026-11-16).**
+- **VAWC Level 4** is flagged for urgent human review whenever it is met -
+  including strangulation, sexual assault, a weapon displayed or confinement
+  that has ended, since the person responsible is usually still in the
+  reporter's life. ("Physical assault" already requires the violence to be
+  occurring or imminent - section 1.)
+- **Blotter Level 4** is urgent only when someone is in danger now or needs
+  medical help now (the existing safety rules). A phone pickpocketed this
+  morning meets "theft or robbery" and is Level 4, but is not flagged as an
+  emergency.
+- **Level 5** of either matrix is always urgent.
+
+**Question for the matrix owners.** Does Blotter Level 4's "Activate emergency
+response" apply to a theft or robbery that has ended, or only to one in
+progress?
+
+## 4. Fear and "danger now" (resolved in code)
+
+"Natatakot ako" / "I am scared", or "delikado" (e.g. a dark street), no longer
+counts by itself as the reporter saying they are in danger now. It used to,
+which set the case Critical on one word. Now the safety question is asked
+first, and the officer sees that fear was expressed. An explicit statement -
+"hindi ako ligtas", "not safe", "nasa panganib" - or a danger-now phrase
+("nandito pa siya") still makes the case urgent at once.

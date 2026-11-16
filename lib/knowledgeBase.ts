@@ -30,6 +30,9 @@ export interface MatrixHit {
   fields: Record<string, unknown> | null;
   score: number;
   strength: 'strong' | 'weak';
+  /** Which import of the document this row is from: the file's sha256 and when it was imported. */
+  sourceHash?: string;
+  importedAt?: Date | string;
 }
 
 export type SearchStatus = 'ok' | 'empty_query' | 'no_documents' | 'no_match' | 'unavailable';
@@ -48,7 +51,8 @@ export const SEARCH_DEFAULTS = {
   threshold: 0.3,
   /** At or above this a hit may be shown as matching guidance. */
   strong: 0.5,
-  maxQueries: 6,
+  /** Enough for every fact a long report states; each is one small indexed query. */
+  maxQueries: 12,
 };
 
 /** The pieces of Prisma this needs - narrow, so a failing client can be tested. */
@@ -60,14 +64,20 @@ export interface KbDb {
 const normalise = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/\s+/g, ' ').trim();
 
-/** The query as written, plus the matrices' wording for each fact it states. */
+/**
+ * The matrices' wording for each fact the report states (from the whole
+ * report, however long), then the report's own words. The facts come first:
+ * they are what a Tagalog report shares with the English matrices, and a
+ * long report's later facts used to be cut off behind its first 200
+ * characters.
+ */
 export function queryVariants(query: string, extraFacts: string[] = []): string[] {
   const q = normalise(query);
   const groups = Object.keys(MATRIX_VOCABULARY).filter(k => {
     try { return Boolean(mentions(query, k as TermGroup)); } catch { return false; }
   });
   const phrases = [...new Set([...extraFacts, ...groups])].flatMap(k => MATRIX_VOCABULARY[k] ?? []);
-  const variants = [...(q && q.length <= 200 ? [q] : q ? [q.slice(0, 200)] : []), ...phrases];
+  const variants = [...phrases, ...(q ? [q.slice(0, 200)] : [])];
   return [...new Set(variants)].slice(0, SEARCH_DEFAULTS.maxQueries);
 }
 
@@ -98,7 +108,7 @@ export async function searchMatrix(
       for (const q of queries) {
         const rows = await tx.$queryRaw<(Omit<MatrixHit, 'strength' | 'score'> & { score: number })[]>`
           SELECT id, "documentType", "documentName", "sectionTitle", "riskLevel", "riskLabel",
-                 "pageNumber", content, fields, word_similarity(${q}, content) AS score
+                 "pageNumber", content, fields, "sourceHash", "importedAt", word_similarity(${q}, content) AS score
           FROM "RiskMatrixChunk"
           WHERE "documentType" = ${type} AND "isCurrent" = true AND ${q} <% content
           ORDER BY score DESC
@@ -127,7 +137,7 @@ export async function levelChunk(type: Framework, level: number, db: KbDb = pris
   try {
     const rows = await db.$queryRaw<(Omit<MatrixHit, 'strength' | 'score'>)[]>`
       SELECT id, "documentType", "documentName", "sectionTitle", "riskLevel", "riskLabel",
-             "pageNumber", content, fields
+             "pageNumber", content, fields, "sourceHash", "importedAt"
       FROM "RiskMatrixChunk"
       WHERE "documentType" = ${type} AND "isCurrent" = true AND "riskLevel" = ${level}
       ORDER BY "importedAt" DESC
@@ -147,7 +157,7 @@ export async function matrixLevelRows(type: Framework, db: KbDb = prisma): Promi
   try {
     const rows = await db.$queryRaw<(Omit<MatrixHit, 'strength' | 'score'>)[]>`
       SELECT id, "documentType", "documentName", "sectionTitle", "riskLevel", "riskLabel",
-             "pageNumber", content, fields
+             "pageNumber", content, fields, "sourceHash", "importedAt"
       FROM "RiskMatrixChunk"
       WHERE "documentType" = ${type} AND "isCurrent" = true AND "riskLevel" IS NOT NULL
       ORDER BY "riskLevel" ASC`;

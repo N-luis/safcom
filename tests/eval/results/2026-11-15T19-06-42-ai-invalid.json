@@ -1,0 +1,3834 @@
+{
+  "meta": {
+    "mode": "ai-invalid",
+    "label": "",
+    "startedAt": "2026-11-15T19:06:42.787Z",
+    "finishedAt": "2026-11-15T19:08:47.235Z",
+    "model": "openai/gpt-oss-120b",
+    "datasetVersion": 1,
+    "reviewStatus": "PROPOSED - every label below was derived by the developer from the two imported risk matrices (knowledge/sources) and SafeComm's documented readings (knowledge/MATRIX_REVIEW.md). They have NOT yet been confirmed by qualified barangay or VAWC desk reviewers. Until they are, results measured against them show agreement with these proposed labels, not accuracy.",
+    "filter": {
+      "ids": null,
+      "tags": null
+    },
+    "mergedFrom": [],
+    "skippedForBudget": []
+  },
+  "summary": {
+    "all": {
+      "cases": 38,
+      "deskStrict": "1/38 (3%)",
+      "deskAccepted": "8/38 (21%)",
+      "caseType": "34/38 (89%)",
+      "levelExact": "29/38 (76%)",
+      "levelAccepted": "34/38 (89%)",
+      "levelAdjacent": 3,
+      "levelWrong": 1,
+      "falseHighRisk": [],
+      "missedHighLevel": [
+        "long-neighbor-assault-at-end",
+        "multi-incident-dog-then-pipe",
+        "vawc-third-party-ongoing"
+      ],
+      "missedUrgent": [
+        "long-child-stepfather-at-end",
+        "vawc-third-party-ongoing",
+        "blotter-brawl-knife-now"
+      ],
+      "falseUrgent": [
+        "long-neighbor-assault-at-end"
+      ],
+      "urgentRecall": "11/14",
+      "clarification": "27/37 (71%)",
+      "aiUsed": 0,
+      "aiStatuses": "error 30, busy 8",
+      "apiWouldReject": []
+    },
+    "long": {
+      "cases": 5,
+      "deskStrict": "0/5 (0%)",
+      "deskAccepted": "0/5 (0%)",
+      "caseType": "4/5 (80%)",
+      "levelExact": "3/5 (60%)",
+      "levelAccepted": "4/5 (80%)",
+      "levelAdjacent": 0,
+      "levelWrong": 1,
+      "falseHighRisk": [],
+      "missedHighLevel": [
+        "long-neighbor-assault-at-end"
+      ],
+      "missedUrgent": [
+        "long-child-stepfather-at-end"
+      ],
+      "falseUrgent": [
+        "long-neighbor-assault-at-end"
+      ],
+      "urgentRecall": "2/3",
+      "clarification": "4/5 (80%)",
+      "aiUsed": 0,
+      "aiStatuses": "busy 1, error 4",
+      "apiWouldReject": []
+    }
+  },
+  "confusion": {
+    "desk": {
+      "labels": [
+        "BLOTTER",
+        "VAWC",
+        "NEEDS_CLARIFICATION",
+        "NEEDS_OFFICER_REVIEW"
+      ],
+      "matrix": {
+        "BLOTTER": {
+          "BLOTTER": 1,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 14
+        },
+        "VAWC": {
+          "BLOTTER": 0,
+          "VAWC": 1,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 16
+        },
+        "NEEDS_CLARIFICATION": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 5,
+          "NEEDS_OFFICER_REVIEW": 0
+        },
+        "NEEDS_OFFICER_REVIEW": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 1
+        }
+      },
+      "perClass": [
+        {
+          "label": "BLOTTER",
+          "support": 15,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 0.067,
+          "f1": 0.125
+        },
+        {
+          "label": "VAWC",
+          "support": 17,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 0.059,
+          "f1": 0.111
+        },
+        {
+          "label": "NEEDS_CLARIFICATION",
+          "support": 5,
+          "predicted": 5,
+          "tp": 5,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "NEEDS_OFFICER_REVIEW",
+          "support": 1,
+          "predicted": 31,
+          "tp": 1,
+          "precision": 0.032,
+          "recall": 1,
+          "f1": 0.063
+        }
+      ],
+      "accuracy": 0.211,
+      "macroF1": 0.325,
+      "total": 38
+    },
+    "deskStrict": {
+      "labels": [
+        "BLOTTER",
+        "VAWC",
+        "NEEDS_CLARIFICATION",
+        "NEEDS_OFFICER_REVIEW"
+      ],
+      "matrix": {
+        "BLOTTER": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 15
+        },
+        "VAWC": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 17
+        },
+        "NEEDS_CLARIFICATION": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 5
+        },
+        "NEEDS_OFFICER_REVIEW": {
+          "BLOTTER": 0,
+          "VAWC": 0,
+          "NEEDS_CLARIFICATION": 0,
+          "NEEDS_OFFICER_REVIEW": 1
+        }
+      },
+      "perClass": [
+        {
+          "label": "BLOTTER",
+          "support": 15,
+          "predicted": 0,
+          "tp": 0,
+          "precision": null,
+          "recall": 0,
+          "f1": null
+        },
+        {
+          "label": "VAWC",
+          "support": 17,
+          "predicted": 0,
+          "tp": 0,
+          "precision": null,
+          "recall": 0,
+          "f1": null
+        },
+        {
+          "label": "NEEDS_CLARIFICATION",
+          "support": 5,
+          "predicted": 0,
+          "tp": 0,
+          "precision": null,
+          "recall": 0,
+          "f1": null
+        },
+        {
+          "label": "NEEDS_OFFICER_REVIEW",
+          "support": 1,
+          "predicted": 38,
+          "tp": 1,
+          "precision": 0.026,
+          "recall": 1,
+          "f1": 0.051
+        }
+      ],
+      "accuracy": 0.026,
+      "macroF1": 0.013,
+      "total": 38
+    },
+    "level": {
+      "labels": [
+        "none",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "matrix": {
+        "none": {
+          "none": 11,
+          "L1": 0,
+          "L2": 0,
+          "L3": 1,
+          "L4": 0,
+          "L5": 0
+        },
+        "L1": {
+          "none": 0,
+          "L1": 2,
+          "L2": 0,
+          "L3": 0,
+          "L4": 0,
+          "L5": 0
+        },
+        "L2": {
+          "none": 1,
+          "L1": 0,
+          "L2": 2,
+          "L3": 0,
+          "L4": 0,
+          "L5": 0
+        },
+        "L3": {
+          "none": 1,
+          "L1": 0,
+          "L2": 1,
+          "L3": 3,
+          "L4": 0,
+          "L5": 0
+        },
+        "L4": {
+          "none": 1,
+          "L1": 0,
+          "L2": 1,
+          "L3": 2,
+          "L4": 10,
+          "L5": 0
+        },
+        "L5": {
+          "none": 0,
+          "L1": 0,
+          "L2": 0,
+          "L3": 0,
+          "L4": 1,
+          "L5": 1
+        }
+      },
+      "perClass": [
+        {
+          "label": "none",
+          "support": 12,
+          "predicted": 14,
+          "tp": 11,
+          "precision": 0.786,
+          "recall": 0.917,
+          "f1": 0.846
+        },
+        {
+          "label": "L1",
+          "support": 2,
+          "predicted": 2,
+          "tp": 2,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "L2",
+          "support": 3,
+          "predicted": 4,
+          "tp": 2,
+          "precision": 0.5,
+          "recall": 0.667,
+          "f1": 0.571
+        },
+        {
+          "label": "L3",
+          "support": 5,
+          "predicted": 6,
+          "tp": 3,
+          "precision": 0.5,
+          "recall": 0.6,
+          "f1": 0.545
+        },
+        {
+          "label": "L4",
+          "support": 14,
+          "predicted": 11,
+          "tp": 10,
+          "precision": 0.909,
+          "recall": 0.714,
+          "f1": 0.8
+        },
+        {
+          "label": "L5",
+          "support": 2,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 0.5,
+          "f1": 0.667
+        }
+      ],
+      "accuracy": 0.763,
+      "macroF1": 0.738,
+      "total": 38
+    },
+    "caseType": {
+      "labels": [
+        "Domestic Violence",
+        "Noise Complaint",
+        "Theft & Robbery",
+        "Other",
+        "Assault",
+        "Stalking",
+        "Child Abuse",
+        "Public Nuisance",
+        "Emotional Abuse",
+        "Sexual Harassment",
+        "Sexual Violence",
+        "Vandalism",
+        "Drug-Related",
+        "Animal Bite/Concern",
+        "Utility Problem",
+        "Infrastructure Issue",
+        "Economic Abuse",
+        "VAWC - Other"
+      ],
+      "matrix": {
+        "Domestic Violence": {
+          "Domestic Violence": 9,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 1
+        },
+        "Noise Complaint": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 1,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Theft & Robbery": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 2,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Other": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 3,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Assault": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 5,
+          "Stalking": 0,
+          "Child Abuse": 2,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Stalking": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 2,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Child Abuse": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 1,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Public Nuisance": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 2,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Emotional Abuse": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 1,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Sexual Harassment": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 1,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Sexual Violence": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 1,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Vandalism": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 1
+        },
+        "Drug-Related": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 1,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Animal Bite/Concern": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 1,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Utility Problem": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 1,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Infrastructure Issue": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 1,
+          "Economic Abuse": 0,
+          "VAWC - Other": 0
+        },
+        "Economic Abuse": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 1,
+          "VAWC - Other": 0
+        },
+        "VAWC - Other": {
+          "Domestic Violence": 0,
+          "Noise Complaint": 0,
+          "Theft & Robbery": 0,
+          "Other": 0,
+          "Assault": 0,
+          "Stalking": 0,
+          "Child Abuse": 0,
+          "Public Nuisance": 0,
+          "Emotional Abuse": 0,
+          "Sexual Harassment": 0,
+          "Sexual Violence": 0,
+          "Vandalism": 0,
+          "Drug-Related": 0,
+          "Animal Bite/Concern": 0,
+          "Utility Problem": 0,
+          "Infrastructure Issue": 0,
+          "Economic Abuse": 0,
+          "VAWC - Other": 1
+        }
+      },
+      "perClass": [
+        {
+          "label": "Domestic Violence",
+          "support": 10,
+          "predicted": 9,
+          "tp": 9,
+          "precision": 1,
+          "recall": 0.9,
+          "f1": 0.947
+        },
+        {
+          "label": "Noise Complaint",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Theft & Robbery",
+          "support": 2,
+          "predicted": 2,
+          "tp": 2,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Other",
+          "support": 3,
+          "predicted": 3,
+          "tp": 3,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Assault",
+          "support": 7,
+          "predicted": 5,
+          "tp": 5,
+          "precision": 1,
+          "recall": 0.714,
+          "f1": 0.833
+        },
+        {
+          "label": "Stalking",
+          "support": 2,
+          "predicted": 2,
+          "tp": 2,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Child Abuse",
+          "support": 1,
+          "predicted": 3,
+          "tp": 1,
+          "precision": 0.333,
+          "recall": 1,
+          "f1": 0.5
+        },
+        {
+          "label": "Public Nuisance",
+          "support": 2,
+          "predicted": 2,
+          "tp": 2,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Emotional Abuse",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Sexual Harassment",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Sexual Violence",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Vandalism",
+          "support": 1,
+          "predicted": 0,
+          "tp": 0,
+          "precision": null,
+          "recall": 0,
+          "f1": null
+        },
+        {
+          "label": "Drug-Related",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Animal Bite/Concern",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Utility Problem",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Infrastructure Issue",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "Economic Abuse",
+          "support": 1,
+          "predicted": 1,
+          "tp": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "label": "VAWC - Other",
+          "support": 1,
+          "predicted": 3,
+          "tp": 1,
+          "precision": 0.333,
+          "recall": 1,
+          "f1": 0.5
+        }
+      ],
+      "accuracy": 0.895,
+      "macroF1": 0.877,
+      "total": 38
+    },
+    "urgent": {
+      "labels": [
+        "urgent",
+        "not urgent"
+      ],
+      "matrix": {
+        "urgent": {
+          "urgent": 11,
+          "not urgent": 3
+        },
+        "not urgent": {
+          "urgent": 1,
+          "not urgent": 23
+        }
+      },
+      "perClass": [
+        {
+          "label": "urgent",
+          "support": 14,
+          "predicted": 12,
+          "tp": 11,
+          "precision": 0.917,
+          "recall": 0.786,
+          "f1": 0.846
+        },
+        {
+          "label": "not urgent",
+          "support": 24,
+          "predicted": 26,
+          "tp": 23,
+          "precision": 0.885,
+          "recall": 0.958,
+          "f1": 0.92
+        }
+      ],
+      "accuracy": 0.895,
+      "macroF1": 0.883,
+      "total": 38
+    }
+  },
+  "rows": [
+    {
+      "id": "short-push-spouse",
+      "tags": [
+        "short",
+        "vawc",
+        "incomplete"
+      ],
+      "chars": 24,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence",
+          "Physical Abuse"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "force",
+          "partner",
+          "household"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": null,
+        "ms": 4816
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "short-videoke",
+      "tags": [
+        "short",
+        "blotter"
+      ],
+      "chars": 105,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Noise Complaint",
+          "Public Nuisance"
+        ],
+        "level": 1,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Noise Complaint",
+        "framework": "BLOTTER",
+        "level": 1,
+        "label": "LOW — Minor Community Disturbance",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Curfew noise violations"
+        ],
+        "facts": [
+          "neighbors",
+          "noise",
+          "curfew",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "1:Level 1 — LOW — Minor Community Disturba",
+          "4:Level 4 — CRITICAL — Imminent Violent Th"
+        ],
+        "sourceVerified": true,
+        "ms": 2260
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "short-phone-theft",
+      "tags": [
+        "short",
+        "blotter"
+      ],
+      "chars": 69,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Theft & Robbery"
+        ],
+        "level": 4,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Theft & Robbery",
+        "framework": "BLOTTER",
+        "level": 4,
+        "label": "CRITICAL — Imminent Violent Threat or Crime",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "theft or robbery"
+        ],
+        "facts": [
+          "theft",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL — Imminent Violent Th"
+        ],
+        "sourceVerified": true,
+        "ms": 3001
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "short-vague-neighbor",
+      "tags": [
+        "short",
+        "incomplete",
+        "ambiguous"
+      ],
+      "chars": 41,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_CLARIFICATION",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Other",
+          "Public Nuisance"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Other",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "neighbors"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2698
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "short-choking-past",
+      "tags": [
+        "short",
+        "vawc"
+      ],
+      "chars": 53,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence",
+          "Physical Abuse"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "strangulation/choking"
+        ],
+        "facts": [
+          "force",
+          "partner",
+          "choking",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 3775
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "long-livein-knife-at-end",
+      "tags": [
+        "long",
+        "multi-paragraph",
+        "multi-incident",
+        "vawc",
+        "emergency",
+        "detail-at-end"
+      ],
+      "chars": 1813,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "FOR_REVIEW",
+        "needsClarification": false,
+        "criteria": [
+          "Physical assault",
+          "weapon displayed",
+          "credible imminent threat to kill"
+        ],
+        "facts": [
+          "force",
+          "threat",
+          "weapon",
+          "partner",
+          "minor",
+          "emotionalAbuse",
+          "quarrel",
+          "construction",
+          "killThreat",
+          "explicitThreat",
+          "weaponShown",
+          "repeated",
+          "repeatedOrWorse",
+          "household",
+          "imminent",
+          "ended"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 6592
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "long-neighbor-assault-at-end",
+      "tags": [
+        "long",
+        "multi-paragraph",
+        "multi-incident",
+        "blotter",
+        "detail-at-end"
+      ],
+      "chars": 1038,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Assault"
+        ],
+        "level": 4,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Child Abuse",
+        "framework": "VAWC",
+        "level": 2,
+        "label": "MODERATE – Concerning Behavior",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "escalating relationship/domestic dispute"
+        ],
+        "facts": [
+          "force",
+          "injury",
+          "family",
+          "minor",
+          "quarrel",
+          "noise",
+          "sanitation",
+          "injuryTreatment",
+          "repeated",
+          "repeatedOrWorse",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "2:Level 2 — MODERATE – Concerning Behavior",
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "1:Level 1 — LOW – Minor Incident"
+        ],
+        "sourceVerified": true,
+        "ms": 4965
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": false,
+        "level": "wrong",
+        "urgent": false,
+        "clarification": true
+      }
+    },
+    {
+      "id": "long-ex-stalking-en",
+      "tags": [
+        "long",
+        "multi-paragraph",
+        "vawc",
+        "english",
+        "detail-at-end"
+      ],
+      "chars": 819,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Stalking",
+          "Domestic Violence",
+          "VAWC - Other"
+        ],
+        "level": 3,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 3,
+        "label": "HIGH – Threat of Harm",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Explicit threat to hurt someone",
+          "repeated stalking with threats",
+          "escalating intimate-partner violence",
+          "coercive control"
+        ],
+        "facts": [
+          "threat",
+          "partner",
+          "stalking",
+          "emotionalAbuse",
+          "coercive",
+          "explicitThreat",
+          "repeated",
+          "repeatedOrWorse",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "-:Republic Act No. 9262 – Anti-Violence Ag",
+          "2:Level 2 — MODERATE – Concerning Behavior"
+        ],
+        "sourceVerified": true,
+        "ms": 3453
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "long-child-stepfather-at-end",
+      "tags": [
+        "long",
+        "multi-paragraph",
+        "vawc",
+        "taglish",
+        "detail-at-end",
+        "emergency"
+      ],
+      "chars": 803,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Child Abuse",
+          "Physical Abuse",
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "acceptableLevels": [
+          null
+        ],
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "force",
+          "partner",
+          "minor",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": null,
+        "ms": 2421
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "accepted",
+        "urgent": false,
+        "clarification": false
+      }
+    },
+    {
+      "id": "multi-para-boundary-debt",
+      "tags": [
+        "multi-paragraph",
+        "multi-incident",
+        "blotter",
+        "taglish"
+      ],
+      "chars": 295,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Public Nuisance",
+          "Other"
+        ],
+        "level": 2,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Public Nuisance",
+        "framework": "BLOTTER",
+        "level": 2,
+        "label": "MODERATE — Recurring Dispute or Financial Conflict",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Unpaid small monetary debts"
+        ],
+        "facts": [
+          "neighbors",
+          "boundary",
+          "debt",
+          "repeated",
+          "repeatedOrWorse",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "1:Level 1 — LOW — Minor Community Disturba",
+          "2:Level 2 — MODERATE — Recurring Dispute o"
+        ],
+        "sourceVerified": true,
+        "ms": 3090
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "multi-incident-dog-then-pipe",
+      "tags": [
+        "multi-paragraph",
+        "multi-incident",
+        "blotter"
+      ],
+      "chars": 268,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Assault",
+          "Animal Bite/Concern"
+        ],
+        "level": 4,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Child Abuse",
+        "framework": "VAWC",
+        "level": 3,
+        "label": "HIGH – Threat of Harm",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Explicit threat to hurt someone"
+        ],
+        "facts": [
+          "threat",
+          "neighbors",
+          "minor",
+          "animalBite",
+          "pets",
+          "publicPlace",
+          "explicitThreat",
+          "ended"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "-:Republic Act No. 9262 – Anti-Violence Ag",
+          "2:Level 2 — MODERATE – Concerning Behavior"
+        ],
+        "sourceVerified": true,
+        "ms": 4125
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": false,
+        "level": "adjacent",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "vawc-escalating-multi-incident",
+      "tags": [
+        "multi-incident",
+        "vawc"
+      ],
+      "chars": 190,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence",
+          "Economic Abuse"
+        ],
+        "level": 3,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 3,
+        "label": "HIGH – Threat of Harm",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Explicit threat to hurt someone"
+        ],
+        "facts": [
+          "force",
+          "threat",
+          "partner",
+          "explicitThreat",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 3416
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "incomplete-fear",
+      "tags": [
+        "short",
+        "incomplete",
+        "ambiguous"
+      ],
+      "chars": 50,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_CLARIFICATION",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Other",
+          "VAWC - Other"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Other",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2381
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "incomplete-ginugulo",
+      "tags": [
+        "short",
+        "incomplete"
+      ],
+      "chars": 34,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_CLARIFICATION",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Other",
+          "Public Nuisance"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Other",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "neighbors"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2364
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "ambiguous-uncle-punch",
+      "tags": [
+        "short",
+        "ambiguous"
+      ],
+      "chars": 70,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "acceptableDesks": [
+          "BLOTTER",
+          "VAWC"
+        ],
+        "caseTypes": [
+          "Assault",
+          "Physical Abuse"
+        ],
+        "level": 3,
+        "acceptableLevels": [
+          null
+        ],
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Physical Abuse",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "force",
+          "family",
+          "quarrel",
+          "boundary",
+          "household"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "1:Level 1 — LOW – Minor Incident"
+        ],
+        "sourceVerified": null,
+        "ms": 4410
+      },
+      "score": {
+        "deskStrict": true,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "accepted",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "ambiguous-emotional-economic",
+      "tags": [
+        "short",
+        "vawc",
+        "ambiguous"
+      ],
+      "chars": 134,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Emotional Abuse",
+          "Economic Abuse",
+          "Domestic Violence",
+          "VAWC - Other"
+        ],
+        "level": 2,
+        "acceptableLevels": [
+          3,
+          null
+        ],
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Emotional Abuse",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "partner",
+          "minor",
+          "emotionalAbuse",
+          "repeated",
+          "repeatedOrWorse",
+          "household"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 1794
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "accepted",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "vawc-groping-supervisor",
+      "tags": [
+        "short",
+        "vawc"
+      ],
+      "chars": 88,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Sexual Harassment"
+        ],
+        "level": 3,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Sexual Harassment",
+        "framework": "VAWC",
+        "level": 2,
+        "label": "MODERATE – Concerning Behavior",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "sexual remarks"
+        ],
+        "facts": [
+          "harassment",
+          "rude",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "2:Level 2 — MODERATE – Concerning Behavior",
+          "1:Level 1 — LOW – Minor Incident",
+          "3:Level 3 — HIGH – Threat of Harm"
+        ],
+        "sourceVerified": true,
+        "ms": 3508
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "adjacent",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "vawc-ex-messages",
+      "tags": [
+        "short",
+        "vawc"
+      ],
+      "chars": 131,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Stalking",
+          "VAWC - Other",
+          "Sexual Harassment"
+        ],
+        "level": 2,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "VAWC - Other",
+        "framework": "VAWC",
+        "level": 2,
+        "label": "MODERATE – Concerning Behavior",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Repeated unwanted messages"
+        ],
+        "facts": [
+          "partner",
+          "messages",
+          "repeated",
+          "repeatedOrWorse",
+          "household"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [
+          "2:Level 2 — MODERATE – Concerning Behavior",
+          "3:Level 3 — HIGH – Threat of Harm",
+          "1:Level 1 — LOW – Minor Incident"
+        ],
+        "sourceVerified": true,
+        "ms": 2899
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "vawc-rape-stepfather",
+      "tags": [
+        "short",
+        "vawc",
+        "emergency"
+      ],
+      "chars": 90,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Sexual Violence",
+          "Child Abuse"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Sexual Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "sexual assault"
+        ],
+        "facts": [
+          "sexualViolence",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "3:Level 3 — HIGH – Threat of Harm",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 2202
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "vawc-confined-en",
+      "tags": [
+        "short",
+        "vawc",
+        "english",
+        "emergency"
+      ],
+      "chars": 152,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "VAWC - Other",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "forced confinement"
+        ],
+        "facts": [
+          "partner",
+          "confinement",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "3:Level 3 — HIGH – Threat of Harm"
+        ],
+        "sourceVerified": true,
+        "ms": 2899
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": false,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "vawc-third-party-ongoing",
+      "tags": [
+        "short",
+        "vawc",
+        "emergency",
+        "third-party"
+      ],
+      "chars": 149,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 3,
+        "label": "HIGH – Threat of Harm",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "escalating intimate-partner violence"
+        ],
+        "facts": [
+          "force",
+          "partner",
+          "quarrel",
+          "repeated",
+          "repeatedOrWorse",
+          "household"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "1:Level 1 — LOW – Minor Incident"
+        ],
+        "sourceVerified": true,
+        "ms": 3101
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "adjacent",
+        "urgent": false,
+        "clarification": true
+      }
+    },
+    {
+      "id": "blotter-vandalism-kids",
+      "tags": [
+        "short",
+        "blotter",
+        "no-matrix-criterion"
+      ],
+      "chars": 101,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Vandalism"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "VAWC - Other",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "minor",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 5613
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": false,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "blotter-verbal-parking",
+      "tags": [
+        "short",
+        "blotter"
+      ],
+      "chars": 115,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Public Nuisance"
+        ],
+        "level": 1,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Public Nuisance",
+        "framework": "BLOTTER",
+        "level": 1,
+        "label": "LOW — Minor Community Disturbance",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "non-threatening verbal misunderstandings"
+        ],
+        "facts": [
+          "neighbors",
+          "quarrel"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "2:Level 2 — MODERATE — Recurring Dispute o",
+          "1:Level 1 — LOW — Minor Community Disturba",
+          "3:Level 3 — HIGH — Serious Non-Domestic Di"
+        ],
+        "sourceVerified": true,
+        "ms": 3516
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "blotter-threat-neighbor",
+      "tags": [
+        "short",
+        "blotter"
+      ],
+      "chars": 126,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Assault"
+        ],
+        "level": 3,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Assault",
+        "framework": "BLOTTER",
+        "level": 3,
+        "label": "HIGH — Serious Non-Domestic Dispute",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Credible verbal threats"
+        ],
+        "facts": [
+          "threat",
+          "neighbors",
+          "explicitThreat"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "2:Level 2 — MODERATE — Recurring Dispute o",
+          "3:Level 3 — HIGH — Serious Non-Domestic Di",
+          "4:Level 4 — CRITICAL — Imminent Violent Th"
+        ],
+        "sourceVerified": true,
+        "ms": 3209
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "blotter-drugs",
+      "tags": [
+        "short",
+        "blotter",
+        "no-matrix-criterion"
+      ],
+      "chars": 64,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Drug-Related"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Drug-Related",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "drugs",
+          "repeated",
+          "repeatedOrWorse"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2302
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "blotter-brawl-knife-now",
+      "tags": [
+        "short",
+        "blotter",
+        "emergency"
+      ],
+      "chars": 96,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Assault"
+        ],
+        "level": 5,
+        "acceptableLevels": [
+          4
+        ],
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Assault",
+        "framework": "BLOTTER",
+        "level": 4,
+        "label": "CRITICAL — Imminent Violent Threat or Crime",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "weapon-related threats"
+        ],
+        "facts": [
+          "force",
+          "weapon",
+          "weaponShown"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL — Imminent Violent Th",
+          "3:Level 3 — HIGH — Serious Non-Domestic Di",
+          "-:Act No. 3815 — Revised Penal Code of the"
+        ],
+        "sourceVerified": true,
+        "ms": 3917
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "accepted",
+        "urgent": false,
+        "clarification": true
+      }
+    },
+    {
+      "id": "blotter-dog-bite-child",
+      "tags": [
+        "short",
+        "blotter",
+        "no-matrix-criterion"
+      ],
+      "chars": 112,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Animal Bite/Concern"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Animal Bite/Concern",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "neighbors",
+          "minor",
+          "animalBite",
+          "pets",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "1:Level 1 — LOW — Minor Community Disturba",
+          "2:Level 2 — MODERATE — Recurring Dispute o"
+        ],
+        "sourceVerified": null,
+        "ms": 2296
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "contradiction-punch-not-hurt",
+      "tags": [
+        "short",
+        "contradictory"
+      ],
+      "chars": 106,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_CLARIFICATION",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Assault",
+          "Public Nuisance"
+        ],
+        "level": null,
+        "acceptableLevels": [
+          3
+        ],
+        "urgent": false,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Assault",
+        "framework": "BLOTTER",
+        "level": 3,
+        "label": "HIGH — Serious Non-Domestic Dispute",
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "minor physical altercations without severe injury"
+        ],
+        "facts": [
+          "force",
+          "neighbors",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL — Imminent Violent Th",
+          "3:Level 3 — HIGH — Serious Non-Domestic Di",
+          "-:Act No. 3815 — Revised Penal Code of the"
+        ],
+        "sourceVerified": true,
+        "ms": 3310
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "accepted",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "contradiction-answer-now",
+      "tags": [
+        "short",
+        "contradictory",
+        "vawc",
+        "emergency",
+        "clarification"
+      ],
+      "chars": 53,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "acceptableDesks": [
+          "NEEDS_CLARIFICATION",
+          "NEEDS_OFFICER_REVIEW"
+        ],
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "acceptableLevels": [
+          null
+        ],
+        "urgent": true,
+        "needsClarification": null
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Physical assault"
+        ],
+        "facts": [
+          "force",
+          "partner",
+          "household",
+          "imminent"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 3011
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": null
+      }
+    },
+    {
+      "id": "no-matrix-water",
+      "tags": [
+        "short",
+        "blotter",
+        "no-matrix-criterion"
+      ],
+      "chars": 51,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Utility Problem"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Utility Problem",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "utility"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2505
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "no-matrix-streetlight",
+      "tags": [
+        "short",
+        "blotter",
+        "no-matrix-criterion"
+      ],
+      "chars": 107,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Infrastructure Issue"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Infrastructure Issue",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "infrastructure"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 3012
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "no-matrix-support",
+      "tags": [
+        "short",
+        "vawc",
+        "no-matrix-criterion"
+      ],
+      "chars": 93,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Economic Abuse",
+          "VAWC - Other"
+        ],
+        "level": null,
+        "urgent": false,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "VAWC - Other",
+        "framework": "VAWC",
+        "level": null,
+        "label": null,
+        "urgent": false,
+        "triage": "NEEDS_FOLLOW_UP",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "partner",
+          "minor",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2384
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": false
+      }
+    },
+    {
+      "id": "emergency-knife-now",
+      "tags": [
+        "short",
+        "vawc",
+        "emergency"
+      ],
+      "chars": 74,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 4,
+        "acceptableLevels": [
+          5
+        ],
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Physical assault",
+          "weapon displayed"
+        ],
+        "facts": [
+          "force",
+          "weapon",
+          "partner",
+          "ongoing",
+          "weaponShown",
+          "household",
+          "imminent"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 3110
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "emergency-breakin-en",
+      "tags": [
+        "short",
+        "blotter",
+        "english",
+        "emergency"
+      ],
+      "chars": 107,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Theft & Robbery",
+          "Trespassing"
+        ],
+        "level": 4,
+        "acceptableLevels": [
+          null
+        ],
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Theft & Robbery",
+        "framework": "BLOTTER",
+        "level": 4,
+        "label": "CRITICAL — Imminent Violent Threat or Crime",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "theft or robbery"
+        ],
+        "facts": [
+          "neighbors",
+          "theft",
+          "ongoing",
+          "imminent"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL — Imminent Violent Th"
+        ],
+        "sourceVerified": true,
+        "ms": 2389
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "emergency-not-safe-minimal",
+      "tags": [
+        "short",
+        "incomplete",
+        "emergency"
+      ],
+      "chars": 44,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "NEEDS_CLARIFICATION",
+        "acceptableDesks": [
+          "NEEDS_OFFICER_REVIEW",
+          "VAWC"
+        ],
+        "caseTypes": [
+          "VAWC - Other",
+          "Other"
+        ],
+        "level": null,
+        "urgent": true,
+        "needsClarification": true
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Other",
+        "framework": "BLOTTER",
+        "level": null,
+        "label": null,
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": true,
+        "criteria": [],
+        "facts": [
+          "ongoing",
+          "imminent"
+        ],
+        "ai": {
+          "status": "busy",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 0,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI was busy; the rules read this report alone rather than make the resident wait."
+          }
+        },
+        "references": [],
+        "sourceVerified": null,
+        "ms": 2385
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": true,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "reassess-push-then-now",
+      "tags": [
+        "short",
+        "vawc",
+        "clarification",
+        "emergency"
+      ],
+      "chars": 24,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence",
+          "Physical Abuse"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 4,
+        "label": "CRITICAL – Violence Occurring / Imminent",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Physical assault"
+        ],
+        "facts": [
+          "force",
+          "partner",
+          "ongoing",
+          "household",
+          "imminent"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "-:Republic Act No. 9262 – Anti-Violence Ag"
+        ],
+        "sourceVerified": true,
+        "ms": 2492
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "reassess-punch-injury",
+      "tags": [
+        "short",
+        "blotter",
+        "clarification",
+        "emergency"
+      ],
+      "chars": 37,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "BLOTTER",
+        "caseTypes": [
+          "Assault"
+        ],
+        "level": 4,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "BLOTTER",
+        "awaitingAi": true,
+        "caseType": "Assault",
+        "framework": "BLOTTER",
+        "level": 4,
+        "label": "CRITICAL — Imminent Violent Threat or Crime",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "Serious physical assault"
+        ],
+        "facts": [
+          "force",
+          "injury",
+          "neighbors",
+          "injurySerious",
+          "injuryTreatment",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 1,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI answer was not in the expected shape"
+          }
+        },
+        "references": [
+          "4:Level 4 — CRITICAL — Imminent Violent Th",
+          "3:Level 3 — HIGH — Serious Non-Domestic Di",
+          "-:Act No. 3815 — Revised Penal Code of the"
+        ],
+        "sourceVerified": true,
+        "ms": 2998
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    },
+    {
+      "id": "very-long-unconscious-at-end",
+      "tags": [
+        "long",
+        "very-long",
+        "multi-paragraph",
+        "vawc",
+        "emergency",
+        "detail-at-end"
+      ],
+      "chars": 4166,
+      "apiWouldReject": false,
+      "expected": {
+        "desk": "VAWC",
+        "caseTypes": [
+          "Domestic Violence"
+        ],
+        "level": 5,
+        "urgent": true,
+        "needsClarification": false
+      },
+      "predicted": {
+        "desk": "NEEDS_OFFICER_REVIEW",
+        "filingDesk": "VAWC",
+        "awaitingAi": true,
+        "caseType": "Domestic Violence",
+        "framework": "VAWC",
+        "level": 5,
+        "label": "EXTREME – Life-Threatening / Catastrophic",
+        "urgent": true,
+        "triage": "URGENT_REVIEW",
+        "assessmentStatus": "NEEDS_MORE_INFORMATION",
+        "needsClarification": false,
+        "criteria": [
+          "severe violence causing unconsciousness"
+        ],
+        "facts": [
+          "force",
+          "injury",
+          "partner",
+          "minor",
+          "quarrel",
+          "gambling",
+          "boundary",
+          "choking",
+          "debt",
+          "injuryTreatment",
+          "unconscious",
+          "repeated",
+          "repeatedOrWorse",
+          "household",
+          "ended"
+        ],
+        "ai": {
+          "status": "error",
+          "used": false,
+          "model": "openai/gpt-oss-120b",
+          "tokens": 100,
+          "category": null,
+          "stages": 3,
+          "assessment": {
+            "status": "ASSESSMENT_UNAVAILABLE",
+            "framework": null,
+            "level": null,
+            "criteria": [],
+            "dropped": 0,
+            "droppedDetail": [],
+            "sufficient": null,
+            "urgent": false,
+            "unavailableReason": "The AI could not be reached or answered out of shape; the rules read this report alone."
+          }
+        },
+        "references": [
+          "5:Level 5 — EXTREME – Life-Threatening / C",
+          "3:Level 3 — HIGH – Threat of Harm",
+          "4:Level 4 — CRITICAL – Violence Occurring ",
+          "1:Level 1 — LOW – Minor Incident"
+        ],
+        "sourceVerified": true,
+        "ms": 5826
+      },
+      "score": {
+        "deskStrict": false,
+        "deskAccepted": false,
+        "caseType": true,
+        "level": "exact",
+        "urgent": true,
+        "clarification": true
+      }
+    }
+  ]
+}

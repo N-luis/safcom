@@ -165,7 +165,8 @@ export const CaseScalarFieldEnum = {
   resolutionType: 'resolutionType',
   resolutionSummary: 'resolutionSummary',
   resolvedById: 'resolvedById',
-  witnessInfo: 'witnessInfo'
+  witnessInfo: 'witnessInfo',
+  submissionKey: 'submissionKey'
 } as const
 
 export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
@@ -203,6 +204,11 @@ export const ClarificationRequestScalarFieldEnum = {
   cancelledById: 'cancelledById',
   cancelledAt: 'cancelledAt',
   cancelReason: 'cancelReason',
+  reviewStartedAt: 'reviewStartedAt',
+  reviewStartedById: 'reviewStartedById',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  completionNote: 'completionNote',
   createdAt: 'createdAt'
 } as const
 
@@ -456,6 +462,9 @@ export const CaseAttachmentScalarFieldEnum = {
   mimeType: 'mimeType',
   size: 'size',
   data: 'data',
+  uploadedByResidentId: 'uploadedByResidentId',
+  uploadedByUserId: 'uploadedByUserId',
+  sha256: 'sha256',
   createdAt: 'createdAt'
 } as const
 
@@ -706,7 +715,8 @@ export const ReporterAccessLogScalarFieldEnum = {
   fields: 'fields',
   outcome: 'outcome',
   code: 'code',
-  reason: 'reason'
+  reason: 'reason',
+  residentId: 'residentId'
 } as const
 
 export type ReporterAccessLogScalarFieldEnum = (typeof ReporterAccessLogScalarFieldEnum)[keyof typeof ReporterAccessLogScalarFieldEnum]

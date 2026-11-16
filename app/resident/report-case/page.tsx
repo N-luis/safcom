@@ -19,8 +19,10 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import StreetSelect from '@/components/forms/StreetSelect';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
+import ReportSidePanel from '@/components/forms/ReportSidePanel';
 import { useLanguage } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
+import { postWithProgress, newSubmissionKey } from '@/lib/postWithProgress';
 import CaseAssessmentPanel from '@/components/ai/CaseAssessmentPanel';
 import type { CaseAssessment } from '@/lib/caseAssessment';
 import dynamicImport from 'next/dynamic';
@@ -60,6 +62,14 @@ const IncidentLocationMap = dynamicImport(
 
 const ACCENT = '#14b8a6';
 
+/**
+ * How much a resident can write. It used to be 800 characters, which cut a
+ * detailed account short; long reports are now read whole on the server
+ * (lib/aiAssessment.ts reads them in sections), which accepts up to 12,000
+ * with the details the form appends.
+ */
+const DESCRIPTION_MAX = 8000;
+
 // Who a resident can report for. "Without identifying myself" (ANONYMOUS) is
 // no longer offered on this form; anonymous reports already filed keep their
 // protections (lib/interviewTypes.ts still knows the value).
@@ -85,7 +95,7 @@ const schema = z.object({
   affectedPersonNote: z.string().max(200, 'Keep this under 200 characters').optional(),
   // Ten characters, the server's own minimum. "Submit now" in an emergency
   // goes through this check too, and must not stop someone who wrote little.
-  description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least'),
+  description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least').max(DESCRIPTION_MAX, `Keep it under ${DESCRIPTION_MAX} characters`),
   // The street is stored on the case itself so reports and the risk heatmap
   // group by where the incident happened, not by the reporter's barangay.
   street:          z.string().min(1, 'Please select the street'),
@@ -186,6 +196,11 @@ export default function ReportCasePage() {
   const desk = intakeResult?.route ?? null;
 
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  // One key per report: sent again on Retry, so a lost answer or a second tap
+  // never files the report - or stores its photos - twice. A new key after it is filed.
+  const [submissionKey, setSubmissionKey] = useState(() => newSubmissionKey());
+  // How much of the photos has been sent, while they are being sent.
+  const [upload, setUpload] = useState<{ label: string; percent: number } | null>(null);
 
   // SafeComm Assist: the answers given so far, and its latest reading.
   const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswer[]>([]);
@@ -279,11 +294,10 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
       setStage(s2 => s2 + 1);
       setPhase('assessing');
 
-      const res = await fetch('/api/resident/cases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+      const photoLabel = photos.length ? `Uploading ${photos.length} photo${photos.length === 1 ? '' : 's'}` : null;
+      if (photoLabel) setUpload({ label: photoLabel, percent: 0 });
+      const res = await postWithProgress('/api/resident/cases', JSON.stringify({
+          submissionKey,
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
@@ -310,32 +324,43 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           incidentTimeApprox: data.incidentTimeApprox?.trim() || undefined,
           witnessInfo: data.witnessInfo?.trim() || undefined,
           ...peoplePayload(people, null, data.reportingRelationship as ReportingRelationship),
-        }),
-      });
-      const json = await res.json();
+        }), percent => { if (photoLabel) setUpload({ label: photoLabel, percent }); });
+      const json = res.json as { error?: string; data?: Record<string, unknown> & { caseNumber: string } };
       if (cancelled.current) return;
-      if (!res.ok) {
+      if (!res.ok || !json.data) {
         setPhase('error');
-        setApiError(json.error || 'Submission failed');
+        setUpload(null);
+        // Said plainly: which photo, or that the photos together were too large to send.
+        setApiError(res.status === 413
+          ? 'The photos are too large to send together. Remove one or two and submit again - nothing was filed.'
+          : json.error || `The report could not be submitted (error ${res.status}). Nothing was filed - please try again.`);
         return;
       }
+      setUpload(null);
+      // Filed: the next report gets a key of its own.
+      setSubmissionKey(newSubmissionKey());
       // Only now is the assessment real, so only now do the last stages tick
       // over and the bar reach the end.
       setStage(stages.length);
       setPhase('done');
+      const d = json.data;
       pendingResult.current = {
-        caseNumber: json.data.caseNumber,
-        assessment: json.data.assessment ?? null,
-        intake: json.data.intake ?? null,
-        triageStatus: json.data.triageStatus ?? null,
-        desk: json.data.desk ?? null,
+        caseNumber: d.caseNumber,
+        assessment: (d.assessment ?? null) as CaseAssessment | null,
+        intake: (d.intake ?? null) as IntakeResult | null,
+        triageStatus: (d.triageStatus ?? null) as string | null,
+        desk: (d.desk ?? null) as ResidentDesk | null,
       };
       try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
       toast.success('Report submitted successfully!');
     } catch {
       if (cancelled.current) return;
       setPhase('error');
-      setApiError('Network error. Please try again.');
+      setUpload(null);
+      // Retry sends the same key: if the report did arrive, it is not filed a second time.
+      setApiError(photos.length
+        ? 'The connection dropped while sending your report and photos. Press Retry - if it did arrive, it will not be filed twice.'
+        : 'Network error. Please try again.');
     }
   };
 
@@ -413,8 +438,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         </Box>
       </Box>
 
-      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ maxWidth: 940 }}>
-        <Grid size={{ xs: 12 }}>
+      {/* The form, and beside it on wide screens the hotlines and what happens next - the page used to stop at 940px. */}
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               {apiError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{apiError}</Alert>}
@@ -494,9 +520,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     placeholder="In your own words — what happened, who was involved, and when. Write only what you know."
                     {...register('description')}
                     error={!!errors.description}
-                    helperText={errors.description?.message || `${descLen}/800 characters`}
-                    fullWidth multiline rows={5}
-                    slotProps={{ htmlInput: { maxLength: 800, 'aria-describedby': 'describe-label' } }}
+                    helperText={errors.description?.message || `${descLen}/${DESCRIPTION_MAX} characters`}
+                    fullWidth multiline minRows={5} maxRows={18}
+                    slotProps={{ htmlInput: { maxLength: DESCRIPTION_MAX, 'aria-describedby': 'describe-label' } }}
                   />
                   <Alert severity="info" icon={false} sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem', bgcolor: '#f5f3ff', color: '#4c1d95' }}>
                     Reports that may involve violence against a woman or a child are kept confidential and go only to the barangay officers
@@ -699,6 +725,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           </Card>
         </Grid>
 
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <ReportSidePanel />
+        </Grid>
       </Grid>
 
       {/* Pressing Submit opens SafeComm Assist straight away: it reads the
@@ -795,6 +824,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         slow={slow}
         error={apiError}
         accent={ACCENT}
+        upload={upload}
         onMinimize={() => setMinimized(true)}
         onExpand={() => setMinimized(false)}
         onCancel={() => {

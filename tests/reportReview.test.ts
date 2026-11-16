@@ -15,6 +15,7 @@ import { signResidentToken } from '../lib/residentAuth';
 import { dayKey } from '../lib/aiClassifier';
 import { checkProposals, cleanSummary, buildDraftFields } from '../lib/reportStandardizer';
 import { generateDraft, retryPendingDrafts } from '../lib/reportReviewServer';
+import { needsAttention, requiredKeys } from '../lib/reportTemplates';
 import { POST as filePOST } from '../app/api/resident/cases/route';
 import { GET as myReportGET, POST as myReportPOST } from '../app/api/resident/cases/[id]/report/route';
 import { GET as reviewGET, POST as reviewPOST } from '../app/api/cases/[id]/report-review/route';
@@ -106,6 +107,20 @@ async function main() {
     ok('a later direct answer wins over the form value, and is marked as the resident\'s', built.incidentTime.value === '10:00 PM' && built.incidentTime.status === 'RESIDENT_CONFIRMED' && built.incidentTime.source === 'v3');
     ok('the narrative is the original, untouched', built.narrative.value === 'Orig' && built.narrative.status === 'ORIGINAL');
     ok('a field nobody supplied is NEEDS_CONFIRMATION', built.requestedRelief.status === 'NEEDS_CONFIRMATION' && built.requestedRelief.value === null);
+    const clash = buildDraftFields({ template: 'BLOTTER', records: {}, answers: [{ key: 'respondentAge', value: '40', version: 3, by: 'resident' }], ai: ck, carried: {}, narrativeKey: 'narrative', original: 'Orig', additions: [] });
+    ok('a later answer that differs from the report\'s own words wins - and the difference is kept as a conflict', clash.respondentAge.value === '40' && clash.respondentAge.conflictWith === 'The report says: 34');
+    ok('...an answer that agrees is not a conflict', !buildDraftFields({ template: 'BLOTTER', records: {}, answers: [{ key: 'respondentAge', value: '34', version: 3, by: 'resident' }], ai: ck, carried: {}, narrativeKey: 'narrative', original: 'Orig', additions: [] }).respondentAge.conflictWith);
+    ok('required fields are the forms\' always-required items (incident date: yes; witnesses: no)', requiredKeys('BLOTTER').includes('incidentDate') && !requiredKeys('BLOTTER').includes('witnesses')
+      && requiredKeys('VAWC').includes('perpRelationship') && !requiredKeys('VAWC').includes('informantName'));
+    const att = needsAttention('BLOTTER', { ...built, respondentName: ck.accepted.respondentName!, incidentDate: ck.accepted.incidentDate!, respondentAge: clash.respondentAge,
+      complaintNature: { value: 'Noise', status: 'AI_ORGANIZED', source: 'ai' }, actionTaken: { value: 'Talked', status: 'OFFICIAL', source: 'official_edit' } });
+    const reasonOf = (k: string) => att.find(a => a.key === k)?.reason;
+    ok('Information to Confirm: missing, unclear, conflicting, AI-organized - never the narrative, a direct answer or an official\'s entry', reasonOf('requestedRelief') === 'missing' && reasonOf('respondentName') === 'unclear'
+      && reasonOf('respondentAge') === 'conflict' && reasonOf('complaintNature') === 'verify' && reasonOf('incidentDate') === 'verify'
+      && !reasonOf('narrative') && !reasonOf('incidentTime') && !reasonOf('actionTaken'), JSON.stringify(att.map(a => [a.key, a.reason])));
+    const attR = needsAttention('BLOTTER', { ...built, respondentAddress: { value: 'Purok 2', status: 'RESIDENT_CONFIRMED', source: 'v3' }, witnesses: { value: 'Aling Nena', status: 'RESIDENT_CONFIRMED', source: 'v2' } }, new Set([3]));
+    ok('an answer to a clarification request (version 3) is listed as "response" for the official to decide; other resident answers are not',
+      attR.find(a => a.key === 'respondentAddress')?.reason === 'response' && !attR.some(a => a.key === 'witnesses'), JSON.stringify(attR.filter(a => ['respondentAddress', 'witnesses'].includes(a.key)).map(a => [a.key, a.reason])));
 
     // ── People ──
     const mkUser = async (k: string, role: string) => {
@@ -148,8 +163,10 @@ async function main() {
 
     // ── 3-4. Follow-up questions, answered and skipped ──
     console.log('\n3-4. Follow-up questions');
-    const mine = (await json(await myReportGET(req(`/api/resident/cases/${id}/report`, R1.cookie), P(id)))).body.data;
-    const qKeys = mine.questions.map((q: Body) => q.key);
+    const mineRes = await json(await myReportGET(req(`/api/resident/cases/${id}/report`, R1.cookie), P(id)));
+    ok('the resident opens their report details', mineRes.status === 200 && Boolean(mineRes.body.data), `${mineRes.status} ${JSON.stringify(mineRes.body).slice(0, 300)}`);
+    const mine = mineRes.body.data;
+    const qKeys = (mine?.questions ?? []).map((q: Body) => q.key);
     ok('it asks only what is missing: the date - not the time, place or requested action already given', qKeys.includes('incidentDate')
       && !qKeys.includes('incidentTime') && !qKeys.includes('incidentLocation') && !qKeys.includes('requestedRelief'), qKeys.join());
     ok('the optional questions are offered once ("What happened afterward?")', qKeys.includes('q_afterward') && qKeys.includes('q_important'));
@@ -186,7 +203,9 @@ async function main() {
     const view = (await json(await reviewGET(req(`/api/cases/${id}/report-review`, B.cookie), P(id)))).body.data;
     ok('the official sees the original, every version and every draft', view.original.text === NARRATIVE && view.versions.length === 2 && view.drafts.length >= 3);
     ok('...and what is still missing, to ask about', view.suggestions.some((s: Body) => s.key === 'respondentAge'));
-    ok('an officer the case is not assigned to cannot act on it', (await rv(B2.cookie, { action: 'regenerate' })).status === 403);
+    ok('an officer the case is not assigned to cannot act on it', (await rv(B2.cookie, { action: 'request_clarification', items: [{ key: 'other', question: 'May I ask?' }] })).status === 403);
+    ok('Regenerate AI Draft is gone - the action no longer exists', (await rv(B.cookie, { action: 'regenerate' })).status === 400);
+    ok('there is a current draft in the case\'s template (made on opening if needed)', view.latestDraft?.template === 'BLOTTER' && Array.isArray(view.attention) && view.required.includes('incidentDate'));
 
     // ── 9-10. Clarification request and response ──
     console.log('\n9-10. Request Resident Clarification');
@@ -194,7 +213,7 @@ async function main() {
     ok('the official asks for the respondent\'s address', askR.status === 201);
     const upd = (await json(await updatesGET(req('/api/resident/updates?limit=20', R1.cookie)))).body.data;
     const notice = JSON.stringify(upd);
-    ok('the resident is notified in general words - the question itself is not in the notice', /asked for more information about your report/.test(notice) && !notice.includes('Saan po nakatira'));
+    ok('the resident is notified in general words - the question itself is not in the notice', /An official reviewing your report needs clarification/.test(notice) && !notice.includes('Saan po nakatira'));
     const mine3 = (await json(await myReportGET(req(`/api/resident/cases/${id}/report`, R1.cookie), P(id)))).body.data;
     const open = mine3.requests.find((r: Body) => r.status === 'OPEN');
     ok('the request is in the resident\'s report details', open?.items[0].question === 'Saan po nakatira si Mang Tonyo?');
@@ -208,6 +227,7 @@ async function main() {
 
     // ── 11. Interview ──
     console.log('\n11. Record Interview');
+    const caseTypeBeforeInterview = (await prisma.case.findUnique({ where: { id }, select: { caseType: true } }))?.caseType;
     const iv = await rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() - 3600_000).toISOString(), contactMethod: 'IN_PERSON',
       questions: [{ question: 'Ilang beses na po ito nangyari?', answer: 'Tatlong beses na po ngayong buwan.' }, { question: 'Ilang taon na po si Mang Tonyo?', answer: 'about 50', fieldKey: 'respondentAge' }],
       notes: 'Kinausap ang reporter sa barangay hall.', followUpActions: 'Ipatawag ang respondent.' });
@@ -223,16 +243,13 @@ async function main() {
     ok('it cannot be dated in the future', (await rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() + 86_400_000).toISOString(), contactMethod: 'IN_PERSON',
       questions: [{ question: 'Test?', answer: 'x' }] })).status === 400);
 
-    // ── 12, 14. Regenerate; the assessment re-runs on the new information ──
-    console.log('\n12, 14. Regenerate AI Draft and reassess');
-    const before = await prisma.case.findUnique({ where: { id }, select: { caseType: true, riskLevel: true } });
-    const runsBefore = await prisma.assessmentHistory.count({ where: { caseId: id, kind: 'ai_reassessment' } });
-    const reg = await rv(B.cookie, { action: 'regenerate', reason: 'After the interview' });
-    ok('a new AI draft', reg.status === 201 && reg.body.data.generator === 'ai', `${reg.status} ${reg.body.error ?? ''} ${reg.body.data?.aiStatus ?? ''}`);
-    ok('the new information changed what happened, so the existing assessment ran again (versions 3 and 5)', reg.body.data.reassessment?.versions?.join() === '3,5'
-      && (await prisma.assessmentHistory.count({ where: { caseId: id, kind: 'ai_reassessment' } })) === runsBefore + 1, JSON.stringify(reg.body.data.reassessment));
-    ok('...its result is advisory: the official category and risk level are unchanged', JSON.stringify(await prisma.case.findUnique({ where: { id }, select: { caseType: true, riskLevel: true } })) === JSON.stringify(before)
-      && /unchanged until an officer reviews/.test(reg.body.data.reassessment.note));
+    // ── 12, 14. The interview updates the draft itself; the assessment re-runs on the new information ──
+    console.log('\n12, 14. The interview redrafts the report and re-runs the assessment');
+    ok('recording the interview made a new AI draft with its answers - no button needed', iv.body.data.draft?.generator === 'ai', JSON.stringify(iv.body.data.draft));
+    ok('the new information changed what happened, so the existing assessment ran again (versions 3 and 5)', iv.body.data.reassessment?.versions?.join() === '3,5'
+      && (await prisma.assessmentHistory.count({ where: { caseId: id, kind: 'ai_reassessment' } })) >= 1, JSON.stringify(iv.body.data.reassessment));
+    ok('...its result is advisory: the official category and risk level are unchanged', (await prisma.case.findUnique({ where: { id }, select: { caseType: true } }))?.caseType === caseTypeBeforeInterview
+      && /unchanged until an officer reviews/.test(iv.body.data.reassessment.note));
     const latest = await prisma.reportDraft.findFirst({ where: { caseId: id }, orderBy: { draftNumber: 'desc' } });
     const lf = latest!.fields as Body;
     ok('each detail says where it came from: original, the resident\'s answer, the interview, unverified', lf.respondentName.status === 'ORIGINAL'
@@ -242,25 +259,52 @@ async function main() {
     ok('the narrative is still the original, with versions 3 and 5 beside it', lf.narrative.value === NARRATIVE && lf.narrative.additions.map((a: Body) => a.version).join() === '3,5');
     ok('earlier drafts are kept, superseded', (await prisma.reportDraft.count({ where: { caseId: id, status: 'SUPERSEDED' } })) >= 3 && latest!.status === 'DRAFT');
     const view2 = (await json(await reviewGET(req(`/api/cases/${id}/report-review`, B.cookie), P(id)))).body.data;
-    ok('Review Changes lists what changed since the last draft', view2.changes.some((ch: Body) => ch.key === 'respondentAge') && view2.changes.some((ch: Body) => ch.key === 'narrative'));
+    const ch = (view2.changes as Body[]).find(c => c.key === 'respondentAge');
+    ok('Review Changes: the original value, the value now, who changed it and when', Boolean(ch) && ch!.before.value === null && ch!.after.value === 'about 50'
+      && ch!.by === 'Probe blotter' && !Number.isNaN(Date.parse(ch!.at)), JSON.stringify(ch));
+    ok('...only fields that changed are listed', (view2.changes as Body[]).every(c => c.before.value !== c.after.value || c.before.status !== c.after.status || c.added.length > 0));
+    ok('...the narrative shows only what was added later - the original is unchanged', (view2.changes as Body[]).some(c => c.key === 'narrative' && c.added.length >= 2 && c.after.value === NARRATIVE && c.before.value === NARRATIVE));
     ok('no reassessment is due any more', view2.reassessDue.length === 0);
 
-    // ── 13. Approve ──
-    console.log('\n13. Approve Official Report');
-    const edit = await rv(B.cookie, { action: 'edit_field', draftId: latest!.id, key: 'actionTaken', value: 'Pinaalalahanan ang respondent tungkol sa ingay.', reason: 'Aksyong ginawa ng barangay' });
-    ok('an official correction is a new draft, marked as the official\'s', edit.status === 201);
-    ok('the original narrative cannot be edited', (await rv(B.cookie, { action: 'edit_field', draftId: latest!.id, key: 'narrative', value: 'x', reason: 'try' })).status === 409);
-    const toApprove = await prisma.reportDraft.findFirst({ where: { caseId: id }, orderBy: { draftNumber: 'desc' } });
-    ok('the edited field is OFFICIAL', (toApprove!.fields as Body).actionTaken.status === 'OFFICIAL');
-    const noAck = await rv(B.cookie, { action: 'approve', draftId: toApprove!.id });
-    ok('fields still needing confirmation stop a plain approval', noAck.status === 409 && toApprove!.needsConfirmation > 0);
-    ok('an older draft cannot be approved', (await rv(B.cookie, { action: 'approve', draftId: latest!.id, acknowledgeOutstanding: true, note: 'Reviewed' })).status === 409);
-    const appr = await rv(B.cookie, { action: 'approve', draftId: toApprove!.id, acknowledgeOutstanding: true, note: 'Reviewed with the reporter; date confirmed.' });
-    const approvedRow = await prisma.reportDraft.findUnique({ where: { id: toApprove!.id } });
-    ok('approved by the official, with who, when and the note', appr.status === 200 && approvedRow?.status === 'APPROVED' && approvedRow.approvedById === B.id && Boolean(approvedRow.approvedAt));
+    // ── 13. Edit, confirm, approve ──
+    console.log('\n13. Edit, confirm and approve');
+    const cur = async () => (await prisma.reportDraft.findFirst({ where: { caseId: id }, orderBy: { draftNumber: 'desc' } }))!;
+    const r0 = await cur();
+    const edit = await rv(B.cookie, { action: 'edit_field', draftId: r0.id, key: 'actionTaken', value: 'Pinaalalahanan ang respondent tungkol sa ingay.' });
+    const r1 = await cur(); const ef = (r1.fields as Body).actionTaken;
+    ok('an edit needs no reason: a new draft, the field marked as the official\'s, with who and when', edit.status === 201 && r1.draftNumber === r0.draftNumber + 1
+      && ef.status === 'OFFICIAL' && ef.source === 'official_edit' && ef.by === B.id && ef.byName === 'Probe blotter' && Boolean(ef.at), JSON.stringify(ef));
+    ok('...the previous draft is kept, superseded and unchanged', (await prisma.reportDraft.findUnique({ where: { id: r0.id } }))?.status === 'SUPERSEDED' && (r0.fields as Body).actionTaken.status !== 'OFFICIAL');
+    ok('the original narrative cannot be edited', (await rv(B.cookie, { action: 'edit_field', draftId: r1.id, key: 'narrative', value: 'x' })).status === 400);
+    ok('an edit made on an older draft is refused - reload first', (await rv(B.cookie, { action: 'edit_field', draftId: r0.id, key: 'witnesses', value: 'x' })).status === 409);
+    const conf = await rv(B.cookie, { action: 'confirm_field', draftId: r1.id, key: 'respondentName' });
+    const r2 = await cur(); const cf = (r2.fields as Body).respondentName;
+    ok('Confirm keeps the value, marks it confirmed by the official, and remembers it was read from the report', conf.status === 201 && cf.value === 'Mang Tonyo' && cf.status === 'OFFICIAL'
+      && cf.source === 'official_confirm' && cf.confirmedFrom === 'ORIGINAL' && cf.byName === 'Probe blotter', JSON.stringify(cf));
+    const blockedRes = await rv(B.cookie, { action: 'approve', draftId: r2.id, acknowledgeOutstanding: true });
+    ok('approval is refused while the form\'s required items are open, naming them', blockedRes.status === 409 && blockedRes.body.code === 'required_missing' && blockedRes.body.missing.length > 0, JSON.stringify(blockedRes.body));
+    ok('...and nothing became official - it stays a draft', (await cur()).status === 'DRAFT');
+    const viewA = (await json(await reviewGET(req(`/api/cases/${id}/report-review`, B.cookie), P(id)))).body.data;
+    const reqMissing = (viewA.attention as Body[]).filter(a => a.reason === 'missing' && a.required).map(a => a.key as string);
+    ok('Information to Confirm lists the same required items as missing', reqMissing.length === blockedRes.body.missing.length, `${reqMissing.join()} vs ${blockedRes.body.missing.join()}`);
+    ok('...and not what the official already edited or confirmed', !(viewA.attention as Body[]).some(a => a.key === 'actionTaken' || a.key === 'respondentName'));
+    // Resolved honestly with the form's own marker - nothing invented.
+    for (const key of reqMissing) await rv(B.cookie, { action: 'edit_field', draftId: (await cur()).id, key, marker: 'unknown' });
+    const rn = await cur();
+    ok('a required item can be marked Unknown, as the form allows - recorded as the official\'s answer', reqMissing.every(k => (rn.fields as Body)[k].value === 'Unknown'
+      && (rn.fields as Body)[k].marker === 'unknown' && (rn.fields as Body)[k].status === 'OFFICIAL'));
+    const noAck = await rv(B.cookie, { action: 'approve', draftId: rn.id });
+    ok('values not yet confirmed must be acknowledged as checked', noAck.status === 409 && noAck.body.code === 'unconfirmed', JSON.stringify(noAck.body));
+    ok('an older draft cannot be approved', (await rv(B.cookie, { action: 'approve', draftId: r0.id, acknowledgeOutstanding: true })).status === 409);
+    const appr = await rv(B.cookie, { action: 'approve', draftId: rn.id, acknowledgeOutstanding: true, note: 'Reviewed with the reporter.' });
+    const approvedRow = await prisma.reportDraft.findUnique({ where: { id: rn.id } });
+    ok('approved by the official, with who, when and the note', appr.status === 200 && approvedRow?.status === 'APPROVED' && approvedRow.approvedById === B.id && Boolean(approvedRow.approvedAt) && approvedRow.approvalNote === 'Reviewed with the reporter.');
+    ok('once approved, it cannot be edited or confirmed', (await rv(B.cookie, { action: 'edit_field', draftId: rn.id, key: 'witnesses', value: 'x' })).status === 409
+      && (await rv(B.cookie, { action: 'confirm_field', draftId: rn.id, key: 'witnesses' })).status === 409);
     let locked = false;
-    try { await prisma.reportDraft.update({ where: { id: toApprove!.id }, data: { summary: 'changed' } }); } catch { locked = true; }
+    try { await prisma.reportDraft.update({ where: { id: rn.id }, data: { summary: 'changed' } }); } catch { locked = true; }
     ok('an approved draft\'s content cannot be changed in the database', locked);
+    ok('every earlier draft is kept', (await prisma.reportDraft.count({ where: { caseId: id } })) === rn.draftNumber);
     ok('the resident\'s view hides officials\' records', !JSON.stringify((await json(await myReportGET(req(`/api/resident/cases/${id}/report`, R1.cookie), P(id)))).body.data.draft).includes('Pinaalalahanan'));
 
     // ── 16. AI down: nothing is lost ──
@@ -268,10 +312,12 @@ async function main() {
     fake.down = true;
     const add = await json(await myReportPOST(req(`/api/resident/cases/${id}/report`, R1.cookie, 'POST', { kind: 'addition', text: 'Nagpatuloy pa rin po ang ingay ngayong gabi.' }), P(id)));
     ok('a resident\'s addition is saved while the AI is down', add.status === 201 && add.body.data.version === 6);
-    const down = await rv(B.cookie, { action: 'regenerate' });
-    ok('regenerating gives a records-only draft and says the AI was unavailable', down.status === 201 && down.body.data.generator === 'rules' && down.body.data.aiStatus !== 'ok');
+    const down = await rv(B.cookie, { action: 'record_interview', interviewedAt: new Date(Date.now() - 300_000).toISOString(), contactMethod: 'IN_PERSON', questions: [{ question: 'May bago po ba?', answer: 'Wala na po.' }] });
+    ok('an interview while the AI is down is saved, and the report redrafted from the records', down.status === 201 && down.body.data.draft?.generator === 'rules' && down.body.data.draft.aiStatus !== 'ok', JSON.stringify(down.body.data));
     const dd = await prisma.reportDraft.findFirst({ where: { caseId: id }, orderBy: { draftNumber: 'desc' } });
     ok('...keeping what the last AI reading found, and the new words', (dd!.fields as Body).respondentName.value === 'Mang Tonyo' && (dd!.fields as Body).narrative.additions.some((a: Body) => a.version === 6));
+    ok('...and the official\'s edits and confirmations carry into the new draft', (dd!.fields as Body).actionTaken.source === 'official_edit' && (dd!.fields as Body).respondentName.source === 'official_confirm');
+    ok('the approved report stays approved while the new draft is reviewed', (await prisma.reportDraft.findUnique({ where: { id: rn.id } }))?.status === 'APPROVED' && dd!.status === 'DRAFT');
     const danger = await json(await myReportPOST(req(`/api/resident/cases/${id}/report`, R1.cookie, 'POST', { kind: 'addition', text: 'Pinagbantaan po niya akong papatayin ngayon, natatakot po ako.' }), P(id)));
     ok('an immediate danger is flagged at once, without the AI', danger.status === 201 && danger.body.data.emergency === true
       && (await prisma.case.findUnique({ where: { id }, select: { triageStatus: true } }))?.triageStatus === 'URGENT_REVIEW', JSON.stringify(danger.body.data));
@@ -288,9 +334,11 @@ async function main() {
     await prisma.case.update({ where: { id: vid }, data: { assignedToId: V.id, caseType: 'Domestic Violence', contactPreference: 'no_phone' } });
     const vrv = (cookie: string, body: Body) => reviewPOST(req(`/api/cases/${vid}/report-review`, cookie, 'POST', body), P(vid)).then(json);
     ok('a blotter officer cannot open its report review (not found)', (await json(await reviewGET(req(`/api/cases/${vid}/report-review`, B.cookie), P(vid)))).status === 404
-      && (await vrv(B.cookie, { action: 'regenerate' })).status === 404);
-    const vreg = await vrv(V.cookie, { action: 'regenerate' });
-    ok('the VAWC officer regenerates its draft in the VAWC template', vreg.status === 201);
+      && (await vrv(B.cookie, { action: 'request_clarification', items: [{ key: 'other', question: 'May I ask?' }] })).status === 404);
+    const vview = (await json(await reviewGET(req(`/api/cases/${vid}/report-review`, V.cookie), P(vid)))).body.data;
+    ok('opened after the case moved to the VAWC desk, its draft is in the VAWC template', vview.template === 'VAWC' && vview.latestDraft?.template === 'VAWC', `${vview.template} ${vview.latestDraft?.template}`);
+    const vretry = await retryPendingDrafts(10, [vid]);
+    ok('...and the retry job organizes it with the AI in that template (an old Blotter-template AI draft does not count)', vretry.some(r => r.outcome.startsWith('ai')), JSON.stringify(vretry));
     const vd = await prisma.reportDraft.findFirst({ where: { caseId: vid }, orderBy: { draftNumber: 'desc' } });
     const vfl = vd!.fields as Body;
     ok('VAWC template: the alleged perpetrator from the resident\'s words; "Kahapon" is not a date', vd!.template === 'VAWC' && vfl.perpName.value === 'Ramon'
@@ -301,6 +349,78 @@ async function main() {
     const vmine = (await json(await myReportGET(req(`/api/resident/cases/${vid}/report`, R3.cookie), P(vid)))).body.data;
     ok('the resident\'s view leaves out the safety assessment and referrals sections', !vmine.draft.rows.some((r: Body) => ['safetyAssessment', 'referrals', 'interventions', 'typeOfViolence'].includes(r.key)));
     ok('VAWC follow-up questions ask nothing about the person responsible', !vmine.questions.some((q: Body) => /perp/.test(q.key)));
+    ok('a blotter officer cannot review a VAWC case\'s clarification requests (not found)', (await vrv(B.cookie, { action: 'review_request', requestId: 'x' })).status === 404);
+
+    // ── 17. Clarification, end to end on a case of its own ──
+    console.log('\n17. Clarification: request -> resident -> response -> review -> draft -> approve');
+    const N2 = 'Gabi-gabi po may nagtatapon ng basura sa harap ng bahay namin sa Purok 3. Gusto ko pong kausapin siya ng barangay. Fictional test.';
+    const f2 = await json(await filePOST(req('/api/resident/cases', R1.cookie, 'POST', { description: N2, intakeNarrative: N2, reportingRelationship: 'SELF', intakeAnswers: [], barangay: 'Ayukit' })));
+    const cid = f2.body.data.id as string; caseIds.push(cid);
+    await prisma.case.update({ where: { id: cid }, data: { assignedToId: B.id, caseType: 'Public Nuisance' } });
+    const crv = (cookie: string, body: Body) => reviewPOST(req(`/api/cases/${cid}/report-review`, cookie, 'POST', body), P(cid)).then(json);
+    const cview = async () => (await json(await reviewGET(req(`/api/cases/${cid}/report-review`, B.cookie), P(cid)))).body.data;
+    const cdraft = async () => (await prisma.reportDraft.findFirst({ where: { caseId: cid }, orderBy: { draftNumber: 'desc' } }))!;
+    await cview(); // the draft exists once the review is opened
+    const sent = await crv(B.cookie, { action: 'request_clarification', message: 'Salamat po.',
+      items: [{ key: 'respondentName', question: 'Kilala ninyo po ba kung sino ang nagtatapon?' }, { key: 'other', question: 'May iba pa po ba kayong napansin?' }] });
+    const reqId = sent.body.data?.id as string;
+    const reqRow1 = await prisma.clarificationRequest.findUnique({ where: { id: reqId } });
+    ok('1. the request is saved on this case, by this official, with the fields and questions and the time', sent.status === 201 && reqRow1?.caseId === cid && reqRow1.requestedById === B.id
+      && reqRow1.status === 'OPEN' && (reqRow1.items as Body[]).map(i => i.key).join() === 'respondentName,other' && Boolean(reqRow1.createdAt));
+    const feed = (await json(await updatesGET(req('/api/resident/updates?limit=20', R1.cookie)))).body.data as Body[];
+    const notice2 = feed.find(u => u.requestId === reqId);
+    ok('2. the resident who filed gets "Additional Information Requested", opening this case at this request', notice2?.entryLabel === 'Additional Information Requested'
+      && notice2.message === 'An official reviewing your report needs clarification. Please open your case to review and respond.' && notice2.caseId === cid
+      && !JSON.stringify(notice2).includes('nagtatapon'), JSON.stringify(notice2));
+    ok('...no other resident does', !((await json(await updatesGET(req('/api/resident/updates?limit=20', R2.cookie)))).body.data as Body[]).some(u => u.requestId === reqId));
+    const rpage = (await json(await myReportGET(req(`/api/resident/cases/${cid}/report`, R1.cookie), P(cid)))).body.data;
+    const rreq = rpage.requests.find((r: Body) => r.id === reqId);
+    ok('3. the resident\'s case shows the case number, the questions and what they are about', rpage.caseNumber === f2.body.data.caseNumber && rreq?.status === 'OPEN'
+      && rreq.items[0].question === 'Kilala ninyo po ba kung sino ang nagtatapon?' && Boolean(rreq.items[0].label), JSON.stringify(rreq?.items));
+    ok('...another resident cannot open it or answer it (not found)', (await json(await myReportGET(req(`/api/resident/cases/${cid}/report`, R2.cookie), P(cid)))).status === 404
+      && (await json(await myReportPOST(req(`/api/resident/cases/${cid}/report`, R2.cookie, 'POST', { kind: 'clarification', requestId: reqId, text: 'not mine' }), P(cid)))).status === 404);
+    const resp = await json(await myReportPOST(req(`/api/resident/cases/${cid}/report`, R1.cookie, 'POST', { kind: 'clarification', requestId: reqId,
+      answers: [{ key: 'respondentName', value: 'Si Probe Basura po' }, { key: 'other', skipped: true }], text: 'Tuwing gabi po, mga alas-diyes.' }), P(cid)));
+    ok('the resident submits the response', resp.status === 201, `${resp.status} ${resp.body.error ?? ''}`);
+    ok('4. the responsible official is notified', (await prisma.notification.count({ where: { userId: B.id, caseId: cid, title: `Clarification received: ${f2.body.data.caseNumber}` } })) === 1);
+    const v2 = await cview();
+    const rq = (v2.requests as Body[]).find(r => r.id === reqId)!;
+    ok('...Report Review shows the response, its date and time, each answer and the text', rq.status === 'ANSWERED' && !Number.isNaN(Date.parse(rq.response?.at))
+      && rq.response.text === 'Tuwing gabi po, mga alas-diyes.' && rq.response.fields.find((x: Body) => x.key === 'respondentName')?.value === 'Si Probe Basura po'
+      && rq.response.fields.find((x: Body) => x.key === 'other')?.skipped === true, JSON.stringify(rq));
+    ok('...kept apart from the original report, which is unchanged', v2.original.text === N2 && (v2.versions as Body[]).some(x => x.source === 'RESIDENT_CLARIFICATION' && x.requestId === reqId));
+    ok('5. the answer is in the draft as the resident\'s - not approved, and listed for the official to decide', v2.latestDraft.fields.respondentName.status === 'RESIDENT_CONFIRMED'
+      && (v2.attention as Body[]).some(a => a.key === 'respondentName' && a.reason === 'response') && v2.latestDraft.status === 'DRAFT' && !v2.approved,
+      JSON.stringify({ f: v2.latestDraft.fields.respondentName, att: (v2.attention as Body[]).filter(a => a.key === 'respondentName').map(a => a.reason), st: v2.latestDraft.status, ap: Boolean(v2.approved) }));
+    ok('an officer the case is not assigned to cannot act on the request', (await crv(B2.cookie, { action: 'review_request', requestId: reqId })).status === 403);
+    const rev = await crv(B.cookie, { action: 'review_request', requestId: reqId });
+    const reqRow2 = await prisma.clarificationRequest.findUnique({ where: { id: reqId } });
+    ok('6. Start review: under official review, with who and when', rev.status === 200 && reqRow2?.status === 'IN_REVIEW' && reqRow2.reviewStartedById === B.id && Boolean(reqRow2.reviewStartedAt), `${rev.status} ${JSON.stringify(rev.body)} ${reqRow2?.status}`);
+    ok('...not twice', (await crv(B.cookie, { action: 'review_request', requestId: reqId })).status === 409);
+    const cd1 = await cdraft();
+    const acc = await crv(B.cookie, { action: 'confirm_field', draftId: cd1.id, key: 'respondentName' });
+    const cd2 = await cdraft();
+    ok('the official updates the draft: the answer confirmed, marked as from the resident', acc.status === 201 && (cd2.fields as Body).respondentName.status === 'OFFICIAL'
+      && (cd2.fields as Body).respondentName.confirmedFrom === 'RESIDENT_CONFIRMED' && (cd2.fields as Body).respondentName.value === 'Si Probe Basura po');
+    ok('...and it leaves Information to Confirm', !((await cview()).attention as Body[]).some(a => a.key === 'respondentName'));
+    const comp = await crv(B.cookie, { action: 'complete_request', requestId: reqId, note: 'Name confirmed with the reporter.' });
+    const reqRow3 = await prisma.clarificationRequest.findUnique({ where: { id: reqId } });
+    ok('Mark complete: clarification completed, with who, when and the note', comp.status === 200 && reqRow3?.status === 'COMPLETED' && reqRow3.completedById === B.id
+      && Boolean(reqRow3.completedAt) && reqRow3.completionNote === 'Name confirmed with the reporter.', `${comp.status} ${JSON.stringify(comp.body)} ${reqRow3?.status}`);
+    ok('...a completed request cannot be withdrawn or completed again', (await crv(B.cookie, { action: 'cancel_request', requestId: reqId, reason: 'test' })).status === 409
+      && (await crv(B.cookie, { action: 'complete_request', requestId: reqId })).status === 409);
+    const viewC = await cview();
+    for (const a of (viewC.attention as Body[]).filter(x => x.reason === 'missing' && x.required)) await crv(B.cookie, { action: 'edit_field', draftId: (await cdraft()).id, key: a.key, marker: 'unknown' });
+    const cfin = await cdraft();
+    const apprC = await crv(B.cookie, { action: 'approve', draftId: cfin.id, acknowledgeOutstanding: true, note: 'Reviewed after clarification.' });
+    ok('7. the official approves the report', apprC.status === 200 && (await prisma.reportDraft.findUnique({ where: { id: cfin.id } }))?.status === 'APPROVED', JSON.stringify(apprC.body));
+    ok('...and everything stays linked to the case: the request, the response, every draft', (await prisma.clarificationRequest.count({ where: { caseId: cid } })) === 1
+      && (await prisma.reportAddendum.count({ where: { caseId: cid, requestId: reqId } })) === 1 && (await prisma.reportDraft.count({ where: { caseId: cid } })) === cfin.draftNumber);
+    const rfeed = JSON.stringify((await json(await updatesGET(req('/api/resident/updates?limit=40', R1.cookie)))).body.data);
+    ok('the review and completion stay internal - not in the resident\'s feed', !/under review by|marked complete/.test(rfeed));
+    const rpage2 = (await json(await myReportGET(req(`/api/resident/cases/${cid}/report`, R1.cookie), P(cid)))).body.data;
+    ok('the resident sees the request as completed, and their own response kept', rpage2.requests.find((r: Body) => r.id === reqId)?.status === 'COMPLETED'
+      && (rpage2.versions as Body[]).some(x => x.source === 'RESIDENT_CLARIFICATION'));
   } finally {
     globalThis.fetch = realFetch;
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });

@@ -116,6 +116,8 @@ export async function GET(req: NextRequest) {
         caseStatus: a.case?.status ?? null,
         caseRiskLevel: a.case?.riskLevel ?? null,
         level: null as string | null,
+        // A request for more information opens straight at that request (in the resident's own case).
+        requestId: 'entityType' in a && a.entityType === 'ClarificationRequest' ? a.entityId ?? null : null,
       })),
       ...alerts.map(a => ({
         id: a.id,

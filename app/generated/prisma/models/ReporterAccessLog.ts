@@ -39,6 +39,7 @@ export type ReporterAccessLogMinAggregateOutputType = {
   outcome: string | null
   code: string | null
   reason: string | null
+  residentId: string | null
 }
 
 export type ReporterAccessLogMaxAggregateOutputType = {
@@ -51,6 +52,7 @@ export type ReporterAccessLogMaxAggregateOutputType = {
   outcome: string | null
   code: string | null
   reason: string | null
+  residentId: string | null
 }
 
 export type ReporterAccessLogCountAggregateOutputType = {
@@ -64,6 +66,7 @@ export type ReporterAccessLogCountAggregateOutputType = {
   outcome: number
   code: number
   reason: number
+  residentId: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type ReporterAccessLogMinAggregateInputType = {
   outcome?: true
   code?: true
   reason?: true
+  residentId?: true
 }
 
 export type ReporterAccessLogMaxAggregateInputType = {
@@ -90,6 +94,7 @@ export type ReporterAccessLogMaxAggregateInputType = {
   outcome?: true
   code?: true
   reason?: true
+  residentId?: true
 }
 
 export type ReporterAccessLogCountAggregateInputType = {
@@ -103,6 +108,7 @@ export type ReporterAccessLogCountAggregateInputType = {
   outcome?: true
   code?: true
   reason?: true
+  residentId?: true
   _all?: true
 }
 
@@ -189,6 +195,7 @@ export type ReporterAccessLogGroupByOutputType = {
   outcome: string
   code: string
   reason: string | null
+  residentId: string | null
   _count: ReporterAccessLogCountAggregateOutputType | null
   _min: ReporterAccessLogMinAggregateOutputType | null
   _max: ReporterAccessLogMaxAggregateOutputType | null
@@ -223,6 +230,7 @@ export type ReporterAccessLogWhereInput = {
   outcome?: Prisma.StringFilter<"ReporterAccessLog"> | string
   code?: Prisma.StringFilter<"ReporterAccessLog"> | string
   reason?: Prisma.StringNullableFilter<"ReporterAccessLog"> | string | null
+  residentId?: Prisma.StringNullableFilter<"ReporterAccessLog"> | string | null
 }
 
 export type ReporterAccessLogOrderByWithRelationInput = {
@@ -236,6 +244,7 @@ export type ReporterAccessLogOrderByWithRelationInput = {
   outcome?: Prisma.SortOrder
   code?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type ReporterAccessLogWhereUniqueInput = Prisma.AtLeast<{
@@ -252,6 +261,7 @@ export type ReporterAccessLogWhereUniqueInput = Prisma.AtLeast<{
   outcome?: Prisma.StringFilter<"ReporterAccessLog"> | string
   code?: Prisma.StringFilter<"ReporterAccessLog"> | string
   reason?: Prisma.StringNullableFilter<"ReporterAccessLog"> | string | null
+  residentId?: Prisma.StringNullableFilter<"ReporterAccessLog"> | string | null
 }, "id">
 
 export type ReporterAccessLogOrderByWithAggregationInput = {
@@ -265,6 +275,7 @@ export type ReporterAccessLogOrderByWithAggregationInput = {
   outcome?: Prisma.SortOrder
   code?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReporterAccessLogCountOrderByAggregateInput
   _max?: Prisma.ReporterAccessLogMaxOrderByAggregateInput
   _min?: Prisma.ReporterAccessLogMinOrderByAggregateInput
@@ -284,6 +295,7 @@ export type ReporterAccessLogScalarWhereWithAggregatesInput = {
   outcome?: Prisma.StringWithAggregatesFilter<"ReporterAccessLog"> | string
   code?: Prisma.StringWithAggregatesFilter<"ReporterAccessLog"> | string
   reason?: Prisma.StringNullableWithAggregatesFilter<"ReporterAccessLog"> | string | null
+  residentId?: Prisma.StringNullableWithAggregatesFilter<"ReporterAccessLog"> | string | null
 }
 
 export type ReporterAccessLogCreateInput = {
@@ -297,6 +309,7 @@ export type ReporterAccessLogCreateInput = {
   outcome: string
   code: string
   reason?: string | null
+  residentId?: string | null
 }
 
 export type ReporterAccessLogUncheckedCreateInput = {
@@ -310,6 +323,7 @@ export type ReporterAccessLogUncheckedCreateInput = {
   outcome: string
   code: string
   reason?: string | null
+  residentId?: string | null
 }
 
 export type ReporterAccessLogUpdateInput = {
@@ -323,6 +337,7 @@ export type ReporterAccessLogUpdateInput = {
   outcome?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReporterAccessLogUncheckedUpdateInput = {
@@ -336,6 +351,7 @@ export type ReporterAccessLogUncheckedUpdateInput = {
   outcome?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReporterAccessLogCreateManyInput = {
@@ -349,6 +365,7 @@ export type ReporterAccessLogCreateManyInput = {
   outcome: string
   code: string
   reason?: string | null
+  residentId?: string | null
 }
 
 export type ReporterAccessLogUpdateManyMutationInput = {
@@ -362,6 +379,7 @@ export type ReporterAccessLogUpdateManyMutationInput = {
   outcome?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReporterAccessLogUncheckedUpdateManyInput = {
@@ -375,6 +393,7 @@ export type ReporterAccessLogUncheckedUpdateManyInput = {
   outcome?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReporterAccessLogCountOrderByAggregateInput = {
@@ -388,6 +407,7 @@ export type ReporterAccessLogCountOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   code?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
 }
 
 export type ReporterAccessLogMaxOrderByAggregateInput = {
@@ -400,6 +420,7 @@ export type ReporterAccessLogMaxOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   code?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
 }
 
 export type ReporterAccessLogMinOrderByAggregateInput = {
@@ -412,6 +433,7 @@ export type ReporterAccessLogMinOrderByAggregateInput = {
   outcome?: Prisma.SortOrder
   code?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  residentId?: Prisma.SortOrder
 }
 
 export type ReporterAccessLogCreatefieldsInput = {
@@ -436,6 +458,7 @@ export type ReporterAccessLogSelect<ExtArgs extends runtime.Types.Extensions.Int
   outcome?: boolean
   code?: boolean
   reason?: boolean
+  residentId?: boolean
 }, ExtArgs["result"]["reporterAccessLog"]>
 
 export type ReporterAccessLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -449,6 +472,7 @@ export type ReporterAccessLogSelectCreateManyAndReturn<ExtArgs extends runtime.T
   outcome?: boolean
   code?: boolean
   reason?: boolean
+  residentId?: boolean
 }, ExtArgs["result"]["reporterAccessLog"]>
 
 export type ReporterAccessLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -462,6 +486,7 @@ export type ReporterAccessLogSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   outcome?: boolean
   code?: boolean
   reason?: boolean
+  residentId?: boolean
 }, ExtArgs["result"]["reporterAccessLog"]>
 
 export type ReporterAccessLogSelectScalar = {
@@ -475,9 +500,10 @@ export type ReporterAccessLogSelectScalar = {
   outcome?: boolean
   code?: boolean
   reason?: boolean
+  residentId?: boolean
 }
 
-export type ReporterAccessLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "actorId" | "actorRole" | "caseId" | "caseNumber" | "fields" | "outcome" | "code" | "reason", ExtArgs["result"]["reporterAccessLog"]>
+export type ReporterAccessLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "actorId" | "actorRole" | "caseId" | "caseNumber" | "fields" | "outcome" | "code" | "reason" | "residentId", ExtArgs["result"]["reporterAccessLog"]>
 
 export type $ReporterAccessLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ReporterAccessLog"
@@ -493,7 +519,7 @@ export type $ReporterAccessLogPayload<ExtArgs extends runtime.Types.Extensions.I
     caseId: string
     caseNumber: string | null
     /**
-     * What was asked for: phone | email.
+     * What was disclosed: profile (the resident's stored details) | phone | email.
      */
     fields: string[]
     /**
@@ -502,13 +528,17 @@ export type $ReporterAccessLogPayload<ExtArgs extends runtime.Types.Extensions.I
     outcome: string
     /**
      * Why: assigned | oversight | not_assigned | vawc_restricted | inactive |
-     * reason_required | not_found | no_contact_on_file | rate_limited | ...
+     * not_found | no_contact_on_file | rate_limited | ... (reason_required on older rows)
      */
     code: string
     /**
-     * The official's stated reason, when the policy asks for one.
+     * A reason the official typed - older rows only; none is asked for any more.
      */
     reason: string | null
+    /**
+     * The resident whose record was opened (the case's reporter), when there is one.
+     */
+    residentId: string | null
   }, ExtArgs["result"]["reporterAccessLog"]>
   composites: {}
 }
@@ -942,6 +972,7 @@ export interface ReporterAccessLogFieldRefs {
   readonly outcome: Prisma.FieldRef<"ReporterAccessLog", 'String'>
   readonly code: Prisma.FieldRef<"ReporterAccessLog", 'String'>
   readonly reason: Prisma.FieldRef<"ReporterAccessLog", 'String'>
+  readonly residentId: Prisma.FieldRef<"ReporterAccessLog", 'String'>
 }
     
 

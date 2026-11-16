@@ -20,13 +20,26 @@ export async function nextCaseNumber(kind: string, year = new Date().getFullYear
   return `${prefix}${String(next).padStart(4, '0')}`;
 }
 
-/** True for the unique-constraint violation on caseNumber. */
-export function isDuplicateCaseNumber(err: unknown): boolean {
-  const e = err as { code?: string; meta?: { target?: unknown } };
+/**
+ * True for a unique-constraint violation that involves `field`. Prisma names
+ * the fields in `meta.target` with its own engine, but under the pg driver
+ * adapter this app uses they are in `meta.driverAdapterError.cause.constraint.fields`
+ * (quoted) - both are read, or a collision would be taken for a server fault.
+ */
+export function isUniqueViolationOn(err: unknown, field: string): boolean {
+  const e = err as { code?: string; meta?: { target?: unknown; driverAdapterError?: { cause?: { constraint?: { fields?: unknown } } } } };
   if (e?.code !== 'P2002') return false;
   const target = e.meta?.target;
-  const fields = Array.isArray(target) ? target : [target];
-  return fields.some(f => typeof f === 'string' && f.toLowerCase().includes('casenumber'));
+  const fields = [
+    ...(Array.isArray(target) ? target : [target]),
+    ...((e.meta?.driverAdapterError?.cause?.constraint?.fields as unknown[] | undefined) ?? []),
+  ];
+  return fields.some(f => typeof f === 'string' && f.replace(/"/g, '').toLowerCase().includes(field.toLowerCase()));
+}
+
+/** True for the unique-constraint violation on caseNumber. */
+export function isDuplicateCaseNumber(err: unknown): boolean {
+  return isUniqueViolationOn(err, 'casenumber');
 }
 
 /**

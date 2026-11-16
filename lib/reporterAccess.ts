@@ -4,33 +4,35 @@ import { canSeeVawc } from './caseAccess';
 import { VAWC_TYPES } from './vawcTypes';
 
 /**
- * Who may see a reporter's contact details, and the record of every attempt.
+ * Who may see a reporter's resident information (profile and contact
+ * details), and the record of every attempt.
  *
  * THE POLICY (decideReporterAccess below is the only place it is decided)
  *   - Blotter officer: blotter cases assigned to them. Never a VAWC case.
- *   - VAWC officer: VAWC cases assigned to them, always with a stated reason.
- *   - Barangay captain (admin) and system administrator - oversight: with a
- *     stated reason, a case that is urgent or that nobody is handling yet. A
- *     case another official is handling, and that is not urgent, is theirs to
- *     contact. A VAWC case needs to be urgent, not just unassigned.
+ *   - VAWC officer: VAWC cases assigned to them.
+ *   - Barangay captain (admin) and system administrator - oversight: their
+ *     own cases, and any case that is urgent or that nobody is handling yet.
+ *     A case another official is handling, and that is not urgent, is theirs
+ *     to contact. A VAWC case needs to be urgent, not just unassigned.
  *   - Residents: never through here. Their own profile is /api/auth/resident-me.
  *   - Everyone: an active account, re-read from the database on every request
  *     - a role in a week-old session token is not trusted for this.
  * A risk label alone never grants access: urgency only matters for oversight,
- * and only together with the role and a reason.
+ * and only together with the role. No typed reason is asked for: every view
+ * is logged instead (who, their role, the case, the resident, when, what).
  *
  * WHAT LEAVES THE SERVER. The case page gets a masked number and whether
- * access is possible. The full number is sent only by the reveal endpoint,
- * only after this policy allows it, and the attempt is logged either way.
+ * access is possible. The resident's details are sent only by the
+ * resident-info endpoint, only after this policy allows it, and the attempt
+ * is logged either way.
  */
 
 export const BLOTTER_ROLES = ['officer', 'blotter_officer'];
 export const VAWC_DESK_ROLES = ['vawc_officer', 'vawc', 'vawc_lead'];
 export const OVERSIGHT_ROLES = ['admin', 'system_admin'];
-export const REASON_MIN = 10;
-export const REASON_MAX = 300;
 
-export type ContactField = 'phone' | 'email';
+/** What a logged view disclosed: the stored profile, the phone number, the e-mail. */
+export type AccessField = 'profile' | 'phone' | 'email';
 
 export const CONTACT_PREFERENCES = ['call_ok', 'text_first', 'no_phone'] as const;
 export type ContactPreference = typeof CONTACT_PREFERENCES[number];
@@ -67,8 +69,8 @@ export interface CaseFacts {
 }
 
 export type Decision =
-  | { allowed: true; basis: 'assigned' | 'oversight'; reasonRequired: boolean; code: 'assigned' | 'oversight' }
-  | { allowed: false; code: DenyCode; reasonRequired: boolean; canClaim: boolean; hidden: boolean };
+  | { allowed: true; basis: 'assigned' | 'oversight'; code: 'assigned' | 'oversight' }
+  | { allowed: false; code: DenyCode; canClaim: boolean; hidden: boolean };
 
 export type DenyCode =
   | 'inactive'            // account deactivated
@@ -77,7 +79,6 @@ export type DenyCode =
   | 'wrong_desk'          // a VAWC officer on a blotter case
   | 'not_assigned'        // the desk is right, but the case is not theirs
   | 'oversight_not_applicable' // captain: assigned elsewhere and not urgent
-  | 'reason_required'     // allowed, once a reason is given
   | 'identity_withheld';  // an anonymous report
 
 export const isVawcType = (caseType: string) => (VAWC_TYPES as readonly string[]).includes(caseType);
@@ -87,12 +88,11 @@ export const isUrgent = (c: Pick<CaseFacts, 'riskLevel' | 'requiresOfficerReview
   c.immediateSafetyConcern || c.riskLevel === 'Critical' || c.riskLevel === 'High' || c.requiresOfficerReview;
 
 /** The whole policy. Pure: the same inputs always give the same answer. */
-export function decideReporterAccess(actor: Actor, c: CaseFacts, reason?: string | null): Decision {
+export function decideReporterAccess(actor: Actor, c: CaseFacts): Decision {
   const vawc = isVawcType(c.caseType);
   const role = actor.role.trim();
-  const hasReason = (reason ?? '').trim().length >= REASON_MIN;
-  const deny = (code: DenyCode, extra: Partial<{ canClaim: boolean; hidden: boolean; reasonRequired: boolean }> = {}): Decision =>
-    ({ allowed: false, code, canClaim: false, hidden: false, reasonRequired: false, ...extra });
+  const deny = (code: DenyCode, extra: Partial<{ canClaim: boolean; hidden: boolean }> = {}): Decision =>
+    ({ allowed: false, code, canClaim: false, hidden: false, ...extra });
 
   if (!actor.active) return deny('inactive');
   // Anonymous means anonymous - for every role, urgent or not.
@@ -104,21 +104,15 @@ export function decideReporterAccess(actor: Actor, c: CaseFacts, reason?: string
     const ownDesk = VAWC_DESK_ROLES.includes(role) ? vawc : !vawc;
     if (!ownDesk) return deny('wrong_desk');
     if (c.assignedToId !== actor.id) return deny('not_assigned', { canClaim: c.assignedToId === null });
-    // VAWC: stricter - every look at a survivor's contact details says why.
-    if (vawc && !hasReason) return deny('reason_required', { reasonRequired: true });
-    return { allowed: true, basis: 'assigned', code: 'assigned', reasonRequired: vawc };
+    return { allowed: true, basis: 'assigned', code: 'assigned' };
   }
 
   if (OVERSIGHT_ROLES.includes(role)) {
-    if (c.assignedToId === actor.id) {
-      if (vawc && !hasReason) return deny('reason_required', { reasonRequired: true });
-      return { allowed: true, basis: 'assigned', code: 'assigned', reasonRequired: vawc };
-    }
+    if (c.assignedToId === actor.id) return { allowed: true, basis: 'assigned', code: 'assigned' };
     const urgent = isUrgent(c);
     const applies = vawc ? urgent : urgent || c.assignedToId === null;
     if (!applies) return deny('oversight_not_applicable');
-    if (!hasReason) return deny('reason_required', { reasonRequired: true });
-    return { allowed: true, basis: 'oversight', code: 'oversight', reasonRequired: true };
+    return { allowed: true, basis: 'oversight', code: 'oversight' };
   }
 
   return deny('role_not_permitted');
@@ -127,12 +121,11 @@ export function decideReporterAccess(actor: Actor, c: CaseFacts, reason?: string
 /** Plain-language explanations for the case page. */
 export const DENY_MESSAGE: Record<DenyCode, string> = {
   inactive: 'Your account is not active.',
-  role_not_permitted: 'Your role does not have access to reporter contact details.',
+  role_not_permitted: 'Your role does not have access to the reporter’s resident information.',
   vawc_restricted: 'Case not found.',
   wrong_desk: 'This case belongs to the other desk.',
-  not_assigned: 'Only the officer assigned to this case can view the reporter’s contact details.',
-  oversight_not_applicable: 'This case is assigned to another official and is not marked urgent, so its contact details stay with them.',
-  reason_required: 'Give a reason to view the contact details. It is recorded.',
+  not_assigned: 'Only the officer assigned to this case can view the reporter’s resident information.',
+  oversight_not_applicable: 'This case is assigned to another official and is not marked urgent, so the reporter’s information stays with them.',
   identity_withheld: 'This report was filed anonymously. The reporter’s identity and contact details are not shown to officials.',
 };
 
@@ -199,7 +192,11 @@ export async function loadActor(userId: string): Promise<Actor | null> {
   return u ? { id: u.id, role: u.role, active: u.active } : null;
 }
 
-/** The case, its urgency, and the reporter's contact details - read on the server only. */
+/**
+ * The case, its urgency, and the reporter's resident record - read on the
+ * server only. Never the password, username, Clerk id or any other sign-in
+ * detail: they are not selected, so they cannot be sent by mistake.
+ */
 export async function loadCaseForContact(caseId: string) {
   const c = await prisma.case.findUnique({
     where: { id: caseId },
@@ -210,7 +207,16 @@ export async function loadCaseForContact(caseId: string) {
       reporterIdentityWithheld: true, reportingRelationship: true, affectedPersonNote: true,
       assignedTo: { select: { name: true } },
       intake: { select: { immediateSafetyConcern: true, assessmentStatus: true } },
-      resident: { select: { residentNumber: true, firstName: true, lastName: true, contactNumber: true, email: true } },
+      residentId: true,
+      resident: { select: {
+        id: true, residentNumber: true, firstName: true, lastName: true, age: true, gender: true,
+        address: true, barangay: true, contactNumber: true, email: true,
+        status: true, emailVerified: true, registeredAt: true, updatedAt: true,
+      } },
+      // Where an official linked the reporter's account to a person in this
+      // case - by resident number, never by name - so the view can say so
+      // instead of assuming who the reporter is.
+      parties: { where: { residentId: { not: null } }, select: { role: true, residentId: true } },
     },
   });
   if (!c) return null;
@@ -228,19 +234,20 @@ export async function loadCaseForContact(caseId: string) {
 // ─── The audit log ───────────────────────────────────────────────────────────
 
 /**
- * One row per attempt. Never the number, the e-mail or the narrative. A
- * failure to write is reported to the caller: a reveal that cannot be
- * recorded is not made.
+ * One row per attempt: who (account and role), which case and resident,
+ * when (createdAt), what was disclosed (fields) and the outcome. Never the
+ * number, the e-mail or the narrative. A failure to write is reported to the
+ * caller: a view that cannot be recorded is not made.
  */
 export async function logReporterAccess(entry: {
   actorId: string | null; actorRole: string | null; caseId: string; caseNumber?: string | null;
-  fields: ContactField[]; outcome: 'permitted' | 'denied'; code: string; reason?: string | null;
+  residentId?: string | null; fields: AccessField[]; outcome: 'permitted' | 'denied'; code: string;
 }) {
   await prisma.reporterAccessLog.create({
     data: {
       actorId: entry.actorId, actorRole: entry.actorRole, caseId: entry.caseId.slice(0, 64),
-      caseNumber: entry.caseNumber ?? null, fields: entry.fields, outcome: entry.outcome,
-      code: entry.code, reason: entry.reason?.trim().slice(0, REASON_MAX) || null,
+      caseNumber: entry.caseNumber ?? null, residentId: entry.residentId ?? null,
+      fields: entry.fields, outcome: entry.outcome, code: entry.code,
     },
   });
 }

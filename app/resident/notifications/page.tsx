@@ -28,6 +28,8 @@ interface UpdateItem {
   level?: string | null;
   /** The kind of official entry - "Investigation update" - when it is one. */
   entryLabel?: string | null;
+  /** A request for more information: opens the case at that request. */
+  requestId?: string | null;
 }
 
 const ACCENT = '#14b8a6';
@@ -72,7 +74,7 @@ function timeAgo(d: string) {
 function NotificationDialog({ u, onClose, onOpenCase }: {
   u: UpdateItem;
   onClose: () => void;
-  onOpenCase: (caseId: string) => void;
+  onOpenCase: (caseId: string, requestId?: string | null) => void;
 }) {
   const IconComp = SOURCE_ICON[u.source] ?? Info;
   const isCase = u.source === 'case';
@@ -171,7 +173,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
         {isCase && u.caseId && (
           <Button
             variant="contained"
-            onClick={() => onOpenCase(u.caseId as string)}
+            onClick={() => onOpenCase(u.caseId as string, u.requestId)}
             endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
             sx={{
               minHeight: 44, width: { xs: '100%', sm: 'auto' }, borderRadius: 2,
@@ -199,9 +201,9 @@ export default function ResidentNotificationsPage() {
   const [opened, setOpened] = useState<UpdateItem | null>(null);
   // My Cases opens it only if it is in this resident's own list, which the
   // server builds from their account - an id alone opens nothing.
-  const openCase = (id: string) => {
+  const openCase = (id: string, requestId?: string | null) => {
     setOpened(null);
-    router.push(`/resident/my-cases?case=${encodeURIComponent(id)}`);
+    router.push(`/resident/my-cases?case=${encodeURIComponent(id)}${requestId ? `&clarify=${encodeURIComponent(requestId)}` : ''}`);
   };
 
   const { data: updates, isLoading, mutate } = useSWR<UpdateItem[]>('/api/resident/updates?limit=20', fetcher, { refreshInterval: 30000 });
@@ -348,7 +350,7 @@ export default function ResidentNotificationsPage() {
                         title={u.title}
                         message={u.message}
                         onViewMessage={() => setOpened(u)}
-                        onViewCase={u.caseId ? () => openCase(u.caseId as string) : undefined}
+                        onViewCase={u.caseId ? () => openCase(u.caseId as string, u.requestId) : undefined}
                       />
                     </Box>
                     </Box>

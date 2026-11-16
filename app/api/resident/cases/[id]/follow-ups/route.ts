@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { parseImageDataUrl } from '@/lib/attachments';
+import { fingerprint } from '@/lib/evidenceServer';
 import { assessCase, priorityToRiskLevel } from '@/lib/caseAssessment';
 import {
   PROGRESS_VALUES, progressToState, sanitizeNote, shouldReassess, isHigherLevel,
@@ -110,6 +111,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   const note = sanitizeNote(parsed.data.note ?? '');
   const progress = parsed.data.progress;
 
+  // The photo is checked before anything is saved: a photo that cannot be stored
+  // is refused with the reason - never dropped silently while the update is kept.
+  let image: ReturnType<typeof parseImageDataUrl> | null = null;
+  if (parsed.data.photo) {
+    image = parseImageDataUrl(parsed.data.photo.dataUrl);
+    if ('error' in image) return rError(`${parsed.data.photo.name}: ${image.error}`, 400);
+  }
+
   try {
     const entry = await prisma.caseFollowUp.create({
       data: {
@@ -125,20 +134,19 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       },
     });
 
-    if (parsed.data.photo) {
-      const image = parseImageDataUrl(parsed.data.photo.dataUrl);
-      if (!('error' in image)) {
-        await prisma.caseAttachment.create({
-          data: {
-            caseId: id,
-            followUpId: entry.id,
-            filename: parsed.data.photo.name,
-            mimeType: image.mimeType,
-            size: image.bytes.length,
-            data: image.bytes,
-          },
-        });
-      }
+    if (parsed.data.photo && image && !('error' in image)) {
+      await prisma.caseAttachment.create({
+        data: {
+          caseId: id,
+          followUpId: entry.id,
+          filename: parsed.data.photo.name.slice(0, 200),
+          mimeType: image.mimeType,
+          size: image.bytes.length,
+          data: image.bytes,
+          uploadedByResidentId: auth.resident.residentId,
+          sha256: fingerprint(image.bytes),
+        },
+      });
     }
 
     // Marking it resolved is a request, not a closure: an officer confirms.

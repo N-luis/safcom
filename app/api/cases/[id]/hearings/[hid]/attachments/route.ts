@@ -5,6 +5,7 @@ import { errorResponse } from '@/lib/auth';
 import { gateHearings, noStore, recordEvent, hearingActivity, actorName } from '@/lib/hearingsServer';
 import { parseImageDataUrl } from '@/lib/attachments';
 import { logRouteError } from '@/lib/hearingCasesServer';
+import { fingerprint } from '@/lib/evidenceServer';
 
 /**
  * An image attached to a hearing record - a signed attendance sheet, a
@@ -32,6 +33,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const a = await prisma.$transaction(async tx => {
       const row = await tx.caseAttachment.create({ data: {
         caseId: id, hearingId: hid, filename: parsed.data.filename.replace(/[^\w. -]/g, '_'), mimeType: file.mimeType, size: file.bytes.length, data: file.bytes,
+        // Who added it, and the fingerprint of the stored bytes.
+        uploadedByUserId: g.actor.id, sha256: fingerprint(file.bytes),
       }, select: { id: true, filename: true, mimeType: true, size: true, createdAt: true } });
       const e = await recordEvent(tx, { hearingId: hid, caseId: id, kind: 'attachment_added', actorType: 'official', actorId: g.actor.id, after: { attachmentId: row.id, filename: row.filename } });
       await hearingActivity(tx, e.id, id, g.actor.id, `Attachment added to Hearing ${h.hearingNumber} by ${by}`);

@@ -65,6 +65,9 @@ export async function latestDesk(caseId: string) {
   return row ? (row.rationale as unknown as DeskRecommendation) : null;
 }
 
+/** How long a background re-read may wait for each AI call's turn. */
+export const RETRY_MAX_WAIT_MS = 90_000;
+
 export interface RetryOutcome { caseNumber: string; result: 'classified' | 'still_waiting' | 'skipped'; moved?: boolean }
 
 /**
@@ -74,14 +77,15 @@ export interface RetryOutcome { caseNumber: string; result: 'classified' | 'stil
  * reading that may concern VAWC moves the case to the VAWC desk at once;
  * one never moves a case off the VAWC desk - that is a VAWC officer's call.
  */
-export async function retryAwaitingDesk(limit = 5, now = new Date()): Promise<RetryOutcome[]> {
+/** `onlyCaseIds` limits the run to those cases - for tests, which must never re-read real reports. */
+export async function retryAwaitingDesk(limit = 5, now = new Date(), onlyCaseIds?: string[]): Promise<RetryOutcome[]> {
   const since = new Date(now.getTime() - 14 * 86_400_000);
   const waiting = await prisma.case.findMany({
     where: {
-      status: { notIn: ['Resolved', 'Closed'] }, filedAt: { gte: since },
+      status: { notIn: ['Resolved', 'Closed'] }, filedAt: { gte: since }, ...(onlyCaseIds && { id: { in: onlyCaseIds } }),
       assessmentHistory: { some: { kind: 'desk_recommendation', rationale: { path: ['awaitingAi'], equals: true } } },
     },
-    orderBy: { filedAt: 'asc' }, take: limit * 3,
+    orderBy: { filedAt: 'asc' }, take: limit * 10,
     select: {
       id: true, caseNumber: true, caseType: true, residentId: true, reportingRelationship: true, barangay: true,
       intake: { select: { narrative: true, turns: true } },
@@ -91,20 +95,27 @@ export async function retryAwaitingDesk(limit = 5, now = new Date()): Promise<Re
     },
   });
   const out: RetryOutcome[] = [];
+  // Only real re-reads count toward the limit: a case an official has since
+  // decided is skipped - and used to take a slot, so a few old decided cases
+  // starved the retry of every newer report.
+  let attempts = 0;
   for (const c of waiting) {
-    if (out.length >= limit) break;
+    if (attempts >= limit) break;
     const last = c.assessmentHistory[0];
     // Only while the latest word on the desk is still the one waiting for the AI.
     if (!last || last.kind !== 'desk_recommendation' || !(last.rationale as { awaitingAi?: boolean })?.awaitingAi || !c.intake) {
       out.push({ caseNumber: c.caseNumber, result: 'skipped' }); continue;
     }
+    attempts++;
     const turns = (c.intake.turns ?? []) as unknown as InterviewTurn[];
     const analysis = await runIntake({
       residentId: c.residentId ?? 'walk-in', narrative: c.intake.narrative, answers: answersFromTranscript(c.intake.turns),
       selectedCategory: null, street: c.barangay, gender: c.resident?.gender ?? null, useAi: true,
       residentNames: c.resident ? [c.resident.firstName, c.resident.lastName] : [],
       relationship: (c.reportingRelationship ?? 'SELF') as 'SELF', turns,
-    });
+      // Nobody is waiting on this run: a long report read in stages may wait
+      // its turn under the free plan's per-minute cap.
+    }, undefined, { maxWaitMs: RETRY_MAX_WAIT_MS });
     const rec = await deskFor(analysis, c.intake.narrative, true);
     if (rec.awaitingAi) { out.push({ caseNumber: c.caseNumber, result: 'still_waiting' }); continue; }
     // Moving onto the VAWC desk only - never off it.

@@ -66,13 +66,18 @@ function AnswerInput({ kind, value, onChange, label }: { kind: 'text' | 'date' |
     placeholder={kind === 'time' ? 'e.g. around 9 PM' : 'Your answer, in your own words'} slotProps={{ htmlInput: { maxLength: kind === 'time' ? 60 : 500, 'aria-label': label } }} />;
 }
 
-export default function ReportEditor({ caseId, onClose }: { caseId: string; onClose: () => void }) {
+/** How a request stands, as the resident is told it. */
+const REQUEST_STATUS: Record<string, string> = { ANSWERED: 'Response sent', IN_REVIEW: 'Response being reviewed', COMPLETED: 'Completed', CANCELLED: 'Withdrawn by the barangay' };
+
+export default function ReportEditor({ caseId, onClose, focusRequestId = null }: { caseId: string; onClose: () => void; focusRequestId?: string | null }) {
   const phone = useMediaQuery('(max-width:600px)');
   const url = `/api/resident/cases/${caseId}/report`;
   const { data, error, isLoading, mutate } = useSWR<Data>(url, getJson);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [skipped, setSkipped] = useState<Record<string, boolean>>({});
   const [reqAnswers, setReqAnswers] = useState<Record<string, string>>({});
+  // A general response to a request, beside the answers to its questions.
+  const [reqText, setReqText] = useState<Record<string, string>>({});
   const [kind, setKind] = useState<'correction' | 'addition' | 'clarification'>('addition');
   const [text, setText] = useState('');
   const [reason, setReason] = useState('');
@@ -93,8 +98,10 @@ export default function ReportEditor({ caseId, onClose }: { caseId: string; onCl
   };
   const sendRequest = async (r: Data) => {
     const list = (r.items as Data[]).map(i => reqAnswers[`${r.id}:${i.key}`]?.trim() ? { key: i.key, value: reqAnswers[`${r.id}:${i.key}`].trim() } : { key: i.key, skipped: true });
+    const general = reqText[r.id]?.trim();
+    if (!general && list.every(x => 'skipped' in x)) { toast.error('Answer a question or write a response first'); return; }
     setBusy(r.id);
-    try { await done(await post(url, { kind: 'clarification', requestId: r.id, answers: list }), 'Your answer was sent to the barangay'); }
+    try { await done(await post(url, { kind: 'clarification', requestId: r.id, answers: list, text: general || undefined }), 'Your response was sent to the barangay'); }
     catch (e) { toast.error(e instanceof Error ? e.message : 'Could not send'); } finally { setBusy(null); }
   };
   const sendText = async () => {
@@ -104,6 +111,9 @@ export default function ReportEditor({ caseId, onClose }: { caseId: string; onCl
   };
 
   const openRequests = (data?.requests ?? []).filter((r: Data) => r.status === 'OPEN');
+  const pastRequests = (data?.requests ?? []).filter((r: Data) => r.status !== 'OPEN');
+  // Opened from the notice: bring that request into view once it is on screen.
+  const focusRef = (el: HTMLDivElement | null) => { if (el && focusRequestId) el.scrollIntoView({ block: 'start' }); };
   const draftSections: string[] = data?.draft ? [...new Set<string>(data.draft.rows.map((r: Data) => r.section))] : [];
 
   return (
@@ -132,20 +142,36 @@ export default function ReportEditor({ caseId, onClose }: { caseId: string; onCl
             {!data.open && <Alert severity="info" sx={{ borderRadius: 2 }}>This case is closed. You can read your report here; contact the barangay if something needs to be added.</Alert>}
 
             {openRequests.map((r: Data) => (
-              <Section key={r.id} title="The barangay asked for more information"
-                note={<>Asked {when(r.createdAt)}. Answer what you can and leave the rest blank - blank answers are sent as skipped.{r.message ? <><br />&ldquo;{r.message}&rdquo;</> : null}</>}>
+              <Box key={r.id} ref={r.id === focusRequestId ? focusRef : undefined} id={`clarification-${r.id}`}
+                sx={r.id === focusRequestId ? { outline: `2px solid ${TEAL}`, borderRadius: 2, p: 0.5 } : undefined}>
+              <Section title="Additional Information Requested"
+                note={<>Case #{data.caseNumber} · asked {when(r.createdAt)}. Answer what you can - anything left blank is sent as skipped. Your original report is not changed.{r.message ? <><br />&ldquo;{r.message}&rdquo;</> : null}</>}>
                 <Box sx={{ display: 'grid', gap: 1.25 }}>
                   {(r.items as Data[]).map(i => (
                     <Box key={i.key}>
+                      {i.label && i.label !== i.question && i.key !== 'other' && <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>About: {i.label}</Typography>}
                       <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: NAVY, mb: 0.5 }}>{i.question}</Typography>
                       <AnswerInput kind="text" label={i.question} value={reqAnswers[`${r.id}:${i.key}`] ?? ''} onChange={v => setReqAnswers(a => ({ ...a, [`${r.id}:${i.key}`]: v }))} />
                     </Box>
                   ))}
+                  <TextField size="small" fullWidth multiline minRows={3} label="Your response (optional)" value={reqText[r.id] ?? ''}
+                    onChange={e => setReqText(t => ({ ...t, [r.id]: e.target.value }))} placeholder="Anything else the barangay should know about this"
+                    slotProps={{ htmlInput: { maxLength: 2000 } }} />
                   <Box><Button variant="contained" disabled={!data.open || busy === r.id} startIcon={<MarkEmailUnread />} onClick={() => sendRequest(r)} sx={{ textTransform: 'none', bgcolor: TEAL }}>
-                    {busy === r.id ? <CircularProgress size={16} color="inherit" /> : 'Send my answer'}</Button></Box>
+                    {busy === r.id ? <CircularProgress size={16} color="inherit" /> : 'Submit Response'}</Button></Box>
                 </Box>
               </Section>
+              </Box>
             ))}
+            {pastRequests.length > 0 && (
+              <Section title="Earlier requests from the barangay" note="Kept with your report.">
+                {pastRequests.map((r: Data) => (
+                  <Typography key={r.id} sx={{ fontSize: '0.82rem', color: '#334155' }}>
+                    Asked {when(r.createdAt)} · {REQUEST_STATUS[r.status] ?? r.status}{r.answeredAt ? ` · you responded ${when(r.answeredAt)}` : ''}
+                  </Typography>
+                ))}
+              </Section>
+            )}
 
             {data.open && data.questions.length > 0 && (
               <Section title="Questions that would help" note="Only what your report does not say yet. Skip anything you do not know or would rather not answer.">

@@ -12,10 +12,14 @@ import {
 import {
   Add, Search, FilterList, Visibility, Edit, FolderOpen,
   CheckCircle, Warning, Circle, RefreshOutlined, LocationOn, Person,
-  AccessTime, ArrowBack, Save, OpenInNew,
+  AccessTime, ArrowBack, Save, OpenInNew, FileDownload,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import { useCases, useCaseStats } from '@/hooks/useApi';
+import { useCases, useCaseStats, useCurrentUser } from '@/hooks/useApi';
+import CaseExportDialog from '@/components/cases/CaseExportDialog';
+import { canExportCases } from '@/lib/caseExport';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
@@ -143,6 +147,8 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
             <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: '#f8fafc' }}>
               <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#475569' }}>{c.description}</Typography>
             </Paper>
+            {/* The reporter's photos, from the stored files */}
+            <Box sx={{ mt: 2 }}><EvidenceGallery caseId={c.id} audience="staff" compact bare /></Box>
             {c.notes && (
               <Box sx={{ mt: 2 }}>
                 <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1 }}>Notes</Typography>
@@ -189,7 +195,9 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
 
 export default function CaseManagementPage() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  // One search bar: what is typed, and what is searched once typing pauses.
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebouncedValue(searchInput.trim(), 300);
   const [statusFilter, setStatusFilter] = useState('');
   const [riskFilter, setRiskFilter] = useState('');
   const [triageFilter, setTriageFilter] = useState('');
@@ -204,8 +212,8 @@ export default function CaseManagementPage() {
     const q = sp.get('search');
     const st = sp.get('status');
     const risk = sp.get('riskLevel');
-    if (cn) { setSearch(cn); setAutoOpenTarget(cn); }
-    else if (q) setSearch(q);
+    if (cn) { setSearchInput(cn); setAutoOpenTarget(cn); }
+    else if (q) setSearchInput(q);
     if (st) setStatusFilter(st);
     if (risk) setRiskFilter(risk);
   }, []);
@@ -219,7 +227,9 @@ export default function CaseManagementPage() {
     return p;
   }, [search, statusFilter, riskFilter, triageFilter, page]);
 
-  const { data, isLoading } = useCases(params);
+  const { data, isLoading } = useCases(params, { keepPreviousData: true });
+  const { data: me } = useCurrentUser();
+  const [exporting, setExporting] = useState(false);
   const { data: stats } = useCaseStats();
 
   const cases: CaseRow[] = data?.cases ?? [];
@@ -246,14 +256,24 @@ export default function CaseManagementPage() {
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Case Management</Typography>
           <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Manage, track and resolve blotter cases</Typography>
         </Box>
-        <Button
-          variant="contained" startIcon={<Add />}
-          onClick={() => router.push('/blotter-officer/walk-in-report')}
-          sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, fontWeight: 600 }}
-        >
-          New Case
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {/* Officials who may export; the server checks the role and every row again */}
+          {canExportCases(me?.role) && (
+            <Button variant="outlined" startIcon={<FileDownload />} onClick={() => setExporting(true)}
+              sx={{ borderRadius: 2, fontWeight: 600, borderColor: '#0c1e46', color: '#0c1e46' }}>
+              Export CSV
+            </Button>
+          )}
+          <Button
+            variant="contained" startIcon={<Add />}
+            onClick={() => router.push('/blotter-officer/walk-in-report')}
+            sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, fontWeight: 600 }}
+          >
+            New Case
+          </Button>
+        </Box>
       </Box>
+      {exporting && <CaseExportDialog onClose={() => setExporting(false)} />}
 
       {/* Summary cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -279,9 +299,9 @@ export default function CaseManagementPage() {
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
             <TextField
-              size="small" placeholder="Search by name, case ID, type…"
-              value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-              slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 16 }} /></InputAdornment> } }}
+              size="small" placeholder="Search case no., reporter, respondent, type or incident date…"
+              value={searchInput} onChange={e => { setSearchInput(e.target.value); setPage(1); }}
+              slotProps={{ htmlInput: { 'aria-label': 'Search cases', maxLength: 100 }, input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 16 }} /></InputAdornment> } }}
               sx={{ flex: 1, minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
             <FormControl size="small" sx={{ minWidth: 140 }}>
@@ -307,8 +327,8 @@ export default function CaseManagementPage() {
                 {TRIAGE_VALUES.map(t => <MenuItem key={t} value={t}>{TRIAGE[t].label}</MenuItem>)}
               </Select>
             </FormControl>
-            {(search || statusFilter || riskFilter || triageFilter) && (
-              <Button size="small" variant="outlined" onClick={() => { setSearch(''); setStatusFilter(''); setRiskFilter(''); setTriageFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
+            {(searchInput || statusFilter || riskFilter || triageFilter) && (
+              <Button size="small" variant="outlined" onClick={() => { setSearchInput(''); setStatusFilter(''); setRiskFilter(''); setTriageFilter(''); setPage(1); }} sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#64748b' }}>
                 Clear
               </Button>
             )}
@@ -318,6 +338,10 @@ export default function CaseManagementPage() {
               </IconButton>
             </Tooltip>
           </Box>
+          {/* How a date in the search was read - said, never silently assumed */}
+          {search && data?.search?.note && (
+            <Typography role="status" sx={{ fontSize: '0.78rem', color: '#475569', mt: 1 }}>{data.search.note}</Typography>
+          )}
         </CardContent>
       </Card>
 

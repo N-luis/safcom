@@ -33,8 +33,9 @@ To import from elsewhere: `npx tsx --env-file=.env scripts/ingest-risk-matrices.
 - `lib/riskMatrices.ts` — each level's label and indicators, verbatim, and which reported facts meet each indicator. The highest level with a met indicator is the level; none met = no level (`NEEDS_MORE_INFORMATION` or `FOR_REVIEW`).
 - `lib/knowledgeBase.ts` — `searchMatrix()` (pg_trgm `word_similarity`, parameterised). Retrieval cites and checks the source; it never sets a level.
 - `lib/intakeServer.ts` — runs the assessment, cites the matching level's row, and records whether the matched criteria appear word for word in the imported text (`sourceVerified`).
+- `lib/aiAssessment.ts` — the Groq reading (free plan, server-side key). The report - with phone numbers, e-mail addresses and the resident's name removed - and the retrieved level rows of the matrix it is assessed against (BLOTTER, VAWC, or both when the desk is unclear) go to Groq; it returns facts and criteria, each of which must quote the report and the matrix word for word or it is discarded. Its level is shown beside the rules' level; it never sets the queue level. A report over 2,400 characters is read in sections and the findings combined, so nothing late in a long report is lost. The matrix version used (file hash and import date) is stored with every assessment.
 
-No external AI provider is used. Nothing from a report leaves the server.
+The rules read every report in full and need no external service; if Groq cannot be reached, the report is still filed and assessed by the rules.
 
 ## Tests
 

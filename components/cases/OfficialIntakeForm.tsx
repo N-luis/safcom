@@ -645,7 +645,7 @@ function CaseSection({ ctx, caseId }: { ctx: Context; caseId: string }) {
       <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, mb: 2 }}>
         <Typography sx={{ fontSize: '0.88rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{c.narrative || 'Not provided'}</Typography>
       </Box>
-      {/* Contact details: masked, revealed only through the logged endpoint. */}
+      {/* Reporter information: masked until viewed through the logged endpoint. */}
       <ReporterInfoPanel caseId={caseId} />
     </Box>
   );

@@ -59,7 +59,7 @@ const PLACE_OPTIONS = ['Conjugal Home', "Victim's Home", "Perpetrator's Home", '
 
 export const TEMPLATES: Record<TemplateName, { title: string; sections: string[]; fields: TemplateField[] }> = {
   BLOTTER: {
-    title: 'Barangay Blotter Report',
+    title: 'Blotter Intake Report',
     sections: ['Administrative information', 'Complainant information', 'Respondent information', 'Incident date, time and location',
       'Incident description', 'Complaint or requested action', 'Initial action and supporting documentation'],
     fields: [
@@ -199,7 +199,59 @@ export interface DraftField {
   note?: string | null;
   /** The narrative: what later versions added, kept apart from the original. */
   additions?: { version: number; source: string; text: string }[];
+  /** Another recorded detail says something different (e.g. the report's own words) - kept, not overwritten. */
+  conflictWith?: string | null;
+  /** An official's edit or confirmation: who (user id and name) and when (ISO). */
+  by?: string | null;
+  byName?: string | null;
+  at?: string | null;
+  /** A confirmation: where the confirmed value came from. */
+  confirmedFrom?: FieldStatus | null;
+  /** The form's own answer for a question with no value: N/A, Unknown, Declined to answer. */
+  marker?: 'na' | 'unknown' | 'declined' | null;
 }
 export type DraftFields = Record<string, DraftField>;
 
 export const countNeedsConfirmation = (f: DraftFields) => Object.values(f).filter(x => x.status === 'NEEDS_CONFIRMATION').length;
+
+/** The form's answers for a question that has no value (lib/officialIntakeForm MARKER_LABEL) - never invented values. */
+export const FIELD_MARKERS = { unknown: 'Unknown', declined: 'Declined to answer', na: 'N/A' } as const;
+
+const BLOTTER_ITEMS: Record<string, { applies?: unknown }> = Object.fromEntries(BLOTTER_INTAKE_SECTIONS.flatMap(s => s.items.map(i => [i.key, i])));
+/**
+ * The template fields the official form always requires - items with no
+ * condition on them (lib/officialIntakeForm, lib/blotterIntakeForm). A required
+ * field is answered with a value or one of the form's markers before approval.
+ */
+export function requiredKeys(t: TemplateName): string[] {
+  const items: Record<string, { applies?: unknown }> = t === 'VAWC' ? ITEM_BY_KEY : BLOTTER_ITEMS;
+  return TEMPLATES[t].fields.filter(f => items[f.key] && !items[f.key].applies).map(f => f.key);
+}
+
+export type AttentionReason = 'missing' | 'unclear' | 'conflict' | 'verify' | 'response';
+export interface Attention { key: string; label: string; section: string; reason: AttentionReason; required: boolean; field: DraftField }
+/**
+ * What an official still has to look at in a draft: missing, unclear,
+ * conflicting, organized by SafeComm AI and not yet confirmed, or answered by
+ * the resident in response to a clarification request (`responseVersions`:
+ * the report versions that are such responses) - an official decides whether
+ * the draft keeps it. The case's records and officials' own entries are not
+ * listed. The original narrative never is.
+ */
+export function needsAttention(t: TemplateName, fields: DraftFields, responseVersions: ReadonlySet<number> = new Set()): Attention[] {
+  const req = new Set(requiredKeys(t));
+  const out: Attention[] = [];
+  for (const f of TEMPLATES[t].fields) {
+    if (f.key === 'narrative' || f.key === 'description') continue;
+    const v = fields[f.key] ?? { value: null, status: 'NEEDS_CONFIRMATION' as FieldStatus, source: null };
+    if (v.status === 'OFFICIAL') continue;
+    const reason: AttentionReason | null = v.status === 'NEEDS_CONFIRMATION' ? 'missing'
+      : v.conflictWith ? 'conflict'
+      : v.status === 'UNVERIFIED' ? 'unclear'
+      : v.status === 'AI_ORGANIZED' || ((v.status === 'ORIGINAL' || v.status === 'NEW') && v.note !== 'From a recorded interview') ? 'verify'
+      : v.status === 'RESIDENT_CONFIRMED' && /^v\d+$/.test(v.source ?? '') && responseVersions.has(Number(v.source!.slice(1))) ? 'response'
+      : null;
+    if (reason) out.push({ key: f.key, label: f.label, section: f.section, reason, required: req.has(f.key), field: v });
+  }
+  return out;
+}

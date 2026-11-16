@@ -56,12 +56,14 @@ export interface AnalyzingCardProps {
   onViewResult: () => void;
   onSubmitForReview: () => void;
   accent?: string;
+  /** Photos being sent with the report: what, and how far (0-100). Null when none. */
+  upload?: { label: string; percent: number } | null;
 }
 
 export default function AnalyzingCard({
   phase, current, stages, stageRatio, minimized, slow, error,
   onMinimize, onExpand, onCancel, onRetry, onViewResult, onSubmitForReview,
-  accent = '#14b8a6',
+  accent = '#14b8a6', upload = null,
 }: AnalyzingCardProps) {
   const { t } = useLanguage();
   const running = phase === 'preparing' || phase === 'reading_document' || phase === 'assessing';
@@ -240,6 +242,17 @@ export default function AnalyzingCard({
               </Box>
             );
           })}
+
+          {/* The photos' own progress - real bytes sent, not an estimate */}
+          {upload && running && (
+            <Box role="status" sx={{ mt: 1 }}>
+              <Typography sx={{ fontSize: '0.8rem', color: '#334155', fontWeight: 600 }}>
+                {upload.percent < 100 ? `${upload.label} - ${upload.percent}%` : `${upload.label} - sent`}
+              </Typography>
+              <LinearProgress variant="determinate" value={upload.percent} aria-label={upload.label}
+                sx={{ mt: 0.5, height: 6, borderRadius: 3, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: '#0369a1' } }} />
+            </Box>
+          )}
 
           <LinearProgress
             // Indeterminate while a stage cannot report its own progress, so the

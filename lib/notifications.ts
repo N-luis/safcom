@@ -92,7 +92,7 @@ export function residentNotice(
   if (type === 'clarification_request') {
     // General words only - never what was asked. The questions are in the
     // report details, behind the resident's own login (safer for VAWC too).
-    return { message: 'The barangay asked for more information about your report. Open it in My Cases to answer - you can skip anything you cannot or would rather not answer.', entryLabel: 'Request for information' };
+    return { message: 'An official reviewing your report needs clarification. Please open your case to review and respond.', entryLabel: 'Additional Information Requested' };
   }
 
   if (type === 'assignment') {

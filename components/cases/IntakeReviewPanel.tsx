@@ -71,8 +71,6 @@ export interface IntakeRecord {
   urgentReview?: boolean;
 }
 
-const AFFECTED: Record<string, string> = { REPORTER: 'the reporter', OTHER_PERSON: 'someone other than the reporter', UNCLEAR: 'unclear' };
-const KNOWLEDGE: Record<string, string> = { DIRECT: 'saw or experienced it', HEARD: 'heard it', TOLD_BY_OTHERS: 'was told by others', UNCLEAR: 'unclear' };
 const ANSWER: Record<string, string> = { yes: 'Yes', no: 'No', unsure: "Don't know" };
 
 export interface HistoryRow {
@@ -234,100 +232,7 @@ export default function IntakeReviewPanel({ intake, history }: {
             </Box>
           )}
 
-          {/* The AI reader: what it found, each with the resident's words */}
-          {intake.aiReading && (
-            <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1.25, bgcolor: '#fcfcfd' }}>
-              <Typography sx={label}>AI reading at filing</Typography>
-              {intake.aiReading.used ? (
-                <>
-                  <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center', flexWrap: 'wrap', my: 0.5 }}>
-                    <Typography sx={{ fontSize: '0.86rem', color: '#0c1e46' }}>
-                      {intake.aiReading.category
-                        ? <>Read as <b>{intake.aiReading.category}</b> <Box component="span" sx={{ color: '#94a3b8' }}>({intake.aiReading.categoryConfidence} confidence)</Box></>
-                        : 'No category clearly supported'}
-                    </Typography>
-                    {intake.aiReading.category && (
-                      <Chip size="small"
-                        label={intake.aiReading.category === intake.suggestedCaseCategory ? 'Agrees with the rules' : 'Differs from the rules'}
-                        sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700,
-                          bgcolor: intake.aiReading.category === intake.suggestedCaseCategory ? '#ecfdf5' : '#fffbeb',
-                          color: intake.aiReading.category === intake.suggestedCaseCategory ? '#047857' : '#a16207' }} />
-                    )}
-                  </Box>
-                  {intake.aiReading.facts.map(f => (
-                    <Typography key={f.key} sx={{ fontSize: '0.8rem', color: '#334155' }}>
-                      • <b>{f.key}</b> <Box component="span" sx={{ color: '#64748b' }}>— “{f.quote}”</Box>
-                    </Typography>
-                  ))}
-                  {intake.aiReading.reasons.map(r => (
-                    <Typography key={r} sx={{ fontSize: '0.78rem', color: '#475569', mt: 0.25 }}>{r}</Typography>
-                  ))}
-                  {intake.aiReading.alternativeCategories.length > 0 && (
-                    <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mt: 0.5 }}>
-                      AI says it could also fit: {intake.aiReading.alternativeCategories.join(', ')}
-                    </Typography>
-                  )}
-                  {intake.aiReading.dropped > 0 && (
-                    <Typography sx={{ fontSize: '0.74rem', color: '#a16207', mt: 0.5 }}>
-                      {intake.aiReading.dropped} item{intake.aiReading.dropped === 1 ? ' was' : 's were'} discarded because the quoted words were not in the report.
-                    </Typography>
-                  )}
-                </>
-              ) : null}
-              {/* The assessment against the retrieved matrix text, kept apart from the facts */}
-              {intake.aiReading.assessment && (() => {
-                const a = intake.aiReading.assessment;
-                return (
-                  <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #e2e8f0' }}>
-                    <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#0c1e46' }}>
-                      AI preliminary assessment{a.framework ? ` — ${a.framework === 'VAWC' ? 'VAWC' : 'Blotter'} matrix` : ''}
-                    </Typography>
-                    {a.status === 'ASSESSMENT_UNAVAILABLE' ? (
-                      <Typography sx={{ fontSize: '0.78rem', color: '#a16207' }}>Assessment unavailable: {a.unavailableReason}</Typography>
-                    ) : (
-                      <>
-                        <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center', my: 0.25 }}>
-                          <Typography sx={{ fontSize: '0.82rem', color: '#0c1e46' }}>
-                            {a.level ? <b>Level {a.level} — {a.label}</b> : 'No level — no criterion clearly met'}
-                            {a.suggestedCategory && <Box component="span" sx={{ color: '#64748b' }}> · {a.suggestedCategory}</Box>}
-                          </Typography>
-                          <Chip size="small" label={STATUS[a.classificationStatus]?.label ?? a.classificationStatus}
-                            sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#f1f5f9', color: '#475569' }} />
-                          {a.urgentHumanReview && (
-                            <Chip size="small" label="Urgent review recommended" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#b91c1c' }} />
-                          )}
-                        </Box>
-                        {a.understanding && <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>{a.understanding}</Typography>}
-                        {a.criteria.map((c, i) => (
-                          <Typography key={i} sx={{ fontSize: '0.78rem', color: '#334155' }}>
-                            • <b>L{c.level}</b> “{c.criterion}” <Box component="span" sx={{ color: '#94a3b8' }}>[{c.source}]</Box>
-                            <Box component="span" sx={{ color: '#64748b' }}> — reported as “{c.reportQuote}”</Box>
-                          </Typography>
-                        ))}
-                        <Typography sx={{ fontSize: '0.76rem', color: '#64748b', mt: 0.25 }}>
-                          Affected: {AFFECTED[a.affectedPerson] ?? a.affectedPerson} · Reporter {KNOWLEDGE[a.reporterKnowledge] ?? a.reporterKnowledge}
-                        </Typography>
-                        {a.recommendedNextAction && <Typography sx={{ fontSize: '0.76rem', color: '#334155' }}><b>Suggested next action:</b> {a.recommendedNextAction}</Typography>}
-                        {a.missingInformation.length > 0 && <Typography sx={{ fontSize: '0.76rem', color: '#64748b' }}>Missing: {a.missingInformation.join('; ')}</Typography>}
-                        {a.uncertainty.length > 0 && <Typography sx={{ fontSize: '0.76rem', color: '#a16207' }}>Uncertain: {a.uncertainty.join('; ')}</Typography>}
-                        {a.droppedCriteria > 0 && (
-                          <Typography sx={{ fontSize: '0.74rem', color: '#a16207' }}>{a.droppedCriteria} cited criteria were not in the matrix text and were discarded.</Typography>
-                        )}
-                        <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.25 }}>
-                          Sources: {a.sources.map(s => `${s.sid} ${s.documentType}${s.riskLevel ? ` L${s.riskLevel}` : ` ${s.sectionTitle}`}`).join(' · ')}
-                          {a.frameworkStatus ? ` — ${a.frameworkStatus}` : ''}
-                        </Typography>
-                      </>
-                    )}
-                  </Box>
-                );
-              })()}
-              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.75, fontStyle: 'italic' }}>
-                {intake.aiReading.note}{intake.aiReading.model ? ` Model: ${intake.aiReading.model} (Groq free plan).` : ''}
-                {' '}The AI suggests; the risk matrix sets the level and an officer decides.
-              </Typography>
-            </Box>
-          )}
+          {/* "AI reading at filing" is not shown to officials: the category and level they act on are above and in the assessment card. */}
 
           {/* The AI interview, exactly as it went */}
           {intake.aiInterview && intake.aiInterview.turns.length > 0 && (

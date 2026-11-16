@@ -1,0 +1,249 @@
+{
+  "name": "SafeComm classification evaluation set",
+  "version": 1,
+  "reviewStatus": "PROPOSED - every label below was derived by the developer from the two imported risk matrices (knowledge/sources) and SafeComm's documented readings (knowledge/MATRIX_REVIEW.md). They have NOT yet been confirmed by qualified barangay or VAWC desk reviewers. Until they are, results measured against them show agreement with these proposed labels, not accuracy.",
+  "privacy": "Every narrative is fictional, written for this set. No resident report, name, address or phone number is used.",
+  "labelRules": {
+    "desk": "BLOTTER | VAWC | NEEDS_CLARIFICATION | NEEDS_OFFICER_REVIEW (SafeComm's HUMAN_REVIEW). acceptableDesks lists other outcomes a reviewer would accept as safe.",
+    "caseTypes": "SafeComm category names. The first is the expected one; any listed one counts as correct.",
+    "level": "The five-level matrix level (1 LOW, 2 MODERATE, 3 HIGH, 4 CRITICAL, 5 EXTREME) of the matrix for the expected desk, or null when the matrix cannot be applied yet (missing information) or has no criterion for what is reported. acceptableLevels lists other levels a reviewer would accept.",
+    "urgent": "true when the case must be flagged for urgent human review: someone is said to be in danger now or the danger is about to happen, a VAWC Level 4-5 indicator is met (the matrix's Suggested Action: 'Treat as an emergency'), a Blotter Level 5 indicator is met, or someone needs medical help now. A property crime that has ended is not urgent.",
+    "needsClarification": "true when the desk or the level cannot be decided responsibly from what is written, so the resident should be asked. null = not scored for this case."
+  },
+  "cases": [
+    {
+      "id": "short-push-spouse", "tags": ["short", "vawc", "incomplete"], "relationship": "SELF",
+      "narrative": "Tinulak ako ng asawa ko.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence", "Physical Abuse"], "level": null, "urgent": false, "needsClarification": true },
+      "basis": "A partner and a push: VAWC. 'Physical assault' is listed only under Level 4 'Violence Occurring / Imminent'; the report does not say when it happened or whether it continues (MATRIX_REVIEW.md 1), so the level is undetermined until the resident is asked."
+    },
+    {
+      "id": "short-videoke", "tags": ["short", "blotter"], "relationship": "SELF",
+      "narrative": "Ang lakas ng videoke ng kapitbahay namin hanggang alas-dos ng madaling araw kagabi. Hindi kami makatulog.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Noise Complaint", "Public Nuisance"], "level": 1, "urgent": false, "needsClarification": false },
+      "basis": "Blotter Level 1 'Curfew noise violations'. No repetition stated."
+    },
+    {
+      "id": "short-phone-theft", "tags": ["short", "blotter"], "relationship": "SELF",
+      "narrative": "Nadukutan ako ng cellphone sa jeep kaninang umaga papuntang palengke.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Theft & Robbery"], "level": 4, "urgent": false, "needsClarification": false },
+      "basis": "Blotter Level 4 lists 'theft or robbery' without qualification; SafeComm applies it as written (knowledge/README.md). Ended property crime: not urgent."
+    },
+    {
+      "id": "short-vague-neighbor", "tags": ["short", "incomplete", "ambiguous"], "relationship": "SELF",
+      "narrative": "May problema po kami sa kapitbahay namin.",
+      "expected": { "desk": "NEEDS_CLARIFICATION", "acceptableDesks": ["NEEDS_OFFICER_REVIEW"], "caseTypes": ["Other", "Public Nuisance"], "level": null, "urgent": false, "needsClarification": true },
+      "basis": "Nothing says what happened: no category, no level."
+    },
+    {
+      "id": "short-choking-past", "tags": ["short", "vawc"], "relationship": "SELF",
+      "narrative": "Sinakal ako ng asawa ko kagabi habang nag-aaway kami.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence", "Physical Abuse"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "VAWC Level 4 'strangulation/choking', applied as written whatever the timing (MATRIX_REVIEW.md 1, question 3). Level 4 Suggested Action: 'Treat as an emergency'."
+    },
+    {
+      "id": "long-livein-knife-at-end", "tags": ["long", "multi-paragraph", "multi-incident", "vawc", "emergency", "detail-at-end"], "relationship": "SELF",
+      "narrative": "Magandang araw po. Gusto ko pong i-report ang mga nangyayari sa bahay namin dito sa Purok 4. Matagal ko na po itong tinitiis at ngayon lang po ako naglakas-loob na magsumbong.\n\nNoong una po, mabait naman ang live-in partner ko. Nagsama kami mga tatlong taon na ang nakaraan. May dalawa kaming anak, isang anim na taong gulang at isang tatlong taong gulang. Nagtatrabaho siya bilang construction worker at ako naman ay nagbebenta ng ulam sa harap ng bahay.\n\nNagsimula po ang problema noong nawalan siya ng trabaho noong isang taon. Madalas na siyang umiinom kasama ang mga kaibigan niya sa kanto. Pag-uwi niya, lagi siyang galit at sinisigawan ako sa harap ng mga bata. Kinukuha rin niya ang kinikita ko sa pagtitinda at hindi na niya ako binibigyan ng pera para sa pagkain ng mga bata.\n\nHindi rin po niya ako pinapayagang lumabas ng bahay maliban kung kasama siya. Tinitingnan niya ang cellphone ko araw-araw at binura niya ang mga numero ng mga kapatid ko. Sinasabi niya na kapag umalis ako, hindi ko na makikita ang mga anak ko.\n\nIlang beses na rin po niya akong tinulak at sinampal noong mga nakaraang buwan, lalo na kapag lasing siya. Minsan po nagkapasa ako sa braso pero hindi na ako nagpatingin sa doktor. Hindi ko po ito sinabi kahit kanino dahil nahihiya ako at natatakot.\n\nKahapon po ng hapon, nag-away kami dahil sa pera para sa gatas ng bunso. Sinigawan niya ako at binato ng plato pero hindi naman ako tinamaan. Umiyak ang mga bata at nagtago sila sa kwarto.\n\nPero ang pinakanakakatakot po ay kagabi. Bandang alas-onse ng gabi, umuwi siyang lasing at may dalang kutsilyo. Itinutok niya sa akin ang kutsilyo at sinabi niyang papatayin niya ako kapag nagsumbong ako sa barangay. Nandito pa rin po siya sa bahay ngayon at natutulog, at natatakot po ako na baka gawin niya ang sinabi niya paggising niya.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "Last paragraph: a knife pointed at her (Level 4 'weapon displayed') and a threat to kill, with him still in the house now (Level 4 'credible imminent threat to kill'). Earlier paragraphs add Level 3 'coercive control' and repeated force by a partner ('escalating intimate-partner violence')."
+    },
+    {
+      "id": "long-neighbor-assault-at-end", "tags": ["long", "multi-paragraph", "multi-incident", "blotter", "detail-at-end"], "relationship": "SELF",
+      "narrative": "Ilang buwan na po kaming may problema sa pamilya sa katabing bahay namin sa Purok 6. Noong una, tungkol lang sa basura. Iniiwan nila ang mga supot ng basura sa tapat ng gate namin at hindi kinukuha ng trak dahil hindi nakatali. Ilang beses na namin silang kinausap nang maayos.\n\nPagkatapos noon, nagsimula naman ang problema sa paradahan. Ipinaparada nila ang owner-type jeep nila sa harap mismo ng gate namin kaya hindi makalabas ang tricycle ng tatay ko na ginagamit niya sa pamamasada. Nagkaroon na ng sigawan dahil dito pero walang nanakit noon.\n\nNoong isang buwan, may malakas na inuman sa kanila hanggang madaling-araw halos tuwing Sabado. Nakiusap ang nanay ko na hinaan ang tugtog dahil may sakit ang lola namin, pero tinawanan lang siya.\n\nKahapon po ng hapon, nang sitahin ng tatay ko ang anak nilang binata dahil sa pagparada ulit sa harap ng gate, sinuntok siya nito sa mukha. Pumutok ang labi ng tatay ko at kinailangan siyang tahiin sa health center. Nakauwi na siya at nagpapahinga ngayon. Gusto po naming maipa-blotter ito.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Assault"], "level": 4, "urgent": false, "needsClarification": false },
+      "basis": "Last paragraph: a punch that split the lip and needed stitches = Blotter Level 4 'Serious physical assault' (force with an injury needing treatment). Treated and home: not urgent now. Earlier paragraphs: sanitation, parking quarrels, noise (Level 1-2)."
+    },
+    {
+      "id": "long-ex-stalking-en", "tags": ["long", "multi-paragraph", "vawc", "english", "detail-at-end"], "relationship": "SELF",
+      "narrative": "I want to report my ex-boyfriend. We broke up about four months ago because he was very jealous and controlling. Since then he has not stopped contacting me.\n\nAt first it was messages every day asking me to come back. I blocked his number, but he made new accounts on Facebook and Instagram and kept sending messages, sometimes thirty in one night. He also messages my friends and my younger sister asking where I am.\n\nLast month I started seeing him near our street in the evenings. He would just stand across the road. Two weeks ago he was at the jeepney terminal when I came home from work, and he said he only wanted to talk.\n\nYesterday he waited outside my office and followed me all the way home. When I told him to stop, he said he would hurt me if I did not come back to him. I am scared to go to work tomorrow.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Stalking", "Domestic Violence", "VAWC - Other"], "level": 3, "urgent": false, "needsClarification": false },
+      "basis": "Former dating partner (RA 9262 scope). Level 3 'repeated stalking with threats' and 'Explicit threat to hurt someone'. Nothing says he is there now: not urgent."
+    },
+    {
+      "id": "long-child-stepfather-at-end", "tags": ["long", "multi-paragraph", "vawc", "taglish", "detail-at-end", "emergency"], "relationship": "ON_BEHALF",
+      "narrative": "Hello po, I am writing for my daughter. Siya po ay walong taong gulang. Nakatira kami kasama ang partner ko, na hindi niya tunay na ama, mula pa noong 2023.\n\nMabait naman po siya noong una, pero lately he gets angry easily, lalo na kapag galing sa inuman. Pinagagalitan niya ang anak ko dahil sa maliliit na bagay, like hindi pagliligpit ng laruan o mabagal kumain. Minsan pinapaluhod niya sa sulok nang matagal.\n\nSinubukan ko siyang kausapin pero sinasabi niya na disiplina lang daw iyon at huwag akong makialam. My daughter is now afraid to go home after school and she cries at night.\n\nKagabi po, pinalo niya ng sinturon ang anak ko hanggang magkapasa ang mga binti niya. Wala po ako noon dahil nasa trabaho ako. Natatakot po ako na saktan na naman niya ang anak ko mamaya pag-uwi niya galing inuman.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Child Abuse", "Physical Abuse", "Domestic Violence"], "level": 4, "acceptableLevels": [null], "urgent": true, "needsClarification": false },
+      "basis": "The mother reports force against her child, with fear it will happen again later tonight ('mamaya pag-uwi niya') - violence about to happen = Level 4 'Physical assault' read within 'Violence Occurring / Imminent'. A reviewer may hold the level undetermined until it is confirmed he will return tonight."
+    },
+    {
+      "id": "multi-para-boundary-debt", "tags": ["multi-paragraph", "multi-incident", "blotter", "taglish"], "relationship": "SELF",
+      "narrative": "Una po, inilipat ng kapitbahay namin ang bakod niya nang mga isang metro papasok sa lupa namin noong isang buwan. Nag-usap na kami pero ayaw niyang ibalik.\n\nPangalawa po, may utang pa siya sa amin na 5,000 pesos mula pa noong Mayo at hindi pa rin nagbabayad kahit ilang beses na naming siningil.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Public Nuisance", "Other"], "level": 2, "urgent": false, "needsClarification": false },
+      "basis": "Blotter Level 2 'property line disputes' and 'Unpaid small monetary debts'. Two issues, one neighbour; neither involves harm."
+    },
+    {
+      "id": "multi-incident-dog-then-pipe", "tags": ["multi-paragraph", "multi-incident", "blotter"], "relationship": "SELF",
+      "narrative": "Noong isang linggo, kinagat ng aso ng kapitbahay ang anak kong lalaki habang naglalaro sa labas. Nagpaturok na kami ng anti-rabies.\n\nKahapon, nang kausapin ko ang kapitbahay tungkol dito, hinawakan niya ang tubo at sinabing hahampasin niya ako kapag nagreklamo pa ako.",
+      "expected": { "desk": "BLOTTER", "acceptableDesks": ["NEEDS_OFFICER_REVIEW"], "caseTypes": ["Assault", "Animal Bite/Concern"], "level": 4, "urgent": false, "needsClarification": false },
+      "basis": "Second incident: a pipe held while threatening = Blotter Level 4 'weapon-related threats'. First incident: a dog bite (no Blotter indicator). The child was bitten by a dog, not harmed by a family member: not a VAWC matter. An officer review is an acceptable safe outcome."
+    },
+    {
+      "id": "vawc-escalating-multi-incident", "tags": ["multi-incident", "vawc"], "relationship": "SELF",
+      "narrative": "Noong Enero, sinampal ako ng asawa ko. Noong Marso, tinulak niya ako sa pader. Ngayong buwan, sinabi niyang sasaktan niya ako ulit kapag umalis ako ng bahay. Kinukuha rin niya ang sweldo ko.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence", "Economic Abuse"], "level": 3, "urgent": false, "needsClarification": false },
+      "basis": "Repeated force by a partner plus a threat = Level 3 'escalating intimate-partner violence' and 'Explicit threat to hurt someone'. Nothing says it is happening now."
+    },
+    {
+      "id": "incomplete-fear", "tags": ["short", "incomplete", "ambiguous"], "relationship": "SELF",
+      "narrative": "May nangyari po sa bahay kagabi. Natatakot po ako.",
+      "expected": { "desk": "NEEDS_CLARIFICATION", "acceptableDesks": ["NEEDS_OFFICER_REVIEW"], "caseTypes": ["Other", "VAWC - Other"], "level": null, "urgent": false, "needsClarification": true },
+      "basis": "Fear is stated but not what happened or who was involved. Ask, do not assume."
+    },
+    {
+      "id": "incomplete-ginugulo", "tags": ["short", "incomplete"], "relationship": "SELF",
+      "narrative": "Ginugulo kami ng kapitbahay namin.",
+      "expected": { "desk": "NEEDS_CLARIFICATION", "acceptableDesks": ["NEEDS_OFFICER_REVIEW"], "caseTypes": ["Other", "Public Nuisance"], "level": null, "urgent": false, "needsClarification": true },
+      "basis": "'Bothering us' does not say what was done."
+    },
+    {
+      "id": "ambiguous-uncle-punch", "tags": ["short", "ambiguous"], "relationship": "SELF",
+      "narrative": "Sinuntok ako ng tito ko sa harap ng bahay namin dahil sa away sa lupa.",
+      "expected": { "desk": "NEEDS_OFFICER_REVIEW", "acceptableDesks": ["BLOTTER", "VAWC"], "caseTypes": ["Assault", "Physical Abuse"], "level": 3, "acceptableLevels": [null], "urgent": false, "needsClarification": false },
+      "basis": "Force by a relative over land. RA 9262 covers violence by a partner, or against a woman's child; an uncle against an adult is outside it, but the reporter's age and sex are not stated, so an officer decides the desk. On the Blotter matrix: Level 3 'minor physical altercations without severe injury'; on the VAWC matrix the level would wait for the timing."
+    },
+    {
+      "id": "ambiguous-emotional-economic", "tags": ["short", "vawc", "ambiguous"], "relationship": "SELF",
+      "narrative": "Lagi akong sinisigawan at minumura ng asawa ko sa harap ng mga anak namin, at hindi na niya ako binibigyan ng pera pambili ng pagkain.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Emotional Abuse", "Economic Abuse", "Domestic Violence", "VAWC - Other"], "level": 2, "acceptableLevels": [3, null], "urgent": false, "needsClarification": false },
+      "basis": "Repeated verbal abuse by a partner = Level 2 'escalating relationship/domestic dispute'. Withholding money may be read as Level 3 'coercive control'; the matrix has no economic-abuse indicator."
+    },
+    {
+      "id": "vawc-groping-supervisor", "tags": ["short", "vawc"], "relationship": "SELF",
+      "narrative": "Hinipuan ako ng supervisor ko sa bodega kahapon at sinabihan pa ako ng bastos na salita.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Sexual Harassment"], "level": 3, "urgent": false, "needsClarification": false },
+      "basis": "Unwanted touching = Level 3 'serious sexual harassment' (RA 11313 is cited in the VAWC matrix)."
+    },
+    {
+      "id": "vawc-ex-messages", "tags": ["short", "vawc"], "relationship": "SELF",
+      "narrative": "Paulit-ulit na nagme-message at tumatawag ang dati kong boyfriend gabi-gabi kahit ilang beses ko nang sinabing tigilan na niya ako.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Stalking", "VAWC - Other", "Sexual Harassment"], "level": 2, "urgent": false, "needsClarification": false },
+      "basis": "Former dating partner. Level 2 'Repeated unwanted messages'."
+    },
+    {
+      "id": "vawc-rape-stepfather", "tags": ["short", "vawc", "emergency"], "relationship": "SELF",
+      "narrative": "Ginahasa po ako ng stepfather ko noong isang linggo. Nakatira pa rin kami sa iisang bahay.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Sexual Violence", "Child Abuse"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "Level 4 'sexual assault'; she still lives with him. Level 4 Suggested Action: 'Treat as an emergency'."
+    },
+    {
+      "id": "vawc-confined-en", "tags": ["short", "vawc", "english", "emergency"], "relationship": "SELF",
+      "narrative": "My husband has locked me inside our bedroom since last night and took my phone. I am using my sister's old phone that I hid. He is outside the door now.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "Level 4 'forced confinement', ongoing."
+    },
+    {
+      "id": "vawc-third-party-ongoing", "tags": ["short", "vawc", "emergency", "third-party"], "relationship": "THIRD_PARTY",
+      "narrative": "Gabi-gabi naming naririnig na sinasaktan ng kapitbahay namin ang asawa niya. Ngayon po, naririnig ko ulit ang sigawan, kalabog, at umiiyak ang babae.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "A neighbour reports a partner's violence heard happening now: Level 4 'Physical assault' (occurring). The reporter is a witness, not the person harmed."
+    },
+    {
+      "id": "blotter-vandalism-kids", "tags": ["short", "blotter", "no-matrix-criterion"], "relationship": "SELF",
+      "narrative": "Binato ng mga batang taga-kabilang kalye ang bintana ng tindahan namin kaninang hapon at nabasag ito.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Vandalism"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "Deliberate damage is not a listed Blotter indicator ('minor accidental property damage' is accidental). The children are the ones who did it; not a VAWC matter."
+    },
+    {
+      "id": "blotter-verbal-parking", "tags": ["short", "blotter"], "relationship": "SELF",
+      "narrative": "Nagtalo kami ng kapitbahay dahil sa paradahan ng tricycle. Nagsigawan lang kami, walang nanakit at walang nagbanta.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Public Nuisance"], "level": 1, "urgent": false, "needsClarification": false },
+      "basis": "Blotter Level 1 'non-threatening verbal misunderstandings'."
+    },
+    {
+      "id": "blotter-threat-neighbor", "tags": ["short", "blotter"], "relationship": "SELF",
+      "narrative": "Pinagbantaan ako ng kapitbahay ko na babasagin niya ang mukha ko kapag hindi ko inalis ang tricycle ko sa harap ng bahay niya.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Assault"], "level": 3, "urgent": false, "needsClarification": false },
+      "basis": "Blotter Level 3 'Credible verbal threats'."
+    },
+    {
+      "id": "blotter-drugs", "tags": ["short", "blotter", "no-matrix-criterion"], "relationship": "THIRD_PARTY",
+      "narrative": "Gabi-gabi pong may nag-aabutan ng shabu sa may kanto ng Purok 5.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Drug-Related"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "Only 'severe criminal violations' could apply and no report fact can show it; an officer decides the level."
+    },
+    {
+      "id": "blotter-brawl-knife-now", "tags": ["short", "blotter", "emergency"], "relationship": "THIRD_PARTY",
+      "narrative": "May rambol ngayon sa basketball court! Nagsusuntukan pa sila at may isang may hawak na kutsilyo.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Assault"], "level": 5, "acceptableLevels": [4], "urgent": true, "needsClarification": false },
+      "basis": "An ongoing fight in public with a knife out: Level 5 'events presenting immediate threat to life', or at least Level 4 'ongoing violent altercations in public spaces' and 'weapon-related threats'."
+    },
+    {
+      "id": "blotter-dog-bite-child", "tags": ["short", "blotter", "no-matrix-criterion"], "relationship": "ON_BEHALF",
+      "narrative": "Kinagat ng aso ng kapitbahay ang anak ko kaninang umaga. Dinala namin siya sa health center para sa anti-rabies.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Animal Bite/Concern"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "An animal bite has no Blotter indicator. A child was hurt by a dog, not by a person: not a VAWC matter."
+    },
+    {
+      "id": "contradiction-punch-not-hurt", "tags": ["short", "contradictory"], "relationship": "SELF",
+      "narrative": "Sinuntok ako ng kapitbahay ko kahapon. Pero hindi naman niya ako sinaktan, nag-usap lang kami nang maayos.",
+      "expected": { "desk": "NEEDS_CLARIFICATION", "acceptableDesks": ["NEEDS_OFFICER_REVIEW"], "caseTypes": ["Assault", "Public Nuisance"], "level": null, "acceptableLevels": [3], "urgent": false, "needsClarification": true },
+      "basis": "'Punched me' and 'did not hurt me, we just talked' cannot both be read as written; ask before applying a level."
+    },
+    {
+      "id": "contradiction-answer-now", "tags": ["short", "contradictory", "vawc", "emergency", "clarification"], "relationship": "SELF",
+      "narrative": "Kagabi po ako sinaktan ng asawa ko, tapos na po iyon.",
+      "answers": [{ "slot": "timing", "kind": "option", "value": "yes", "text": "Nandito po siya ulit ngayon at sumisigaw" }],
+      "expected": { "desk": "VAWC", "acceptableDesks": ["NEEDS_CLARIFICATION", "NEEDS_OFFICER_REVIEW"], "caseTypes": ["Domestic Violence"], "level": 4, "acceptableLevels": [null], "urgent": true, "needsClarification": null },
+      "basis": "The narrative says it ended; the later answer says he is back now. Both are kept; the danger now decides urgency."
+    },
+    {
+      "id": "no-matrix-water", "tags": ["short", "blotter", "no-matrix-criterion"], "relationship": "SELF",
+      "narrative": "Tatlong araw na pong walang tubig sa buong Purok 2.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Utility Problem"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "Neither matrix has a criterion for a water outage."
+    },
+    {
+      "id": "no-matrix-streetlight", "tags": ["short", "blotter", "no-matrix-criterion"], "relationship": "SELF",
+      "narrative": "Sira na po ang ilaw sa poste sa kanto ng Sampaguita St., madilim tuwing gabi at delikado sa mga naglalakad.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Infrastructure Issue"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "No matrix criterion for a broken streetlight."
+    },
+    {
+      "id": "no-matrix-support", "tags": ["short", "vawc", "no-matrix-criterion"], "relationship": "SELF",
+      "narrative": "Mula pa noong Enero, hindi na nagbibigay ng sustento ang asawa ko para sa dalawa naming anak.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Economic Abuse", "VAWC - Other"], "level": null, "urgent": false, "needsClarification": false },
+      "basis": "Withholding support is economic abuse under RA 9262, but the VAWC matrix has no indicator for it: the level is for an officer."
+    },
+    {
+      "id": "emergency-knife-now", "tags": ["short", "vawc", "emergency"], "relationship": "SELF",
+      "narrative": "TULONG PO! Sinasaktan ako ngayon ng asawa ko at may hawak siyang kutsilyo!",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence"], "level": 4, "acceptableLevels": [5], "urgent": true, "needsClarification": false },
+      "basis": "Level 4 'Physical assault' (occurring now) and 'weapon displayed'."
+    },
+    {
+      "id": "emergency-breakin-en", "tags": ["short", "blotter", "english", "emergency"], "relationship": "THIRD_PARTY",
+      "narrative": "Someone is breaking into our neighbor's house right now. We can hear glass breaking and the family is away.",
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Theft & Robbery", "Trespassing"], "level": 4, "acceptableLevels": [null], "urgent": true, "needsClarification": false },
+      "basis": "A break-in in progress: Level 4 'theft or robbery' (or, if read only as trespass, no listed indicator). Happening now: urgent."
+    },
+    {
+      "id": "emergency-not-safe-minimal", "tags": ["short", "incomplete", "emergency"], "relationship": "SELF",
+      "narrative": "Hindi po ako ligtas ngayon, nandito pa siya.",
+      "expected": { "desk": "NEEDS_CLARIFICATION", "acceptableDesks": ["NEEDS_OFFICER_REVIEW", "VAWC"], "caseTypes": ["VAWC - Other", "Other"], "level": null, "urgent": true, "needsClarification": true },
+      "basis": "Danger now is stated; nothing else is known. Urgent first, then ask."
+    },
+    {
+      "id": "reassess-push-then-now", "tags": ["short", "vawc", "clarification", "emergency"], "relationship": "SELF",
+      "narrative": "Tinulak ako ng asawa ko.",
+      "answers": [{ "slot": "timing", "kind": "option", "value": "yes", "text": "Nangyayari pa po ngayon, nandito pa siya at nagwawala" }],
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence", "Physical Abuse"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "Same report as short-push-spouse; the answer says it is happening now = Level 4 'Physical assault'."
+    },
+    {
+      "id": "reassess-punch-injury", "tags": ["short", "blotter", "clarification", "emergency"], "relationship": "SELF",
+      "narrative": "Sinuntok ako ng kapitbahay ko kanina.",
+      "answers": [
+        { "slot": "injury", "kind": "option", "value": "yes", "text": "Nabali po ang ilong ko" },
+        { "slot": "injuryCare", "kind": "option", "value": "yes", "text": "Dumudugo pa po, kailangan kong magpatingin" }
+      ],
+      "expected": { "desk": "BLOTTER", "caseTypes": ["Assault"], "level": 4, "urgent": true, "needsClarification": false },
+      "basis": "After the answers: a broken nose needing care = Level 4 'Serious physical assault'; needs medical help now."
+    },
+    {
+      "id": "very-long-unconscious-at-end", "tags": ["long", "very-long", "multi-paragraph", "vawc", "emergency", "detail-at-end"], "relationship": "SELF",
+      "narrative": "Magandang gabi po sa inyo. Pasensya na po kung mahaba ito, pero gusto ko pong maintindihan ninyo ang buong sitwasyon namin bago ako humingi ng tulong. Labindalawang taon na po kaming kasal ng asawa ko. Nagkakilala kami noong nagtatrabaho pa ako sa isang pabrika ng damit sa bayan, at siya naman ay driver ng delivery truck ng parehong kumpanya.\n\nNoong mga unang taon po, maayos naman kami. Nakapagpundar kami ng maliit na bahay dito sa Purok 3 sa tulong ng mga magulang ko, na nagbigay sa amin ng bahagi ng lupa nila. Tatlo po ang anak namin: ang panganay ay sampung taong gulang at nasa Grade 5, ang pangalawa ay pitong taong gulang, at ang bunso ay apat na taong gulang pa lamang.\n\nNoong nagsara ang pabrika noong 2022, nawalan kami pareho ng trabaho. Nag-tricycle driver siya, at ako naman ay naglabada at nagtinda ng kakanin tuwing umaga. Mahirap po, pero nakakaraos kami. Ang problema ay nagsimula siyang mangutang sa iba't ibang tao para sa sugal sa sabungan, at kami ang sinisingil kapag hindi siya nakakabayad.\n\nMadalas po kaming nag-aaway dahil sa pera. Hindi niya ibinibigay ang kita niya sa pamamasada, at kapag tinatanong ko kung saan napunta, nagagalit siya at sinasabing wala akong pakialam. Ilang beses na rin niyang kinuha ang perang naitabi ko para sa pang-enroll ng mga bata.\n\nNoong isang taon po, nagsimula na siyang manakit. Una ay sampal lang kapag nag-aaway kami. Pagkatapos ay tinutulak na niya ako at minsan ay hinihila ang buhok ko. Nagsumbong na ako noon sa nanay ko, pero sinabi niya na pagtiisan ko na lang para sa mga bata. Hindi ko rin po ito naipa-blotter dahil natatakot ako na lalo siyang magalit.\n\nNapansin din po ng guro ng panganay ko na madalas siyang tulala sa klase at umiiyak. Kinausap niya ako at sinabi kong may problema lang kami sa bahay. Ayaw kong malaman ng iba ang nangyayari dahil nahihiya ako.\n\nTuwing Linggo po ay nagsisimba kami ng mga bata sa kapilya sa may plaza. Doon ko lang po nararamdaman na payapa ako. Minsan sumasama rin siya, at sa harap ng ibang tao ay mabait siya at palabiro, kaya walang naniniwala na may problema kami. Kilala siya ng mga kapitbahay bilang matulungin dahil siya ang nagmamaneho kapag may kailangang dalhin sa ospital.\n\nAng mga magulang niya po ay nakatira sa probinsya at hindi namin sila madalas makita. Noong huling bisita nila, sinabi ng biyenan ko na ganoon din daw ang tatay niya noon at normal lang daw iyon sa mag-asawa. Lalo po akong nalito kung ano ang dapat kong gawin.\n\nSinubukan ko rin pong humingi ng tulong sa isang kaibigan na nagtatrabaho sa munisipyo. Sinabi niya na pumunta ako sa barangay o sa VAW desk, pero natakot ako dahil baka malaman ng asawa ko at lalo siyang magalit. Iniisip ko rin kung saan kami titira ng mga bata kung aalis kami ulit.\n\nSa ngayon po, ako ang nag-aasikaso ng lahat sa bahay: ang paghatid at sundo sa mga bata sa eskwela, ang pagluluto, ang paglalaba para sa mga suki ko, at ang pagbabayad ng mga utang niya na hindi ko naman alam kung saan napunta. Pagod na pagod na po ako pero kinakaya ko para sa mga anak ko.\n\nNoong Setyembre, umalis ako ng bahay kasama ang mga bata at tumuloy sa kapatid ko sa kabilang barangay nang dalawang linggo. Pero sinundan niya kami at nangako siyang magbabago na. Bumalik kami dahil wala na rin kaming makain doon at nahihiya na ako sa kapatid ko.\n\nMga isang buwan po siyang maayos. Tumigil siya sa pagsasabong at nagbibigay ng pera para sa bahay. Akala ko po ay talagang nagbago na siya. Pero noong nakaraang dalawang linggo, bumalik siya sa dati. Gabi-gabi na naman siyang umuuwi nang lasing at naghahanap ng away.\n\nNoong isang linggo po, pinagbawalan na niya akong magtinda dahil baka raw may lalaki akong kinakausap sa palengke. Kinuha niya ang cellphone ko at hindi na niya ibinabalik. Hindi na rin niya pinapapunta rito ang nanay ko.\n\nKanina pong mga alas-otso ng gabi, nag-away kami dahil hinanap ko ang perang pambayad sa kuryente. Sinakal po niya ako gamit ang dalawang kamay hanggang hindi ako makahinga, at nawalan ako ng malay nang ilang segundo. Nagising ako na nakahiga sa sahig at umiiyak ang mga anak ko. Nasa bahay pa po siya ngayon, nasa sala at umiinom, at hindi ko po alam ang gagawin ko.",
+      "expected": { "desk": "VAWC", "caseTypes": ["Domestic Violence"], "level": 5, "urgent": true, "needsClarification": false },
+      "basis": "Last paragraph: strangled until she lost consciousness = Level 5 'severe violence causing unconsciousness' (and Level 4 'strangulation/choking'); he is still in the house now. Earlier paragraphs: economic abuse, coercive control, repeated force."
+    }
+  ]
+}

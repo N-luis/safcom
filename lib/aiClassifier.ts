@@ -167,7 +167,9 @@ export const FACT_GUIDE: Record<string, string> = {
 export const FACT_KEYS = Object.keys(FACT_GUIDE);
 
 /** Words that place harm in the present or the immediate future. */
-export const NOW_WORDS = /ngayon|mismo|patuloy|tuloy-tuloy|nandito pa|narito pa|nandyan pa|pa rin|babalik|mamaya|bukas|kasalukuyan|nangyayari|right now|\bnow\b|still|currently|ongoing|is (?:hitting|beating|hurting|chasing)|coming back|tonight|soon|any moment/i;
+// "ngayon" (now) as a word - not "ngayong buwan / taon / linggo" (this month / year / week),
+// which put an earlier threat "now"; "ngayong gabi" (tonight) still counts.
+export const NOW_WORDS = /\bngayon\b|ngayong gabi|mismo|patuloy|tuloy-tuloy|nandito pa|narito pa|nandyan pa|pa rin|babalik|mamaya|bukas|kasalukuyan|nangyayari|right now|\bnow\b|still|currently|ongoing|is (?:hitting|beating|hurting|chasing)|coming back|tonight|soon|any moment/i;
 
 /** Every Signal must be in the guide - checked at compile time. */
 const SIGNALS_COVERED: Record<Signal, true> = {
@@ -275,8 +277,8 @@ export function redact(text: string, names: string[] = []): string {
 
 const norm = (s: string) => s.toLowerCase()
   .replace(/[‘’‛`´]/g, "'").replace(/[“”‟]/g, '"')
-  .replace(/[–—]/g, '-').replace(/…/g, '...')
-  .replace(/\s+/g, ' ').trim();
+  .replace(/[\u2010-\u2015\u2212]/g, '-').replace(/…/g, '...')
+  .replace(/[\s\u00a0]+/g, ' ').trim();
 
 /** Whether a quote really is the resident's words: found in the text, and long enough to mean something. */
 export function quoteIsInText(quote: string, text: string): boolean {
@@ -469,6 +471,7 @@ export type AiStatus =
   | 'resident_limit'  // this resident's share for today is used up
   | 'busy'            // the queue was too long; not worth the wait
   | 'rate_limited'    // the provider said slow down
+  | 'too_large'       // the request is over the plan's per-request token limit (split it)
   | 'error';          // the provider failed, timed out, or answered out of shape
 
 export interface ReadDeps {
@@ -477,6 +480,13 @@ export interface ReadDeps {
   pacer?: Pacer;
   now?: () => number;
   config?: AiConfig;
+  /**
+   * How long a call may wait for its turn under the per-minute cap. The
+   * resident's own filing keeps the configured short wait (a report is never
+   * held up for the AI); a background re-read may wait longer, so a long
+   * report read in several stages can finish.
+   */
+  maxWaitMs?: number;
 }
 
 /** A rough token count, used to reserve budget before the real figure is known. */
@@ -494,8 +504,8 @@ export interface GroqRequest {
 }
 
 export type GroqResult =
-  | { status: 'ok' | 'cached'; data: unknown; tokens: number; model: string }
-  | { status: Exclude<AiStatus, 'ok' | 'cached'>; data: null; tokens: number; model: string | null };
+  | { status: 'ok' | 'cached'; data: unknown; tokens: number; model: string; retried?: boolean }
+  | { status: Exclude<AiStatus, 'ok' | 'cached'>; data: null; tokens: number; model: string | null; retried?: boolean };
 
 /**
  * Every call SafeComm makes to Groq goes through here: free-plan model only,
@@ -505,7 +515,21 @@ export type GroqResult =
  * caller must still validate - the schema is the provider's promise, not ours.
  */
 export async function callGroq(req: GroqRequest, deps: ReadDeps = {}): Promise<GroqResult> {
-  const cfg = deps.config ?? aiConfig();
+  const first = await callGroqOnce(req, deps);
+  // Groq checks a strict json_schema answer after generating it; a long or
+  // unusual report sometimes comes back missing a required field
+  // (json_validate_failed). One more try, the same request - it is not
+  // cached, so it is generated afresh. A second failure is reported as it is.
+  if (first.status === 'error' && first.retryable) {
+    const again = await callGroqOnce(req, deps);
+    return { ...again, tokens: again.tokens + first.tokens, retried: true } as GroqResult;
+  }
+  return first;
+}
+
+async function callGroqOnce(req: GroqRequest, deps: ReadDeps): Promise<GroqResult & { retryable?: boolean }> {
+  const cfg0 = deps.config ?? aiConfig();
+  const cfg = deps.maxWaitMs !== undefined ? { ...cfg0, maxWaitMs: Math.max(0, Math.min(180_000, deps.maxWaitMs)) } : cfg0;
   if (!cfg.enabled) return { status: 'off', data: null, tokens: 0, model: null };
   const now = deps.now ?? Date.now;
   const store = deps.store ?? dbUsageStore;
@@ -554,13 +578,22 @@ export async function callGroq(req: GroqRequest, deps: ReadDeps = {}): Promise<G
           messages: [{ role: 'system', content: req.system }, { role: 'user', content: req.user }],
         }),
       });
-      if (res.status === 429) {
-        const after = Number(res.headers.get('retry-after'));
-        pace.cooldownUntil = now() + (Number.isFinite(after) && after > 0 ? after * 1000 : 60_000);
+      if (!res.ok) {
         record(0);
-        return { kind: 'rate_limited' as const };
+        // The provider's error code only - never the request or the report.
+        const err = await res.json().catch(() => null) as { error?: { code?: string; message?: string } } | null;
+        const code = err?.error?.code ?? '';
+        // Over the plan's per-request limit: waiting does not help, splitting does.
+        if (res.status === 413 || /request too large/i.test(err?.error?.message ?? '')) return { kind: 'too_large' as const };
+        if (res.status === 429) {
+          const after = Number(res.headers.get('retry-after'));
+          pace.cooldownUntil = now() + (Number.isFinite(after) && after > 0 ? after * 1000 : 60_000);
+          return { kind: 'rate_limited' as const };
+        }
+        // A generated-then-rejected answer still used the minute's tokens.
+        if (code === 'json_validate_failed') record(est);
+        return { kind: 'error' as const, retryable: code === 'json_validate_failed' };
       }
-      if (!res.ok) { record(0); return { kind: 'error' as const }; }
       const body = await res.json() as { choices?: { message?: { content?: string } }[]; usage?: { total_tokens?: number } };
       const tokens = Number(body.usage?.total_tokens) || est;
       record(tokens);
@@ -577,7 +610,8 @@ export async function callGroq(req: GroqRequest, deps: ReadDeps = {}): Promise<G
 
   if (outcome === 'busy') { await giveBack(-1); return fail('busy'); }
   if (outcome.kind === 'rate_limited') { await giveBack(-1); return fail('rate_limited'); }
-  if (outcome.kind === 'error') { await giveBack(0); return fail('error'); }
+  if (outcome.kind === 'too_large') { await giveBack(-1); return fail('too_large'); }
+  if (outcome.kind === 'error') { await giveBack(0); return { ...fail('error'), retryable: Boolean(outcome.retryable) }; }
 
   await store.adjust(buckets, outcome.tokens - est).catch(() => {});
   if (outcome.content === undefined || outcome.content === null) return fail('error', outcome.tokens);
@@ -614,6 +648,7 @@ export const NOTE: Record<AiStatus, string> = {
   resident_limit: "This resident's AI reads for today are used up; the rules read this report alone.",
   busy: 'The AI was busy; the rules read this report alone rather than make the resident wait.',
   rate_limited: 'The AI provider asked to slow down; the rules read this report alone.',
+  too_large: 'The report was too long for one AI request and could not be read in parts; the rules read this report alone.',
   error: 'The AI could not be reached or answered out of shape; the rules read this report alone.',
 };
 

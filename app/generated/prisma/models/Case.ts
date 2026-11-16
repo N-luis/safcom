@@ -77,6 +77,7 @@ export type CaseMinAggregateOutputType = {
   resolutionSummary: string | null
   resolvedById: string | null
   witnessInfo: string | null
+  submissionKey: string | null
 }
 
 export type CaseMaxAggregateOutputType = {
@@ -120,6 +121,7 @@ export type CaseMaxAggregateOutputType = {
   resolutionSummary: string | null
   resolvedById: string | null
   witnessInfo: string | null
+  submissionKey: string | null
 }
 
 export type CaseCountAggregateOutputType = {
@@ -163,6 +165,7 @@ export type CaseCountAggregateOutputType = {
   resolutionSummary: number
   resolvedById: number
   witnessInfo: number
+  submissionKey: number
   _all: number
 }
 
@@ -218,6 +221,7 @@ export type CaseMinAggregateInputType = {
   resolutionSummary?: true
   resolvedById?: true
   witnessInfo?: true
+  submissionKey?: true
 }
 
 export type CaseMaxAggregateInputType = {
@@ -261,6 +265,7 @@ export type CaseMaxAggregateInputType = {
   resolutionSummary?: true
   resolvedById?: true
   witnessInfo?: true
+  submissionKey?: true
 }
 
 export type CaseCountAggregateInputType = {
@@ -304,6 +309,7 @@ export type CaseCountAggregateInputType = {
   resolutionSummary?: true
   resolvedById?: true
   witnessInfo?: true
+  submissionKey?: true
   _all?: true
 }
 
@@ -434,6 +440,7 @@ export type CaseGroupByOutputType = {
   resolutionSummary: string | null
   resolvedById: string | null
   witnessInfo: string | null
+  submissionKey: string | null
   _count: CaseCountAggregateOutputType | null
   _avg: CaseAvgAggregateOutputType | null
   _sum: CaseSumAggregateOutputType | null
@@ -500,6 +507,7 @@ export type CaseWhereInput = {
   resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
   resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
+  submissionKey?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
@@ -566,6 +574,7 @@ export type CaseOrderByWithRelationInput = {
   resolutionSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedTo?: Prisma.UserOrderByWithRelationInput
   resident?: Prisma.ResidentOrderByWithRelationInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
@@ -594,6 +603,7 @@ export type CaseOrderByWithRelationInput = {
 export type CaseWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   caseNumber?: string
+  residentId_submissionKey?: Prisma.CaseResidentIdSubmissionKeyCompoundUniqueInput
   AND?: Prisma.CaseWhereInput | Prisma.CaseWhereInput[]
   OR?: Prisma.CaseWhereInput[]
   NOT?: Prisma.CaseWhereInput | Prisma.CaseWhereInput[]
@@ -635,6 +645,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
   resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
+  submissionKey?: Prisma.StringNullableFilter<"Case"> | string | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
   activities?: Prisma.ActivityListRelationFilter
@@ -658,7 +669,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   reportDrafts?: Prisma.ReportDraftListRelationFilter
   clarifications?: Prisma.ClarificationRequestListRelationFilter
   interviews?: Prisma.CaseInterviewListRelationFilter
-}, "id" | "caseNumber">
+}, "id" | "caseNumber" | "residentId_submissionKey">
 
 export type CaseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -701,6 +712,7 @@ export type CaseOrderByWithAggregationInput = {
   resolutionSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseCountOrderByAggregateInput
   _avg?: Prisma.CaseAvgOrderByAggregateInput
   _max?: Prisma.CaseMaxOrderByAggregateInput
@@ -752,6 +764,7 @@ export type CaseScalarWhereWithAggregatesInput = {
   resolutionSummary?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   resolvedById?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  submissionKey?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
 }
 
 export type CaseCreateInput = {
@@ -793,6 +806,7 @@ export type CaseCreateInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -859,6 +873,7 @@ export type CaseUncheckedCreateInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -921,6 +936,7 @@ export type CaseUpdateInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -987,6 +1003,7 @@ export type CaseUncheckedUpdateInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -1051,6 +1068,7 @@ export type CaseCreateManyInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
 }
 
 export type CaseUpdateManyMutationInput = {
@@ -1092,6 +1110,7 @@ export type CaseUpdateManyMutationInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseUncheckedUpdateManyInput = {
@@ -1135,6 +1154,7 @@ export type CaseUncheckedUpdateManyInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseListRelationFilter = {
@@ -1145,6 +1165,11 @@ export type CaseListRelationFilter = {
 
 export type CaseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type CaseResidentIdSubmissionKeyCompoundUniqueInput = {
+  residentId: string
+  submissionKey: string
 }
 
 export type CaseCountOrderByAggregateInput = {
@@ -1188,6 +1213,7 @@ export type CaseCountOrderByAggregateInput = {
   resolutionSummary?: Prisma.SortOrder
   resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
 }
 
 export type CaseAvgOrderByAggregateInput = {
@@ -1236,6 +1262,7 @@ export type CaseMaxOrderByAggregateInput = {
   resolutionSummary?: Prisma.SortOrder
   resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
 }
 
 export type CaseMinOrderByAggregateInput = {
@@ -1279,6 +1306,7 @@ export type CaseMinOrderByAggregateInput = {
   resolutionSummary?: Prisma.SortOrder
   resolvedById?: Prisma.SortOrder
   witnessInfo?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
 }
 
 export type CaseSumOrderByAggregateInput = {
@@ -1729,6 +1757,7 @@ export type CaseCreateWithoutAssignedToInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -1793,6 +1822,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -1886,6 +1916,7 @@ export type CaseScalarWhereInput = {
   resolutionSummary?: Prisma.StringNullableFilter<"Case"> | string | null
   resolvedById?: Prisma.StringNullableFilter<"Case"> | string | null
   witnessInfo?: Prisma.StringNullableFilter<"Case"> | string | null
+  submissionKey?: Prisma.StringNullableFilter<"Case"> | string | null
 }
 
 export type CaseCreateWithoutReportAddendaInput = {
@@ -1927,6 +1958,7 @@ export type CaseCreateWithoutReportAddendaInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -1992,6 +2024,7 @@ export type CaseUncheckedCreateWithoutReportAddendaInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2069,6 +2102,7 @@ export type CaseUpdateWithoutReportAddendaInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2134,6 +2168,7 @@ export type CaseUncheckedUpdateWithoutReportAddendaInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2195,6 +2230,7 @@ export type CaseCreateWithoutClarificationsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2260,6 +2296,7 @@ export type CaseUncheckedCreateWithoutClarificationsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2337,6 +2374,7 @@ export type CaseUpdateWithoutClarificationsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2402,6 +2440,7 @@ export type CaseUncheckedUpdateWithoutClarificationsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2463,6 +2502,7 @@ export type CaseCreateWithoutInterviewsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2528,6 +2568,7 @@ export type CaseUncheckedCreateWithoutInterviewsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2605,6 +2646,7 @@ export type CaseUpdateWithoutInterviewsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2670,6 +2712,7 @@ export type CaseUncheckedUpdateWithoutInterviewsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2731,6 +2774,7 @@ export type CaseCreateWithoutReportDraftsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -2796,6 +2840,7 @@ export type CaseUncheckedCreateWithoutReportDraftsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -2873,6 +2918,7 @@ export type CaseUpdateWithoutReportDraftsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -2938,6 +2984,7 @@ export type CaseUncheckedUpdateWithoutReportDraftsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -2999,6 +3046,7 @@ export type CaseCreateWithoutVictimSurvivorsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -3064,6 +3112,7 @@ export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3141,6 +3190,7 @@ export type CaseUpdateWithoutVictimSurvivorsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -3206,6 +3256,7 @@ export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -3267,6 +3318,7 @@ export type CaseCreateWithoutPartiesInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -3332,6 +3384,7 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3409,6 +3462,7 @@ export type CaseUpdateWithoutPartiesInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -3474,6 +3528,7 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -3535,6 +3590,7 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -3600,6 +3656,7 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3677,6 +3734,7 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -3742,6 +3800,7 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -3803,6 +3862,7 @@ export type CaseCreateWithoutReferralsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -3868,6 +3928,7 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -3945,6 +4006,7 @@ export type CaseUpdateWithoutReferralsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4010,6 +4072,7 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -4071,6 +4134,7 @@ export type CaseCreateWithoutServiceReferralsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -4136,6 +4200,7 @@ export type CaseUncheckedCreateWithoutServiceReferralsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -4213,6 +4278,7 @@ export type CaseUpdateWithoutServiceReferralsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4278,6 +4344,7 @@ export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -4339,6 +4406,7 @@ export type CaseCreateWithoutAssessmentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -4404,6 +4472,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -4481,6 +4550,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4546,6 +4616,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -4607,6 +4678,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -4672,6 +4744,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -4749,6 +4822,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -4814,6 +4888,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -4875,6 +4950,7 @@ export type CaseCreateWithoutResidentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -4939,6 +5015,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -5027,6 +5104,7 @@ export type CaseCreateWithoutActivitiesInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
@@ -5092,6 +5170,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -5169,6 +5248,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -5234,6 +5314,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -5295,6 +5376,7 @@ export type CaseCreateWithoutNotificationsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -5360,6 +5442,7 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -5437,6 +5520,7 @@ export type CaseUpdateWithoutNotificationsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -5502,6 +5586,7 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -5563,6 +5648,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -5628,6 +5714,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
@@ -5705,6 +5792,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -5770,6 +5858,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
@@ -5831,6 +5920,7 @@ export type CaseCreateWithoutIntakeInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -5896,6 +5986,7 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -5973,6 +6064,7 @@ export type CaseUpdateWithoutIntakeInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -6038,6 +6130,7 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -6099,6 +6192,7 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -6164,6 +6258,7 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -6241,6 +6336,7 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -6306,6 +6402,7 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -6367,6 +6464,7 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -6432,6 +6530,7 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -6509,6 +6608,7 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -6574,6 +6674,7 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -6635,6 +6736,7 @@ export type CaseCreateWithoutHearingsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -6700,6 +6802,7 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -6777,6 +6880,7 @@ export type CaseUpdateWithoutHearingsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -6842,6 +6946,7 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -6903,6 +7008,7 @@ export type CaseCreateWithoutKpReviewsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -6968,6 +7074,7 @@ export type CaseUncheckedCreateWithoutKpReviewsInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -7045,6 +7152,7 @@ export type CaseUpdateWithoutKpReviewsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -7110,6 +7218,7 @@ export type CaseUncheckedUpdateWithoutKpReviewsInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -7171,6 +7280,7 @@ export type CaseCreateWithoutAcknowledgementInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -7236,6 +7346,7 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -7313,6 +7424,7 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -7378,6 +7490,7 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -7439,6 +7552,7 @@ export type CaseCreateWithoutPangkatInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
   resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
   activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
@@ -7504,6 +7618,7 @@ export type CaseUncheckedCreateWithoutPangkatInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
@@ -7581,6 +7696,7 @@ export type CaseUpdateWithoutPangkatInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
@@ -7646,6 +7762,7 @@ export type CaseUncheckedUpdateWithoutPangkatInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -7708,6 +7825,7 @@ export type CaseCreateManyAssignedToInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
 }
 
 export type CaseUpdateWithoutAssignedToInput = {
@@ -7749,6 +7867,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -7813,6 +7932,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -7876,6 +7996,7 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseCreateManyResidentInput = {
@@ -7918,6 +8039,7 @@ export type CaseCreateManyResidentInput = {
   resolutionSummary?: string | null
   resolvedById?: string | null
   witnessInfo?: string | null
+  submissionKey?: string | null
 }
 
 export type CaseUpdateWithoutResidentInput = {
@@ -7959,6 +8081,7 @@ export type CaseUpdateWithoutResidentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
@@ -8023,6 +8146,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
@@ -8086,6 +8210,7 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -8286,6 +8411,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   resolutionSummary?: boolean
   resolvedById?: boolean
   witnessInfo?: boolean
+  submissionKey?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
   activities?: boolean | Prisma.Case$activitiesArgs<ExtArgs>
@@ -8353,6 +8479,7 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   resolutionSummary?: boolean
   resolvedById?: boolean
   witnessInfo?: boolean
+  submissionKey?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
@@ -8398,6 +8525,7 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   resolutionSummary?: boolean
   resolvedById?: boolean
   witnessInfo?: boolean
+  submissionKey?: boolean
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
@@ -8443,9 +8571,10 @@ export type CaseSelectScalar = {
   resolutionSummary?: boolean
   resolvedById?: boolean
   witnessInfo?: boolean
+  submissionKey?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo" | "submissionKey", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -8646,6 +8775,12 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * Who saw it, as the reporter described them.
      */
     witnessInfo: string | null
+    /**
+     * The resident form's key for one submission: a retried submit (a lost
+     * response, a second tap) returns the case already filed instead of
+     * filing it - and its photos - twice.
+     */
+    submissionKey: string | null
   }, ExtArgs["result"]["case"]>
   composites: {}
 }
@@ -9132,6 +9267,7 @@ export interface CaseFieldRefs {
   readonly resolutionSummary: Prisma.FieldRef<"Case", 'String'>
   readonly resolvedById: Prisma.FieldRef<"Case", 'String'>
   readonly witnessInfo: Prisma.FieldRef<"Case", 'String'>
+  readonly submissionKey: Prisma.FieldRef<"Case", 'String'>
 }
     
 

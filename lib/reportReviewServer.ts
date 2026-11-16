@@ -186,12 +186,12 @@ export function questionsFor(c: LoadedReport, draft: DraftFields | null) {
   return out;
 }
 
-/** The fields an official corrected on the latest draft - carried into the next one. */
+/** The fields an official corrected or confirmed on the latest draft - carried into the next one. */
 function carriedFrom(c: LoadedReport): Record<string, DraftField> {
   const latest = c.reportDrafts[0];
   if (!latest) return {};
   const f = latest.fields as unknown as DraftFields;
-  return Object.fromEntries(Object.entries(f).filter(([, v]) => v.status === 'OFFICIAL' && v.source === 'official_edit'));
+  return Object.fromEntries(Object.entries(f).filter(([, v]) => v.status === 'OFFICIAL' && (v.source === 'official_edit' || v.source === 'official_confirm')));
 }
 
 /**
@@ -344,15 +344,16 @@ export function materialSinceLastRun(c: LoadedReport) {
 export async function retryPendingDrafts(limit = 3, onlyCaseIds?: string[]) {
   const since = new Date(Date.now() - 14 * 86_400_000);
   // The current draft of a report is records-only - the AI was busy or down,
-  // or its after-filing pass never ran - and no AI draft covers its version.
+  // or its after-filing pass never ran - and no AI draft in its template covers its version.
   const candidates = await prisma.reportDraft.findMany({
     where: { status: 'DRAFT', generator: 'rules', aiStatus: { in: [...AI_TRANSIENT, 'not_requested'] }, createdAt: { gte: since }, ...(onlyCaseIds ? { caseId: { in: onlyCaseIds } } : {}) },
-    orderBy: { createdAt: 'asc' }, take: limit * 5, select: { caseId: true, basedOnVersion: true, case: { select: { caseNumber: true } } },
+    orderBy: { createdAt: 'asc' }, take: limit * 5, select: { caseId: true, basedOnVersion: true, template: true, case: { select: { caseNumber: true } } },
   });
   const rows: typeof candidates = [];
   for (const r of candidates) {
     if (rows.length >= limit) break;
-    const covered = await prisma.reportDraft.count({ where: { caseId: r.caseId, generator: 'ai', basedOnVersion: { gte: r.basedOnVersion } } });
+    // In the same template: after the case moved desks, an AI draft in the old template does not cover it.
+    const covered = await prisma.reportDraft.count({ where: { caseId: r.caseId, generator: 'ai', template: r.template, basedOnVersion: { gte: r.basedOnVersion } } });
     if (!covered) rows.push(r);
   }
   const results: { caseNumber: string; outcome: string }[] = [];
@@ -366,3 +367,34 @@ export async function retryPendingDrafts(limit = 3, onlyCaseIds?: string[]) {
 export const fieldLabel = (template: TemplateName, key: string) =>
   fieldOf(template, key)?.label ?? (key in EXTRA_QUESTIONS ? EXTRA_QUESTIONS[key as ExtraQuestion] : key);
 export { phDateTime };
+
+/**
+ * Review Changes: for each field whose value now differs from the first draft,
+ * the original value, the current one, and who changed it last and when -
+ * walked through the drafts in order. Unchanged fields are not listed.
+ * `drafts` is oldest first.
+ */
+export function fieldChanges(template: TemplateName, drafts: { fields: DraftFields; createdAt: Date; createdBy: string | null; generator: string }[]) {
+  if (drafts.length < 2) return [];
+  const first = drafts[0].fields, last = drafts[drafts.length - 1].fields;
+  const same = (a?: DraftField, b?: DraftField) => (a?.value ?? null) === (b?.value ?? null) && (a?.status ?? 'NEEDS_CONFIRMATION') === (b?.status ?? 'NEEDS_CONFIRMATION');
+  return fieldsOf(template).flatMap(f => {
+    const a = first[f.key], b = last[f.key];
+    const addedNow = (b?.additions?.length ?? 0) - (a?.additions?.length ?? 0);
+    if (same(a, b) && addedNow <= 0) return [];
+    // The last draft in which this field changed.
+    let at = drafts.length - 1;
+    while (at > 0 && same(drafts[at - 1].fields[f.key], drafts[at].fields[f.key]) && (drafts[at - 1].fields[f.key]?.additions?.length ?? 0) === (drafts[at].fields[f.key]?.additions?.length ?? 0)) at--;
+    const d = drafts[at];
+    const v = d.fields[f.key];
+    return [{
+      key: f.key, label: f.label,
+      before: { value: a?.value ?? null, status: a?.status ?? 'NEEDS_CONFIRMATION' },
+      after: { value: b?.value ?? null, status: b?.status ?? 'NEEDS_CONFIRMATION' },
+      by: v?.byName ?? d.createdBy ?? (d.generator === 'ai' ? 'SafeComm AI' : 'SafeComm'),
+      at: v?.at ?? d.createdAt.toISOString(),
+      note: v?.source === 'official_edit' || v?.source === 'official_confirm' ? v.note ?? null : null,
+      added: addedNow > 0 ? b!.additions!.slice(-addedNow).map(x => ({ version: x.version, source: x.source, text: x.text })) : [],
+    }];
+  });
+}

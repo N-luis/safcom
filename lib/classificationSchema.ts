@@ -230,7 +230,12 @@ export const VAWC_CATEGORIES: CategoryMeta[] = [
     // Not when a partner is involved: RA 9262 already covers a woman's
     // children under Domestic Violence, and "while our child watched" must
     // not turn a partner assault into a child abuse case.
-    rules: [{ all: ['minor'], any: ['force', 'injury', 'threat', 'weapon', 'sexualViolence', 'harassment'], none: ['partner'] }], priority: 96,
+    // An injury counts when nothing says it came from an animal or a road
+    // accident: a child bitten by a dog is an Animal Bite report, not abuse.
+    rules: [
+      { all: ['minor'], any: ['force', 'threat', 'weapon', 'sexualViolence', 'harassment'], none: ['partner'] },
+      { all: ['minor', 'injury'], none: ['partner', 'animalBite', 'traffic'] },
+    ], priority: 96,
     legalBasis: ['RA 7610 (Special Protection of Children Against Abuse, Exploitation and Discrimination Act)',
       'RA 9262, where the person responsible is the mother’s partner'],
     confirm: ['The child’s age, and who is caring for the child now.'],

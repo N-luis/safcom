@@ -22,8 +22,12 @@ interface Criterion { level: number; levelLabel?: string; indicator: string; evi
 interface AiPart {
   used?: boolean; model?: string | null;
   assessment?: {
-    status?: string; understanding?: string | null; recommendedNextAction?: string | null; urgentHumanReview?: boolean;
+    status?: string; understanding?: string | null; recommendedNextAction?: string | null; urgentHumanReview?: boolean; urgentSupported?: boolean;
     missingInformation?: string[]; uncertainty?: string[]; level?: number | null; label?: string | null; unavailableReason?: string | null;
+    criteria?: { level: number; criterion: string; reportQuote: string }[];
+    contradictions?: { about: string; quoteA: string; quoteB: string }[];
+    matrixVersions?: { documentType: string; documentName: string; sourceHash: string | null; importedAt: string | null }[];
+    readMode?: 'single' | 'staged'; sections?: number;
   } | null;
 }
 interface Entry {
@@ -61,7 +65,7 @@ const when = (d: string) => new Date(d).toLocaleString('en-PH', { month: 'short'
 
 function EntryCard({ e, title, open, onToggle }: { e: Entry; title: string; open: boolean; onToggle: () => void }) {
   const a = e.ai?.assessment ?? null;
-  const urgent = e.immediateSafetyConcern || Boolean(a?.urgentHumanReview) || e.triageStatus === 'URGENT_REVIEW';
+  const urgent = e.immediateSafetyConcern || Boolean(a?.urgentHumanReview && a.urgentSupported !== false) || e.triageStatus === 'URGENT_REVIEW';
   const col = e.matrixLevel ? LEVEL_COLOR[e.matrixLevel] : '#64748b';
   const next = a?.recommendedNextAction ?? e.recommendedNextSteps?.[0] ?? null;
   const missing = [...new Set([...(e.missingInformation ?? []), ...(a?.missingInformation ?? [])])];
@@ -98,12 +102,31 @@ function EntryCard({ e, title, open, onToggle }: { e: Entry; title: string; open
               ))}
             </Box>
           ) : <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>No matrix criterion was met by what the report says.</Typography>}
+          {(a?.criteria ?? []).length > 0 && (
+            <Typography sx={{ fontSize: '0.78rem', color: '#334155' }}>
+              <b>The AI&apos;s own reading (advisory):</b> {a!.criteria!.map(c => `L${c.level} “${c.criterion}” — “${c.reportQuote}”`).join('; ')}
+            </Typography>
+          )}
+          {(a?.contradictions ?? []).length > 0 && (
+            <Box>
+              <Typography sx={{ fontSize: '0.74rem', fontWeight: 700, color: '#b45309' }}>Statements that contradict each other (both kept)</Typography>
+              {a!.contradictions!.map((c, i) => (
+                <Typography key={i} sx={{ fontSize: '0.78rem', color: '#334155' }}>• “{c.quoteA}” / “{c.quoteB}”{c.about ? <Box component="span" sx={{ color: '#64748b' }}> — {c.about}</Box> : null}</Typography>
+              ))}
+            </Box>
+          )}
           {missing.length > 0 && <Typography sx={{ fontSize: '0.78rem', color: '#a16207' }}><b>Missing or unclear:</b> {missing.join('; ')}</Typography>}
           {(a?.uncertainty ?? []).length > 0 && <Typography sx={{ fontSize: '0.78rem', color: '#a16207' }}><b>Uncertain:</b> {a!.uncertainty!.join('; ')}</Typography>}
           {a?.unavailableReason && <Typography sx={{ fontSize: '0.78rem', color: '#a16207' }}>AI assessment unavailable: {a.unavailableReason}</Typography>}
           {(e.references ?? []).length > 0 && (
             <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>
               <b>Knowledge-base references:</b> {(e.references ?? []).map(r => `${r.sectionTitle}${r.pageNumber ? ` (p. ${r.pageNumber})` : ''}`).join(' · ')}
+            </Typography>
+          )}
+          {(a?.matrixVersions ?? []).length > 0 && (
+            <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>
+              <b>Matrix version:</b> {a!.matrixVersions!.map(v => `${v.documentName} (file ${v.sourceHash ?? 'unknown'}${v.importedAt ? `, imported ${new Date(v.importedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''})`).join(' · ')}
+              {a?.readMode === 'staged' ? ` · long report read in ${a.sections} sections` : ''}
             </Typography>
           )}
           {e.sourceVerified === false && <Typography sx={{ fontSize: '0.74rem', color: '#b91c1c' }}>The level could not be matched to the imported matrix text.</Typography>}

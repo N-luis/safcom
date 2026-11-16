@@ -100,12 +100,15 @@ export function vawcFactSigns(facts: string[]): string | null {
   if (has('partner')) return 'the report mentions a partner or spouse';
   const alone = VAWC_ALONE.find(has);
   if (alone) return 'the report describes a kind of harm the VAWC desk handles';
-  if (VAWC_WITH_HARM.some(has) && HARM.some(has)) return 'the report mentions family or a child together with harm or threats';
+  // An injury from an animal or a road accident is not violence by a person:
+  // a child bitten by a neighbour's dog is not, on that alone, a VAWC sign.
+  const harmByPerson = HARM.filter(k => has(k) && !(k === 'injury' && (has('animalBite') || has('traffic'))));
+  if (VAWC_WITH_HARM.some(has) && harmByPerson.length) return 'the report mentions family or a child together with harm or threats';
   return null;
 }
 
 /** The AI statuses that mean the reader did not run - not "it read and found nothing". */
-const AI_DOWN = new Set(['off', 'daily_limit', 'resident_limit', 'busy', 'rate_limited', 'error']);
+const AI_DOWN = new Set(['off', 'daily_limit', 'resident_limit', 'busy', 'rate_limited', 'too_large', 'error']);
 
 const QUESTIONS = {
   en: {
