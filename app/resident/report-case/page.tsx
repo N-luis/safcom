@@ -19,6 +19,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import StreetSelect from '@/components/forms/StreetSelect';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
+import ReportSidePanel from '@/components/forms/ReportSidePanel';
 import { useLanguage } from '@/lib/i18n';
 import AnalyzingCard, { type AnalysisPhase, type AnalysisStage } from '@/components/ai/AnalyzingCard';
 import { postWithProgress, newSubmissionKey } from '@/lib/postWithProgress';
@@ -437,8 +438,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         </Box>
       </Box>
 
-      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ maxWidth: 940 }}>
-        <Grid size={{ xs: 12 }}>
+      {/* The form, and beside it on wide screens the hotlines and what happens next - the page used to stop at 940px. */}
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <Card>
             <CardContent sx={{ p: 3 }}>
               {apiError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{apiError}</Alert>}
@@ -723,6 +725,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           </Card>
         </Grid>
 
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <ReportSidePanel />
+        </Grid>
       </Grid>
 
       {/* Pressing Submit opens SafeComm Assist straight away: it reads the

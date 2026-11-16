@@ -32,6 +32,9 @@ const STATUS_CHIP: Record<string, string> = {
   Open: '#fff7ed', 'In Progress': '#eff6ff', Resolved: '#f0fdf4', Closed: '#f8fafc',
 };
 
+/** Recent reports shown - enough to fill the card beside the chart and the updates. */
+const RECENT_ROWS = 10;
+
 function timeAgo(d: string) {
   if (!d) return '';
   const diff = Date.now() - new Date(d).getTime();
@@ -67,7 +70,7 @@ export default function ResidentDashboard() {
   const [residentName, setResidentName] = useState('');
 
   const { data: stats, isLoading: statsLoading } = useSWR<StatsData>('/api/resident/cases/stats', fetcher, { refreshInterval: 30000 });
-  const { data: casesData, isLoading: casesLoading } = useSWR('/api/resident/cases?limit=5', fetcher, { refreshInterval: 30000 });
+  const { data: casesData, isLoading: casesLoading } = useSWR(`/api/resident/cases?limit=${RECENT_ROWS}`, fetcher, { refreshInterval: 30000 });
   const { data: updates, isLoading: updatesLoading, mutate: refreshUpdates } = useSWR<Update[]>('/api/resident/updates?limit=4', fetcher, { refreshInterval: 30000 });
 
   const recentCases: CaseRow[] = casesData?.cases ?? [];
@@ -121,7 +124,8 @@ export default function ResidentDashboard() {
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1280 }}>
+    // The whole width: it used to stop at 1280px and leave a band empty on a large screen.
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       {/* ── Top bar ── */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3.5, flexWrap: 'wrap', gap: 1.5 }}>
         <Typography sx={{ fontSize: { xs: '0.98rem', sm: '1.05rem' }, color: '#475569' }}>
@@ -225,8 +229,9 @@ export default function ResidentDashboard() {
       {/* ── Main content row ── */}
       <Grid container spacing={2.5}>
         {/* Recent Reports */}
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card sx={{ height: '100%' }}>
+        {/* Beside the chart and updates on a wide screen (xl); full width above them below that, so no column is cut off. */}
+        <Grid size={{ xs: 12, xl: 7 }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ p: 2.5, pb: 1.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 0.5 }}>
                 <Box>
@@ -281,18 +286,19 @@ export default function ResidentDashboard() {
                           onClick={() => router.push('/resident/my-cases')}
                           sx={{ cursor: 'pointer', '& td': { py: 1.35, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#f8fafc' } }}
                         >
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
                             <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>
                               #{c.caseNumber}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            <Typography sx={{ fontSize: '0.9rem', color: '#374151', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {c.description.length > 28 ? c.description.slice(0, 28) + '…' : c.description}
+                          {/* As much of the description as the column holds, rather than a fixed 28 characters. */}
+                          <TableCell sx={{ width: '100%', maxWidth: 0 }}>
+                            <Typography title={c.description} sx={{ fontSize: '0.9rem', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 120 }}>
+                              {c.description}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.caseType.split(' ')[0]}</Typography>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontSize: '0.86rem', color: '#64748b' }}>{c.caseType}</Typography>
                           </TableCell>
                           <TableCell>
                             <Chip
@@ -306,7 +312,7 @@ export default function ResidentDashboard() {
                               }}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
                             <Typography sx={{ fontSize: '0.86rem', color: '#94a3b8' }}>
                               {new Date(c.filedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </Typography>
@@ -317,13 +323,26 @@ export default function ResidentDashboard() {
                 </TableBody>
               </Table>
             </TableContainer>
+            {/* Kept at the card's foot, so the card ends level with the column beside it. */}
+            {!casesLoading && recentCases.length > 0 && (
+              <Box sx={{ mt: 'auto', px: 2.5, py: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                <Typography sx={{ fontSize: '0.84rem', color: '#64748b' }}>
+                  Showing your {recentCases.length} most recent of {casesData?.total ?? recentCases.length} report{(casesData?.total ?? recentCases.length) === 1 ? '' : 's'}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button size="small" onClick={() => router.push('/resident/report-case')} sx={{ color: '#0f766e', fontWeight: 600 }}>File a report</Button>
+                  <Button size="small" variant="outlined" onClick={() => router.push('/resident/my-cases')}
+                    sx={{ borderColor: '#99f6e4', color: '#0f766e', fontWeight: 600 }}>See all my cases</Button>
+                </Box>
+              </Box>
+            )}
           </Card>
         </Grid>
 
         {/* Right column */}
-        <Grid size={{ xs: 12, md: 5 }}>
+        <Grid size={{ xs: 12, xl: 5 }} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', xl: '1fr' }, gap: 2.5, alignContent: 'start' }}>
           {/* Case Distribution */}
-          <Card sx={{ mb: 2.5 }}>
+          <Card>
             <CardContent sx={{ p: 2.5 }}>
               <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.25 }}>Case Distribution</Typography>
               {statsLoading
