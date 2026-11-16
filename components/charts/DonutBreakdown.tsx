@@ -39,7 +39,7 @@ export const pctText = (p: number) => `${Number.isInteger(p) ? p : p.toFixed(1)}
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en-PH')} ${n === 1 ? one : many}`;
 
 /** In fill mode: the legend's narrowest, the gap beside it, the narrowest and the largest a donut is drawn. */
-const LEGEND_MIN = 260, GAP = 24, DONUT_MIN = 180, DONUT_MAX = 300;
+const LEGEND_MIN = 260, GAP = 24, DONUT_MIN = 170, DONUT_MAX = 230;
 
 export default function DonutBreakdown({ slices, centerValue, centerLabel, unit = ['case', 'cases'], maxSize = 210, footer, ariaLabel, fill = false }: {
   slices: DonutSlice[];
@@ -70,11 +70,12 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
     ro.observe(el);
     return () => ro.disconnect();
   }, [fill]);
-  // Side by side when the legend keeps its room. The donut takes at most half the width, and is
-  // drawn well inside it - no taller than about three quarters of the card, and never past DONUT_MAX.
+  // Side by side when the legend keeps its room. The donut stays modest - at most 60% of the
+  // card's height and DONUT_MAX - in a column just wider than itself; the legend takes the rest
+  // of the width and the full height, so the card is still filled.
   const side = Boolean(fill && space && space.w - GAP - LEGEND_MIN >= DONUT_MIN && space.h >= DONUT_MIN);
-  const column = side && space ? Math.floor(Math.min(space.w - GAP - LEGEND_MIN, space.w * 0.5)) : null;
-  const size = side && space && column ? Math.floor(Math.max(DONUT_MIN, Math.min(space.h * 0.72, column * 0.85, DONUT_MAX))) : null;
+  const size = side && space ? Math.floor(Math.max(DONUT_MIN, Math.min(space.h * 0.6, (space.w - GAP - LEGEND_MIN) * 0.85, space.w * 0.4, DONUT_MAX))) : null;
+  const column = side && space && size ? Math.floor(Math.min(space.w - GAP - LEGEND_MIN, size + 48)) : null;
   const total = slices.reduce((n, s) => n + s.count, 0);
   const pct = percentages(slices.map(s => s.count));
   // The ring draws only what has cases; the legend lists everything.
