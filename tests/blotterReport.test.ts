@@ -137,8 +137,9 @@ async function main() {
     ok('saved as a draft (autosave), to continue later', draft.status === 200 && draft.body.data.intake.version === 2);
     ok('saving a draft creates no case', await prisma.case.count({ where: { caseNumber: { startsWith: TAG } } }) === 2);
     ok('a VAWC item is refused on the Blotter Intake Form', (await put(bc.id, B.cookie, { expectedVersion: 2, status: 'DRAFT', responses: { victimName: { value: { first: 'X' } } } })).status === 400);
-    const early = await put(bc.id, B.cookie, { expectedVersion: 2, status: 'COMPLETED', responses: draft.body.data.intake.responses });
-    ok('completing early lists what is missing', early.status === 422 && ['actionTaken', 'complaintStatement', 'requestedRelief'].every(k => early.body.missing.some((m: Body) => m.key === k)));
+    const empty = await put(bc.id, B.cookie, { expectedVersion: 2, status: 'COMPLETED', responses: {} });
+    ok('an intake with nothing filled in cannot be completed', empty.status === 422 && /Nothing is filled in/.test(empty.body.error ?? ''));
+    ok('N/A, Unknown and Declined can no longer be recorded', (await put(bc.id, B.cookie, { expectedVersion: 2, status: 'DRAFT', responses: { ...draft.body.data.intake.responses, complainantContact: { marker: 'declined' } } })).status === 400);
 
     console.log('\nKP Form No. 7');
     const kp7 = (id: string, cookie: string) => kp7GET(req(`/api/cases/${id}/official-intake/kp-form-7`, cookie), params(id));
@@ -150,7 +151,7 @@ async function main() {
     ok('once eligible, the form shows it available', (await json(await intakeGET(req(`/api/cases/${bc.id}/official-intake`, B.cookie), params(bc.id)))).body.data.kp?.eligible === true);
     const incomplete = await json(await kp7(bc.id, B.cookie));
     ok('without the complaint and relief it is refused, and says what is missing', incomplete.status === 422 && incomplete.body.missing?.some((m: string) => /complaint statement/.test(m)));
-    const full = { ...draft.body.data.intake.responses, complainantContact: { marker: 'declined' },
+    const full = { ...draft.body.data.intake.responses,
       respondentName: { value: 'Juan Respondent' },  // the old one-line shape: read as the full name
       attachments: { value: 'none' }, immediateDanger: { value: 'no' }, actionTaken: { value: 'Kinausap ang magkabilang panig.' },
       initialObservations: { value: 'Malakas ang sound system sa oras ng pagdating.' }, recommendedNextSteps: { value: 'Ipatawag para sa pagdinig.' },

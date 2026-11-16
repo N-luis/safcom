@@ -222,7 +222,8 @@ export default function BlotterDashboard() {
         {/* Case Distribution */}
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ p: 2.5 }}>
+            {/* A column: the chart takes all the height the card has, which the urgent list beside it sets. */}
+            <CardContent sx={{ p: 2.5, height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', '&:last-child': { pb: 2.5 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: '0.98rem', color: '#0c1e46' }}>
                   Case Distribution by Category
@@ -238,7 +239,8 @@ export default function BlotterDashboard() {
                 </Box>
               ) : (
               // Point at a slice or a row to see its share and count in the middle; a category row opens its cases.
-              <DonutBreakdown ariaLabel="Cases by category" centerValue={categories.length} centerLabel={categories.length === 1 ? 'Category' : 'Categories'}
+              <Box sx={{ flex: 1, minHeight: 0 }}>
+              <DonutBreakdown fill ariaLabel="Cases by category" centerValue={categories.length} centerLabel={categories.length === 1 ? 'Category' : 'Categories'}
                 slices={categories.map(cat => ({ key: cat.name, label: cat.name, count: cat.count, color: cat.color,
                   onSelect: cat.linkable ? () => router.push(`/blotter-officer/case-management?search=${encodeURIComponent(cat.name)}`) : undefined }))}
                 footer={(
@@ -247,6 +249,7 @@ export default function BlotterDashboard() {
                     <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#0c1e46' }}>{(stats?.total ?? 0).toLocaleString()}</Typography>
                   </Box>
                 )} />
+              </Box>
               )}
             </CardContent>
           </Card>

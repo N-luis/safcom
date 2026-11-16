@@ -8,7 +8,7 @@ import {
   logIntakeAccess, type IntakeCase,
 } from '@/lib/officialIntake';
 import { type Responses } from '@/lib/officialIntakeForm';
-import { formForType, formTypeForCase, missingIn, upgradeResponses, type FormDef } from '@/lib/intakeForms';
+import { formForType, formTypeForCase, missingIn, anyAnswered, upgradeResponses, type FormDef } from '@/lib/intakeForms';
 import { loadHearingCase, eligibilityOf } from '@/lib/hearingsServer';
 
 /** The form this case's intake is - the stored one, or its desk's for a new one. */
@@ -172,6 +172,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     ? upgradeResponses(def, parsed.data.responses as Responses) : parsed.data.responses, def);
   if (!valid.ok) return errorResponse(valid.error, 400);
   const responses = valid.responses;
+  // N/A, Unknown and Declined are no longer recorded: an item that cannot be
+  // answered is left blank. One saved before may stay as it was, nothing new.
+  const saved = upgradeResponses(def, current.responses as Responses);
+  const newMarker = Object.entries(responses).find(([k, a]) => a.marker && a.marker !== saved[k]?.marker);
+  if (newMarker) return errorResponse('Leave an item blank when it cannot be answered - N/A, Unknown and Declined are no longer recorded.', 400);
   const status = parsed.data.status;
   const autosave = parsed.data.autosave === true;
   if (autosave && (status !== 'DRAFT' || current.status !== 'DRAFT')) {
@@ -181,9 +186,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return errorResponse('A completed intake stays completed; save your edits as an update', 422);
   }
   if (status === 'COMPLETED') {
+    if (!anyAnswered(def, responses)) return errorResponse('Nothing is filled in yet - answer the intake before completing it.', 422);
     const missing = missingIn(def, responses);
     if (missing.length) {
-      return noStore({ success: false, error: 'Some items still need an answer, or N/A, Unknown or Declined',
+      return noStore({ success: false, error: 'Some items still need an answer',
         missing: missing.map(m => ({ key: m.key, no: m.no ?? null, label: m.label })) }, 422);
     }
   }

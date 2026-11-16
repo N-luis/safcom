@@ -19,7 +19,7 @@ import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 import { riskText } from '@/lib/triageLabels';
 import {
   MARKER_LABEL, appliesTo, isAnswered, optionsOf,
-  type Answer, type Item, type Marker, type Responses,
+  type Answer, type Item, type Responses,
 } from '@/lib/officialIntakeForm';
 import { formForType, missingIn, type FormDef, type FormType } from '@/lib/intakeForms';
 
@@ -169,26 +169,6 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
   const completed = intake?.status === 'COMPLETED';
 
   /**
-   * The unanswered items an official may mark N/A in one go - the form says to
-   * write N/A for items that do not apply. Never the safety check or the
-   * confirmations: those need a real answer.
-   */
-  const bulkMarkable = (keys: string[]) => keys.filter(k => {
-    const it = form.byKey[k];
-    return it && !it.proposed && it.type !== 'confirm';
-  });
-  const markRemainingNA = () => {
-    const keys = bulkMarkable(missingIn(form, responses).map(i => i.key));
-    if (!keys.length) return;
-    if (!window.confirm(`Mark ${keys.length} unanswered item${keys.length === 1 ? '' : 's'} as N/A?\n\nOnly do this for items that do not apply to this client. Items that were not asked should be answered, or marked Unknown or Declined instead. You can still change any of them before completing.`)) return;
-    setResponses(r => ({ ...r, ...Object.fromEntries(keys.map(k => [k, { marker: 'na' as Marker }])) }));
-    setDirty(true);
-    setSaveState('pending');
-    setMissingKeys(m => m.filter(k => !keys.includes(k)));
-    toast.success(`${keys.length} item${keys.length === 1 ? '' : 's'} marked N/A - review them, then complete the intake`);
-  };
-
-  /**
    * Save what is on screen. One save at a time, in order; the version sent is
    * the latest saved. Answers typed while a save is on its way stay on screen
    * and are saved next - a finished save never replaces them.
@@ -248,7 +228,7 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
       if (missing.length) {
         setMissingKeys(missing.map(m => m.key));
         setStep(STEPS.length - 1);
-        toast.error(`${missing.length} item${missing.length === 1 ? ' needs' : 's need'} an answer, or N/A, Unknown or Declined`);
+        toast.error(`${missing.length} item${missing.length === 1 ? ' needs' : 's need'} an answer before completing`);
         return;
       }
     }
@@ -471,15 +451,10 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
 
         {/* Completing was refused: said here, and it stays until it is fixed. */}
         {current.key === 'review' && !completed && stillMissing.length > 0 && (
-          <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}
-            action={editable && bulkMarkable(stillMissing).length > 0 ? (
-              <Button color="inherit" size="small" onClick={markRemainingNA} sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
-                Mark the rest N/A
-              </Button>
-            ) : undefined}>
+          <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>
             <Typography sx={{ fontWeight: 800, fontSize: '0.88rem' }}>This intake is not completed yet.</Typography>
             <Typography sx={{ fontSize: '0.82rem' }}>
-              {stillMissing.length} item{stillMissing.length === 1 ? ' still needs' : 's still need'} an answer, or N/A, Unknown or Declined - they are marked in red below.
+              {stillMissing.length} item{stillMissing.length === 1 ? ' still needs' : 's still need'} an answer - they are marked in red below.
               Until the intake is completed, it stays a draft and its PDF is marked DRAFT.
             </Typography>
           </Alert>
@@ -660,7 +635,8 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
   // Today in Philippine time, for the date check - read once, not on every render.
   const [today] = useState(() => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10));
   const a = answer ?? {};
-  // Typing an answer clears an N/A / Unknown / Declined marker.
+  // N/A, Unknown and Declined are no longer recorded. One saved before is kept
+  // (and shown) until an answer replaces it.
   const set = (patch: Partial<Answer>) => {
     const next: Answer = { ...a, ...patch };
     delete next.marker;
@@ -695,10 +671,10 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
       </Box>
       {item.hint && <Typography sx={{ fontSize: '0.76rem', color: '#64748b', mb: 0.75 }}>{item.hint}</Typography>}
 
-      {a.marker ? (
-        <Typography sx={{ fontSize: '0.86rem', color: '#475569', fontStyle: 'italic' }}>Recorded as: {MARKER_LABEL[a.marker]}</Typography>
-      ) : (
-        <>
+      {a.marker && (
+        <Typography sx={{ fontSize: '0.8rem', color: '#475569', fontStyle: 'italic', mb: 0.5 }}>Recorded earlier as: {MARKER_LABEL[a.marker]}</Typography>
+      )}
+      <>
           {(item.type === 'text' || item.type === 'date' || item.type === 'time' || item.type === 'number') && (
             <TextField size="small" fullWidth type={item.type === 'text' ? 'text' : item.type} value={(a.value as string) ?? ''}
               error={Boolean(problem)} helperText={problem ?? undefined}
@@ -784,18 +760,10 @@ function ItemField({ item, answer, onChange, readOnly, required, missing, prefil
             <FormControlLabel control={<Checkbox checked={a.value === 'yes'} onChange={e => onChange(e.target.checked ? { value: 'yes' } : {})} />}
               label={<Typography sx={{ fontSize: '0.86rem' }}>Confirmed</Typography>} />
           )}
-        </>
-      )}
+      </>
 
-      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mt: 0.5 }}>
-        {extra}
-        {item.type !== 'confirm' && (Object.keys(MARKER_LABEL) as Marker[]).map(m => (
-          <Chip key={m} size="small" label={MARKER_LABEL[m]} variant={a.marker === m ? 'filled' : 'outlined'}
-            onClick={() => onChange(a.marker === m ? {} : { marker: m })}
-            sx={{ height: 22, fontSize: '0.7rem', ...(a.marker === m && { bgcolor: '#334155', color: '#fff' }) }} />
-        ))}
-      </Box>
-      {missing && <Typography sx={{ fontSize: '0.76rem', color: '#b91c1c', mt: 0.5 }}>Needs an answer, or N/A, Unknown or Declined.</Typography>}
+      {extra && <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mt: 0.5 }}>{extra}</Box>}
+      {missing && <Typography sx={{ fontSize: '0.76rem', color: '#b91c1c', mt: 0.5 }}>Needs an answer.</Typography>}
     </Box>
   );
 }

@@ -273,12 +273,7 @@ async function live() {
     const r11 = await reveal(informant.id, T.blotter);
     ok('[11] informant: the summary carries the stated relationship', (data(s11).reporter as { relationship: string }).relationship === 'THIRD_PARTY');
     ok('[11] the profile is the reporter’s account, not the victim-survivor', res(r11).fullName === 'Probe A' && !r11.text.includes('Probe Victim'));
-    ok('[11] a party with the same name is not matched to the reporter', Array.isArray(data(r11).linkedAs) && (data(r11).linkedAs as string[]).length === 0);
-    // An official links the reporter's account to the affected person by resident id: now - and only now - it says so.
-    const selfCase = await mkCase({ caseType: 'Assault', residentId: resA.id, assignedToId: blotter.id, reportingRelationship: 'SELF' });
-    await prisma.caseParty.create({ data: { caseId: selfCase.id, role: 'AFFECTED', fullName: 'Probe A', source: 'official', residentId: resA.id } });
-    const r11b = await reveal(selfCase.id, T.blotter);
-    ok('[11] linked by resident id -> shown as also the person affected', (data(r11b).linkedAs as string[]).join() === 'AFFECTED');
+    ok('[11] a party with the same name is not matched to the reporter', !('linkedAs' in data(r11)));
 
     // 12. The audit log is not served to anyone
     for (const path of ['/api/reporter-access-log', '/api/audit', `/api/cases/${mine.id}/reporter/log`]) {

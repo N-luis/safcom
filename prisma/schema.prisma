@@ -360,12 +360,8 @@ model CaseParty {
   hearingsAsRespondent  CaseHearing[] @relation("HearingRespondent")
 
   @@index([caseId])
-<<<<<<< HEAD
-=======
-  @@index([residentId])
   /// Case search by a party's name (pg_trgm).
   @@index([fullName(ops: raw("gin_trgm_ops"))], type: Gin, map: "CaseParty_fullName_trgm_idx")
->>>>>>> 593c8d7e929a2543c52d33bffd58f71feaf16b5d
 }
 
 /// The officer's initial safety assessment. Officer-only; one per case, and

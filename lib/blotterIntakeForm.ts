@@ -10,8 +10,8 @@
  * (upgradeResponses in lib/intakeForms.ts). Nothing stored is rewritten.
  *
  * Built on the same engine as the VAWC intake form (lib/officialIntakeForm):
- * drafts, versions, completion, N/A / Unknown / Declined markers, the live
- * preview, the PDF and the access log work the same way. Never used for a
+ * drafts, versions, completion, the live preview, the PDF and the access log
+ * work the same way. Never used for a
  * VAWC case. The complainant's statement (D, E) and the officer's own notes
  * (F) are kept apart.
  *

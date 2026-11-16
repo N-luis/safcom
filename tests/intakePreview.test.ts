@@ -13,7 +13,10 @@ import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
 import { ALL_ITEMS, appliesTo, type Responses } from '../lib/officialIntakeForm';
-import { fictional, narrative, NARRATIVE_END } from './intakeFixtures';
+import { fictional as fictionalWithMarkers, narrative, NARRATIVE_END } from './intakeFixtures';
+
+/** The fixture as it can be saved now: N/A, Unknown and Declined are no longer recorded, so its old marker is left out. */
+const fictional = () => Object.fromEntries(Object.entries(fictionalWithMarkers()).filter(([, a]) => !a.marker));
 import { GET as intakeGET, POST as intakePOST, PUT as intakePUT } from '../app/api/cases/[id]/official-intake/route';
 import { GET as pdfGET } from '../app/api/cases/[id]/official-intake/pdf/route';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';

@@ -11,7 +11,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
-import { ALL_ITEMS, appliesTo, missingForCompletion, type Responses } from '../lib/officialIntakeForm';
+import { ALL_ITEMS, appliesTo, missingForCompletion, mustAnswer, type Responses } from '../lib/officialIntakeForm';
 import { GET as intakeGET, POST as intakePOST, PUT as intakePUT } from '../app/api/cases/[id]/official-intake/route';
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as pdfGET } from '../app/api/cases/[id]/official-intake/pdf/route';
@@ -50,13 +50,13 @@ const get = (id: string, cookie: string) => intakeGET(req(`/api/cases/${id}/offi
 const start = (id: string, cookie: string) => intakePOST(req(`/api/cases/${id}/official-intake`, cookie, 'POST'), params(id)).then(json);
 const put = (id: string, cookie: string, body: unknown) => intakePUT(req(`/api/cases/${id}/official-intake`, cookie, 'PUT', body), params(id)).then(json);
 
-/** Answers every required item - N/A where the form allows it - so an intake can be completed. */
+/** Answers what completion needs - the safety and consent check - and leaves every other item blank. */
 function complete(base: Responses): Responses {
   const r: Responses = { ...base };
   for (let pass2 = 0; pass2 < 2; pass2++) {
     for (const i of ALL_ITEMS) {
-      if (appliesTo(i, r) !== 'required' || r[i.key]?.value || r[i.key]?.marker) continue;
-      r[i.key] = i.type === 'confirm' ? { value: 'yes' } : i.key === 'safeToSpeak' ? { value: 'yes' } : i.key === 'immediateDanger' ? { value: 'no' } : { marker: 'na' };
+      if (!mustAnswer(i) || appliesTo(i, r) !== 'required' || r[i.key]?.value) continue;
+      r[i.key] = i.type === 'confirm' ? { value: 'yes' } : i.key === 'safeToSpeak' ? { value: 'yes' } : i.key === 'immediateDanger' ? { value: 'no' } : r[i.key];
     }
   }
   return r;
@@ -145,12 +145,14 @@ async function main() {
     ok('an unknown item is refused', (await put(self.id, V.cookie, { expectedVersion: 2, status: 'DRAFT', responses: { ...draft, hackField: { value: 'x' } } })).status === 400);
     ok('a value outside the options is refused', (await put(self.id, V.cookie, { expectedVersion: 2, status: 'DRAFT', responses: { ...draft, sexAtBirth: { value: 'robot' } } })).status === 400);
     const early = await put(self.id, V.cookie, { expectedVersion: 2, status: 'COMPLETED', responses: draft });
-    ok('completing with items unanswered -> 422 with the list', early.status === 422 && early.body.missing.length > 10);
+    ok('completing without the safety check -> 422, listing only what must be answered', early.status === 422 && early.body.missing.length > 0
+      && early.body.missing.every((m: { key: string }) => mustAnswer(ALL_ITEMS.find(i => i.key === m.key)!)));
+    ok('N/A, Unknown and Declined can no longer be recorded', (await put(self.id, V.cookie, { expectedVersion: 2, status: 'DRAFT', responses: { ...draft, occupation: { marker: 'na' } } })).status === 400);
     ok('items not applicable are not demanded (no informant items when the victim reported)',
       !missingForCompletion(complete(draft)).length && !early.body.missing.some((m: { key: string }) => m.key === 'informantName'));
     const full = complete(draft);
     const done = await put(self.id, V.cookie, { expectedVersion: 2, status: 'COMPLETED', responses: full });
-    ok('completing with every item answered or marked N/A -> COMPLETED', done.status === 200 && done.body.data.intake.status === 'COMPLETED');
+    ok('completing with the safety check answered and other items left blank -> COMPLETED', done.status === 200 && done.body.data.intake.status === 'COMPLETED');
     ok('a completed intake cannot be turned back into a draft', (await put(self.id, V.cookie, { expectedVersion: 3, status: 'DRAFT', responses: full })).status === 422);
     const upd = await put(self.id, V.cookie, { expectedVersion: 3, status: 'COMPLETED', responses: { ...full, clientCode: { value: 'CC-01' } } });
     ok('editing a completed intake -> a new version, still completed', upd.status === 200 && upd.body.data.intake.version === 4);

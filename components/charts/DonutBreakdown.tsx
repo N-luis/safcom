@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Box, Typography } from '@mui/material';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -38,7 +38,10 @@ export const pctText = (p: number) => `${Number.isInteger(p) ? p : p.toFixed(1)}
 
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString('en-PH')} ${n === 1 ? one : many}`;
 
-export default function DonutBreakdown({ slices, centerValue, centerLabel, unit = ['case', 'cases'], maxSize = 210, footer, ariaLabel }: {
+/** In fill mode: the legend's narrowest, the gap beside it, and the narrowest a donut is drawn. */
+const LEGEND_MIN = 260, GAP = 24, DONUT_MIN = 180;
+
+export default function DonutBreakdown({ slices, centerValue, centerLabel, unit = ['case', 'cases'], maxSize = 210, footer, ariaLabel, fill = false }: {
   slices: DonutSlice[];
   /** What the middle shows when nothing is pointed at (default: the total). */
   centerValue?: ReactNode;
@@ -48,8 +51,28 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
   maxSize?: number;
   footer?: ReactNode;
   ariaLabel: string;
+  /**
+   * Fill the space it is given (its parent sets the height): the donut grows
+   * as large as the width beside the legend allows, and the legend rows share
+   * the full height, so a card stretched to match its neighbour has no empty
+   * area at the bottom.
+   * Where there is no room beside it, the legend goes under the donut as usual.
+   */
+  fill?: boolean;
 }) {
   const [active, setActive] = useState<number | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const [space, setSpace] = useState<{ w: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!fill || !el) return;
+    const ro = new ResizeObserver(([e]) => setSpace({ w: e.contentRect.width, h: e.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fill]);
+  // Side by side when the legend keeps its room; the donut as tall as the space allows.
+  const side = Boolean(fill && space && space.w - GAP - LEGEND_MIN >= DONUT_MIN && space.h >= DONUT_MIN);
+  const size = side && space ? Math.floor(Math.min(space.h, space.w - GAP - LEGEND_MIN)) : null;
   const total = slices.reduce((n, s) => n + s.count, 0);
   const pct = percentages(slices.map(s => s.count));
   // The ring draws only what has cases; the legend lists everything.
@@ -57,10 +80,13 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
   const a = active !== null ? slices[active] : null;
 
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 3, rowGap: 1.5 }}>
+    <Box ref={box} data-fill={fill ? (side ? 'side' : 'stacked') : undefined}
+      sx={{ display: 'flex', flexWrap: side ? 'nowrap' : 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: `${GAP}px`, rowGap: 1.5,
+        ...(fill && { height: '100%' }) }}>
       <Box role="img" aria-label={`${ariaLabel}: ${slices.map((s, i) => `${s.label} ${plural(s.count, ...unit)}, ${pctText(pct[i])}`).join('; ')}`}
         onMouseLeave={() => setActive(null)}
-        sx={{ position: 'relative', width: `min(100%, ${maxSize}px)`, aspectRatio: '1 / 1', flex: `0 1 ${maxSize}px`, minWidth: 150 }}>
+        sx={size ? { position: 'relative', width: size, height: size, flex: '0 0 auto' }
+          : { position: 'relative', width: `min(100%, ${maxSize}px)`, aspectRatio: '1 / 1', flex: `0 1 ${maxSize}px`, minWidth: 150 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={ring} dataKey="count" nameKey="label" cx="50%" cy="50%" innerRadius="64%" outerRadius="94%"
@@ -86,20 +112,22 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
                 <Typography sx={{ fontSize: '0.74rem', fontWeight: 700, color: '#475569', lineHeight: 1.2, overflow: 'hidden',
                   display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{a.label}</Typography>
               </Box>
-              <Typography sx={{ fontSize: 'clamp(1.2rem, 4.5vw, 1.6rem)', fontWeight: 800, color: '#0c1e46', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>{pctText(pct[active!])}</Typography>
+              <Typography sx={{ fontSize: size ? `${Math.min(48, Math.round(size * 0.12))}px` : 'clamp(1.2rem, 4.5vw, 1.6rem)', fontWeight: 800, color: '#0c1e46', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>{pctText(pct[active!])}</Typography>
               <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>{plural(a.count, ...unit)}</Typography>
             </>
           ) : (
             <>
-              <Typography sx={{ fontSize: 'clamp(1.3rem, 5vw, 1.8rem)', fontWeight: 800, color: '#0c1e46', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{centerValue ?? total.toLocaleString('en-PH')}</Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', mt: 0.25 }}>{centerLabel ?? 'Total'}</Typography>
+              <Typography sx={{ fontSize: size ? `${Math.min(56, Math.round(size * 0.14))}px` : 'clamp(1.3rem, 5vw, 1.8rem)', fontWeight: 800, color: '#0c1e46', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{centerValue ?? total.toLocaleString('en-PH')}</Typography>
+              <Typography sx={{ fontSize: size ? `${Math.min(15, Math.max(11.5, Math.round(size * 0.035)))}px` : '0.72rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', mt: 0.25 }}>{centerLabel ?? 'Total'}</Typography>
             </>
           )}
         </Box>
       </Box>
 
       {/* The legend: each row points at its slice; a row that opens something is a button. */}
-      <Box role="list" aria-label={`${ariaLabel} legend`} onMouseLeave={() => setActive(null)} sx={{ flex: '1 1 200px', minWidth: 0, maxWidth: 420 }}>
+      <Box role="list" aria-label={`${ariaLabel} legend`} onMouseLeave={() => setActive(null)}
+        // Beside a filled donut, the rows share the whole height evenly - never shorter than a normal row.
+        sx={size ? { flex: '1 1 auto', minWidth: 0, alignSelf: 'stretch', display: 'flex', flexDirection: 'column' } : { flex: '1 1 200px', minWidth: 0, maxWidth: 420 }}>
         {slices.map((s, i) => {
           const on = active === i;
           const dim = active !== null && !on;
@@ -113,7 +141,7 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
             </>
           );
           const sx = {
-            display: 'flex', alignItems: 'center', gap: 1, width: '100%', px: 1, py: 0.9, border: 0, borderRadius: 1.5, font: 'inherit', textAlign: 'left' as const,
+            display: 'flex', alignItems: 'center', gap: 1, width: '100%', px: 1, py: 0.9, border: 0, ...(size && { height: '100%', px: 1.5 }), borderRadius: 1.5, font: 'inherit', textAlign: 'left' as const,
             bgcolor: on ? '#f1f5f9' : 'transparent', opacity: dim ? 0.55 : 1, transition: 'background-color 0.15s, opacity 0.15s',
             boxShadow: on ? `inset 3px 0 0 ${s.color}` : 'none', outline: 'none',
             '&:focus-visible': { boxShadow: `inset 0 0 0 2px #0f766e` },
@@ -121,7 +149,7 @@ export default function DonutBreakdown({ slices, centerValue, centerLabel, unit 
           const label = `${s.label}: ${plural(s.count, ...unit)}, ${pctText(pct[i])}`;
           const events = { onMouseEnter: () => setActive(i), onFocus: () => setActive(i), onBlur: () => setActive(null) };
           return (
-            <Box key={s.key} role="listitem" sx={{ borderBottom: '1px solid #f1f5f9' }}>
+            <Box key={s.key} role="listitem" sx={{ borderBottom: '1px solid #f1f5f9', ...(size && { flex: '1 0 auto', display: 'flex' }) }}>
               {s.onSelect ? (
                 <Box component="button" type="button" onClick={s.onSelect} aria-label={`${label}. Open the list.`} {...events} sx={{ ...sx, cursor: 'pointer' }}>{row}</Box>
               ) : (

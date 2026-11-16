@@ -94,10 +94,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           registeredAt: r.registeredAt,
           updatedAt: r.updatedAt,
         },
-        // Where an official linked this account to a person in the case, by
-        // resident number. Empty means nobody linked it - not that the
-        // reporter is or is not the person affected.
-        linkedAs: [...new Set(c.parties.filter(p => p.residentId === r.id).map(p => p.role))],
         // Links only - nothing is dialled or sent from here. Withheld where
         // the reporter said phone contact is not safe.
         telHref: phone && (pref?.allowCall ?? true) ? `tel:${dialable(phone)}` : null,

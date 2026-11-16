@@ -213,10 +213,6 @@ export async function loadCaseForContact(caseId: string) {
         address: true, barangay: true, contactNumber: true, email: true,
         status: true, emailVerified: true, registeredAt: true, updatedAt: true,
       } },
-      // Where an official linked the reporter's account to a person in this
-      // case - by resident number, never by name - so the view can say so
-      // instead of assuming who the reporter is.
-      parties: { where: { residentId: { not: null } }, select: { role: true, residentId: true } },
     },
   });
   if (!c) return null;

@@ -47,7 +47,6 @@ interface ResidentInfo {
     address: string | null; barangay: string | null; phone: string | null; email: string | null;
     accountStatus: string | null; emailVerified: boolean; registeredAt: string | null; updatedAt: string | null;
   } | null;
-  linkedAs?: string[];
   telHref?: string | null;
   smsHref?: string | null;
   missing: string | null;
@@ -63,7 +62,6 @@ const ROLE: Record<string, string> = {
   THIRD_PARTY: 'Informant · reporting an incident involving someone else',
   ON_BEHALF: 'Third-party reporter · filing on behalf of the person affected',
 };
-const LINKED: Record<string, string> = { AFFECTED: 'the person affected', REPORTED: 'the person reported' };
 
 const day = (d: string | null) => d ? new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 const when = (d: string | null) => d ? new Date(d).toLocaleString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
@@ -247,9 +245,6 @@ export default function ReporterInfoPanel({ caseId, onAssigned }: { caseId: stri
                 <Divider />
                 <Section title="In this case">
                   <Field name="Role" value={role ?? 'Reporter · did not say who was affected'} />
-                  {(info.linkedAs ?? []).map(l => (
-                    <Field key={l} name="Also linked as" value={`${LINKED[l] ?? l} (linked by an official by resident ID)`} />
-                  ))}
                   {reporter.relationship !== 'SELF' && (
                     <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
                       The person affected and the person reported are recorded separately in the case, not as this resident.

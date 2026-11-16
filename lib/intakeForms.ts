@@ -11,7 +11,7 @@
  * with it: a draft reopens as the form it was begun on even if the case is
  * later moved to the other desk. Client-safe.
  */
-import { INTAKE_SECTIONS, INTAKE_FORM_VERSION, appliesTo, isAnswered, type Item, type Responses, type Section } from './officialIntakeForm';
+import { INTAKE_SECTIONS, INTAKE_FORM_VERSION, appliesTo, isAnswered, mustAnswer, type Item, type Responses, type Section } from './officialIntakeForm';
 import { BLOTTER_INTAKE_SECTIONS, BLOTTER_INTAKE_VERSION } from './blotterIntakeForm';
 import { VAWC_TYPES } from './vawcTypes';
 
@@ -100,9 +100,14 @@ export const formForType = (t: string | null | undefined): FormDef => FORMS[t ==
 export const formTypeForCase = (caseType: string): FormType =>
   ((VAWC_TYPES as readonly string[]).includes(caseType) ? 'VAWC_INTAKE' : 'BLOTTER_REPORT');
 
-/** Every item that must be answered (or marked N/A, Unknown or Declined) before this form can be completed. */
+/** The items still standing between this form and completion (mustAnswer): the rest may be left blank. */
 export function missingIn(def: FormDef, r: Responses): Item[] {
-  return def.items.filter(i => appliesTo(i, r) === 'required' && !isAnswered(i, r[i.key]));
+  return def.items.filter(i => mustAnswer(i) && appliesTo(i, r) === 'required' && !isAnswered(i, r[i.key]));
+}
+
+/** Whether any of the form's own items is filled in - an intake with nothing in it is not completed. */
+export function anyAnswered(def: FormDef, r: Responses): boolean {
+  return def.items.some(i => !i.proposed && i.type !== 'confirm' && isAnswered(i, r[i.key]));
 }
 
 /**

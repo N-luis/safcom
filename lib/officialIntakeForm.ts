@@ -310,7 +310,15 @@ export function isAnswered(i: Item, a: Answer | undefined): boolean {
   }
 }
 
-/** Every item that must be answered (or marked N/A, Unknown or Declined) before the intake can be completed. */
+/**
+ * What must be answered before an intake is completed: the safety and consent
+ * check SafeComm adds, and any confirmation that applies. Every other item may
+ * be left blank - it is shown and printed blank. (N/A, Unknown and Declined
+ * are no longer recorded; one saved before still counts as an answer.)
+ */
+export const mustAnswer = (i: Item) => Boolean(i.proposed) || i.type === 'confirm';
+
+/** The items still standing between the VAWC intake and completion. */
 export function missingForCompletion(r: Responses): Item[] {
-  return ALL_ITEMS.filter(i => appliesTo(i, r) === 'required' && !isAnswered(i, r[i.key]));
+  return ALL_ITEMS.filter(i => mustAnswer(i) && appliesTo(i, r) === 'required' && !isAnswered(i, r[i.key]));
 }
