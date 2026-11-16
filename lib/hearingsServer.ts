@@ -246,44 +246,27 @@ export async function checkPeople(caseId: string, d: { assignedOfficialId?: stri
 
 /** The parties of one proceeding as the server needs them. */
 export const hearingPartySelect = {
-  complainantParty: { select: { id: true, fullName: true, residentId: true } },
-  respondentParty: { select: { id: true, fullName: true, residentId: true } },
+  complainantParty: { select: { id: true, fullName: true } },
+  respondentParty: { select: { id: true, fullName: true } },
 } as const;
-type PartyRef = { id: string; fullName: string | null; residentId: string | null } | null;
+type PartyRef = { id: string; fullName: string | null } | null;
 
 /**
- * Whose SafeComm account each side's notices go to. The complainant: the
- * affected person's own linked account, else the reporter who filed the case
- * (when the reporter is the complainant, or the person they filed for has no
- * account). The respondent: only a linked account. Never matched by name.
+ * Whose SafeComm account each side's notices go to: the complainant's go to
+ * the reporter who filed the case; the respondent's are handed over or served
+ * by an officer. No other person's account is ever involved.
  */
-export function partyAccounts(c: { residentId: string | null }, h: { complainantParty: PartyRef; respondentParty: PartyRef }) {
-  return {
-    COMPLAINANT: h.complainantParty?.residentId ?? c.residentId ?? null,
-    RESPONDENT: h.respondentParty?.residentId ?? null,
-  } as Record<PartyRole, string | null>;
+export function partyAccounts(c: { residentId: string | null }) {
+  return { COMPLAINANT: c.residentId ?? null, RESPONDENT: null } as Record<PartyRole, string | null>;
 }
 
-/**
- * The proceedings a resident is a party to: as the complainant (their own
- * linked party record, or the case they filed when no other account stands
- * for the complainant) or as the respondent (a party record an official
- * linked to their account). Never a draft, never a VAWC case.
- */
+/** The proceedings a resident takes part in: those on the cases they filed. Never a draft, never a VAWC case. */
 export function residentHearingWhere(residentId: string) {
   return {
     status: { not: 'DRAFT' },
-    case: { caseType: { notIn: [...VAWC_TYPES] } },
-    OR: [
-      { complainantParty: { residentId } },
-      { case: { residentId }, OR: [{ complainantPartyId: null }, { complainantParty: { residentId: null } }] },
-      { respondentParty: { residentId } },
-    ],
+    case: { caseType: { notIn: [...VAWC_TYPES] }, residentId },
   } satisfies Prisma.CaseHearingWhereInput;
 }
-/** Which side the resident is on in this proceeding. */
-export const partyRoleOf = (h: { respondentParty: { residentId: string | null } | null }, residentId: string): PartyRole =>
-  h.respondentParty?.residentId === residentId ? 'RESPONDENT' : 'COMPLAINANT';
 
 /** What every event about a proceeding carries, so a party's message can be told from it alone. */
 export const hearingSnap = (h: { hearingNumber: number; stage: string; session: number }, at: Date, venue: string | null) =>
@@ -328,7 +311,7 @@ type HearingForNotice = { id: string; caseId: string; reference: string; hearing
 export async function issueStageNotices(tx: Prisma.TransactionClient, c: HearingCase, h: HearingForNotice, actorId: string, by: string,
   only?: PartyRole[]) {
   const stage = (isKpStage(h.stage) ? h.stage : 'MEDIATION') as KpStage;
-  const accounts = partyAccounts(c, h);
+  const accounts = partyAccounts(c);
   const now = new Date();
   const made = [];
   for (const f of partyFormsFor(stage).filter(f => !only || only.includes(f.recipientRole))) {

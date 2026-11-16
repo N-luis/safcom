@@ -13,14 +13,13 @@ import { REFERRAL_AGENCIES, type ReferralAgency } from '@/lib/caseRecords';
 import type { HearingCaseRow } from '@/lib/hearingCasesServer';
 import ConflictWarnings, { ConflictList } from './ConflictWarnings';
 import KpReviewForm from './KpReviewForm';
-import { PartyAccount } from './HearingDetailsDialog';
 import { NAVY, getJson, send, todayPh, conflictsOf, chipSx, type CaseHearingsData } from './hearingUi';
 
 export const ELIGIBILITY_COLOR: Record<HearingCaseRow['eligibility']['state'], string> = {
-  ELIGIBLE: '#15803d', NOT_ELIGIBLE: '#b91c1c', NEEDS_VERIFICATION: '#b45309', PENDING_REVIEW: '#64748b',
+  ELIGIBLE: '#15803d', NOT_ELIGIBLE: '#b91c1c', PENDING_REVIEW: '#64748b',
 };
 const ELIGIBILITY_TITLE: Record<HearingCaseRow['eligibility']['state'], string> = {
-  PENDING_REVIEW: 'Eligibility review pending', NEEDS_VERIFICATION: 'Eligibility needs verification',
+  PENDING_REVIEW: 'Eligibility review pending',
   NOT_ELIGIBLE: 'Not eligible for barangay mediation or conciliation', ELIGIBLE: 'Not ready for a hearing yet',
 };
 
@@ -189,7 +188,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             <CaseInfo d={d} />
             {d.eligibility.warnings.map(w => <Alert key={w} severity="warning" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{w}</Alert>)}
             {!d.eligibility.eligible && !(d.eligibility.state === 'NOT_ELIGIBLE' && d.eligibility.exclusions.length > 0 && !d.vawc && !reviewAgain) && (
-              <Alert severity={d.vawc || d.eligibility.state === 'NOT_ELIGIBLE' ? 'error' : d.eligibility.state === 'NEEDS_VERIFICATION' ? 'warning' : 'info'} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
+              <Alert severity={d.vawc || d.eligibility.state === 'NOT_ELIGIBLE' ? 'error' : 'info'} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
                 <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.25 }}>{d.vawc ? 'No ordinary barangay hearing for this case' : ELIGIBILITY_TITLE[d.eligibility.state]}</Typography>
                 {d.eligibility.reasons.map(r => <Box key={r}>{r}</Box>)}
                 {!d.eligibility.categoryVerified && !d.vawc && d.canEdit && (
@@ -216,18 +215,6 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             {!d.canEdit && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.accessMessage ?? 'You can view this case\'s hearings but not create one.'}</Alert>}
 
             {!d.vawc && d.canEdit && !d.parties.respondents.length && <RecordRespondent caseId={d.case.id} onSaved={refresh} />}
-            {/* Stays after linking, so the officer sees who it is linked to and when, and can unlink a mistake. */}
-            {!d.vawc && d.canEdit && rParty && (
-              <Box>
-                {!rParty.account && (
-                  <Typography sx={{ fontSize: '0.78rem', color: '#475569', mb: 0.75 }}>
-                    If the respondent has a SafeComm account, link it so the summons reaches them in My Hearings &amp; Notices. Otherwise an officer serves it and records the delivery.
-                  </Typography>
-                )}
-                <PartyAccount caseId={d.case.id} role="RESPONDENT" party={rParty} canEdit refresh={refresh} />
-              </Box>
-            )}
-
             {ready && next && (
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
                 <Alert severity="info" icon={false} sx={{ gridColumn: { sm: '1 / -1' }, borderRadius: 2, fontSize: '0.8rem' }}>
@@ -237,7 +224,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                     return (
                       <Box key={f.recipientRole}>
                         <b>{f.name}</b> - to the {f.recipientRole.toLowerCase()}{party ? ` (${party.name})` : ''}:{' '}
-                        {party?.account ? 'delivered to their SafeComm account at once.' : 'no SafeComm account linked - an officer hands it over or serves it, and records the delivery.'}
+                        {party?.account ? 'delivered to their SafeComm account at once.' : 'an officer hands it over or serves it, and records the delivery.'}
                       </Box>
                     );
                   })}

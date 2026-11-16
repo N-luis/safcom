@@ -220,17 +220,16 @@ export const hasDayArrived = (d: Date | string, now = new Date()) => phDay(d) <=
  *
  *   YES            - checked, and it holds
  *   NO             - checked, and it does not: a legal exclusion applies
- *   UNKNOWN        - not yet known; the fact must be verified first
  *   NOT_APPLICABLE - the point does not arise in this dispute (only where
  *                    that is possible, e.g. no offence, no real property)
  *
- * An unanswered point is just that - the review is not finished. Only a NO
+ * A point not yet checked is left unanswered - the review is not finished. Only a NO
  * the official records excludes the case. SafeComm records the review; it
  * does not make the legal call.
  */
-export const KP_ANSWERS = ['YES', 'NO', 'UNKNOWN', 'NOT_APPLICABLE'] as const;
+export const KP_ANSWERS = ['YES', 'NO', 'NOT_APPLICABLE'] as const;
 export type KpAnswer = (typeof KP_ANSWERS)[number];
-export const KP_ANSWER_LABELS: Record<KpAnswer, string> = { YES: 'Yes', NO: 'No', UNKNOWN: 'Unknown', NOT_APPLICABLE: 'Not applicable' };
+export const KP_ANSWER_LABELS: Record<KpAnswer, string> = { YES: 'Yes', NO: 'No', NOT_APPLICABLE: 'Not applicable' };
 
 export const KP_CHECKLIST = [
   { key: 'not_vawc', short: 'not a VAWC case', basis: 'RA 9262 sec. 33', na: false,
@@ -271,38 +270,33 @@ export type KpAnswers = Partial<Record<KpCheckKey, KpAnswer | null>>;
 export const KP_REVIEW_VERSION = 2;
 
 /** Where a case stands on eligibility. */
-export const KP_ELIGIBILITY_STATES = ['PENDING_REVIEW', 'NEEDS_VERIFICATION', 'ELIGIBLE', 'NOT_ELIGIBLE'] as const;
+export const KP_ELIGIBILITY_STATES = ['PENDING_REVIEW', 'ELIGIBLE', 'NOT_ELIGIBLE'] as const;
 export type KpEligibilityState = (typeof KP_ELIGIBILITY_STATES)[number];
 export const KP_ELIGIBILITY_LABELS: Record<KpEligibilityState, string> = {
-  PENDING_REVIEW: 'Pending review', NEEDS_VERIFICATION: 'Needs verification', ELIGIBLE: 'Eligible', NOT_ELIGIBLE: 'Not eligible',
+  PENDING_REVIEW: 'Pending review', ELIGIBLE: 'Eligible', NOT_ELIGIBLE: 'Not eligible',
 };
 
 export interface KpReviewOutcome {
   decision: KpEligibilityState;
   /** Points answered NO - each a legal exclusion the official recorded. */
   exclusions: KpCheckKey[];
-  /** Points answered UNKNOWN. */
-  toVerify: KpCheckKey[];
   /** Points not answered yet. */
   unanswered: KpCheckKey[];
 }
 
 /**
  * The decision a set of answers makes. A recorded exclusion (NO) makes it
- * not eligible; otherwise an UNKNOWN leaves it to be verified, and an
- * unanswered point leaves the review unfinished. Every point cleared (YES, or
+ * not eligible; otherwise an unanswered point leaves the review unfinished. Every point cleared (YES, or
  * NOT_APPLICABLE where that is possible) is eligible only once the official
  * approves it - until then it waits for that approval.
  */
 export function decideKpReview(answers: KpAnswers, approved: boolean): KpReviewOutcome {
   const of = (a: KpAnswer) => KP_CHECKLIST.filter(c => answers[c.key] === a).map(c => c.key);
   const exclusions = of('NO');
-  const toVerify = of('UNKNOWN');
   const unanswered = KP_CHECKLIST.filter(c => !answers[c.key]).map(c => c.key);
   const decision: KpEligibilityState = exclusions.length ? 'NOT_ELIGIBLE'
-    : toVerify.length ? 'NEEDS_VERIFICATION'
-      : unanswered.length || !approved ? 'PENDING_REVIEW' : 'ELIGIBLE';
-  return { decision, exclusions, toVerify, unanswered };
+    : unanswered.length || !approved ? 'PENDING_REVIEW' : 'ELIGIBLE';
+  return { decision, exclusions, unanswered };
 }
 
 /** Why these answers cannot be recorded, or null: N/A only where the point can not arise. */
@@ -332,7 +326,7 @@ export interface EligibilityInput {
 
 export interface Eligibility {
   eligible: boolean;
-  /** Where the case stands - PENDING_REVIEW, NEEDS_VERIFICATION, ELIGIBLE or NOT_ELIGIBLE. */
+  /** Where the case stands - PENDING_REVIEW, ELIGIBLE or NOT_ELIGIBLE. */
   state: KpEligibilityState;
   /** Why not - shown in place of the Create Hearing button. */
   reasons: string[];
@@ -350,6 +344,7 @@ export interface Eligibility {
 
 export const VAWC_HEARING_REFUSAL = 'VAWC cases under RA 9262 are not subject to barangay mediation or conciliation. Keep this case in the VAWC workflow - intervention, safety assistance, referral and follow-up.';
 
+/** Saved answers that are still one of KP_ANSWERS - an "Unknown" saved before it was removed reads as not answered. */
 const answersOf = (v: unknown): KpAnswers => {
   const out: KpAnswers = {};
   if (v && typeof v === 'object') {
@@ -360,7 +355,6 @@ const answersOf = (v: unknown): KpAnswers => {
   }
   return out;
 };
-const listOf = (keys: KpCheckKey[]) => keys.map(k => `${kpCheck(k)!.short} (${kpCheck(k)!.basis})`).join('; ');
 
 /**
  * May this case have an ordinary barangay hearing? Decided from the verified
@@ -399,8 +393,6 @@ export function hearingEligibility(i: EligibilityInput): Eligibility {
       needsReview = false;
       exclusions = o.exclusions.map(k => { const c = kpCheck(k)!; return { key: k, basis: c.basis, exclusion: c.exclusion }; });
       reasons.push(`Not eligible for barangay conciliation: ${exclusions.map(e => `${e.exclusion} (${e.basis})`).join(' ')}${r.note ? ` Official's note: ${r.note}` : ''}`);
-    } else if (o.decision === 'NEEDS_VERIFICATION') {
-      reasons.push(`Still to be verified: ${listOf(o.toVerify)}.`);
     } else if (o.decision === 'PENDING_REVIEW') {
       reasons.push(o.unanswered.length
         ? `The eligibility review is not finished - ${o.unanswered.length} point${o.unanswered.length === 1 ? '' : 's'} still to answer.`

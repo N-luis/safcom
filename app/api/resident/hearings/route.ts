@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
-import { noStore, residentHearingWhere, partyRoleOf, hearingPartySelect } from '@/lib/hearingsServer';
+import { noStore, residentHearingWhere, hearingPartySelect } from '@/lib/hearingsServer';
 import {
   isLive, phDay, sessionTitle, kpFormName, residentHearingMessage, LIVE_NOTICE, NOTICE_STATUSES, HEARING_OUTCOMES, KP_STAGES, RESIDENT_STATUS_LABELS,
-  RESIDENT_INSTRUCTIONS, RESIDENT_EVENT_KINDS, RESCHEDULE_REQUESTS_PER_HEARING, isKpStage, type HearingOutcome, type NoticeStatus,
+  RESIDENT_INSTRUCTIONS, RESIDENT_EVENT_KINDS, RESCHEDULE_REQUESTS_PER_HEARING, isKpStage, type HearingOutcome, type NoticeStatus, type PartyRole,
 } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     const users = issuers.length ? await prisma.user.findMany({ where: { id: { in: issuers } }, select: { id: true, name: true } }) : [];
     const today = phDay(new Date());
     const view = hearings.map(h => {
-      const role = partyRoleOf(h, me);
+      const role = 'COMPLAINANT' as PartyRole;
       const live = isLive(h.status);
       const notPast = phDay(h.scheduledAt) >= today;
       // Only the notices addressed to this side.

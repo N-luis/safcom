@@ -9,10 +9,9 @@ import { logRouteError } from '@/lib/hearingCasesServer';
 /**
  * An official's review of whether a dispute may go to Katarungang
  * Pambarangay proceedings: each point on the checklist answered Yes, No,
- * Unknown or Not applicable - or not yet (lib/hearings.ts decideKpReview).
+ * or Not applicable - or not yet (lib/hearings.ts decideKpReview).
  *
  *   - a No records a legal exclusion: NOT_ELIGIBLE, with the official's basis;
- *   - an Unknown leaves a fact to verify: NEEDS_VERIFICATION;
  *   - an unanswered point leaves the review unfinished: PENDING_REVIEW;
  *   - every point cleared is ELIGIBLE only when the official approves it.
  *
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const g = await gateHearings(req, id, 'edit');
   if ('error' in g) return g.error;
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return errorResponse('Answer each point with Yes, No, Unknown or Not applicable - or leave it for later', 400);
+  if (!parsed.success) return errorResponse('Answer each point with Yes, No or Not applicable - or leave it for later', 400);
   const answers: KpAnswers = Object.fromEntries(KP_KEYS.filter(k => parsed.data.answers[k]).map(k => [k, parsed.data.answers[k]]));
   const refusal = kpAnswersRefusal(answers);
   if (refusal) return errorResponse(refusal, 400);

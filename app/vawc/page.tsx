@@ -19,6 +19,7 @@ import {
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
+import DashboardAnnouncements from '@/components/announcements/DashboardAnnouncements';
 import DonutBreakdown from '@/components/charts/DonutBreakdown';
 
 const MotionTableRow = motion(TableRow);
@@ -220,7 +221,7 @@ export default function VawcDashboard() {
             Real-time monitoring of Violence Against Women and Children cases
           </Typography>
         </Box>
-        <AnnounceButton accent="#7c3aed" />
+        <AnnounceButton accent="#7c3aed" boardPath="/vawc/announcements" />
       </Box>
 
       {/* Stat cards */}
@@ -282,6 +283,8 @@ export default function VawcDashboard() {
           />
         </Grid>
       </Grid>
+
+      <DashboardAnnouncements accent="#7c3aed" boardPath="/vawc/announcements" />
 
       {/* Charts row */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>

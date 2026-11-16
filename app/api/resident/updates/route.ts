@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { RESIDENT_ACTIVITY_TYPES, residentNotice } from '@/lib/notifications';
-import { residentHearingWhere, partyRoleOf } from '@/lib/hearingsServer';
+import { residentHearingWhere } from '@/lib/hearingsServer';
 import { residentHearingMessage, RESIDENT_EVENT_KINDS } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
         take: limit * 3,
         select: { id: true, kind: true, after: true, createdAt: true,
-          hearing: { select: { respondentParty: { select: { residentId: true } },
+          hearing: { select: {
             case: { select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true, residentId: true } } } } },
       }),
     ]);
@@ -93,11 +93,9 @@ export async function GET(req: NextRequest) {
     // Each told to the party in their own words (lib/hearings.ts residentHearingMessage).
     const me = auth.resident.residentId;
     const hearingUpdates = hearingEvents.flatMap(e => {
-      const role = partyRoleOf(e.hearing, me);
-      const message = residentHearingMessage(e, role);
+      const message = residentHearingMessage(e, 'COMPLAINANT');
       if (!message) return [];
-      // A respondent is told the case number, and nothing that opens the complainant's case.
-      const own = role === 'COMPLAINANT' && e.hearing.case.residentId === me;
+      const own = e.hearing.case.residentId === me;
       const c = e.hearing.case;
       return [{ id: e.id, color: '#0369a1', createdAt: e.createdAt, notice: { message, entryLabel: 'Hearing update' },
         case: own ? c : { id: null, caseNumber: c.caseNumber, caseType: undefined, status: null, riskLevel: null } }];

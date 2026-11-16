@@ -3469,10 +3469,7 @@ export const CasePartyScalarFieldEnum = {
   source: 'source',
   updatedById: 'updatedById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  residentId: 'residentId',
-  residentLinkedById: 'residentLinkedById',
-  residentLinkedAt: 'residentLinkedAt'
+  updatedAt: 'updatedAt'
 } as const
 
 export type CasePartyScalarFieldEnum = (typeof CasePartyScalarFieldEnum)[keyof typeof CasePartyScalarFieldEnum]

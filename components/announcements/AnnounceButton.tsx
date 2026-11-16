@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { mutate } from 'swr';
 import { Button, Tooltip } from '@mui/material';
 import { Campaign } from '@mui/icons-material';
@@ -16,12 +17,16 @@ export default function AnnounceButton({
   accent = '#0ea5e9',
   label = 'Announce',
   variant = 'contained',
+  boardPath,
 }: {
   accent?: string;
   label?: string;
   variant?: 'contained' | 'outlined';
+  /** The module's Announcements page: after publishing, the officer is taken there, to the new post. */
+  boardPath?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -47,9 +52,10 @@ export default function AnnounceButton({
         accent={accent}
         // Refresh both announcement views so a post made here shows up on the
         // Reports board and the dashboard alert list without a reload.
-        onPublished={() => {
+        onPublished={created => {
           mutate('/api/alerts?all=true');
           mutate('/api/alerts');
+          if (boardPath) router.push(created?.id ? `${boardPath}?new=${encodeURIComponent(created.id)}` : boardPath);
         }}
       />
     </>

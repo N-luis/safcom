@@ -329,7 +329,6 @@ export type ResidentWhereInput = {
   registeredAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   cases?: Prisma.CaseListRelationFilter
-  caseParties?: Prisma.CasePartyListRelationFilter
   hearingNotices?: Prisma.CaseHearingNoticeListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
@@ -356,7 +355,6 @@ export type ResidentOrderByWithRelationInput = {
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   cases?: Prisma.CaseOrderByRelationAggregateInput
-  caseParties?: Prisma.CasePartyOrderByRelationAggregateInput
   hearingNotices?: Prisma.CaseHearingNoticeOrderByRelationAggregateInput
   verificationTokens?: Prisma.EmailVerificationTokenOrderByRelationAggregateInput
   followUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
@@ -386,7 +384,6 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   registeredAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   cases?: Prisma.CaseListRelationFilter
-  caseParties?: Prisma.CasePartyListRelationFilter
   hearingNotices?: Prisma.CaseHearingNoticeListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
@@ -465,7 +462,6 @@ export type ResidentCreateInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
@@ -492,7 +488,6 @@ export type ResidentUncheckedCreateInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
@@ -519,7 +514,6 @@ export type ResidentUpdateInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
@@ -546,7 +540,6 @@ export type ResidentUncheckedUpdateInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
@@ -718,22 +711,6 @@ export type ResidentUpdateOneWithoutCasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutCasesInput, Prisma.ResidentUpdateWithoutCasesInput>, Prisma.ResidentUncheckedUpdateWithoutCasesInput>
 }
 
-export type ResidentCreateNestedOneWithoutCasePartiesInput = {
-  create?: Prisma.XOR<Prisma.ResidentCreateWithoutCasePartiesInput, Prisma.ResidentUncheckedCreateWithoutCasePartiesInput>
-  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutCasePartiesInput
-  connect?: Prisma.ResidentWhereUniqueInput
-}
-
-export type ResidentUpdateOneWithoutCasePartiesNestedInput = {
-  create?: Prisma.XOR<Prisma.ResidentCreateWithoutCasePartiesInput, Prisma.ResidentUncheckedCreateWithoutCasePartiesInput>
-  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutCasePartiesInput
-  upsert?: Prisma.ResidentUpsertWithoutCasePartiesInput
-  disconnect?: Prisma.ResidentWhereInput | boolean
-  delete?: Prisma.ResidentWhereInput | boolean
-  connect?: Prisma.ResidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutCasePartiesInput, Prisma.ResidentUpdateWithoutCasePartiesInput>, Prisma.ResidentUncheckedUpdateWithoutCasePartiesInput>
-}
-
 export type ResidentCreateNestedOneWithoutVerificationTokensInput = {
   create?: Prisma.XOR<Prisma.ResidentCreateWithoutVerificationTokensInput, Prisma.ResidentUncheckedCreateWithoutVerificationTokensInput>
   connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutVerificationTokensInput
@@ -800,7 +777,6 @@ export type ResidentCreateWithoutCasesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
-  caseParties?: Prisma.CasePartyCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
@@ -826,7 +802,6 @@ export type ResidentUncheckedCreateWithoutCasesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
-  caseParties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
@@ -868,7 +843,6 @@ export type ResidentUpdateWithoutCasesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  caseParties?: Prisma.CasePartyUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
@@ -894,127 +868,6 @@ export type ResidentUncheckedUpdateWithoutCasesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  caseParties?: Prisma.CasePartyUncheckedUpdateManyWithoutResidentNestedInput
-  hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
-  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
-  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
-}
-
-export type ResidentCreateWithoutCasePartiesInput = {
-  id?: string
-  residentNumber: string
-  firstName: string
-  lastName: string
-  age: number
-  gender: string
-  barangay: string
-  address: string
-  contactNumber?: string | null
-  email?: string | null
-  username?: string | null
-  clerkId?: string | null
-  password?: string | null
-  status?: string
-  riskLevel?: string
-  notes?: string | null
-  emailVerified?: boolean
-  registeredAt?: Date | string
-  updatedAt?: Date | string
-  cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
-  hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
-  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
-  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
-}
-
-export type ResidentUncheckedCreateWithoutCasePartiesInput = {
-  id?: string
-  residentNumber: string
-  firstName: string
-  lastName: string
-  age: number
-  gender: string
-  barangay: string
-  address: string
-  contactNumber?: string | null
-  email?: string | null
-  username?: string | null
-  clerkId?: string | null
-  password?: string | null
-  status?: string
-  riskLevel?: string
-  notes?: string | null
-  emailVerified?: boolean
-  registeredAt?: Date | string
-  updatedAt?: Date | string
-  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
-  hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
-  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
-  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
-}
-
-export type ResidentCreateOrConnectWithoutCasePartiesInput = {
-  where: Prisma.ResidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.ResidentCreateWithoutCasePartiesInput, Prisma.ResidentUncheckedCreateWithoutCasePartiesInput>
-}
-
-export type ResidentUpsertWithoutCasePartiesInput = {
-  update: Prisma.XOR<Prisma.ResidentUpdateWithoutCasePartiesInput, Prisma.ResidentUncheckedUpdateWithoutCasePartiesInput>
-  create: Prisma.XOR<Prisma.ResidentCreateWithoutCasePartiesInput, Prisma.ResidentUncheckedCreateWithoutCasePartiesInput>
-  where?: Prisma.ResidentWhereInput
-}
-
-export type ResidentUpdateToOneWithWhereWithoutCasePartiesInput = {
-  where?: Prisma.ResidentWhereInput
-  data: Prisma.XOR<Prisma.ResidentUpdateWithoutCasePartiesInput, Prisma.ResidentUncheckedUpdateWithoutCasePartiesInput>
-}
-
-export type ResidentUpdateWithoutCasePartiesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.StringFieldUpdateOperationsInput | string
-  barangay?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
-  hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
-  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
-  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
-}
-
-export type ResidentUncheckedUpdateWithoutCasePartiesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.StringFieldUpdateOperationsInput | string
-  barangay?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
@@ -1041,7 +894,6 @@ export type ResidentCreateWithoutVerificationTokensInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
 }
@@ -1067,7 +919,6 @@ export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
 }
@@ -1109,7 +960,6 @@ export type ResidentUpdateWithoutVerificationTokensInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
 }
@@ -1135,7 +985,6 @@ export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
 }
@@ -1161,7 +1010,6 @@ export type ResidentCreateWithoutFollowUpsInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
 }
@@ -1187,7 +1035,6 @@ export type ResidentUncheckedCreateWithoutFollowUpsInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
 }
@@ -1229,7 +1076,6 @@ export type ResidentUpdateWithoutFollowUpsInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
 }
@@ -1255,7 +1101,6 @@ export type ResidentUncheckedUpdateWithoutFollowUpsInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
 }
@@ -1281,7 +1126,6 @@ export type ResidentCreateWithoutHearingNoticesInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
 }
@@ -1307,7 +1151,6 @@ export type ResidentUncheckedCreateWithoutHearingNoticesInput = {
   registeredAt?: Date | string
   updatedAt?: Date | string
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
-  caseParties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
 }
@@ -1349,7 +1192,6 @@ export type ResidentUpdateWithoutHearingNoticesInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
 }
@@ -1375,7 +1217,6 @@ export type ResidentUncheckedUpdateWithoutHearingNoticesInput = {
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
-  caseParties?: Prisma.CasePartyUncheckedUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
 }
@@ -1387,7 +1228,6 @@ export type ResidentUncheckedUpdateWithoutHearingNoticesInput = {
 
 export type ResidentCountOutputType = {
   cases: number
-  caseParties: number
   hearingNotices: number
   verificationTokens: number
   followUps: number
@@ -1395,7 +1235,6 @@ export type ResidentCountOutputType = {
 
 export type ResidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | ResidentCountOutputTypeCountCasesArgs
-  caseParties?: boolean | ResidentCountOutputTypeCountCasePartiesArgs
   hearingNotices?: boolean | ResidentCountOutputTypeCountHearingNoticesArgs
   verificationTokens?: boolean | ResidentCountOutputTypeCountVerificationTokensArgs
   followUps?: boolean | ResidentCountOutputTypeCountFollowUpsArgs
@@ -1416,13 +1255,6 @@ export type ResidentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type ResidentCountOutputTypeCountCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CaseWhereInput
-}
-
-/**
- * ResidentCountOutputType without action
- */
-export type ResidentCountOutputTypeCountCasePartiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CasePartyWhereInput
 }
 
 /**
@@ -1468,7 +1300,6 @@ export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   registeredAt?: boolean
   updatedAt?: boolean
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
-  caseParties?: boolean | Prisma.Resident$casePartiesArgs<ExtArgs>
   hearingNotices?: boolean | Prisma.Resident$hearingNoticesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
   followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
@@ -1544,7 +1375,6 @@ export type ResidentSelectScalar = {
 export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentNumber" | "firstName" | "lastName" | "age" | "gender" | "barangay" | "address" | "contactNumber" | "email" | "username" | "clerkId" | "password" | "status" | "riskLevel" | "notes" | "emailVerified" | "registeredAt" | "updatedAt", ExtArgs["result"]["resident"]>
 export type ResidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
-  caseParties?: boolean | Prisma.Resident$casePartiesArgs<ExtArgs>
   hearingNotices?: boolean | Prisma.Resident$hearingNoticesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
   followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
@@ -1557,11 +1387,6 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Resident"
   objects: {
     cases: Prisma.$CasePayload<ExtArgs>[]
-    /**
-     * Case records an official linked to this account (a respondent with a
-     * SafeComm account, say) - by the resident number, never by name.
-     */
-    caseParties: Prisma.$CasePartyPayload<ExtArgs>[]
     hearingNotices: Prisma.$CaseHearingNoticePayload<ExtArgs>[]
     verificationTokens: Prisma.$EmailVerificationTokenPayload<ExtArgs>[]
     followUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
@@ -1981,7 +1806,6 @@ readonly fields: ResidentFieldRefs;
 export interface Prisma__ResidentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   cases<T extends Prisma.Resident$casesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$casesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  caseParties<T extends Prisma.Resident$casePartiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$casePartiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePartyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   hearingNotices<T extends Prisma.Resident$hearingNoticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$hearingNoticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   verificationTokens<T extends Prisma.Resident$verificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$verificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   followUps<T extends Prisma.Resident$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2447,30 +2271,6 @@ export type Resident$casesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CaseScalarFieldEnum | Prisma.CaseScalarFieldEnum[]
-}
-
-/**
- * Resident.caseParties
- */
-export type Resident$casePartiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CaseParty
-   */
-  select?: Prisma.CasePartySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CaseParty
-   */
-  omit?: Prisma.CasePartyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CasePartyInclude<ExtArgs> | null
-  where?: Prisma.CasePartyWhereInput
-  orderBy?: Prisma.CasePartyOrderByWithRelationInput | Prisma.CasePartyOrderByWithRelationInput[]
-  cursor?: Prisma.CasePartyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CasePartyScalarFieldEnum | Prisma.CasePartyScalarFieldEnum[]
 }
 
 /**

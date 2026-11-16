@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
-import { loadHearingCase, kpNoticeInputFor, pdfResponse, residentHearingWhere, partyRoleOf, hearingPartySelect, recordEvent, hearingSnap } from '@/lib/hearingsServer';
+import { loadHearingCase, kpNoticeInputFor, pdfResponse, residentHearingWhere, hearingPartySelect, recordEvent, hearingSnap } from '@/lib/hearingsServer';
 import { LIVE_NOTICE } from '@/lib/hearings';
 import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
 import { logRouteError } from '@/lib/hearingCasesServer';
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ hid:
   try {
     const h = await prisma.caseHearing.findFirst({ where: { id: hid, ...residentHearingWhere(me) }, include: hearingPartySelect });
     if (!h) return rError('Hearing not found', 404);
-    const role = partyRoleOf(h, me);
+    const role = 'COMPLAINANT' as const;
     const wanted = req.nextUrl.searchParams.get('id')?.slice(0, 64);
     const n = await prisma.caseHearingNotice.findFirst({
       where: { hearingId: hid, recipientRole: role, status: { in: [...LIVE_NOTICE] }, ...(wanted && { id: wanted }) }, orderBy: { generatedAt: 'desc' },

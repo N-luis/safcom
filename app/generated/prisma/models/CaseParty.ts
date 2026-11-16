@@ -52,9 +52,6 @@ export type CasePartyMinAggregateOutputType = {
   updatedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  residentId: string | null
-  residentLinkedById: string | null
-  residentLinkedAt: Date | null
 }
 
 export type CasePartyMaxAggregateOutputType = {
@@ -72,9 +69,6 @@ export type CasePartyMaxAggregateOutputType = {
   updatedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  residentId: string | null
-  residentLinkedById: string | null
-  residentLinkedAt: Date | null
 }
 
 export type CasePartyCountAggregateOutputType = {
@@ -92,9 +86,6 @@ export type CasePartyCountAggregateOutputType = {
   updatedById: number
   createdAt: number
   updatedAt: number
-  residentId: number
-  residentLinkedById: number
-  residentLinkedAt: number
   _all: number
 }
 
@@ -122,9 +113,6 @@ export type CasePartyMinAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
-  residentId?: true
-  residentLinkedById?: true
-  residentLinkedAt?: true
 }
 
 export type CasePartyMaxAggregateInputType = {
@@ -142,9 +130,6 @@ export type CasePartyMaxAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
-  residentId?: true
-  residentLinkedById?: true
-  residentLinkedAt?: true
 }
 
 export type CasePartyCountAggregateInputType = {
@@ -162,9 +147,6 @@ export type CasePartyCountAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
-  residentId?: true
-  residentLinkedById?: true
-  residentLinkedAt?: true
   _all?: true
 }
 
@@ -269,9 +251,6 @@ export type CasePartyGroupByOutputType = {
   updatedById: string | null
   createdAt: Date
   updatedAt: Date
-  residentId: string | null
-  residentLinkedById: string | null
-  residentLinkedAt: Date | null
   _count: CasePartyCountAggregateOutputType | null
   _avg: CasePartyAvgAggregateOutputType | null
   _sum: CasePartySumAggregateOutputType | null
@@ -312,13 +291,9 @@ export type CasePartyWhereInput = {
   updatedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
-  residentId?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedAt?: Prisma.DateTimeNullableFilter<"CaseParty"> | Date | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   hearingsAsComplainant?: Prisma.CaseHearingListRelationFilter
   hearingsAsRespondent?: Prisma.CaseHearingListRelationFilter
-  resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
 }
 
 export type CasePartyOrderByWithRelationInput = {
@@ -336,13 +311,9 @@ export type CasePartyOrderByWithRelationInput = {
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  residentLinkedById?: Prisma.SortOrderInput | Prisma.SortOrder
-  residentLinkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
   hearingsAsComplainant?: Prisma.CaseHearingOrderByRelationAggregateInput
   hearingsAsRespondent?: Prisma.CaseHearingOrderByRelationAggregateInput
-  resident?: Prisma.ResidentOrderByWithRelationInput
 }
 
 export type CasePartyWhereUniqueInput = Prisma.AtLeast<{
@@ -363,13 +334,9 @@ export type CasePartyWhereUniqueInput = Prisma.AtLeast<{
   updatedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
-  residentId?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedAt?: Prisma.DateTimeNullableFilter<"CaseParty"> | Date | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   hearingsAsComplainant?: Prisma.CaseHearingListRelationFilter
   hearingsAsRespondent?: Prisma.CaseHearingListRelationFilter
-  resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
 }, "id">
 
 export type CasePartyOrderByWithAggregationInput = {
@@ -387,9 +354,6 @@ export type CasePartyOrderByWithAggregationInput = {
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  residentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  residentLinkedById?: Prisma.SortOrderInput | Prisma.SortOrder
-  residentLinkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CasePartyCountOrderByAggregateInput
   _avg?: Prisma.CasePartyAvgOrderByAggregateInput
   _max?: Prisma.CasePartyMaxOrderByAggregateInput
@@ -415,9 +379,6 @@ export type CasePartyScalarWhereWithAggregatesInput = {
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"CaseParty"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CaseParty"> | Date | string
-  residentId?: Prisma.StringNullableWithAggregatesFilter<"CaseParty"> | string | null
-  residentLinkedById?: Prisma.StringNullableWithAggregatesFilter<"CaseParty"> | string | null
-  residentLinkedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CaseParty"> | Date | string | null
 }
 
 export type CasePartyCreateInput = {
@@ -434,12 +395,9 @@ export type CasePartyCreateInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   case: Prisma.CaseCreateNestedOneWithoutPartiesInput
   hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
   hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
-  resident?: Prisma.ResidentCreateNestedOneWithoutCasePartiesInput
 }
 
 export type CasePartyUncheckedCreateInput = {
@@ -457,9 +415,6 @@ export type CasePartyUncheckedCreateInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
 }
@@ -478,12 +433,9 @@ export type CasePartyUpdateInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
   hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
   hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
-  resident?: Prisma.ResidentUpdateOneWithoutCasePartiesNestedInput
 }
 
 export type CasePartyUncheckedUpdateInput = {
@@ -501,9 +453,6 @@ export type CasePartyUncheckedUpdateInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
 }
@@ -523,9 +472,6 @@ export type CasePartyCreateManyInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
 }
 
 export type CasePartyUpdateManyMutationInput = {
@@ -542,8 +488,6 @@ export type CasePartyUpdateManyMutationInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CasePartyUncheckedUpdateManyInput = {
@@ -561,9 +505,6 @@ export type CasePartyUncheckedUpdateManyInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CasePartyListRelationFilter = {
@@ -591,9 +532,6 @@ export type CasePartyCountOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  residentId?: Prisma.SortOrder
-  residentLinkedById?: Prisma.SortOrder
-  residentLinkedAt?: Prisma.SortOrder
 }
 
 export type CasePartyAvgOrderByAggregateInput = {
@@ -615,9 +553,6 @@ export type CasePartyMaxOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  residentId?: Prisma.SortOrder
-  residentLinkedById?: Prisma.SortOrder
-  residentLinkedAt?: Prisma.SortOrder
 }
 
 export type CasePartyMinOrderByAggregateInput = {
@@ -635,9 +570,6 @@ export type CasePartyMinOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  residentId?: Prisma.SortOrder
-  residentLinkedById?: Prisma.SortOrder
-  residentLinkedAt?: Prisma.SortOrder
 }
 
 export type CasePartySumOrderByAggregateInput = {
@@ -691,48 +623,6 @@ export type CasePartyUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.CasePartyScalarWhereInput | Prisma.CasePartyScalarWhereInput[]
 }
 
-export type CasePartyCreateNestedManyWithoutResidentInput = {
-  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput> | Prisma.CasePartyCreateWithoutResidentInput[] | Prisma.CasePartyUncheckedCreateWithoutResidentInput[]
-  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutResidentInput | Prisma.CasePartyCreateOrConnectWithoutResidentInput[]
-  createMany?: Prisma.CasePartyCreateManyResidentInputEnvelope
-  connect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-}
-
-export type CasePartyUncheckedCreateNestedManyWithoutResidentInput = {
-  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput> | Prisma.CasePartyCreateWithoutResidentInput[] | Prisma.CasePartyUncheckedCreateWithoutResidentInput[]
-  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutResidentInput | Prisma.CasePartyCreateOrConnectWithoutResidentInput[]
-  createMany?: Prisma.CasePartyCreateManyResidentInputEnvelope
-  connect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-}
-
-export type CasePartyUpdateManyWithoutResidentNestedInput = {
-  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput> | Prisma.CasePartyCreateWithoutResidentInput[] | Prisma.CasePartyUncheckedCreateWithoutResidentInput[]
-  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutResidentInput | Prisma.CasePartyCreateOrConnectWithoutResidentInput[]
-  upsert?: Prisma.CasePartyUpsertWithWhereUniqueWithoutResidentInput | Prisma.CasePartyUpsertWithWhereUniqueWithoutResidentInput[]
-  createMany?: Prisma.CasePartyCreateManyResidentInputEnvelope
-  set?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  disconnect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  delete?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  connect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  update?: Prisma.CasePartyUpdateWithWhereUniqueWithoutResidentInput | Prisma.CasePartyUpdateWithWhereUniqueWithoutResidentInput[]
-  updateMany?: Prisma.CasePartyUpdateManyWithWhereWithoutResidentInput | Prisma.CasePartyUpdateManyWithWhereWithoutResidentInput[]
-  deleteMany?: Prisma.CasePartyScalarWhereInput | Prisma.CasePartyScalarWhereInput[]
-}
-
-export type CasePartyUncheckedUpdateManyWithoutResidentNestedInput = {
-  create?: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput> | Prisma.CasePartyCreateWithoutResidentInput[] | Prisma.CasePartyUncheckedCreateWithoutResidentInput[]
-  connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutResidentInput | Prisma.CasePartyCreateOrConnectWithoutResidentInput[]
-  upsert?: Prisma.CasePartyUpsertWithWhereUniqueWithoutResidentInput | Prisma.CasePartyUpsertWithWhereUniqueWithoutResidentInput[]
-  createMany?: Prisma.CasePartyCreateManyResidentInputEnvelope
-  set?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  disconnect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  delete?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  connect?: Prisma.CasePartyWhereUniqueInput | Prisma.CasePartyWhereUniqueInput[]
-  update?: Prisma.CasePartyUpdateWithWhereUniqueWithoutResidentInput | Prisma.CasePartyUpdateWithWhereUniqueWithoutResidentInput[]
-  updateMany?: Prisma.CasePartyUpdateManyWithWhereWithoutResidentInput | Prisma.CasePartyUpdateManyWithWhereWithoutResidentInput[]
-  deleteMany?: Prisma.CasePartyScalarWhereInput | Prisma.CasePartyScalarWhereInput[]
-}
-
 export type CasePartyCreateNestedOneWithoutHearingsAsComplainantInput = {
   create?: Prisma.XOR<Prisma.CasePartyCreateWithoutHearingsAsComplainantInput, Prisma.CasePartyUncheckedCreateWithoutHearingsAsComplainantInput>
   connectOrCreate?: Prisma.CasePartyCreateOrConnectWithoutHearingsAsComplainantInput
@@ -779,11 +669,8 @@ export type CasePartyCreateWithoutCaseInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
   hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
-  resident?: Prisma.ResidentCreateNestedOneWithoutCasePartiesInput
 }
 
 export type CasePartyUncheckedCreateWithoutCaseInput = {
@@ -800,9 +687,6 @@ export type CasePartyUncheckedCreateWithoutCaseInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
 }
@@ -851,77 +735,6 @@ export type CasePartyScalarWhereInput = {
   updatedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseParty"> | Date | string
-  residentId?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedById?: Prisma.StringNullableFilter<"CaseParty"> | string | null
-  residentLinkedAt?: Prisma.DateTimeNullableFilter<"CaseParty"> | Date | string | null
-}
-
-export type CasePartyCreateWithoutResidentInput = {
-  id?: string
-  role: string
-  fullName?: string | null
-  age?: number | null
-  address?: string | null
-  contactNumber?: string | null
-  relationship?: string | null
-  dependentsAffected?: string | null
-  details?: string | null
-  source?: string
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
-  case: Prisma.CaseCreateNestedOneWithoutPartiesInput
-  hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
-  hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
-}
-
-export type CasePartyUncheckedCreateWithoutResidentInput = {
-  id?: string
-  caseId: string
-  role: string
-  fullName?: string | null
-  age?: number | null
-  address?: string | null
-  contactNumber?: string | null
-  relationship?: string | null
-  dependentsAffected?: string | null
-  details?: string | null
-  source?: string
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
-  hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
-  hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
-}
-
-export type CasePartyCreateOrConnectWithoutResidentInput = {
-  where: Prisma.CasePartyWhereUniqueInput
-  create: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput>
-}
-
-export type CasePartyCreateManyResidentInputEnvelope = {
-  data: Prisma.CasePartyCreateManyResidentInput | Prisma.CasePartyCreateManyResidentInput[]
-  skipDuplicates?: boolean
-}
-
-export type CasePartyUpsertWithWhereUniqueWithoutResidentInput = {
-  where: Prisma.CasePartyWhereUniqueInput
-  update: Prisma.XOR<Prisma.CasePartyUpdateWithoutResidentInput, Prisma.CasePartyUncheckedUpdateWithoutResidentInput>
-  create: Prisma.XOR<Prisma.CasePartyCreateWithoutResidentInput, Prisma.CasePartyUncheckedCreateWithoutResidentInput>
-}
-
-export type CasePartyUpdateWithWhereUniqueWithoutResidentInput = {
-  where: Prisma.CasePartyWhereUniqueInput
-  data: Prisma.XOR<Prisma.CasePartyUpdateWithoutResidentInput, Prisma.CasePartyUncheckedUpdateWithoutResidentInput>
-}
-
-export type CasePartyUpdateManyWithWhereWithoutResidentInput = {
-  where: Prisma.CasePartyScalarWhereInput
-  data: Prisma.XOR<Prisma.CasePartyUpdateManyMutationInput, Prisma.CasePartyUncheckedUpdateManyWithoutResidentInput>
 }
 
 export type CasePartyCreateWithoutHearingsAsComplainantInput = {
@@ -938,11 +751,8 @@ export type CasePartyCreateWithoutHearingsAsComplainantInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   case: Prisma.CaseCreateNestedOneWithoutPartiesInput
   hearingsAsRespondent?: Prisma.CaseHearingCreateNestedManyWithoutRespondentPartyInput
-  resident?: Prisma.ResidentCreateNestedOneWithoutCasePartiesInput
 }
 
 export type CasePartyUncheckedCreateWithoutHearingsAsComplainantInput = {
@@ -960,9 +770,6 @@ export type CasePartyUncheckedCreateWithoutHearingsAsComplainantInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutRespondentPartyInput
 }
 
@@ -985,11 +792,8 @@ export type CasePartyCreateWithoutHearingsAsRespondentInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   case: Prisma.CaseCreateNestedOneWithoutPartiesInput
   hearingsAsComplainant?: Prisma.CaseHearingCreateNestedManyWithoutComplainantPartyInput
-  resident?: Prisma.ResidentCreateNestedOneWithoutCasePartiesInput
 }
 
 export type CasePartyUncheckedCreateWithoutHearingsAsRespondentInput = {
@@ -1007,9 +811,6 @@ export type CasePartyUncheckedCreateWithoutHearingsAsRespondentInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutComplainantPartyInput
 }
 
@@ -1043,11 +844,8 @@ export type CasePartyUpdateWithoutHearingsAsComplainantInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
   hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
-  resident?: Prisma.ResidentUpdateOneWithoutCasePartiesNestedInput
 }
 
 export type CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput = {
@@ -1065,9 +863,6 @@ export type CasePartyUncheckedUpdateWithoutHearingsAsComplainantInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
 }
 
@@ -1096,11 +891,8 @@ export type CasePartyUpdateWithoutHearingsAsRespondentInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
   hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
-  resident?: Prisma.ResidentUpdateOneWithoutCasePartiesNestedInput
 }
 
 export type CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput = {
@@ -1118,9 +910,6 @@ export type CasePartyUncheckedUpdateWithoutHearingsAsRespondentInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
 }
 
@@ -1138,9 +927,6 @@ export type CasePartyCreateManyCaseInput = {
   updatedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  residentId?: string | null
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
 }
 
 export type CasePartyUpdateWithoutCaseInput = {
@@ -1157,11 +943,8 @@ export type CasePartyUpdateWithoutCaseInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
   hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
-  resident?: Prisma.ResidentUpdateOneWithoutCasePartiesNestedInput
 }
 
 export type CasePartyUncheckedUpdateWithoutCaseInput = {
@@ -1178,9 +961,6 @@ export type CasePartyUncheckedUpdateWithoutCaseInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
   hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
 }
@@ -1199,89 +979,6 @@ export type CasePartyUncheckedUpdateManyWithoutCaseInput = {
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-}
-
-export type CasePartyCreateManyResidentInput = {
-  id?: string
-  caseId: string
-  role: string
-  fullName?: string | null
-  age?: number | null
-  address?: string | null
-  contactNumber?: string | null
-  relationship?: string | null
-  dependentsAffected?: string | null
-  details?: string | null
-  source?: string
-  updatedById?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  residentLinkedById?: string | null
-  residentLinkedAt?: Date | string | null
-}
-
-export type CasePartyUpdateWithoutResidentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  source?: Prisma.StringFieldUpdateOperationsInput | string
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  case?: Prisma.CaseUpdateOneRequiredWithoutPartiesNestedInput
-  hearingsAsComplainant?: Prisma.CaseHearingUpdateManyWithoutComplainantPartyNestedInput
-  hearingsAsRespondent?: Prisma.CaseHearingUpdateManyWithoutRespondentPartyNestedInput
-}
-
-export type CasePartyUncheckedUpdateWithoutResidentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  caseId?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  source?: Prisma.StringFieldUpdateOperationsInput | string
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  hearingsAsComplainant?: Prisma.CaseHearingUncheckedUpdateManyWithoutComplainantPartyNestedInput
-  hearingsAsRespondent?: Prisma.CaseHearingUncheckedUpdateManyWithoutRespondentPartyNestedInput
-}
-
-export type CasePartyUncheckedUpdateManyWithoutResidentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  caseId?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dependentsAffected?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  source?: Prisma.StringFieldUpdateOperationsInput | string
-  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  residentLinkedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  residentLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1339,13 +1036,9 @@ export type CasePartySelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  residentId?: boolean
-  residentLinkedById?: boolean
-  residentLinkedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   hearingsAsComplainant?: boolean | Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>
   hearingsAsRespondent?: boolean | Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
   _count?: boolean | Prisma.CasePartyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["caseParty"]>
 
@@ -1364,11 +1057,7 @@ export type CasePartySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  residentId?: boolean
-  residentLinkedById?: boolean
-  residentLinkedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
 }, ExtArgs["result"]["caseParty"]>
 
 export type CasePartySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1386,11 +1075,7 @@ export type CasePartySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  residentId?: boolean
-  residentLinkedById?: boolean
-  residentLinkedAt?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
 }, ExtArgs["result"]["caseParty"]>
 
 export type CasePartySelectScalar = {
@@ -1408,26 +1093,20 @@ export type CasePartySelectScalar = {
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  residentId?: boolean
-  residentLinkedById?: boolean
-  residentLinkedAt?: boolean
 }
 
-export type CasePartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "role" | "fullName" | "age" | "address" | "contactNumber" | "relationship" | "dependentsAffected" | "details" | "source" | "updatedById" | "createdAt" | "updatedAt" | "residentId" | "residentLinkedById" | "residentLinkedAt", ExtArgs["result"]["caseParty"]>
+export type CasePartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "role" | "fullName" | "age" | "address" | "contactNumber" | "relationship" | "dependentsAffected" | "details" | "source" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseParty"]>
 export type CasePartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   hearingsAsComplainant?: boolean | Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>
   hearingsAsRespondent?: boolean | Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
   _count?: boolean | Prisma.CasePartyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CasePartyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
 }
 export type CasePartyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
-  resident?: boolean | Prisma.CaseParty$residentArgs<ExtArgs>
 }
 
 export type $CasePartyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1436,7 +1115,6 @@ export type $CasePartyPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     case: Prisma.$CasePayload<ExtArgs>
     hearingsAsComplainant: Prisma.$CaseHearingPayload<ExtArgs>[]
     hearingsAsRespondent: Prisma.$CaseHearingPayload<ExtArgs>[]
-    resident: Prisma.$ResidentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1468,14 +1146,6 @@ export type $CasePartyPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     updatedById: string | null
     createdAt: Date
     updatedAt: Date
-    /**
-     * The party's own SafeComm account, when they have one - linked by an
-     * official from the resident number, never matched by name. Their hearing
-     * notices are delivered there.
-     */
-    residentId: string | null
-    residentLinkedById: string | null
-    residentLinkedAt: Date | null
   }, ExtArgs["result"]["caseParty"]>
   composites: {}
 }
@@ -1873,7 +1543,6 @@ export interface Prisma__CasePartyClient<T, Null = never, ExtArgs extends runtim
   case<T extends Prisma.CaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseDefaultArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   hearingsAsComplainant<T extends Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseParty$hearingsAsComplainantArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   hearingsAsRespondent<T extends Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseParty$hearingsAsRespondentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  resident<T extends Prisma.CaseParty$residentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CaseParty$residentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1917,9 +1586,6 @@ export interface CasePartyFieldRefs {
   readonly updatedById: Prisma.FieldRef<"CaseParty", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseParty", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CaseParty", 'DateTime'>
-  readonly residentId: Prisma.FieldRef<"CaseParty", 'String'>
-  readonly residentLinkedById: Prisma.FieldRef<"CaseParty", 'String'>
-  readonly residentLinkedAt: Prisma.FieldRef<"CaseParty", 'DateTime'>
 }
     
 
@@ -2366,25 +2032,6 @@ export type CaseParty$hearingsAsRespondentArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
-}
-
-/**
- * CaseParty.resident
- */
-export type CaseParty$residentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Resident
-   */
-  select?: Prisma.ResidentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Resident
-   */
-  omit?: Prisma.ResidentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ResidentInclude<ExtArgs> | null
-  where?: Prisma.ResidentWhereInput
 }
 
 /**

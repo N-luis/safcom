@@ -48,6 +48,8 @@
     "test:referralpreview": "npx tsx tests/referralFormPreview.test.tsx",
     "test:hotlines": "npx tsx tests/emergencyHotlines.test.tsx",
     "test:noidverification": "npx tsx tests/idVerificationRemoved.test.ts",
+    "test:dashboardannouncements": "npx tsx tests/dashboardAnnouncements.test.tsx",
+    "test:kpreview": "npx tsx tests/kpReviewNoUnknown.test.tsx",
     "db:remove-id-verification": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/013_remove_id_verification.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/014_drop_resident_id_document.sql",
     "test:servicereferral:db": "npx tsx --env-file=.env --conditions=react-server tests/serviceReferral.test.ts",
     "db:service-referral": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.schema.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/012_service_referral.sql"

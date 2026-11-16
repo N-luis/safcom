@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Button, Chip, IconButton, Tooltip,
@@ -26,15 +27,35 @@ const fetcher = (url: string) =>
 
 // ─── Panel ───────────────────────────────────────────────────────────────────
 export default function AnnouncementsPanel({ accent = '#0ea5e9' }: { accent?: string }) {
+  // The search params suspend while the page prerenders; the board shows meanwhile, without a highlight.
+  return <Suspense fallback={<Board accent={accent} newId={null} />}><WithNewPost accent={accent} /></Suspense>;
+}
+
+/** ?new=<id>, set when a post was just published from a dashboard - read from the router, which has it before the address bar does. */
+function WithNewPost({ accent }: { accent: string }) {
+  return <Board accent={accent} newId={useSearchParams().get('new')} />;
+}
+
+function Board({ accent, newId }: { accent: string; newId: string | null }) {
   const [composeOpen, setComposeOpen] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // A post just published from the dashboard: brought into view and outlined for a moment.
+  const [highlight, setHighlight] = useState<string | null>(newId);
 
   const { data, isLoading, mutate } = useSWR<Announcement[]>(
     '/api/alerts?all=true', fetcher, { refreshInterval: 30000 },
   );
   const { data: me } = useSWR<{ role?: string }>('/api/auth/me', fetcher);
   const canDelete = me?.role === 'admin' || me?.role === 'system_admin';
+
+  useEffect(() => {
+    if (!highlight || !data) return;
+    document.getElementById(`announcement-${highlight}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.history.replaceState(null, '', window.location.pathname);
+    const t = setTimeout(() => setHighlight(null), 4000);
+    return () => clearTimeout(t);
+  }, [highlight, data]);
 
   const all = data ?? [];
   const live = all.filter(a => a.active && !a.expired);
@@ -140,8 +161,11 @@ export default function AnnouncementsPanel({ accent = '#0ea5e9' }: { accent?: st
               return (
                 <Box
                   key={a.id}
+                  id={`announcement-${a.id}`}
+                  data-new={highlight === a.id ? 'true' : undefined}
                   sx={{
                     display: 'flex', gap: 1.5, p: 1.75, borderRadius: 2.5,
+                    ...(highlight === a.id && { boxShadow: `0 0 0 2px ${accent}` }),
                     border: `1px solid ${down ? '#e8edf2' : `${lvl.color}33`}`,
                     bgcolor: down ? '#fafbfc' : `${lvl.color}08`,
                     opacity: down ? 0.72 : 1,

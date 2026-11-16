@@ -31,27 +31,20 @@ import { logRouteError } from '@/lib/hearingCasesServer';
 
 type Params = { params: Promise<{ id: string }> };
 
-/** The parties a proceeding may name, from the case's own records - with the SafeComm account each is linked to. */
+/** The parties a proceeding may name, from the case's own records. Only the reporter has a SafeComm account here. */
 async function partiesOf(c: HearingCase) {
   const rows = await prisma.caseParty.findMany({
     where: { caseId: c.id }, orderBy: { createdAt: 'asc' },
-    select: { id: true, role: true, fullName: true, source: true, residentId: true, residentLinkedAt: true, residentLinkedById: true,
-      resident: { select: { residentNumber: true, firstName: true, lastName: true } } },
+    select: { id: true, role: true, fullName: true, source: true },
   });
-  // Who linked each account, so the officer can see who and when.
-  const linkers = [...new Set(rows.filter(r => r.resident && r.residentLinkedById).map(r => r.residentLinkedById as string))];
-  const linkerNames = new Map((linkers.length ? await prisma.user.findMany({ where: { id: { in: linkers } }, select: { id: true, name: true } }) : []).map(u => [u.id, u.name]));
-  const account = (r: (typeof rows)[number]) => (r.resident
-    ? { residentNumber: r.resident.residentNumber, name: `${r.resident.firstName} ${r.resident.lastName}`.trim(), linkedAt: r.residentLinkedAt,
-      linkedBy: r.residentLinkedById ? linkerNames.get(r.residentLinkedById) ?? null : null } : null);
   return {
     complainants: [
-      { id: null as string | null, name: complainantName(c, null), label: 'The reporter (filed the case)', account: c.residentId ? { residentNumber: null, name: null, linkedAt: null, reporter: true } : null },
+      { id: null as string | null, name: complainantName(c, null), label: 'The reporter (filed the case)', account: c.residentId ? { reporter: true as const } : null },
       ...rows.filter(r => r.role === 'AFFECTED').map(r => ({ id: r.id as string | null, name: r.fullName || 'Not named',
-        label: `Person affected (${r.source === 'official' ? 'official record' : "reporter's account"})`, account: account(r) })),
+        label: `Person affected (${r.source === 'official' ? 'official record' : "reporter's account"})`, account: null })),
     ],
     respondents: rows.filter(r => r.role === 'REPORTED').map(r => ({ id: r.id, name: r.fullName || 'Not named',
-      label: `Person reported (${r.source === 'official' ? 'official record' : "reporter's account"})`, account: account(r) })),
+      label: `Person reported (${r.source === 'official' ? 'official record' : "reporter's account"})`, account: null })),
   };
 }
 
@@ -103,7 +96,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     return noStore({ success: true, data: {
       case: { id, caseNumber: g.c.caseNumber, caseType: g.c.caseType, status: g.c.status, hasReporterAccount: Boolean(g.c.residentId) },
       hearings: hearings.map(h => {
-        const accounts = partyAccounts(g.c, h);
+        const accounts = partyAccounts(g.c);
         return {
           ...h,
           title: sessionTitle(h.stage, h.session),

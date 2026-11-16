@@ -2,8 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
-import { noStore, recordEvent, notifyOfficials, isUniqueViolation, residentHearingWhere, partyRoleOf, hearingPartySelect, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
-import { isLive, phDay, sessionTitle, kpFormName, RESCHEDULE_REQUESTS_PER_HEARING } from '@/lib/hearings';
+import { noStore, recordEvent, notifyOfficials, isUniqueViolation, residentHearingWhere, hearingPartySelect, syncHearingStatus, hearingSnap } from '@/lib/hearingsServer';
+import { isLive, phDay, sessionTitle, kpFormName, RESCHEDULE_REQUESTS_PER_HEARING, type PartyRole } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ hid
     });
     if (!h) return rError('Hearing not found', 404);
     if (!isLive(h.status)) return rError('This hearing is no longer scheduled.', 409);
-    const role = partyRoleOf(h, residentId);
+    const role = 'COMPLAINANT' as PartyRole;
     const side = role === 'RESPONDENT' ? 'The respondent' : 'The complainant';
     const title = sessionTitle(h.stage, h.session);
     const ev = (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0], kind: string, after: Record<string, unknown>, note?: string) =>

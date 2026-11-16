@@ -25,7 +25,7 @@ const when = (d: string | null) => (d ? new Date(d).toLocaleString('en-PH', { ti
 
 /**
  * One Katarungang Pambarangay proceeding, for the officials: its details,
- * its KP notices, the parties and their SafeComm accounts, the Pangkat (from
+ * its KP notices, the parties, the Pangkat (from
  * the constitution stage on), attendance and proceedings, the outcome its
  * stage allows, and the full history - and, for an official who may run it,
  * every action the proceeding allows at its status. Earlier proceedings on
@@ -95,7 +95,7 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
               <Tab value="overview" label="Overview" sx={{ textTransform: 'none' }} />
               <Tab value="notices" label={`KP notices (${h.notices.filter(n => n.status !== 'SUPERSEDED' && n.recipientRole !== 'PANGKAT_MEMBER').length})`} sx={{ textTransform: 'none' }} />
-              <Tab value="parties" label="Parties & accounts" sx={{ textTransform: 'none' }} />
+              <Tab value="parties" label="Parties" sx={{ textTransform: 'none' }} />
               {h.stage !== 'MEDIATION' && <Tab value="pangkat" label="Pangkat" sx={{ textTransform: 'none' }} />}
               <Tab value="proceedings" label="Attendance & proceedings" sx={{ textTransform: 'none' }} />
               <Tab value="outcome" label="Outcome" sx={{ textTransform: 'none' }} />
@@ -109,7 +109,7 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
                     ...partyFormsFor(h.stage).map(f => `${kpFormName(f.formNo)} to the ${f.recipientRole.toLowerCase()}: ${(f.recipientRole === 'COMPLAINANT' ? h.complainant.hasAccount : h.respondent.hasAccount) ? 'delivered to their SafeComm account' : 'to be handed over or served by an officer'}`),
                     'Both parties are told the date, time and venue in SafeComm when they have an account.'], body: { action: 'schedule' } })} />}
               {tab === 'notices' && <Notices caseId={caseId} h={h} canEdit={can('notice')} refresh={refresh} onDialog={n => setDialog(n)} />}
-              {tab === 'parties' && <Parties data={data} h={h} canEdit={data.canEdit} refresh={refresh} />}
+              {tab === 'parties' && <Parties data={data} h={h} />}
               {tab === 'pangkat' && <PangkatPanel data={data} h={h} canEdit={data.canEdit} refresh={refresh} />}
               {tab === 'proceedings' && <Proceedings caseId={caseId} h={h} can={can} act={act} refresh={refresh} />}
               {tab === 'outcome' && <Outcome data={data} h={h} can={can} act={act} onScheduleNext={onScheduleNext} />}
@@ -356,7 +356,7 @@ function NoticeDialog({ caseId, h, notice, kind, onClose, onDone }: { caseId: st
   const [delivered, setDelivered] = useState<'yes' | 'no' | ''>('');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
-  // In the party's own account only when they have one linked; a Pangkat member's notice is handed over.
+  // In SafeComm only for the reporter's own account; every other notice is handed over or served.
   const hasAccount = notice.recipientRole === 'COMPLAINANT' ? h.complainant.hasAccount : notice.recipientRole === 'RESPONDENT' ? h.respondent.hasAccount : false;
   const methods = (Object.keys(NOTICE_METHODS) as NoticeMethod[]).filter(m => m !== 'SAFECOMM' || hasAccount);
   const save = async () => {
@@ -397,81 +397,29 @@ function NoticeDialog({ caseId, h, notice, kind, onClose, onDone }: { caseId: st
   );
 }
 
-// ── Parties and their SafeComm accounts ─────────────────────────────────────
+// ── Parties ─────────────────────────────────────────────────────────────────
 
-function Parties({ data, h, canEdit, refresh }: { data: CaseHearingsData; h: Hearing; canEdit: boolean; refresh: () => void }) {
+function Parties({ data, h }: { data: CaseHearingsData; h: Hearing }) {
   const complainant = data.parties.complainants.find(p => p.id === h.complainant.partyId) ?? data.parties.complainants[0];
   const respondent = data.parties.respondents.find(p => p.id === h.respondent.partyId) ?? null;
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
-      <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>
-        A party with a SafeComm account sees this proceeding and their own notices in My Hearings &amp; Notices. Link an account only with the
-        resident number the person gives you - SafeComm never matches people by name. A party without an account gets their notice handed over or served by an officer.
-      </Alert>
-      <PartyAccount caseId={data.case.id} role="COMPLAINANT" party={complainant} canEdit={canEdit} refresh={refresh} />
-      {respondent ? <PartyAccount caseId={data.case.id} role="RESPONDENT" party={respondent} canEdit={canEdit} refresh={refresh} />
+      <PartyCard role="COMPLAINANT" party={complainant} />
+      {respondent ? <PartyCard role="RESPONDENT" party={respondent} />
         : <Alert severity="warning" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>No respondent is chosen for this proceeding. Record the person reported in Case records, then choose them on the draft.</Alert>}
     </Box>
   );
 }
 
-export function PartyAccount({ caseId, role, party, canEdit, refresh }: { caseId: string; role: PartyRole; party: PartyOption | undefined; canEdit: boolean; refresh: () => void }) {
-  const [number, setNumber] = useState('');
-  const [reason, setReason] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [unlinking, setUnlinking] = useState(false);
+function PartyCard({ role, party }: { role: PartyRole; party: PartyOption | undefined }) {
   if (!party) return null;
-  const reporter = party.id === null;
-  const url = `/api/cases/${caseId}/parties/${party.id}/account`;
-  const link = async () => {
-    setBusy(true);
-    try {
-      const r = await send<{ residentNumber: string; noticesDelivered: number }>(url, 'POST', { residentNumber: number.trim() });
-      toast.success(`Linked to ${r?.residentNumber ?? 'the account'}${r?.noticesDelivered ? ` - ${r.noticesDelivered} waiting notice(s) delivered to it` : ''}`);
-      setNumber(''); refresh();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not link'); } finally { setBusy(false); }
-  };
-  const unlink = async () => {
-    setBusy(true);
-    try { await send(url, 'DELETE', { reason: reason.trim() }); toast.success('Account unlinked'); setUnlinking(false); setReason(''); refresh(); }
-    catch (e) { toast.error(e instanceof Error ? e.message : 'Could not unlink'); } finally { setBusy(false); }
-  };
   return (
-    <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, display: 'grid', gap: 1 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-        <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: NAVY }}>{NOTICE_RECIPIENTS[role]}</Typography>
-        <Typography sx={{ fontSize: '0.82rem', color: '#334155' }}>{party.name}</Typography>
-        <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>{party.label}</Typography>
-        <Chip size="small" sx={{ ml: 'auto', ...chipSx(party.account ? '#0f766e' : '#64748b') }}
-          label={party.account ? (party.account.reporter ? 'Filed through SafeComm' : `Linked: ${party.account.residentNumber}`) : 'No SafeComm account'} />
-      </Box>
-      {reporter && <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>The reporter&apos;s own account receives the complainant&apos;s notices unless the person affected is linked to an account of their own.</Typography>}
-      {/* Who it is linked to, and when - so the officer can check it is the right person. */}
-      {!reporter && party.account && (
-        <Typography data-testid="party-link-detail" sx={{ fontSize: '0.8rem', color: '#0f766e' }}>
-          Linked to <b>{party.account.name || 'a SafeComm account'}</b> ({party.account.residentNumber})
-          {party.account.linkedAt ? ` on ${when(party.account.linkedAt)}` : ''}{party.account.linkedBy ? ` by ${party.account.linkedBy}` : ''}.
-          {' '}Their notices for this proceeding reach them in My Hearings &amp; Notices.
-        </Typography>
-      )}
-      {!reporter && canEdit && !party.account && (
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <TextField size="small" label="Resident number" value={number} onChange={e => setNumber(e.target.value)} slotProps={{ htmlInput: { maxLength: 40 } }}
-            helperText="Exactly as shown on the person's SafeComm profile" sx={{ minWidth: 240 }} />
-          <Button variant="contained" disabled={busy || number.trim().length < 3} onClick={link} sx={{ textTransform: 'none', bgcolor: NAVY, mt: 0.25 }}>
-            {busy ? <CircularProgress size={16} color="inherit" /> : 'Link account'}
-          </Button>
-        </Box>
-      )}
-      {!reporter && canEdit && party.account && (
-        unlinking ? (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            <TextField size="small" label="Why it is unlinked *" value={reason} onChange={e => setReason(e.target.value)} slotProps={{ htmlInput: { maxLength: 300 } }} sx={{ minWidth: 260 }} />
-            <Button color="error" variant="outlined" disabled={busy || reason.trim().length < 3} onClick={unlink} sx={{ textTransform: 'none', mt: 0.25 }}>Unlink</Button>
-            <Button onClick={() => setUnlinking(false)} sx={{ textTransform: 'none', mt: 0.25 }}>Back</Button>
-          </Box>
-        ) : <Box><Button size="small" color="error" onClick={() => setUnlinking(true)} sx={{ textTransform: 'none' }}>Unlink account</Button></Box>
-      )}
+    <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+      <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: NAVY }}>{NOTICE_RECIPIENTS[role]}</Typography>
+      <Typography sx={{ fontSize: '0.82rem', color: '#334155' }}>{party.name}</Typography>
+      <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>{party.label}</Typography>
+      <Chip size="small" sx={{ ml: 'auto', ...chipSx(party.account ? '#0f766e' : '#64748b') }}
+        label={party.account ? 'Notices in SafeComm' : 'Notices handed over or served'} />
     </Box>
   );
 }

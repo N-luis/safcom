@@ -21,7 +21,7 @@ const HEARING: CaseHearingState[] = ['NOT_SCHEDULED', 'IN_PROGRESS', 'AWAITING_N
  *
  *   ?q=            case number, complainant or respondent
  *   ?status=       OPEN (default), ANY, or a case status
- *   ?eligibility=  PENDING_REVIEW | NEEDS_VERIFICATION | ELIGIBLE | NOT_ELIGIBLE
+ *   ?eligibility=  PENDING_REVIEW | ELIGIBLE | NOT_ELIGIBLE
  *   ?hearing=      NOT_SCHEDULED | IN_PROGRESS | AWAITING_NEXT | ENDED
  *   ?page= &pageSize=
  *

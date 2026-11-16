@@ -44,11 +44,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const member = n.recipientRole === 'PANGKAT_MEMBER';
     if (member ? h.status === 'CANCELLED' : !isLive(h.status)) return errorResponse('This hearing is no longer scheduled.', 409);
     if (!FROM[d.action].includes(n.status)) return errorResponse(n.status === 'SUPERSEDED' ? 'This notice was replaced when the date changed.' : 'This notice is not at that step.', 409);
-    const account = member ? null : partyAccounts(g.c, h)[n.recipientRole as PartyRole];
+    const account = member ? null : partyAccounts(g.c)[n.recipientRole as PartyRole];
     if (d.action === 'issue' && d.method === 'SAFECOMM' && !account) {
       return errorResponse(member
         ? 'A Pangkat member\'s notice is handed over or served - it is not delivered to a resident account.'
-        : `The ${NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase()} has no SafeComm account linked to this case. Hand the notice over or serve it, or link their account first.`, 400);
+        : `The ${NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase()} has no SafeComm account for this case. Hand the notice over or serve it.`, 400);
     }
     const by = await actorName(g.actor.id);
     const who = member ? `Pangkat member ${n.recipientName}` : `the ${NOTICE_RECIPIENTS[n.recipientRole as NoticeRecipient].toLowerCase()}`;

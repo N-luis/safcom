@@ -47,7 +47,7 @@ const caseSelect = {
   assignedTo: { select: { id: true, name: true } },
   resident: { select: { firstName: true, lastName: true } },
   intake: { select: { suggestedCaseCategory: true } },
-  parties: { where: { role: 'REPORTED' }, orderBy: [{ source: 'desc' as const }, { createdAt: 'asc' as const }], select: { id: true, fullName: true, residentId: true } },
+  parties: { where: { role: 'REPORTED' }, orderBy: [{ source: 'desc' as const }, { createdAt: 'asc' as const }], select: { id: true, fullName: true } },
   hearings: { orderBy: [{ hearingNumber: 'asc' as const }, { createdAt: 'asc' as const }],
     select: { id: true, hearingNumber: true, stage: true, session: true, status: true, outcome: true, scheduledAt: true, assignedOfficialId: true } },
   pangkat: { select: { constitutedAt: true } },
@@ -106,7 +106,7 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
     return {
       id: c.id, caseNumber: c.caseNumber, caseType: c.caseType, status: c.status, filedAt: c.filedAt,
       complainant: complainantName(c, null),
-      respondents: c.parties.map(p => ({ id: p.id, name: p.fullName || 'Not named', hasAccount: Boolean(p.residentId) })),
+      respondents: c.parties.map(p => ({ id: p.id, name: p.fullName || 'Not named' })),
       eligibility: { state: eligibilityState, label: KP_ELIGIBILITY_LABELS[eligibilityState], reasons: eligibility.reasons, warnings: eligibility.warnings,
         categoryVerified: eligibility.categoryVerified },
       hearing: {
@@ -125,7 +125,7 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
   });
 
   const counts = {
-    eligibility: { PENDING_REVIEW: 0, NEEDS_VERIFICATION: 0, ELIGIBLE: 0, NOT_ELIGIBLE: 0 } as Record<KpEligibilityState, number>,
+    eligibility: { PENDING_REVIEW: 0, ELIGIBLE: 0, NOT_ELIGIBLE: 0 } as Record<KpEligibilityState, number>,
     hearing: { NOT_SCHEDULED: 0, IN_PROGRESS: 0, AWAITING_NEXT: 0, ENDED: 0 } as Record<CaseHearingState, number>,
   };
   for (const r of rows) { counts.eligibility[r.eligibility.state]++; counts.hearing[r.hearing.state]++; }

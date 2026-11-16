@@ -17,6 +17,7 @@ import { motion } from 'framer-motion';
 import { useCaseStats, useCases } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
+import DashboardAnnouncements from '@/components/announcements/DashboardAnnouncements';
 
 const CATEGORY_COLORS = ['#14b8a6', '#3b82f6', '#f97316', '#8b5cf6', '#ef4444', '#94a3b8'];
 
@@ -169,7 +170,7 @@ export default function BlotterDashboard() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </Typography>
         </Box>
-        <AnnounceButton accent="#3b82f6" />
+        <AnnounceButton accent="#3b82f6" boardPath="/blotter-officer/reports" />
       </Box>
 
       {/* Stat cards */}
@@ -213,6 +214,8 @@ export default function BlotterDashboard() {
           </Grid>
         ))}
       </Grid>
+
+      <DashboardAnnouncements accent="#3b82f6" boardPath="/blotter-officer/reports" />
 
       {/* Middle row: chart + urgent cases */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>

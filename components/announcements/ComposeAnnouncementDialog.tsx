@@ -158,7 +158,7 @@ function localIso(d: Date) {
 
 // ─── Compose dialog ──────────────────────────────────────────────────────────
 export default function ComposeAnnouncementDialog({ open, onClose, onPublished, accent }: {
-  open: boolean; onClose: () => void; onPublished: () => void; accent: string;
+  open: boolean; onClose: () => void; onPublished: (created?: Announcement) => void; accent: string;
 }) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -210,7 +210,7 @@ export default function ComposeAnnouncementDialog({ open, onClose, onPublished, 
       markAnnouncementsSeen();
       toast.success(`Announcement published to ${aud.label.toLowerCase()}`);
       reset();
-      onPublished();
+      onPublished(json.data as Announcement);
       onClose();
     } catch {
       setError('Network error. Please try again.');

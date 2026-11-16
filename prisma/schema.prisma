@@ -340,16 +340,8 @@ model CaseParty {
   updatedAt             DateTime      @updatedAt
   hearingsAsComplainant CaseHearing[] @relation("HearingComplainant")
   hearingsAsRespondent  CaseHearing[] @relation("HearingRespondent")
-  /// The party's own SafeComm account, when they have one - linked by an
-  /// official from the resident number, never matched by name. Their hearing
-  /// notices are delivered there.
-  residentId            String?
-  resident              Resident?     @relation(fields: [residentId], references: [id], onDelete: SetNull)
-  residentLinkedById    String?
-  residentLinkedAt      DateTime?
 
   @@index([caseId])
-  @@index([residentId])
 }
 
 /// The officer's initial safety assessment. Officer-only; one per case, and
@@ -643,9 +635,6 @@ model Resident {
   registeredAt       DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
   cases              Case[]
-  /// Case records an official linked to this account (a respondent with a
-  /// SafeComm account, say) - by the resident number, never by name.
-  caseParties        CaseParty[]
   hearingNotices     CaseHearingNotice[]
   verificationTokens EmailVerificationToken[]
   followUps          CaseFollowUp[]
