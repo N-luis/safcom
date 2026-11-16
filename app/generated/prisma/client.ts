@@ -301,6 +301,29 @@ export type CaseHearingEvent = Prisma.CaseHearingEventModel
  */
 export type CaseHearingRequest = Prisma.CaseHearingRequestModel
 /**
+ * Model VawcAppointment
+ * VAWC Appointments & Follow-ups: an appointment on a VAWC case (RA 9262) -
+ * a private interview, an intake or safety follow-up, referral coordination or
+ * an administrative case conference. Never a Katarungang Pambarangay hearing,
+ * never mediation or conciliation, and never with the respondent: the
+ * participants cannot include them (lib/vawcAppointments.ts PARTICIPANTS), and
+ * the database refuses an appointment on a case that is not a VAWC case
+ * (prisma/sql/019_vawc_appointments.sql).
+ */
+export type VawcAppointment = Prisma.VawcAppointmentModel
+/**
+ * Model VawcAppointmentEvent
+ * Everything that happened to a VAWC appointment, and who did it. Insert-only
+ * (prisma/sql/019_vawc_appointments.sql refuses any change to a row).
+ */
+export type VawcAppointmentEvent = Prisma.VawcAppointmentEventModel
+/**
+ * Model VawcAppointmentRequest
+ * A resident's request for a new appointment date. It changes nothing on its
+ * own: an official approves it (and sets the new date) or declines it.
+ */
+export type VawcAppointmentRequest = Prisma.VawcAppointmentRequestModel
+/**
  * Model CaseKpReview
  * An official's review of whether a case may go to Katarungang Pambarangay
  * proceedings. Kept as history; the latest governs, and only while the case

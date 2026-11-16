@@ -418,6 +418,9 @@ export const ModelName = {
   CaseHearingNotice: 'CaseHearingNotice',
   CaseHearingEvent: 'CaseHearingEvent',
   CaseHearingRequest: 'CaseHearingRequest',
+  VawcAppointment: 'VawcAppointment',
+  VawcAppointmentEvent: 'VawcAppointmentEvent',
+  VawcAppointmentRequest: 'VawcAppointmentRequest',
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
@@ -437,7 +440,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2957,6 +2960,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    VawcAppointment: {
+      payload: Prisma.$VawcAppointmentPayload<ExtArgs>
+      fields: Prisma.VawcAppointmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcAppointmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcAppointmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcAppointmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcAppointmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        findMany: {
+          args: Prisma.VawcAppointmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>[]
+        }
+        create: {
+          args: Prisma.VawcAppointmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        createMany: {
+          args: Prisma.VawcAppointmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcAppointmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcAppointmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        update: {
+          args: Prisma.VawcAppointmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcAppointmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcAppointmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcAppointmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcAppointmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcAppointmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcAppointment>
+        }
+        groupBy: {
+          args: Prisma.VawcAppointmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcAppointmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    VawcAppointmentEvent: {
+      payload: Prisma.$VawcAppointmentEventPayload<ExtArgs>
+      fields: Prisma.VawcAppointmentEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcAppointmentEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcAppointmentEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcAppointmentEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcAppointmentEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        findMany: {
+          args: Prisma.VawcAppointmentEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>[]
+        }
+        create: {
+          args: Prisma.VawcAppointmentEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        createMany: {
+          args: Prisma.VawcAppointmentEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcAppointmentEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcAppointmentEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        update: {
+          args: Prisma.VawcAppointmentEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcAppointmentEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcAppointmentEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcAppointmentEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcAppointmentEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentEventPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcAppointmentEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcAppointmentEvent>
+        }
+        groupBy: {
+          args: Prisma.VawcAppointmentEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcAppointmentEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    VawcAppointmentRequest: {
+      payload: Prisma.$VawcAppointmentRequestPayload<ExtArgs>
+      fields: Prisma.VawcAppointmentRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcAppointmentRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcAppointmentRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcAppointmentRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcAppointmentRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        findMany: {
+          args: Prisma.VawcAppointmentRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>[]
+        }
+        create: {
+          args: Prisma.VawcAppointmentRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        createMany: {
+          args: Prisma.VawcAppointmentRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcAppointmentRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcAppointmentRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        update: {
+          args: Prisma.VawcAppointmentRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcAppointmentRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcAppointmentRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcAppointmentRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcAppointmentRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcAppointmentRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcAppointmentRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcAppointmentRequest>
+        }
+        groupBy: {
+          args: Prisma.VawcAppointmentRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcAppointmentRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcAppointmentRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     CaseKpReview: {
       payload: Prisma.$CaseKpReviewPayload<ExtArgs>
       fields: Prisma.CaseKpReviewFieldRefs
@@ -4051,6 +4276,77 @@ export const CaseHearingRequestScalarFieldEnum = {
 export type CaseHearingRequestScalarFieldEnum = (typeof CaseHearingRequestScalarFieldEnum)[keyof typeof CaseHearingRequestScalarFieldEnum]
 
 
+export const VawcAppointmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  type: 'type',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  assignedOfficerId: 'assignedOfficerId',
+  participants: 'participants',
+  purpose: 'purpose',
+  internalNotes: 'internalNotes',
+  notifyVia: 'notifyVia',
+  residentInstructions: 'residentInstructions',
+  status: 'status',
+  statusReason: 'statusReason',
+  rescheduleCount: 'rescheduleCount',
+  attendance: 'attendance',
+  outcomeNotes: 'outcomeNotes',
+  followUpActions: 'followUpActions',
+  referralStatus: 'referralStatus',
+  nextAppointmentAt: 'nextAppointmentAt',
+  residentSeenAt: 'residentSeenAt',
+  residentAcknowledgedAt: 'residentAcknowledgedAt',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcAppointmentScalarFieldEnum = (typeof VawcAppointmentScalarFieldEnum)[keyof typeof VawcAppointmentScalarFieldEnum]
+
+
+export const VawcAppointmentEventScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  caseId: 'caseId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type VawcAppointmentEventScalarFieldEnum = (typeof VawcAppointmentEventScalarFieldEnum)[keyof typeof VawcAppointmentEventScalarFieldEnum]
+
+
+export const VawcAppointmentRequestScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  reason: 'reason',
+  preferredSchedule: 'preferredSchedule',
+  status: 'status',
+  pendingKey: 'pendingKey',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcAppointmentRequestScalarFieldEnum = (typeof VawcAppointmentRequestScalarFieldEnum)[keyof typeof VawcAppointmentRequestScalarFieldEnum]
+
+
 export const CaseKpReviewScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
@@ -4404,6 +4700,9 @@ export type GlobalOmitConfig = {
   caseHearingNotice?: Prisma.CaseHearingNoticeOmit
   caseHearingEvent?: Prisma.CaseHearingEventOmit
   caseHearingRequest?: Prisma.CaseHearingRequestOmit
+  vawcAppointment?: Prisma.VawcAppointmentOmit
+  vawcAppointmentEvent?: Prisma.VawcAppointmentEventOmit
+  vawcAppointmentRequest?: Prisma.VawcAppointmentRequestOmit
   caseKpReview?: Prisma.CaseKpReviewOmit
   acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
   casePangkat?: Prisma.CasePangkatOmit

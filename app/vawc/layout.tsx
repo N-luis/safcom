@@ -10,7 +10,7 @@ import {
 import {
   Dashboard, FolderOpen, Psychology, Assessment,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
-  Logout, MonitorHeart, Message, ArrowBack, Category, Campaign,
+  Logout, MonitorHeart, Message, ArrowBack, Category, Campaign, EventAvailable,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
@@ -24,6 +24,7 @@ const ACCENT = '#7c3aed';
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Dashboard, path: '/vawc', exact: true },
   { id: 'cases', label: 'Case Monitoring', icon: FolderOpen, path: '/vawc/cases' },
+  { id: 'appointments', label: 'Appointments', icon: EventAvailable, path: '/vawc/appointments' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/vawc/case-classification' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/vawc/ai-risk' },
   { id: 'reports', label: 'Reports', icon: Assessment, path: '/vawc/reports' },

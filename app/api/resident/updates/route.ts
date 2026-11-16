@@ -5,6 +5,8 @@ import { RESIDENT_ACTIVITY_TYPES, residentNotice } from '@/lib/notifications';
 import { residentHearingWhere } from '@/lib/hearingsServer';
 import { residentHearingMessage, RESIDENT_EVENT_KINDS } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
+import { residentAppointmentWhere } from '@/lib/vawcAppointmentsServer';
+import { residentAppointmentMessage, RESIDENT_APPOINTMENT_EVENTS } from '@/lib/vawcAppointments';
 
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
@@ -31,7 +33,7 @@ export async function GET(req: NextRequest) {
     // Activities for those cases + active alerts (barangay-wide or targeted at this resident's barangay).
     // Hearing updates are read from the proceedings the resident is a party
     // to instead - so a respondent hears about theirs too, on a case they did not file.
-    const [activities, alerts, hearingEvents] = await Promise.all([
+    const [activities, alerts, hearingEvents, appointmentEvents] = await Promise.all([
       caseIds.length > 0
         ? prisma.activity.findMany({
             where: { caseId: { in: caseIds }, type: { in: RESIDENT_ACTIVITY_TYPES.filter(t => t !== 'hearing') } },
@@ -69,6 +71,13 @@ export async function GET(req: NextRequest) {
           hearing: { select: {
             case: { select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true, residentId: true } } } } },
       }),
+      // Appointments the officer chose to tell this resident about (VAWC Appointments & Follow-ups).
+      prisma.vawcAppointmentEvent.findMany({
+        where: { kind: { in: [...RESIDENT_APPOINTMENT_EVENTS] }, appointment: residentAppointmentWhere(auth.resident.residentId) },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        select: { id: true, kind: true, after: true, createdAt: true },
+      }),
     ]);
 
     // The official entries those activities are about, read whole. Bound to
@@ -101,7 +110,19 @@ export async function GET(req: NextRequest) {
         case: own ? c : { id: null, caseNumber: c.caseNumber, caseType: undefined, status: null, riskLevel: null } }];
     });
 
+    // Safe for anyone who sees the screen: "an appointment with the barangay" and its date - no case
+    // number, category, officer or purpose, and no link to the case (lib/vawcAppointments.ts).
+    const appointmentUpdates = appointmentEvents.flatMap(e => {
+      const message = residentAppointmentMessage(e);
+      return message ? [{
+        id: e.id, source: 'case' as const, title: 'Appointment update', message, entryLabel: 'Appointment', color: '#0f766e', createdAt: e.createdAt,
+        caseType: undefined, caseId: null, caseNumber: null, caseStatus: null, caseRiskLevel: null, level: null as string | null, requestId: null,
+        href: '/resident/appointments',
+      }] : [];
+    });
+
     const updates = [
+      ...appointmentUpdates,
       ...[...caseUpdates, ...hearingUpdates].map(a => ({
         id: a.id,
         source: 'case' as const,

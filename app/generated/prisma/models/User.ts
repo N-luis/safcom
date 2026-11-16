@@ -247,6 +247,7 @@ export type UserWhereInput = {
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
   assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
   presidedHearings?: Prisma.CaseHearingListRelationFilter
+  vawcAppointments?: Prisma.VawcAppointmentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -271,6 +272,7 @@ export type UserOrderByWithRelationInput = {
   caseFollowUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
   assessmentActions?: Prisma.AssessmentHistoryOrderByRelationAggregateInput
   presidedHearings?: Prisma.CaseHearingOrderByRelationAggregateInput
+  vawcAppointments?: Prisma.VawcAppointmentOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -298,6 +300,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   caseFollowUps?: Prisma.CaseFollowUpListRelationFilter
   assessmentActions?: Prisma.AssessmentHistoryListRelationFilter
   presidedHearings?: Prisma.CaseHearingListRelationFilter
+  vawcAppointments?: Prisma.VawcAppointmentListRelationFilter
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -358,6 +361,7 @@ export type UserCreateInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -382,6 +386,7 @@ export type UserUncheckedCreateInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUpdateInput = {
@@ -406,6 +411,7 @@ export type UserUpdateInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -430,6 +436,7 @@ export type UserUncheckedUpdateInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -688,6 +695,22 @@ export type UserUpdateOneWithoutPresidedHearingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPresidedHearingsInput, Prisma.UserUpdateWithoutPresidedHearingsInput>, Prisma.UserUncheckedUpdateWithoutPresidedHearingsInput>
 }
 
+export type UserCreateNestedOneWithoutVawcAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVawcAppointmentsInput, Prisma.UserUncheckedCreateWithoutVawcAppointmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVawcAppointmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutVawcAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVawcAppointmentsInput, Prisma.UserUncheckedCreateWithoutVawcAppointmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVawcAppointmentsInput
+  upsert?: Prisma.UserUpsertWithoutVawcAppointmentsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVawcAppointmentsInput, Prisma.UserUpdateWithoutVawcAppointmentsInput>, Prisma.UserUncheckedUpdateWithoutVawcAppointmentsInput>
+}
+
 export type UserCreateWithoutAssignedCasesInput = {
   id?: string
   email: string
@@ -709,6 +732,7 @@ export type UserCreateWithoutAssignedCasesInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutAssignedCasesInput = {
@@ -732,6 +756,7 @@ export type UserUncheckedCreateWithoutAssignedCasesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutAssignedCasesInput = {
@@ -771,6 +796,7 @@ export type UserUpdateWithoutAssignedCasesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedCasesInput = {
@@ -794,6 +820,7 @@ export type UserUncheckedUpdateWithoutAssignedCasesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutOverriddenAssessmentsInput = {
@@ -817,6 +844,7 @@ export type UserCreateWithoutOverriddenAssessmentsInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
@@ -840,6 +868,7 @@ export type UserUncheckedCreateWithoutOverriddenAssessmentsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutOverriddenAssessmentsInput = {
@@ -879,6 +908,7 @@ export type UserUpdateWithoutOverriddenAssessmentsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
@@ -902,6 +932,7 @@ export type UserUncheckedUpdateWithoutOverriddenAssessmentsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutCreatedReportsInput = {
@@ -925,6 +956,7 @@ export type UserCreateWithoutCreatedReportsInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutCreatedReportsInput = {
@@ -948,6 +980,7 @@ export type UserUncheckedCreateWithoutCreatedReportsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutCreatedReportsInput = {
@@ -987,6 +1020,7 @@ export type UserUpdateWithoutCreatedReportsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedReportsInput = {
@@ -1010,6 +1044,7 @@ export type UserUncheckedUpdateWithoutCreatedReportsInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutActivitiesInput = {
@@ -1033,6 +1068,7 @@ export type UserCreateWithoutActivitiesInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutActivitiesInput = {
@@ -1056,6 +1092,7 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutActivitiesInput = {
@@ -1095,6 +1132,7 @@ export type UserUpdateWithoutActivitiesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivitiesInput = {
@@ -1118,6 +1156,7 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutCaseFollowUpsInput = {
@@ -1141,6 +1180,7 @@ export type UserCreateWithoutCaseFollowUpsInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
@@ -1164,6 +1204,7 @@ export type UserUncheckedCreateWithoutCaseFollowUpsInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutCaseFollowUpsInput = {
@@ -1203,6 +1244,7 @@ export type UserUpdateWithoutCaseFollowUpsInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
@@ -1226,6 +1268,7 @@ export type UserUncheckedUpdateWithoutCaseFollowUpsInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -1249,6 +1292,7 @@ export type UserCreateWithoutSentMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -1272,6 +1316,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -1300,6 +1345,7 @@ export type UserCreateWithoutReceivedMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -1323,6 +1369,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -1362,6 +1409,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -1385,6 +1433,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -1419,6 +1468,7 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -1442,6 +1492,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutAssessmentActionsInput = {
@@ -1465,6 +1516,7 @@ export type UserCreateWithoutAssessmentActionsInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutAssessmentActionsInput = {
@@ -1488,6 +1540,7 @@ export type UserUncheckedCreateWithoutAssessmentActionsInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutAssessmentActionsInput = {
@@ -1527,6 +1580,7 @@ export type UserUpdateWithoutAssessmentActionsInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssessmentActionsInput = {
@@ -1550,6 +1604,7 @@ export type UserUncheckedUpdateWithoutAssessmentActionsInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserCreateWithoutPresidedHearingsInput = {
@@ -1573,6 +1628,7 @@ export type UserCreateWithoutPresidedHearingsInput = {
   receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserUncheckedCreateWithoutPresidedHearingsInput = {
@@ -1596,6 +1652,7 @@ export type UserUncheckedCreateWithoutPresidedHearingsInput = {
   receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutAssignedOfficerInput
 }
 
 export type UserCreateOrConnectWithoutPresidedHearingsInput = {
@@ -1635,6 +1692,7 @@ export type UserUpdateWithoutPresidedHearingsInput = {
   receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutAssignedOfficerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPresidedHearingsInput = {
@@ -1658,6 +1716,119 @@ export type UserUncheckedUpdateWithoutPresidedHearingsInput = {
   receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
   caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
   assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerNestedInput
+}
+
+export type UserCreateWithoutVawcAppointmentsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingCreateNestedManyWithoutAssignedOfficialInput
+}
+
+export type UserUncheckedCreateWithoutVawcAppointmentsInput = {
+  id?: string
+  email: string
+  username?: string | null
+  name: string
+  password: string
+  role?: string
+  barangay?: string | null
+  phone?: string | null
+  avatar?: string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedCases?: Prisma.CaseUncheckedCreateNestedManyWithoutAssignedToInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedCreateNestedManyWithoutOverriddenByInput
+  createdReports?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmittedByInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutRecipientInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutUserInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutActorInput
+  presidedHearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutAssignedOfficialInput
+}
+
+export type UserCreateOrConnectWithoutVawcAppointmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVawcAppointmentsInput, Prisma.UserUncheckedCreateWithoutVawcAppointmentsInput>
+}
+
+export type UserUpsertWithoutVawcAppointmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVawcAppointmentsInput, Prisma.UserUncheckedUpdateWithoutVawcAppointmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVawcAppointmentsInput, Prisma.UserUncheckedCreateWithoutVawcAppointmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVawcAppointmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVawcAppointmentsInput, Prisma.UserUncheckedUpdateWithoutVawcAppointmentsInput>
+}
+
+export type UserUpdateWithoutVawcAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUpdateManyWithoutAssignedOfficialNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVawcAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedCases?: Prisma.CaseUncheckedUpdateManyWithoutAssignedToNestedInput
+  overriddenAssessments?: Prisma.CaseAssessmentUncheckedUpdateManyWithoutOverriddenByNestedInput
+  createdReports?: Prisma.ReportUncheckedUpdateManyWithoutSubmittedByNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutRecipientNestedInput
+  caseFollowUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutUserNestedInput
+  assessmentActions?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutActorNestedInput
+  presidedHearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutAssignedOfficialNestedInput
 }
 
 
@@ -1675,6 +1846,7 @@ export type UserCountOutputType = {
   caseFollowUps: number
   assessmentActions: number
   presidedHearings: number
+  vawcAppointments: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1687,6 +1859,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   caseFollowUps?: boolean | UserCountOutputTypeCountCaseFollowUpsArgs
   assessmentActions?: boolean | UserCountOutputTypeCountAssessmentActionsArgs
   presidedHearings?: boolean | UserCountOutputTypeCountPresidedHearingsArgs
+  vawcAppointments?: boolean | UserCountOutputTypeCountVawcAppointmentsArgs
 }
 
 /**
@@ -1762,6 +1935,13 @@ export type UserCountOutputTypeCountPresidedHearingsArgs<ExtArgs extends runtime
   where?: Prisma.CaseHearingWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVawcAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VawcAppointmentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1785,6 +1965,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
   assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
   presidedHearings?: boolean | Prisma.User$presidedHearingsArgs<ExtArgs>
+  vawcAppointments?: boolean | Prisma.User$vawcAppointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1844,6 +2025,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   caseFollowUps?: boolean | Prisma.User$caseFollowUpsArgs<ExtArgs>
   assessmentActions?: boolean | Prisma.User$assessmentActionsArgs<ExtArgs>
   presidedHearings?: boolean | Prisma.User$presidedHearingsArgs<ExtArgs>
+  vawcAppointments?: boolean | Prisma.User$vawcAppointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1861,6 +2043,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     caseFollowUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
     assessmentActions: Prisma.$AssessmentHistoryPayload<ExtArgs>[]
     presidedHearings: Prisma.$CaseHearingPayload<ExtArgs>[]
+    vawcAppointments: Prisma.$VawcAppointmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2278,6 +2461,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   caseFollowUps<T extends Prisma.User$caseFollowUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$caseFollowUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessmentActions<T extends Prisma.User$assessmentActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assessmentActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   presidedHearings<T extends Prisma.User$presidedHearingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$presidedHearingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vawcAppointments<T extends Prisma.User$vawcAppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$vawcAppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VawcAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2925,6 +3109,30 @@ export type User$presidedHearingsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.CaseHearingScalarFieldEnum | Prisma.CaseHearingScalarFieldEnum[]
+}
+
+/**
+ * User.vawcAppointments
+ */
+export type User$vawcAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VawcAppointment
+   */
+  select?: Prisma.VawcAppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VawcAppointment
+   */
+  omit?: Prisma.VawcAppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VawcAppointmentInclude<ExtArgs> | null
+  where?: Prisma.VawcAppointmentWhereInput
+  orderBy?: Prisma.VawcAppointmentOrderByWithRelationInput | Prisma.VawcAppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.VawcAppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VawcAppointmentScalarFieldEnum | Prisma.VawcAppointmentScalarFieldEnum[]
 }
 
 /**

@@ -30,6 +30,8 @@ interface UpdateItem {
   entryLabel?: string | null;
   /** A request for more information: opens the case at that request. */
   requestId?: string | null;
+  /** Where the notice opens when it is not about a case page (an appointment). */
+  href?: string | null;
 }
 
 const ACCENT = '#14b8a6';
@@ -71,10 +73,11 @@ function timeAgo(d: string) {
  * opens that case, because a notification about a case that cannot reach the
  * case is a dead end.
  */
-function NotificationDialog({ u, onClose, onOpenCase }: {
+function NotificationDialog({ u, onClose, onOpenCase, onOpenHref }: {
   u: UpdateItem;
   onClose: () => void;
   onOpenCase: (caseId: string, requestId?: string | null) => void;
+  onOpenHref: (href: string) => void;
 }) {
   const IconComp = SOURCE_ICON[u.source] ?? Info;
   const isCase = u.source === 'case';
@@ -155,7 +158,7 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
           </>
         )}
 
-        {isCase && !u.caseId && (
+        {isCase && !u.caseId && !u.href && (
           <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mt: 1.75 }}>
             This case is no longer available to open.
           </Typography>
@@ -182,6 +185,20 @@ function NotificationDialog({ u, onClose, onOpenCase }: {
             }}
           >
             View this case
+          </Button>
+        )}
+        {u.href && (
+          <Button
+            variant="contained"
+            onClick={() => onOpenHref(u.href as string)}
+            endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
+            sx={{
+              minHeight: 44, width: { xs: '100%', sm: 'auto' }, borderRadius: 2,
+              bgcolor: ACCENT, fontWeight: 700, textTransform: 'none',
+              '&:hover': { bgcolor: '#0d9488' },
+            }}
+          >
+            View my appointments
           </Button>
         )}
       </DialogActions>
@@ -367,6 +384,7 @@ export default function ResidentNotificationsPage() {
           u={opened}
           onClose={() => setOpened(null)}
           onOpenCase={openCase}
+          onOpenHref={href => { setOpened(null); router.push(href); }}
         />
       )}
     </Box>

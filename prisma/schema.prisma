@@ -29,6 +29,7 @@ model User {
   caseFollowUps         CaseFollowUp[]
   assessmentActions     AssessmentHistory[] @relation("AssessmentActor")
   presidedHearings      CaseHearing[]       @relation("HearingOfficial")
+  vawcAppointments      VawcAppointment[]   @relation("VawcAppointmentOfficer")
 }
 
 model Case {
@@ -149,6 +150,8 @@ model Case {
   /// IACVAWC Service Referral Forms (VAWC cases only) - one per receiving organization.
   serviceReferrals ServiceReferral[]
   hearings         CaseHearing[]
+  /// VAWC Appointments & Follow-ups (VAWC cases only) - never a KP hearing.
+  vawcAppointments VawcAppointment[]
   acknowledgement  AcknowledgementLetter?
   kpReviews        CaseKpReview[]
   pangkat          CasePangkat?
@@ -1216,6 +1219,117 @@ model CaseHearingRequest {
   updatedAt         DateTime    @updatedAt
 
   @@index([hearingId])
+  @@index([status, createdAt])
+}
+
+/// VAWC Appointments & Follow-ups: an appointment on a VAWC case (RA 9262) -
+/// a private interview, an intake or safety follow-up, referral coordination or
+/// an administrative case conference. Never a Katarungang Pambarangay hearing,
+/// never mediation or conciliation, and never with the respondent: the
+/// participants cannot include them (lib/vawcAppointments.ts PARTICIPANTS), and
+/// the database refuses an appointment on a case that is not a VAWC case
+/// (prisma/sql/019_vawc_appointments.sql).
+model VawcAppointment {
+  id                     String    @id @default(cuid())
+  caseId                 String
+  case                   Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// APT-<case number>-<n>, for the officials. Never shown to the resident.
+  reference              String    @unique
+  /// lib/vawcAppointments.ts APPOINTMENT_TYPES
+  type                   String
+  scheduledAt            DateTime
+  /// The venue or approved meeting location.
+  venue                  String
+  assignedOfficerId      String?
+  assignedOfficer        User?     @relation("VawcAppointmentOfficer", fields: [assignedOfficerId], references: [id], onDelete: SetNull)
+  /// Who is meant to attend (lib/vawcAppointments.ts PARTICIPANTS) - the respondent is never one.
+  participants           String[]
+  /// Officials only: why the appointment is held.
+  purpose                String
+  /// Officials only.
+  internalNotes          String?
+  /// SAFECOMM_ACCOUNT (an in-app notice to the reporter's own account) |
+  /// OFFICER_CONTACT (the officer reaches them, as their safe-contact
+  /// preference allows) | NONE. Nothing is ever sent by text or email.
+  notifyVia              String
+  /// Shown to the resident with the appointment: what to bring, where to go.
+  residentInstructions   String?
+  /// SCHEDULED | RESCHEDULED | COMPLETED | NOT_HELD | CANCELLED
+  status                 String    @default("SCHEDULED")
+  /// Officials only: the reason for the latest new date or cancellation.
+  statusReason           String?
+  rescheduleCount        Int       @default(0)
+  /// Recorded by an official once it is held (officials only): ATTENDED | DID_NOT_ATTEND | NOT_APPLICABLE.
+  attendance             String?
+  outcomeNotes           String?
+  followUpActions        String?
+  /// NOT_NEEDED | TO_BE_MADE | IN_PROGRESS | COMPLETED | DECLINED_BY_CLIENT
+  referralStatus         String?
+  nextAppointmentAt      DateTime?
+  /// The resident's own answers, for the date as it stands (cleared on a new date).
+  residentSeenAt         DateTime?
+  residentAcknowledgedAt DateTime?
+  completedAt            DateTime?
+  completedById          String?
+  cancelledAt            DateTime?
+  cancelledById          String?
+  createdById            String
+  updatedById            String
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  events   VawcAppointmentEvent[]
+  requests VawcAppointmentRequest[]
+
+  @@index([caseId])
+  @@index([status, scheduledAt])
+  @@index([assignedOfficerId])
+}
+
+/// Everything that happened to a VAWC appointment, and who did it. Insert-only
+/// (prisma/sql/019_vawc_appointments.sql refuses any change to a row).
+model VawcAppointmentEvent {
+  id            String          @id @default(cuid())
+  appointmentId String
+  appointment   VawcAppointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  caseId        String
+  /// lib/vawcAppointments.ts APPOINTMENT_EVENT_LABELS
+  kind          String
+  /// official | resident | system
+  actorType     String
+  actorId       String?
+  before        Json?
+  after         Json?
+  /// Officials only.
+  note          String?
+  createdAt     DateTime        @default(now())
+
+  @@index([appointmentId, createdAt])
+  @@index([caseId, createdAt])
+}
+
+/// A resident's request for a new appointment date. It changes nothing on its
+/// own: an official approves it (and sets the new date) or declines it.
+model VawcAppointmentRequest {
+  id                String          @id @default(cuid())
+  appointmentId     String
+  appointment       VawcAppointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  caseId            String
+  residentId        String
+  reason            String
+  preferredSchedule String?
+  /// PENDING | APPROVED | DECLINED
+  status            String          @default("PENDING")
+  /// "<appointmentId>" while pending: one open request per appointment.
+  pendingKey        String?         @unique
+  reviewedById      String?
+  reviewedAt        DateTime?
+  /// The official's answer, which the resident sees.
+  reviewNote        String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([appointmentId])
   @@index([status, createdAt])
 }
 

@@ -188,14 +188,28 @@ export async function hearingManagement(ctx: AnalyticsContext) {
   let vawc = null;
   if (ctx.scope !== 'blotter') {
     const vawcCases: Where = { AND: [ctx.countsWhere, { caseType: { in: [...VAWC_TYPES] } }] };
-    const [referrals, interventions, followUpsDue] = await Promise.all([
+    const [referrals, interventions, followUpsDue, appointments] = await Promise.all([
       prisma.caseReferral.groupBy({ by: ['status'], where: { case: vawcCases }, _count: true }),
       prisma.caseFollowUp.count({ where: { case: vawcCases, type: 'intervention', ...(ctx.from || ctx.to ? { createdAt: { ...(ctx.from && { gte: ctx.from }), ...(ctx.to && { lte: ctx.to }) } } : {}) } }),
       prisma.caseSafetyAssessment.count({ where: { case: vawcCases, followUpAt: { gte: now } } }),
+      // VAWC Appointments & Follow-ups: type, status and dates only - never a note, a purpose or a name.
+      prisma.vawcAppointment.findMany({ where: { case: vawcCases }, select: { type: true, status: true, scheduledAt: true, rescheduleCount: true, referralStatus: true } }),
     ]);
+    const inRange = (a: { scheduledAt: Date }) => (!ctx.from || a.scheduledAt >= ctx.from) && (!ctx.to || a.scheduledAt <= ctx.to);
+    const open = (a: { status: string }) => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED';
+    const ranged = appointments.filter(inRange);
     vawc = {
       referrals: Object.fromEntries(referrals.map(r => [r.status, r._count])),
       interventions, followUpsDue,
+      appointments: {
+        scheduled: appointments.filter(a => open(a) && a.scheduledAt >= now).length,
+        completedInterviews: ranged.filter(a => a.status === 'COMPLETED' && a.type === 'VICTIM_INTERVIEW').length,
+        pendingFollowUps: appointments.filter(a => open(a) && (a.type === 'INTAKE_FOLLOW_UP' || a.type === 'SAFETY_FOLLOW_UP')).length,
+        rescheduled: ranged.filter(a => a.rescheduleCount > 0).length,
+        referralCoordination: Object.fromEntries(['TO_BE_MADE', 'IN_PROGRESS', 'COMPLETED', 'DECLINED_BY_CLIENT'].map(k => [k,
+          appointments.filter(a => a.referralStatus === k).length])),
+        referralCoordinationOpen: appointments.filter(a => open(a) && a.type === 'REFERRAL_COORDINATION').length,
+      },
     };
   }
 

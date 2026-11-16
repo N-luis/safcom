@@ -400,6 +400,20 @@ function Hearings({ query, rangeLabel, open, canOpen }: { query: string; rangeLa
                 <Grid size={{ xs: 6, md: 2 }}><Tile label="Interventions recorded" value={data.vawc.interventions} hint={rangeLabel} color="#7c3aed" /></Grid>
                 <Grid size={{ xs: 6, md: 2 }}><Tile label="Follow-ups scheduled" value={data.vawc.followUpsDue} hint="From safety assessments" color="#7c3aed" /></Grid>
               </Grid>
+              {data.vawc.appointments && (
+                <>
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#7c3aed', mt: 2, mb: 0.75 }}>VAWC appointments and follow-ups</Typography>
+                  <Grid container spacing={1.5}>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Scheduled" value={data.vawc.appointments.scheduled} hint="Still to come" color="#7c3aed" /></Grid>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Interviews completed" value={data.vawc.appointments.completedInterviews} hint={rangeLabel} color="#7c3aed" /></Grid>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Follow-ups pending" value={data.vawc.appointments.pendingFollowUps} color="#7c3aed" /></Grid>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Rescheduled" value={data.vawc.appointments.rescheduled} hint={rangeLabel} color="#7c3aed" /></Grid>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Referral coordination open" value={data.vawc.appointments.referralCoordinationOpen} color="#7c3aed" /></Grid>
+                    <Grid size={{ xs: 6, md: 2 }}><Tile label="Referrals in progress" value={data.vawc.appointments.referralCoordination.IN_PROGRESS + data.vawc.appointments.referralCoordination.TO_BE_MADE}
+                      hint={`${data.vawc.appointments.referralCoordination.COMPLETED} completed`} color="#7c3aed" /></Grid>
+                  </Grid>
+                </>
+              )}
             </Box>
           )}
         </>

@@ -85,6 +85,9 @@ export const ModelName = {
   CaseHearingNotice: 'CaseHearingNotice',
   CaseHearingEvent: 'CaseHearingEvent',
   CaseHearingRequest: 'CaseHearingRequest',
+  VawcAppointment: 'VawcAppointment',
+  VawcAppointmentEvent: 'VawcAppointmentEvent',
+  VawcAppointmentRequest: 'VawcAppointmentRequest',
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
@@ -864,6 +867,77 @@ export const CaseHearingRequestScalarFieldEnum = {
 } as const
 
 export type CaseHearingRequestScalarFieldEnum = (typeof CaseHearingRequestScalarFieldEnum)[keyof typeof CaseHearingRequestScalarFieldEnum]
+
+
+export const VawcAppointmentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  type: 'type',
+  scheduledAt: 'scheduledAt',
+  venue: 'venue',
+  assignedOfficerId: 'assignedOfficerId',
+  participants: 'participants',
+  purpose: 'purpose',
+  internalNotes: 'internalNotes',
+  notifyVia: 'notifyVia',
+  residentInstructions: 'residentInstructions',
+  status: 'status',
+  statusReason: 'statusReason',
+  rescheduleCount: 'rescheduleCount',
+  attendance: 'attendance',
+  outcomeNotes: 'outcomeNotes',
+  followUpActions: 'followUpActions',
+  referralStatus: 'referralStatus',
+  nextAppointmentAt: 'nextAppointmentAt',
+  residentSeenAt: 'residentSeenAt',
+  residentAcknowledgedAt: 'residentAcknowledgedAt',
+  completedAt: 'completedAt',
+  completedById: 'completedById',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcAppointmentScalarFieldEnum = (typeof VawcAppointmentScalarFieldEnum)[keyof typeof VawcAppointmentScalarFieldEnum]
+
+
+export const VawcAppointmentEventScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  caseId: 'caseId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type VawcAppointmentEventScalarFieldEnum = (typeof VawcAppointmentEventScalarFieldEnum)[keyof typeof VawcAppointmentEventScalarFieldEnum]
+
+
+export const VawcAppointmentRequestScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  caseId: 'caseId',
+  residentId: 'residentId',
+  reason: 'reason',
+  preferredSchedule: 'preferredSchedule',
+  status: 'status',
+  pendingKey: 'pendingKey',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcAppointmentRequestScalarFieldEnum = (typeof VawcAppointmentRequestScalarFieldEnum)[keyof typeof VawcAppointmentRequestScalarFieldEnum]
 
 
 export const CaseKpReviewScalarFieldEnum = {
