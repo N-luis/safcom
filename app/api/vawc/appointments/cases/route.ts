@@ -12,7 +12,10 @@ import {
 export const dynamic = 'force-dynamic';
 
 /**
- * The VAWC cases an appointment can be made on, for Create Appointment.
+ * The VAWC cases a hearing can be made on, for Create Hearing. A case is
+ * listed whether or not it has any hearing yet, and whatever optional details
+ * it lacks; a VAWC officer sees the cases assigned to them and the unassigned
+ * ones they can take - never another officer's - and the Punong Barangay all.
  * Read from the case records - VAWC categories only, never a blotter case -
  * and shown by reference, category, status and filing date: no names and
  * no narrative. Search is by case reference.
@@ -46,12 +49,15 @@ export async function GET(req: NextRequest) {
   if (!actor?.active) return errorResponse('Unauthorized', 401);
   if (!appointmentScope(actor)) {
     await logAccess(actor, '(appointment cases)', null, 'denied', 'role_not_permitted');
-    return noStore({ success: false, error: 'VAWC Appointments are for the VAWC desk.', code: 'wrong_desk' }, 403);
+    return noStore({ success: false, error: 'VAWC Hearings are for the VAWC desk.', code: 'wrong_desk' }, 403);
   }
   const q = sp.get('q')?.trim().slice(0, 40) || null;
+  // A VAWC officer: their own cases and the unassigned ones they can take. The Punong Barangay: all.
+  const mine = actor.role.trim() === 'admin' ? {} : { OR: [{ assignedToId: actor.id }, { assignedToId: null }] };
   try {
     const cases = await prisma.case.findMany({
       where: {
+        ...mine,
         caseType: { in: [...VAWC_TYPES] },
         ...(q ? { caseNumber: { contains: q, mode: 'insensitive' } } : { status: { notIn: CLOSED_CASE_STATUSES } }),
       },

@@ -38,7 +38,7 @@ export const APPOINTMENT_OFFICER_ROLES = [...VAWC_DESK_ROLES, 'admin'];
 
 export interface AppointmentAccess { view: boolean; edit: boolean; hidden: boolean; code: string; message: string | null; canClaim: boolean }
 
-export const NOT_VAWC_MESSAGE = 'VAWC Appointments are for VAWC cases only. Blotter cases are scheduled in Hearing Management.';
+export const NOT_VAWC_MESSAGE = 'VAWC Hearings are for VAWC cases only. Blotter cases are scheduled in the Blotter desk\'s Hearings.';
 
 /** The rule, on its own so it can be tested. `officer`: the actor is assigned to one of the case's appointments. */
 export function decideAppointmentAccess(actor: Actor, c: { caseType: string; assignedToId: string | null }, officer = false): AppointmentAccess {
@@ -51,14 +51,14 @@ export function decideAppointmentAccess(actor: Actor, c: { caseType: string; ass
   const mine = c.assignedToId === actor.id || officer;
   if (VAWC_DESK_ROLES.includes(role)) {
     if (mine) return { view: true, edit: true, hidden: false, code: 'assigned', message: null, canClaim: false };
-    return no('not_assigned', 'Only the VAWC officer assigned to this case (or to the appointment) can manage its appointments. Take the case first if it is unassigned.',
+    return no('not_assigned', 'Only the VAWC officer assigned to this case (or to the hearing) can manage its hearings. Take the case first if it is unassigned.',
       { canClaim: c.assignedToId === null });
   }
   if (role === 'admin') {
     return { view: true, edit: mine, hidden: false, code: 'oversight', canClaim: false,
-      message: mine ? null : 'You can view these appointments. Managing them is for the VAWC officer the case is assigned to.' };
+      message: mine ? null : 'You can view these hearings. Managing them is for the VAWC officer the case is assigned to.' };
   }
-  return no('role_not_permitted', 'Your role cannot open VAWC appointments.');
+  return no('role_not_permitted', 'Your role cannot open VAWC hearings.');
 }
 
 /** What the appointment routes need about the case - no narrative, no people. */
@@ -218,7 +218,7 @@ export async function officerConflicts(officerId: string | null, at: Date, exclu
     select: { reference: true, scheduledAt: true, type: true, assignedOfficer: { select: { name: true } } }, orderBy: { scheduledAt: 'asc' },
   });
   return rows.map(r => ({ kind: 'official' as const, reference: r.reference, scheduledAt: r.scheduledAt.toISOString(),
-    message: `${r.assignedOfficer?.name ?? 'The officer'} already has an appointment at ${formatHearingWhen(r.scheduledAt)} (${r.reference}, ${typeLabel(r.type).toLowerCase()}).` }));
+    message: `${r.assignedOfficer?.name ?? 'The officer'} already has a hearing at ${formatHearingWhen(r.scheduledAt)} (${r.reference}, ${typeLabel(r.type).toLowerCase()}).` }));
 }
 
 export const conflictReply = (conflicts: Awaited<ReturnType<typeof officerConflicts>>) => noStore({
@@ -248,6 +248,7 @@ export async function officialView(a: LoadedAppointment) {
   const name = (id: string | null | undefined) => (id ? users.find(u => u.id === id)?.name ?? 'Former official' : null);
   return {
     id: a.id, caseId: a.caseId, reference: a.reference, type: a.type, scheduledAt: a.scheduledAt, venue: a.venue,
+    courtMatter: a.courtMatter, courtSource: a.courtSource, courtReference: a.courtReference,
     assignedOfficer: a.assignedOfficer, participants: a.participants, purpose: a.purpose, internalNotes: a.internalNotes,
     notifyVia: a.notifyVia, residentInstructions: a.residentInstructions, status: a.status, statusReason: a.statusReason, rescheduleCount: a.rescheduleCount,
     attendance: a.attendance, outcomeNotes: a.outcomeNotes, followUpActions: a.followUpActions, referralStatus: a.referralStatus, nextAppointmentAt: a.nextAppointmentAt,

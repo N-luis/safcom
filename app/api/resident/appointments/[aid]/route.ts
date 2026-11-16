@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ aid
           data: { residentAcknowledgedAt: new Date(), residentSeenAt: a.residentSeenAt ?? new Date() } });
         if (!r.count) throw new Error('changed');
         await recordAppointmentEvent(tx, { appointmentId: a.id, caseId: a.caseId, kind: 'resident_acknowledged', actorType: 'resident', actorId: me, after: appointmentSnap(a) });
-        await notifyAppointmentOfficials(tx, a, a.case, `Appointment acknowledged - ${a.case.caseNumber}`, `The resident acknowledged ${a.reference}. This is a receipt, not attendance.`);
+        await notifyAppointmentOfficials(tx, a, a.case, `Hearing acknowledged by the resident - ${a.case.caseNumber}`, `The resident acknowledged ${a.reference}. This is a receipt, not attendance.`);
       });
       return noStore({ success: true });
     }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ aid
       await recordAppointmentEvent(tx, { appointmentId: a.id, caseId: a.caseId, kind: 'reschedule_requested', actorType: 'resident', actorId: me,
         after: { ...appointmentSnap(a), requestId: r.id }, note: d.reason });
       await notifyAppointmentOfficials(tx, a, a.case, `New date requested - ${a.case.caseNumber}`,
-        `The resident asked for a new date for ${a.reference}. Open VAWC Appointments to set one or reply.`, 'warning');
+        `The resident asked for a new date for ${a.reference}. Open Hearings to set one or reply.`, 'warning');
       return r;
     });
     return noStore({ success: true, data: { id: request.id, status: request.status } }, 201);

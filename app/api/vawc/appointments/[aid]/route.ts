@@ -8,6 +8,7 @@ import { logRouteError } from '@/lib/hearingCasesServer';
 import {
   APPOINTMENT_TYPE_KEYS, PARTICIPANT_KEYS, NOTIFY_KEYS, ATTENDANCE_KEYS, REFERRAL_STATUS_KEYS, appointmentAllowed, appointmentDayArrived,
   normalizeParticipants, notifyRefusal, residentNotified, forbiddenRequest, appointmentTimeRefusal, APPOINTMENT_STATUSES, type AppointmentStatus,
+  COURT_MATTER_KEYS, COURT_SOURCE_KEYS, courtRefusal, isCourtType, MODULE_LABEL,
 } from '@/lib/vawcAppointments';
 import {
   noStore, gateAppointments, loadAppointment, officialView, appointmentCaseContext, appointmentOfficers, checkOfficer, officerConflicts, conflictReply,
@@ -21,12 +22,12 @@ type Params = { params: Promise<{ aid: string }> };
 /** The appointment's case, from the appointment - and "not found" for anyone who may not see it. */
 async function caseOf(req: NextRequest, aid: string, need: 'view' | 'edit') {
   const row = await prisma.vawcAppointment.findUnique({ where: { id: aid.slice(0, 64) }, select: { caseId: true } }).catch(() => undefined);
-  if (row === undefined) return { error: errorResponse('The appointment could not be loaded right now.', 503) };
+  if (row === undefined) return { error: errorResponse('The hearing could not be loaded right now.', 503) };
   if (!row) {
     const auth = await requireAuth(req);
     if ('status' in auth) return { error: auth };
     await logAccess(await loadActor(auth.user.userId), aid, null, 'denied', 'appointment_not_found');
-    return { error: errorResponse('Appointment not found', 404) };
+    return { error: errorResponse('Hearing not found', 404) };
   }
   return gateAppointments(req, row.caseId, need, aid);
 }
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   if ('error' in g) return g.error;
   try {
     const a = await loadAppointment(g.c.id, aid);
-    if (!a) return errorResponse('Appointment not found', 404);
+    if (!a) return errorResponse('Hearing not found', 404);
     const [view, officers] = await Promise.all([officialView(a), g.access.edit ? appointmentOfficers() : Promise.resolve([])]);
     await g.log('permitted', `${g.access.code}:appointment`);
     return noStore({ success: true, data: {
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     } });
   } catch (e) {
     logRouteError('GET /api/vawc/appointments/[aid]', e);
-    return errorResponse('The appointment could not be loaded right now.', 503);
+    return errorResponse('The hearing could not be loaded right now.', 503);
   }
 }
 
@@ -55,7 +56,8 @@ const schema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('update'), type: z.enum(APPOINTMENT_TYPE_KEYS).optional(), venue: z.string().trim().min(2).max(200).optional(),
     assignedOfficerId: z.string().max(64).nullable().optional(), participants: z.array(z.enum(PARTICIPANT_KEYS)).min(1).optional(),
     purpose: z.string().trim().min(5, 'Write the purpose (at least 5 characters)').max(1000).optional(), internalNotes: text(2000).optional(),
-    notifyVia: z.enum(NOTIFY_KEYS).optional(), residentInstructions: text(500).optional() }),
+    notifyVia: z.enum(NOTIFY_KEYS).optional(), residentInstructions: text(500).optional(),
+    courtMatter: z.enum(COURT_MATTER_KEYS).optional(), courtSource: z.enum(COURT_SOURCE_KEYS).optional(), courtReference: text(100).optional() }),
   z.object({ action: z.literal('reschedule'), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose the new date'), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Choose the new time'),
     reason: z.string().trim().min(3, 'Write why the date changes').max(500), venue: z.string().trim().min(2).max(200).optional(),
     requestId: z.string().max(64).optional(), confirmConflicts: z.boolean().optional() }),
@@ -90,9 +92,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { actor, c } = g;
   try {
     const a = await loadAppointment(c.id, aid);
-    if (!a) return errorResponse('Appointment not found', 404);
+    if (!a) return errorResponse('Hearing not found', 404);
     if (!appointmentAllowed(d.action, a.status)) {
-      return errorResponse(`This appointment is ${APPOINTMENT_STATUSES[a.status as AppointmentStatus]?.toLowerCase() ?? a.status}, so that cannot be done now.`, 409);
+      return errorResponse(`This hearing is ${APPOINTMENT_STATUSES[a.status as AppointmentStatus]?.toLowerCase() ?? a.status}, so that cannot be done now.`, 409);
     }
     const by = (await prisma.user.findUnique({ where: { id: actor.id }, select: { name: true } }))?.name ?? 'an official';
     const snap = appointmentSnap(a);
@@ -111,11 +113,20 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         type: d.type ?? a.type, venue: d.venue ?? a.venue, assignedOfficerId: d.assignedOfficerId === undefined ? a.assignedOfficerId : d.assignedOfficerId,
         participants, purpose: d.purpose ?? a.purpose, internalNotes: d.internalNotes === undefined ? a.internalNotes : d.internalNotes || null,
         notifyVia, residentInstructions: d.residentInstructions === undefined ? a.residentInstructions : d.residentInstructions || null,
+        courtMatter: null as string | null, courtSource: null as string | null, courtReference: null as string | null,
       };
+      // Court details go with the court type only: kept or changed on a court date, cleared on any other type.
+      if (isCourtType(next.type)) {
+        next.courtMatter = d.courtMatter ?? a.courtMatter;
+        next.courtSource = d.courtSource ?? a.courtSource;
+        next.courtReference = d.courtReference === undefined ? a.courtReference : d.courtReference || null;
+      }
+      const courtErr = courtRefusal(next.type, next);
+      if (courtErr) return errorResponse(courtErr, 400);
       // The history records which fields changed - the confidential ones by name only.
       const changed = (Object.keys(next) as (keyof typeof next)[]).filter(k => JSON.stringify(next[k]) !== JSON.stringify(a[k]));
       if (!changed.length) return noStore({ success: true, data: { unchanged: true } });
-      const visible = ['type', 'venue', 'assignedOfficerId', 'participants', 'notifyVia'] as const;
+      const visible = ['type', 'venue', 'assignedOfficerId', 'participants', 'notifyVia', 'courtMatter', 'courtSource', 'courtReference'] as const;
       const pick = (o: Record<string, unknown>) => Object.fromEntries(changed.filter(k => (visible as readonly string[]).includes(k)).map(k => [k, o[k]]));
       await prisma.$transaction(async tx => {
         const r = await tx.vawcAppointment.updateMany({ where: guard, data: { ...next, updatedById: actor.id } });
@@ -154,7 +165,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             reviewNote: 'Approved - see the new date.' } });
           await ev(tx, 'request_approved', null, { requestId: request.id, scheduledAt: at.toISOString() });
         }
-        await notifyAppointmentOfficials(tx, a, c, `VAWC appointment moved - ${c.caseNumber}`, `${a.reference} has a new date. Open VAWC Appointments for the details.`, 'info', actor.id);
+        await notifyAppointmentOfficials(tx, a, c, `VAWC hearing moved - ${c.caseNumber}`, `${a.reference} has a new date. Open ${MODULE_LABEL} for the details.`, 'info', actor.id);
       });
       await g.log('permitted', 'rescheduled');
       return noStore({ success: true });
@@ -166,22 +177,22 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         if (!r.count) throw new Error('changed');
         // A request still waiting has nothing left to move.
         await tx.vawcAppointmentRequest.updateMany({ where: { appointmentId: a.id, status: 'PENDING' }, data: { status: 'DECLINED', pendingKey: null, reviewedById: actor.id, reviewedAt: new Date(),
-          reviewNote: 'The appointment was cancelled.' } });
+          reviewNote: 'It was cancelled.' } });
         const e = await ev(tx, 'cancelled', { status: a.status }, { ...snap, status: 'CANCELLED' }, d.reason);
         await appointmentActivity(tx, e.id, c.id, actor.id, `${a.reference} cancelled by ${by}`);
-        await notifyAppointmentOfficials(tx, a, c, `VAWC appointment cancelled - ${c.caseNumber}`, `${a.reference} was cancelled.`, 'warning', actor.id);
+        await notifyAppointmentOfficials(tx, a, c, `VAWC hearing cancelled - ${c.caseNumber}`, `${a.reference} was cancelled.`, 'warning', actor.id);
       });
       await g.log('permitted', 'cancelled');
       return noStore({ success: true });
     }
 
     if (d.action === 'record' || d.action === 'amend_outcome') {
-      if (d.action === 'record' && !appointmentDayArrived(a.scheduledAt)) return errorResponse('The outcome can be recorded from the appointment day on.', 409);
+      if (d.action === 'record' && !appointmentDayArrived(a.scheduledAt)) return errorResponse('The outcome can be recorded from the hearing day on.', 409);
       let nextAt: Date | null | undefined;
       if (d.nextDate === null) nextAt = null;
       else if (d.nextDate) {
         nextAt = phInstant(d.nextDate, d.nextTime ?? '09:00');
-        if (!nextAt) return errorResponse('Choose a valid date for the next appointment.', 400);
+        if (!nextAt) return errorResponse('Choose a valid date for the follow-up.', 400);
       }
       const outcome = {
         ...(d.outcomeNotes !== undefined && { outcomeNotes: d.outcomeNotes || null }),
@@ -204,7 +215,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         await appointmentActivity(tx, e.id, c.id, actor.id, `${a.reference}: ${kind === 'completed' ? 'held' : kind === 'not_held' ? 'did not take place' : 'outcome updated'} - recorded by ${by}`);
         if (d.action === 'record') {
           await tx.vawcAppointmentRequest.updateMany({ where: { appointmentId: a.id, status: 'PENDING' }, data: { status: 'DECLINED', pendingKey: null, reviewedById: actor.id,
-            reviewedAt: new Date(), reviewNote: 'The appointment has already taken place.' } });
+            reviewedAt: new Date(), reviewNote: 'It has already taken place.' } });
         }
       });
       await g.log('permitted', d.action === 'record' ? 'recorded' : 'outcome_amended');
@@ -222,7 +233,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     await g.log('permitted', 'request_declined');
     return noStore({ success: true });
   } catch (e) {
-    if (e instanceof Error && e.message === 'changed') return errorResponse('This appointment was just changed by someone else. Reload to see it.', 409);
+    if (e instanceof Error && e.message === 'changed') return errorResponse('This hearing was just changed by someone else. Reload to see it.', 409);
     logRouteError('PATCH /api/vawc/appointments/[aid]', e);
     return errorResponse('That could not be saved right now. Nothing was changed.', 503);
   }

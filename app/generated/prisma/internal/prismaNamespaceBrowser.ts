@@ -88,6 +88,9 @@ export const ModelName = {
   VawcAppointment: 'VawcAppointment',
   VawcAppointmentEvent: 'VawcAppointmentEvent',
   VawcAppointmentRequest: 'VawcAppointmentRequest',
+  VawcBpo: 'VawcBpo',
+  VawcReferral: 'VawcReferral',
+  VawcProceedingEvent: 'VawcProceedingEvent',
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
@@ -882,6 +885,10 @@ export const VawcAppointmentScalarFieldEnum = {
   internalNotes: 'internalNotes',
   notifyVia: 'notifyVia',
   residentInstructions: 'residentInstructions',
+  courtMatter: 'courtMatter',
+  courtReference: 'courtReference',
+  courtSource: 'courtSource',
+  submissionKey: 'submissionKey',
   status: 'status',
   statusReason: 'statusReason',
   rescheduleCount: 'rescheduleCount',
@@ -938,6 +945,78 @@ export const VawcAppointmentRequestScalarFieldEnum = {
 } as const
 
 export type VawcAppointmentRequestScalarFieldEnum = (typeof VawcAppointmentRequestScalarFieldEnum)[keyof typeof VawcAppointmentRequestScalarFieldEnum]
+
+
+export const VawcBpoScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  status: 'status',
+  appliedAt: 'appliedAt',
+  applicantType: 'applicantType',
+  applicationNotes: 'applicationNotes',
+  receivedById: 'receivedById',
+  decision: 'decision',
+  decidedAt: 'decidedAt',
+  actingRole: 'actingRole',
+  actingOfficialName: 'actingOfficialName',
+  punongBarangayUnavailable: 'punongBarangayUnavailable',
+  exParteAssessment: 'exParteAssessment',
+  decisionRecordedById: 'decisionRecordedById',
+  servedAt: 'servedAt',
+  serviceMethod: 'serviceMethod',
+  servedByName: 'servedByName',
+  serviceNotes: 'serviceNotes',
+  serviceRecordedById: 'serviceRecordedById',
+  assignedOfficerId: 'assignedOfficerId',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcBpoScalarFieldEnum = (typeof VawcBpoScalarFieldEnum)[keyof typeof VawcBpoScalarFieldEnum]
+
+
+export const VawcReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  agencyType: 'agencyType',
+  agencyName: 'agencyName',
+  referredAt: 'referredAt',
+  purpose: 'purpose',
+  status: 'status',
+  followUpAt: 'followUpAt',
+  outcome: 'outcome',
+  serviceReferralId: 'serviceReferralId',
+  assignedOfficerId: 'assignedOfficerId',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcReferralScalarFieldEnum = (typeof VawcReferralScalarFieldEnum)[keyof typeof VawcReferralScalarFieldEnum]
+
+
+export const VawcProceedingEventScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  recordKind: 'recordKind',
+  recordId: 'recordId',
+  kind: 'kind',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  reminderKey: 'reminderKey',
+  createdAt: 'createdAt'
+} as const
+
+export type VawcProceedingEventScalarFieldEnum = (typeof VawcProceedingEventScalarFieldEnum)[keyof typeof VawcProceedingEventScalarFieldEnum]
 
 
 export const CaseKpReviewScalarFieldEnum = {

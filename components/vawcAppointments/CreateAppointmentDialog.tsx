@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate as mutateAll } from 'swr';
 import {
   Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Autocomplete,
   CircularProgress, Skeleton, Chip, FormControlLabel, Radio, RadioGroup, Checkbox, FormGroup, useMediaQuery, useTheme,
@@ -9,8 +9,8 @@ import {
 import { EventAvailable } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import {
-  APPOINTMENT_TYPES, APPOINTMENT_TYPE_KEYS, NOTIFY_OPTIONS, NOTIFY_KEYS, participantLabel, defaultParticipants, notifyRefusal,
-  type AppointmentType, type NotifyVia, type Participant,
+  APPOINTMENT_TYPES, APPOINTMENT_TYPE_KEYS, NOTIFY_OPTIONS, NOTIFY_KEYS, COURT_MATTERS, COURT_MATTER_KEYS, COURT_SOURCES, COURT_SOURCE_KEYS, NOT_A_COURT,
+  participantLabel, defaultParticipants, notifyRefusal, isCourtType, courtRefusal, type AppointmentType, type NotifyVia, type Participant, type CourtMatter, type CourtSource,
 } from '@/lib/vawcAppointments';
 import type { ScheduleConflict } from '@/lib/hearings';
 import { ConflictList } from '@/components/hearings/ConflictWarnings';
@@ -24,8 +24,12 @@ interface CaseData { case: AppointmentCaseContext; officers: Officer[]; appointm
 
 const filed = (d: string) => new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
 
+const DEFAULT_VENUE = 'Barangay VAWC Desk - private room';
+/** Every list and calendar of VAWC Hearings reads these routes: refreshed together after a save. */
+export const refreshHearings = () => mutateAll(k => typeof k === 'string' && k.startsWith('/api/vawc/appointments'));
+
 /**
- * Create an appointment on a VAWC case. The case is chosen from the VAWC
+ * Create a hearing (the VAWC desk's own scheduling) on a VAWC case. The case is chosen from the VAWC
  * case records by its reference (or given), and the appointment is saved
  * against that case's id - never matched by a name. Who it is for never
  * includes the respondent, and there is no mediation or joint session to
@@ -46,7 +50,13 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
   const [type, setType] = useState<AppointmentType>('VICTIM_INTERVIEW');
   const [date, setDate] = useState(initialDate && initialDate >= todayPh() ? initialDate : '');
   const [time, setTime] = useState('09:00');
-  const [venue, setVenue] = useState('Barangay VAWC Desk - private room');
+  const [venue, setVenue] = useState(DEFAULT_VENUE);
+  const [courtMatter, setCourtMatter] = useState<CourtMatter | ''>('');
+  const [courtSource, setCourtSource] = useState<CourtSource | ''>('');
+  const [courtReference, setCourtReference] = useState('');
+  // One key per form opened: a second click, or a retry after a lost reply, saves nothing new.
+  const [submissionKey] = useState(() => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`));
+  const court = isCourtType(type);
   const [officerIn, setOfficer] = useState<string | null>(null);
   const [participantsIn, setParticipants] = useState<Participant[] | null>(null);
   const [purpose, setPurpose] = useState('');
@@ -75,16 +85,21 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
   const save = async (confirmConflicts = false) => {
     if (!caseId || saving) return;
     if (!date || !time) { toast.error('Choose the date and time'); return; }
-    if (!participants.length) { toast.error('Choose who the appointment is for'); return; }
-    if (purpose.trim().length < 5) { toast.error('Write the purpose of the appointment'); return; }
+    if (!participants.length) { toast.error('Choose who the hearing is for'); return; }
+    if (purpose.trim().length < 5) { toast.error('Write the purpose (at least 5 characters)'); return; }
+    if (venue.trim().length < 2) { toast.error(court ? 'Enter the court' : 'Enter the venue'); return; }
+    const courtErr = courtRefusal(type, { courtMatter: courtMatter || null, courtSource: courtSource || null });
+    if (courtErr) { toast.error(courtErr); return; }
     setSaving(true);
     try {
       await send('/api/vawc/appointments', 'POST', {
         caseId, type, date, time, venue: venue.trim(), assignedOfficerId: officer || null, participants, purpose: purpose.trim(),
         internalNotes: notes.trim() || undefined, notifyVia, residentInstructions: notifyVia === 'SAFECOMM_ACCOUNT' ? instructions.trim() || undefined : undefined,
-        confirmConflicts,
+        confirmConflicts, submissionKey,
+        ...(court && { courtMatter, courtSource, courtReference: courtReference.trim() || undefined }),
       });
-      toast.success(notifyVia === 'SAFECOMM_ACCOUNT' ? 'Appointment scheduled - the resident was notified in their account' : 'Appointment scheduled');
+      toast.success(notifyVia === 'SAFECOMM_ACCOUNT' ? 'Hearing saved - the resident was notified in their account' : 'Hearing saved');
+      void refreshHearings();
       onCreated(caseId);
     } catch (e) {
       const conflicts = conflictsOf(e);
@@ -99,7 +114,7 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="md" fullScreen={mobile}>
       <DialogTitle sx={{ fontWeight: 800, color: NAVY, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <EventAvailable sx={{ color: VIOLET }} /> Create appointment
+        <EventAvailable sx={{ color: VIOLET }} /> Create Hearing
       </DialogTitle>
       <DialogContent dividers sx={{ display: 'grid', gap: 2 }}>
         {!fixedCase && (
@@ -108,7 +123,8 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
             onChange={(_, v) => { setPicked(v); setParticipants(null); setNotify(null); setOfficer(null); setClash(null); }}
             onInputChange={(_, v, reason) => { if (reason === 'input') setQ(v.trim()); }}
             filterOptions={x => x} getOptionLabel={o => o.caseNumber} isOptionEqualToValue={(a, b) => a.id === b.id}
-            noOptionsText={q ? 'No VAWC case with that reference' : 'No open VAWC case'}
+            noOptionsText={options.error ? 'The cases could not be loaded' : q ? 'No VAWC case with that reference' : 'No open VAWC case you can schedule'}
+            loadingText="Loading VAWC cases..."
             renderOption={(props, o) => {
               const { key, ...rest } = props as typeof props & { key: string };
               return (
@@ -120,8 +136,16 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
                 </Box>
               );
             }}
-            renderInput={p => <TextField {...p} label="VAWC case reference" placeholder="Type the case reference, e.g. VC-2026-0001" />}
+            renderInput={p => <TextField {...p} label="VAWC case" placeholder="Choose, or type the case reference" />}
           />
+        )}
+        {!fixedCase && options.error && (
+          <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" onClick={() => options.mutate()}>Retry</Button>}>
+            {(options.error as Error).message}
+          </Alert>
+        )}
+        {!fixedCase && !caseId && options.data && !options.data.rows.length && !q && (
+          <Alert severity="info" sx={{ borderRadius: 2 }}>No open VAWC case is assigned to you or waiting to be taken.</Alert>
         )}
 
         {caseId && detail.isLoading && <Skeleton variant="rounded" height={160} />}
@@ -138,6 +162,7 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
               <Chip size="small" label={d.case.caseType} sx={chipSx(VIOLET)} />
               <Chip size="small" label={d.case.status} sx={chipSx('#475569')} />
               {d.case.riskLevel && <Chip size="small" label={`${d.case.riskLevel} risk`} sx={chipSx('#b45309')} />}
+              <Chip size="small" label={d.case.hasAccount ? 'Reporter has a SafeComm account' : 'No SafeComm account'} sx={chipSx('#0369a1')} />
               <Typography sx={{ fontSize: '0.78rem', color: '#64748b', ml: { sm: 'auto' } }}>
                 Filed {filed(d.case.filedAt)} · {d.case.assignedTo ? `Officer: ${d.case.assignedTo.name}` : 'Unassigned'}
               </Typography>
@@ -147,14 +172,20 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
               <Alert severity="info" sx={{ borderRadius: 2 }} action={d.canClaim ? (
                 <Button color="inherit" size="small" onClick={claim} disabled={claiming}>{claiming ? 'Taking...' : 'Take this case'}</Button>
               ) : undefined}>
-                {d.accessMessage ?? 'Only the VAWC officer assigned to this case can schedule its appointments.'}
+                {d.accessMessage ?? 'Only the VAWC officer assigned to this case can schedule its hearings.'}
               </Alert>
             )}
 
             {ready && (
               <>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
-                  <TextField select label="Appointment type" value={type} onChange={e => { setType(e.target.value as AppointmentType); setParticipants(null); }}>
+                  <TextField select label="Hearing type" value={type} onChange={e => {
+                    const next = e.target.value as AppointmentType;
+                    // The court is the venue of a court date; the desk's room is not.
+                    if (isCourtType(next) && venue === DEFAULT_VENUE) setVenue('');
+                    if (!isCourtType(next) && !venue.trim()) setVenue(DEFAULT_VENUE);
+                    setType(next); setParticipants(null);
+                  }}>
                     {APPOINTMENT_TYPE_KEYS.map(t => <MenuItem key={t} value={t}>{APPOINTMENT_TYPES[t].label}</MenuItem>)}
                   </TextField>
                   <TextField select label="Assigned VAWC officer" value={officer} onChange={e => setOfficer(e.target.value)}>
@@ -163,8 +194,24 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
                   </TextField>
                   <TextField type="date" label="Date" value={date} onChange={e => setDate(e.target.value)} slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: todayPh() } }} />
                   <TextField type="time" label="Time" value={time} onChange={e => setTime(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
-                  <TextField label="Venue or approved meeting location" value={venue} onChange={e => setVenue(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
+                  <TextField label={court ? 'Court (name and branch)' : 'Venue or approved meeting location'} value={venue} onChange={e => setVenue(e.target.value)}
+                    placeholder={court ? 'e.g. RTC Branch 12 (Family Court)' : undefined} sx={{ gridColumn: { sm: '1 / -1' } }} />
                 </Box>
+
+                {court && (
+                  <Box sx={{ display: 'grid', gap: 1.5 }}>
+                    <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{NOT_A_COURT}</Alert>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                      <TextField select label="Court matter" value={courtMatter} onChange={e => setCourtMatter(e.target.value as CourtMatter)}>
+                        {COURT_MATTER_KEYS.map(k => <MenuItem key={k} value={k}>{COURT_MATTERS[k]}</MenuItem>)}
+                      </TextField>
+                      <TextField select label="Date officially provided by" value={courtSource} onChange={e => setCourtSource(e.target.value as CourtSource)}>
+                        {COURT_SOURCE_KEYS.map(k => <MenuItem key={k} value={k}>{COURT_SOURCES[k]}</MenuItem>)}
+                      </TextField>
+                      <TextField label="Court case or docket number (if given)" value={courtReference} onChange={e => setCourtReference(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
+                    </Box>
+                  </Box>
+                )}
 
                 <Box>
                   <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: NAVY, mb: 0.5 }}>Intended participants</Typography>
@@ -200,11 +247,11 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
                   )}
                   {notifyVia === 'SAFECOMM_ACCOUNT' && (
                     <TextField label="Instructions for the resident (optional)" value={instructions} onChange={e => setInstructions(e.target.value)} fullWidth sx={{ mt: 1 }}
-                      helperText="The resident sees this. The notice itself only says they have an appointment with the barangay and when." />
+                      helperText="The resident sees this behind their login. The notice itself only gives the date and time." />
                   )}
                 </Box>
 
-                {clash && <ConflictList conflicts={clash} footer="The other appointment is not changed. Pick another time, or go ahead only if both can really happen." />}
+                {clash && <ConflictList conflicts={clash} footer="The other hearing is not changed. Pick another time, or go ahead only if both can really happen." />}
               </>
             )}
           </>
@@ -218,7 +265,7 @@ export default function CreateAppointmentDialog({ caseId: fixedCase, initialDate
         <Button variant="contained" onClick={() => save(false)} disabled={!ready || saving}
           startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <EventAvailable />}
           sx={{ textTransform: 'none', bgcolor: NAVY, borderRadius: 2 }}>
-          Schedule appointment
+          Save hearing
         </Button>
       </DialogActions>
     </Dialog>

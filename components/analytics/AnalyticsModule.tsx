@@ -402,7 +402,7 @@ function Hearings({ query, rangeLabel, open, canOpen }: { query: string; rangeLa
               </Grid>
               {data.vawc.appointments && (
                 <>
-                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#7c3aed', mt: 2, mb: 0.75 }}>VAWC appointments and follow-ups</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#7c3aed', mt: 2, mb: 0.75 }}>VAWC hearings (separate from KP hearings)</Typography>
                   <Grid container spacing={1.5}>
                     <Grid size={{ xs: 6, md: 2 }}><Tile label="Scheduled" value={data.vawc.appointments.scheduled} hint="Still to come" color="#7c3aed" /></Grid>
                     <Grid size={{ xs: 6, md: 2 }}><Tile label="Interviews completed" value={data.vawc.appointments.completedInterviews} hint={rangeLabel} color="#7c3aed" /></Grid>

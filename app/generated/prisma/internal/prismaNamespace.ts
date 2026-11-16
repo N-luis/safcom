@@ -421,6 +421,9 @@ export const ModelName = {
   VawcAppointment: 'VawcAppointment',
   VawcAppointmentEvent: 'VawcAppointmentEvent',
   VawcAppointmentRequest: 'VawcAppointmentRequest',
+  VawcBpo: 'VawcBpo',
+  VawcReferral: 'VawcReferral',
+  VawcProceedingEvent: 'VawcProceedingEvent',
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
@@ -440,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3182,6 +3185,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    VawcBpo: {
+      payload: Prisma.$VawcBpoPayload<ExtArgs>
+      fields: Prisma.VawcBpoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcBpoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcBpoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcBpoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcBpoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        findMany: {
+          args: Prisma.VawcBpoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>[]
+        }
+        create: {
+          args: Prisma.VawcBpoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        createMany: {
+          args: Prisma.VawcBpoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcBpoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcBpoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        update: {
+          args: Prisma.VawcBpoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcBpoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcBpoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcBpoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcBpoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcBpoPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcBpoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcBpo>
+        }
+        groupBy: {
+          args: Prisma.VawcBpoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcBpoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcBpoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcBpoCountAggregateOutputType> | number
+        }
+      }
+    }
+    VawcReferral: {
+      payload: Prisma.$VawcReferralPayload<ExtArgs>
+      fields: Prisma.VawcReferralFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcReferralFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcReferralFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcReferralFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcReferralFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        findMany: {
+          args: Prisma.VawcReferralFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>[]
+        }
+        create: {
+          args: Prisma.VawcReferralCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        createMany: {
+          args: Prisma.VawcReferralCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcReferralCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcReferralDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        update: {
+          args: Prisma.VawcReferralUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcReferralDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcReferralUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcReferralUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcReferralUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcReferralPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcReferralAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcReferral>
+        }
+        groupBy: {
+          args: Prisma.VawcReferralGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcReferralGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcReferralCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcReferralCountAggregateOutputType> | number
+        }
+      }
+    }
+    VawcProceedingEvent: {
+      payload: Prisma.$VawcProceedingEventPayload<ExtArgs>
+      fields: Prisma.VawcProceedingEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VawcProceedingEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VawcProceedingEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        findFirst: {
+          args: Prisma.VawcProceedingEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VawcProceedingEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        findMany: {
+          args: Prisma.VawcProceedingEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>[]
+        }
+        create: {
+          args: Prisma.VawcProceedingEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        createMany: {
+          args: Prisma.VawcProceedingEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VawcProceedingEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>[]
+        }
+        delete: {
+          args: Prisma.VawcProceedingEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        update: {
+          args: Prisma.VawcProceedingEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.VawcProceedingEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VawcProceedingEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VawcProceedingEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.VawcProceedingEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VawcProceedingEventPayload>
+        }
+        aggregate: {
+          args: Prisma.VawcProceedingEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVawcProceedingEvent>
+        }
+        groupBy: {
+          args: Prisma.VawcProceedingEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcProceedingEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VawcProceedingEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VawcProceedingEventCountAggregateOutputType> | number
+        }
+      }
+    }
     CaseKpReview: {
       payload: Prisma.$CaseKpReviewPayload<ExtArgs>
       fields: Prisma.CaseKpReviewFieldRefs
@@ -4289,6 +4514,10 @@ export const VawcAppointmentScalarFieldEnum = {
   internalNotes: 'internalNotes',
   notifyVia: 'notifyVia',
   residentInstructions: 'residentInstructions',
+  courtMatter: 'courtMatter',
+  courtReference: 'courtReference',
+  courtSource: 'courtSource',
+  submissionKey: 'submissionKey',
   status: 'status',
   statusReason: 'statusReason',
   rescheduleCount: 'rescheduleCount',
@@ -4345,6 +4574,78 @@ export const VawcAppointmentRequestScalarFieldEnum = {
 } as const
 
 export type VawcAppointmentRequestScalarFieldEnum = (typeof VawcAppointmentRequestScalarFieldEnum)[keyof typeof VawcAppointmentRequestScalarFieldEnum]
+
+
+export const VawcBpoScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  status: 'status',
+  appliedAt: 'appliedAt',
+  applicantType: 'applicantType',
+  applicationNotes: 'applicationNotes',
+  receivedById: 'receivedById',
+  decision: 'decision',
+  decidedAt: 'decidedAt',
+  actingRole: 'actingRole',
+  actingOfficialName: 'actingOfficialName',
+  punongBarangayUnavailable: 'punongBarangayUnavailable',
+  exParteAssessment: 'exParteAssessment',
+  decisionRecordedById: 'decisionRecordedById',
+  servedAt: 'servedAt',
+  serviceMethod: 'serviceMethod',
+  servedByName: 'servedByName',
+  serviceNotes: 'serviceNotes',
+  serviceRecordedById: 'serviceRecordedById',
+  assignedOfficerId: 'assignedOfficerId',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcBpoScalarFieldEnum = (typeof VawcBpoScalarFieldEnum)[keyof typeof VawcBpoScalarFieldEnum]
+
+
+export const VawcReferralScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  reference: 'reference',
+  agencyType: 'agencyType',
+  agencyName: 'agencyName',
+  referredAt: 'referredAt',
+  purpose: 'purpose',
+  status: 'status',
+  followUpAt: 'followUpAt',
+  outcome: 'outcome',
+  serviceReferralId: 'serviceReferralId',
+  assignedOfficerId: 'assignedOfficerId',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VawcReferralScalarFieldEnum = (typeof VawcReferralScalarFieldEnum)[keyof typeof VawcReferralScalarFieldEnum]
+
+
+export const VawcProceedingEventScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  recordKind: 'recordKind',
+  recordId: 'recordId',
+  kind: 'kind',
+  actorId: 'actorId',
+  before: 'before',
+  after: 'after',
+  note: 'note',
+  reminderKey: 'reminderKey',
+  createdAt: 'createdAt'
+} as const
+
+export type VawcProceedingEventScalarFieldEnum = (typeof VawcProceedingEventScalarFieldEnum)[keyof typeof VawcProceedingEventScalarFieldEnum]
 
 
 export const CaseKpReviewScalarFieldEnum = {
@@ -4703,6 +5004,9 @@ export type GlobalOmitConfig = {
   vawcAppointment?: Prisma.VawcAppointmentOmit
   vawcAppointmentEvent?: Prisma.VawcAppointmentEventOmit
   vawcAppointmentRequest?: Prisma.VawcAppointmentRequestOmit
+  vawcBpo?: Prisma.VawcBpoOmit
+  vawcReferral?: Prisma.VawcReferralOmit
+  vawcProceedingEvent?: Prisma.VawcProceedingEventOmit
   caseKpReview?: Prisma.CaseKpReviewOmit
   acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
   casePangkat?: Prisma.CasePangkatOmit

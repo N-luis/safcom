@@ -152,6 +152,9 @@ model Case {
   hearings         CaseHearing[]
   /// VAWC Appointments & Follow-ups (VAWC cases only) - never a KP hearing.
   vawcAppointments VawcAppointment[]
+  /// VAWC Case Proceedings (VAWC cases only): BPOs, external court dates, referrals.
+  vawcBpos         VawcBpo[]
+  vawcReferrals    VawcReferral[]
   acknowledgement  AcknowledgementLetter?
   kpReviews        CaseKpReview[]
   pangkat          CasePangkat?
@@ -1254,6 +1257,15 @@ model VawcAppointment {
   notifyVia              String
   /// Shown to the resident with the appointment: what to bring, where to go.
   residentInstructions   String?
+  /// EXTERNAL_COURT_HEARING only (lib/vawcAppointments.ts COURT_MATTERS): TPO | PPO | CRIMINAL_CASE | OTHER.
+  /// The court itself is the venue. SafeComm only tracks a date the court set.
+  courtMatter            String?
+  /// The court's case or docket number, when given.
+  courtReference         String?
+  /// How the court date was officially provided (COURT_SOURCES).
+  courtSource            String?
+  /// One per Create form opened: a second submit of the same form finds the first record.
+  submissionKey          String?   @unique
   /// SCHEDULED | RESCHEDULED | COMPLETED | NOT_HELD | CANCELLED
   status                 String    @default("SCHEDULED")
   /// Officials only: the reason for the latest new date or cancellation.
@@ -1331,6 +1343,116 @@ model VawcAppointmentRequest {
 
   @@index([appointmentId])
   @@index([status, createdAt])
+}
+
+/// A Barangay Protection Order (RA 9262 sec. 14) on a VAWC case - the
+/// application, the ex parte decision and the service kept as three separate
+/// parts, each recorded once (a mistake is corrected with a reason, in the
+/// history). No hearing is held for it. The effective period (15 days) is
+/// computed from decidedAt (lib/vawcProceedings.ts bpoLastDay). RLS and the
+/// VAWC-only check: prisma/sql/020_vawc_proceedings.sql.
+model VawcBpo {
+  id                        String    @id @default(cuid())
+  caseId                    String
+  case                      Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// BPO-<case number>-<n>
+  reference                 String    @unique
+  /// APPLIED | ISSUED | SERVED | DENIED | CANCELLED
+  status                    String    @default("APPLIED")
+  // The application
+  appliedAt                 DateTime
+  /// lib/vawcProceedings.ts BPO_APPLICANTS (RA 9262 sec. 9)
+  applicantType             String
+  /// Officials only.
+  applicationNotes          String?
+  receivedById              String
+  // The ex parte decision
+  /// ISSUED | DENIED
+  decision                  String?
+  decidedAt                 DateTime?
+  /// PUNONG_BARANGAY | KAGAWAD
+  actingRole                String?
+  actingOfficialName        String?
+  /// A Kagawad's attestation that the Punong Barangay was unavailable (sec. 14).
+  punongBarangayUnavailable Boolean   @default(false)
+  /// Officials only: the ex parte assessment and the reasons.
+  exParteAssessment         String?
+  decisionRecordedById      String?
+  // The service on the respondent
+  servedAt                  DateTime?
+  /// PERSONAL | REFUSED | OTHER
+  serviceMethod             String?
+  servedByName              String?
+  /// Officials only.
+  serviceNotes              String?
+  serviceRecordedById       String?
+  /// The VAWC official following it up.
+  assignedOfficerId         String?
+  cancelledAt               DateTime?
+  cancelReason              String?
+  createdById               String
+  updatedById               String
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@index([caseId])
+  @@index([status])
+}
+
+/// A referral of a VAWC case to a service provider (PNP WCPD, social
+/// welfare, health, legal, shelter), with its status and follow-up date. When
+/// an IACVAWC Service Referral Form was issued for it, serviceReferralId links
+/// to that document (ServiceReferral) instead of keeping a second copy.
+model VawcReferral {
+  id                String    @id @default(cuid())
+  caseId            String
+  case              Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// REF-<case number>-<n>
+  reference         String    @unique
+  /// lib/vawcProceedings.ts REFERRAL_AGENCIES
+  agencyType        String
+  agencyName        String
+  referredAt        DateTime
+  /// Officials only.
+  purpose           String
+  /// REFERRED | ACKNOWLEDGED | IN_PROGRESS | COMPLETED | DECLINED_BY_CLIENT | NO_RESPONSE
+  status            String    @default("REFERRED")
+  followUpAt        DateTime?
+  /// Officials only.
+  outcome           String?
+  serviceReferralId String?
+  assignedOfficerId String?
+  createdById       String
+  updatedById       String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([caseId])
+  @@index([status, followUpAt])
+}
+
+/// The history of every BPO, court and referral record - insert-only (the
+/// database refuses any change), and the reminders sent from it.
+model VawcProceedingEvent {
+  id          String   @id @default(cuid())
+  caseId      String
+  /// bpo | court | referral
+  recordKind  String
+  recordId    String
+  /// lib/vawcProceedings.ts PROCEEDING_EVENT_LABELS
+  kind        String
+  /// Null for the reminders job.
+  actorId     String?
+  before      Json?
+  after       Json?
+  /// Officials only: the reason for a correction or cancellation.
+  note        String?
+  /// For a reminder: the item it was for, so each is sent once.
+  reminderKey String?  @unique
+  createdAt   DateTime @default(now())
+
+  @@index([recordKind, recordId, createdAt])
+  @@index([caseId, createdAt])
 }
 
 /// An official's review of whether a case may go to Katarungang Pambarangay

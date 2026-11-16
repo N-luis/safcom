@@ -7,18 +7,19 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight, Add, CalendarMonth, Refresh, Place, Person, ViewList } from '@mui/icons-material';
 import { phDay, formatHearingTime, formatHearingDate } from '@/lib/hearings';
-import { APPOINTMENT_TYPES, APPOINTMENT_TYPE_KEYS, APPOINTMENT_STATUSES, type AppointmentStatus, type AppointmentView } from '@/lib/vawcAppointments';
+import { APPOINTMENT_TYPES, APPOINTMENT_TYPE_KEYS, APPOINTMENT_STATUSES, MODULE_PATH, isCourtType, type AppointmentStatus, type AppointmentView } from '@/lib/vawcAppointments';
+import { ACTIVITY_KINDS, type ActivityItem } from '@/lib/vawcProceedings';
 import CreateAppointmentDialog from './CreateAppointmentDialog';
 import AppointmentDetailsDialog from './AppointmentDetailsDialog';
 import { NAVY, VIOLET, APPT_STATUS_COLOR, chipSx, getJson, type AppointmentList, type AppointmentRow } from './appointmentUi';
 
 type View = 'month' | 'week' | AppointmentView;
 const LISTS: Partial<Record<View, { title: string; empty: string; newestFirst?: boolean }>> = {
-  upcoming: { title: 'Next 90 days', empty: 'No upcoming appointment in the next 90 days.' },
-  past: { title: 'Past - the last year', empty: 'No past appointment in the last year.', newestFirst: true },
-  rescheduled: { title: 'Moved to a new date', empty: 'No appointment was moved.', newestFirst: true },
-  completed: { title: 'Completed - the last year', empty: 'No appointment was completed in the last year.', newestFirst: true },
-  cancelled: { title: 'Cancelled', empty: 'No appointment was cancelled.', newestFirst: true },
+  upcoming: { title: 'Next 90 days', empty: 'No upcoming hearing in the next 90 days.' },
+  past: { title: 'Past - the last year', empty: 'No past hearing in the last year.', newestFirst: true },
+  rescheduled: { title: 'Moved to a new date', empty: 'No hearing was moved.', newestFirst: true },
+  completed: { title: 'Completed - the last year', empty: 'No hearing was completed in the last year.', newestFirst: true },
+  cancelled: { title: 'Cancelled', empty: 'No hearing was cancelled.', newestFirst: true },
 };
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const DAY = 86_400_000;
@@ -58,6 +59,16 @@ export default function AppointmentCalendar() {
   const { data, error, isLoading, mutate } = useSWR<AppointmentList>(`/api/vawc/appointments?${q}`, getJson, { keepPreviousData: true });
   const forbidden = (error as { status?: number } | undefined)?.status === 403;
 
+  // BPO steps and last days and referral follow-ups (court dates are hearings, shown above as "Court") -
+  // on the month and week, each labelled for what it is. Not while filtering by appointment type.
+  const showActivities = (view === 'month' || view === 'week') && !type;
+  const { data: proc } = useSWR<{ items: ActivityItem[] }>(showActivities ? '/api/vawc/proceedings' : null, getJson, { keepPreviousData: true });
+  const activities = useMemo(() => {
+    const map = new Map<string, ActivityItem[]>();
+    for (const i of (showActivities ? proc?.items : null) ?? []) map.set(i.day, [...(map.get(i.day) ?? []), i]);
+    return map;
+  }, [proc, showActivities]);
+
   const byDay = useMemo(() => {
     const map = new Map<string, AppointmentRow[]>();
     for (const e of data?.rows ?? []) { const d = phDay(e.scheduledAt); map.set(d, [...(map.get(d) ?? []), e]); }
@@ -80,14 +91,14 @@ export default function AppointmentCalendar() {
             <CalendarMonth sx={{ color: VIOLET }} />
           </Box>
           <Box>
-            <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>Appointment Calendar</Typography>
-            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>VAWC appointments and follow-ups only. Blotter hearings are never shown here.</Typography>
+            <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>Hearings Calendar</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>VAWC cases only. Court dates are tracked, not held here.</Typography>
           </Box>
         </Box>
         <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button variant="outlined" startIcon={<ViewList />} href="/vawc/appointments" sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>Appointment Records</Button>
+          <Button variant="outlined" startIcon={<ViewList />} href={MODULE_PATH} sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>Hearing Records</Button>
           {data?.canCreate && (
-            <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>Create Appointment</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => setCreate({})} sx={{ textTransform: 'none', bgcolor: NAVY, borderRadius: 2, minHeight: 40 }}>Create Hearing</Button>
           )}
         </Box>
       </Box>
@@ -127,14 +138,20 @@ export default function AppointmentCalendar() {
 
             {isLoading && !data ? <Skeleton variant="rounded" height={420} /> : data && (
               <>
-                {view === 'month' && <Month from={range.from} anchor={anchor} today={today} byDay={byDay} onOpen={setOpen} onPick={data.canCreate ? pick : undefined} />}
-                {view === 'week' && <Week from={range.from} today={today} byDay={byDay} onOpen={setOpen} onPick={data.canCreate ? pick : undefined} />}
+                {view === 'month' && <Month from={range.from} anchor={anchor} today={today} byDay={byDay} activities={activities} onOpen={setOpen} onPick={data.canCreate ? pick : undefined} />}
+                {view === 'week' && <Week from={range.from} today={today} byDay={byDay} activities={activities} onOpen={setOpen} onPick={data.canCreate ? pick : undefined} />}
                 {list && <Lists byDay={byDay} onOpen={setOpen} empty={list.empty} newestFirst={list.newestFirst} />}
                 <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 1.5 }} aria-label="Status colours">
                   {(Object.keys(APPOINTMENT_STATUSES) as AppointmentStatus[]).map(s => (
                     <Box key={s} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <Box sx={{ width: 10, height: 10, borderRadius: '2px', bgcolor: APPT_STATUS_COLOR[s] }} />
                       <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>{APPOINTMENT_STATUSES[s]}</Typography>
+                    </Box>
+                  ))}
+                  {showActivities && Object.values(ACTIVITY_KINDS).map(k => (
+                    <Box key={k.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: k.color }} />
+                      <Typography sx={{ fontSize: '0.72rem', color: '#64748b' }}>{k.label}</Typography>
                     </Box>
                   ))}
                 </Box>
@@ -159,14 +176,29 @@ function Item({ e, onOpen, full = false }: { e: AppointmentRow; onOpen: (e: Appo
         sx={{ display: 'block', width: '100%', textAlign: 'left', border: 0, borderLeft: `3px solid ${c}`, cursor: 'pointer', borderRadius: 1, px: 0.5, py: 0.25, mt: 0.25,
           bgcolor: `${c}14`, color: c, fontSize: '0.68rem', fontWeight: 700, fontFamily: 'inherit', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: full ? 'normal' : 'nowrap',
           textDecoration: e.status === 'CANCELLED' ? 'line-through' : 'none', '&:focus-visible': { outline: `2px solid ${c}` } }}>
-        {formatHearingTime(e.scheduledAt)} · {e.case.caseNumber}
+        {formatHearingTime(e.scheduledAt)} · {isCourtType(e.type) ? 'Court · ' : ''}{e.case.caseNumber}
         {full && <Box component="span" sx={{ display: 'block', fontWeight: 500, color: '#475569' }}>{e.typeLabel} · {e.officer?.name ?? 'No officer'}</Box>}
       </Box>
     </Tooltip>
   );
 }
 
-function Month({ from, anchor, today, byDay, onOpen, onPick }: { from: string; anchor: string; today: string; byDay: Map<string, AppointmentRow[]>; onOpen: (e: AppointmentRow) => void; onPick?: (d: string) => void }) {
+function Activity({ i, full = false }: { i: ActivityItem; full?: boolean }) {
+  const k = ACTIVITY_KINDS[i.kind];
+  const desc = `${k.label}: ${i.title}, ${i.reference}, case ${i.caseNumber}${i.overdue ? ', overdue' : ''}`;
+  return (
+    <Tooltip title={desc}>
+      <Box component="a" href={`/vawc/cases/${i.caseId}`} onClick={(ev: React.MouseEvent) => ev.stopPropagation()} aria-label={desc} data-activity={i.kind}
+        sx={{ display: 'block', borderRadius: 1, px: 0.5, py: 0.25, mt: 0.25, border: `1px dashed ${k.color}`, color: k.color, bgcolor: '#fff', textDecoration: 'none',
+          fontSize: '0.66rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: full ? 'normal' : 'nowrap' }}>
+        {i.at ? `${formatHearingTime(i.at)} · ` : ''}{k.label}{i.overdue ? ' (overdue)' : ''}
+        <Box component="span" sx={{ display: full ? 'block' : 'inline', fontWeight: 500, color: '#475569' }}>{full ? i.caseNumber : ` · ${i.caseNumber}`}</Box>
+      </Box>
+    </Tooltip>
+  );
+}
+
+function Month({ from, anchor, today, byDay, activities, onOpen, onPick }: { from: string; anchor: string; today: string; byDay: Map<string, AppointmentRow[]>; activities: Map<string, ActivityItem[]>; onOpen: (e: AppointmentRow) => void; onPick?: (d: string) => void }) {
   const days = Array.from({ length: 42 }, (_, i) => addDays(from, i));
   return (
     <Box sx={{ overflowX: 'auto' }}>
@@ -182,6 +214,8 @@ function Month({ from, anchor, today, byDay, onOpen, onPick }: { from: string; a
               <Typography sx={{ fontSize: '0.72rem', fontWeight: d === today ? 800 : 600, color: d === today ? VIOLET : inMonth ? '#475569' : '#cbd5e1' }}>{Number(d.slice(8))}</Typography>
               {events.slice(0, 3).map(e => <Item key={e.id} e={e} onOpen={onOpen} />)}
               {events.length > 3 && <Typography sx={{ fontSize: '0.66rem', color: '#64748b', mt: 0.25 }}>+{events.length - 3} more</Typography>}
+              {(activities.get(d) ?? []).slice(0, 2).map(i => <Activity key={`${i.kind}:${i.recordId}`} i={i} />)}
+              {(activities.get(d) ?? []).length > 2 && <Typography sx={{ fontSize: '0.66rem', color: '#64748b', mt: 0.25 }}>+{(activities.get(d) ?? []).length - 2} more dates</Typography>}
             </Box>
           );
         })}
@@ -190,7 +224,7 @@ function Month({ from, anchor, today, byDay, onOpen, onPick }: { from: string; a
   );
 }
 
-function Week({ from, today, byDay, onOpen, onPick }: { from: string; today: string; byDay: Map<string, AppointmentRow[]>; onOpen: (e: AppointmentRow) => void; onPick?: (d: string) => void }) {
+function Week({ from, today, byDay, activities, onOpen, onPick }: { from: string; today: string; byDay: Map<string, AppointmentRow[]>; activities: Map<string, ActivityItem[]>; onOpen: (e: AppointmentRow) => void; onPick?: (d: string) => void }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(from, i));
   return (
     <Box sx={{ overflowX: 'auto' }}>
@@ -201,8 +235,9 @@ function Week({ from, today, byDay, onOpen, onPick }: { from: string; today: str
             <Box key={d} data-day={d} onClick={onPick ? () => onPick(d) : undefined}
               sx={{ border: '1px solid', borderColor: d === today ? VIOLET : '#e2e8f0', borderRadius: 1.5, p: 0.75, minHeight: 300, cursor: onPick && d >= today ? 'copy' : 'default' }}>
               <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: d === today ? VIOLET : NAVY }}>{label(d, { weekday: 'short', month: 'short', day: 'numeric' })}</Typography>
-              {events.length === 0 && <Typography sx={{ fontSize: '0.7rem', color: '#cbd5e1', mt: 0.5 }}>No appointment</Typography>}
+              {events.length === 0 && !(activities.get(d) ?? []).length && <Typography sx={{ fontSize: '0.7rem', color: '#cbd5e1', mt: 0.5 }}>No hearing</Typography>}
               {events.map(e => <Item key={e.id} e={e} onOpen={onOpen} full />)}
+              {(activities.get(d) ?? []).map(i => <Activity key={`${i.kind}:${i.recordId}`} i={i} full />)}
             </Box>
           );
         })}

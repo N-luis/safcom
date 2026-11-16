@@ -1,8 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import AppointmentCalendar from '@/components/vawcAppointments/AppointmentCalendar';
-
-/** The VAWC Appointment Calendar - separate from the blotter Hearing Calendar. */
-export default function VawcAppointmentCalendarPage() {
-  return <AppointmentCalendar />;
+/** The module is now VAWC Hearings: the old calendar link lands on its calendar. */
+export default function VawcAppointmentCalendarRedirect() {
+  redirect('/vawc/hearings/calendar');
 }

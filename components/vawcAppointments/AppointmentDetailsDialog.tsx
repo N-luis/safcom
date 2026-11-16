@@ -13,6 +13,7 @@ import {
   APPOINTMENT_TYPES, APPOINTMENT_TYPE_KEYS, APPOINTMENT_STATUSES, APPOINTMENT_EVENT_LABELS, ATTENDANCE_OPTIONS, ATTENDANCE_KEYS, REFERRAL_STATUS_OPTIONS,
   REFERRAL_STATUS_KEYS, NOTIFY_OPTIONS, NOTIFY_KEYS, participantLabel, typeLabel, notifyRefusal, appointmentDayArrived,
   type AppointmentType, type NotifyVia, type Participant, type AppointmentAttendance, type AppointmentReferralStatus,
+  COURT_MATTERS, COURT_MATTER_KEYS, COURT_SOURCES, COURT_SOURCE_KEYS, NOT_A_COURT, isCourtType, type CourtMatter, type CourtSource,
 } from '@/lib/vawcAppointments';
 import { ConflictList } from '@/components/hearings/ConflictWarnings';
 import { NAVY, VIOLET, APPT_STATUS_COLOR, getJson, send, todayPh, conflictsOf, chipSx, type AppointmentDetail } from './appointmentUi';
@@ -37,7 +38,7 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
     <Dialog open onClose={onClose} fullWidth maxWidth="md" fullScreen={mobile}>
       <DialogTitle sx={{ fontWeight: 800, color: NAVY, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', pr: 6 }}>
         <EventAvailable sx={{ color: VIOLET }} />
-        {a ? typeLabel(a.type) : 'Appointment'}
+        {a ? typeLabel(a.type) : 'Hearing'}
         {a && <Chip size="small" label={APPOINTMENT_STATUSES[a.status]} sx={chipSx(APPT_STATUS_COLOR[a.status])} />}
         {a && <Typography component="span" sx={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>{a.reference}</Typography>}
         <Button onClick={onClose} aria-label="Close" sx={{ position: 'absolute', right: 8, top: 10, minWidth: 0 }}><Close /></Button>
@@ -50,7 +51,9 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
             {data.accessMessage && <Alert severity="info" sx={{ borderRadius: 2 }}>{data.accessMessage}</Alert>}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25 }}>
               <Fact label="Date and time">{formatHearingWhen(a.scheduledAt)}{a.rescheduleCount > 0 && <Chip size="small" label={`Moved ${a.rescheduleCount}x`} sx={{ ...chipSx('#b45309'), ml: 0.75 }} />}</Fact>
-              <Fact label="Venue">{a.venue}</Fact>
+              <Fact label={isCourtType(a.type) ? 'Court' : 'Venue'}>{a.venue}</Fact>
+              {isCourtType(a.type) && <Fact label="Court matter">{COURT_MATTERS[a.courtMatter as CourtMatter] ?? '-'}{a.courtReference && <span style={{ color: '#64748b' }}> · {a.courtReference}</span>}</Fact>}
+              {isCourtType(a.type) && <Fact label="Date officially provided by">{COURT_SOURCES[a.courtSource as CourtSource] ?? '-'}</Fact>}
               <Fact label="Case">{caseHref ? <a href={caseHref} style={{ color: '#0369a1', fontWeight: 700 }}>{c.caseNumber}</a> : c.caseNumber} <span style={{ color: '#64748b' }}>· {c.caseType}</span></Fact>
               <Fact label="Assigned VAWC officer">{a.assignedOfficer?.name ?? 'Not assigned'}</Fact>
               <Fact label="Participants">{a.participants.map(p => participantLabel(p, c.reportingRelationship)).join(', ')}</Fact>
@@ -63,6 +66,7 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
                 )}
               </Fact>
             </Box>
+            {isCourtType(a.type) && <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{NOT_A_COURT}</Alert>}
             <Fact label="Purpose (officials only)">{a.purpose}</Fact>
             {a.internalNotes && <Fact label="Internal notes (officials only)">{a.internalNotes}</Fact>}
             {a.residentInstructions && <Fact label="Instructions the resident sees">{a.residentInstructions}</Fact>}
@@ -88,7 +92,7 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
                   <Fact label="Attendance">{ATTENDANCE_OPTIONS[a.attendance as AppointmentAttendance] ?? 'Not recorded'}</Fact>
                   <Fact label="Referral status">{REFERRAL_STATUS_OPTIONS[a.referralStatus as AppointmentReferralStatus] ?? 'Not recorded'}</Fact>
-                  <Fact label="Next appointment">{a.nextAppointmentAt ? formatHearingWhen(a.nextAppointmentAt) : 'None set'}</Fact>
+                  <Fact label="Next follow-up">{a.nextAppointmentAt ? formatHearingWhen(a.nextAppointmentAt) : 'None set'}</Fact>
                   <Fact label="Recorded by">{a.completedBy ?? '-'}{a.completedAt && `, ${formatHearingWhen(a.completedAt)}`}</Fact>
                 </Box>
                 {a.outcomeNotes && <Fact label="Outcome notes">{a.outcomeNotes}</Fact>}
@@ -100,8 +104,8 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
             {(mode === 'reschedule' || (mode && typeof mode === 'object' && 'approve' in mode)) && (
               <RescheduleForm d={data} requestId={typeof mode === 'object' && mode && 'approve' in mode ? mode.approve : undefined} onDone={changed} onCancel={() => setMode(null)} />
             )}
-            {mode === 'cancel' && <ReasonForm title="Cancel this appointment" label="Why it is cancelled (officials only)" button="Cancel appointment" danger
-              onSubmit={reason => send(`/api/vawc/appointments/${a.id}`, 'PATCH', { action: 'cancel', reason })} done="Appointment cancelled" onDone={changed} onCancel={() => setMode(null)} />}
+            {mode === 'cancel' && <ReasonForm title="Cancel this hearing" label="Why it is cancelled (officials only)" button="Cancel hearing" danger
+              onSubmit={reason => send(`/api/vawc/appointments/${a.id}`, 'PATCH', { action: 'cancel', reason })} done="Hearing cancelled" onDone={changed} onCancel={() => setMode(null)} />}
             {mode && typeof mode === 'object' && 'decline' in mode && (
               <ReasonForm title="Decline the request" label="Your reply - the resident reads this" button="Send reply"
                 onSubmit={reviewNote => send(`/api/vawc/appointments/${a.id}`, 'PATCH', { action: 'review_request', requestId: mode.decline, reviewNote })}
@@ -130,7 +134,7 @@ export default function AppointmentDetailsDialog({ id, caseHref, onClose, onChan
       </DialogContent>
       {a && data.canEdit && !mode && (
         <DialogActions sx={{ px: 3, py: 1.5, gap: 1, flexWrap: 'wrap' }}>
-          {a.open && <Button onClick={() => setMode('cancel')} sx={{ textTransform: 'none', color: '#b91c1c' }}>Cancel appointment</Button>}
+          {a.open && <Button onClick={() => setMode('cancel')} sx={{ textTransform: 'none', color: '#b91c1c' }}>Cancel hearing</Button>}
           {a.open && <Button onClick={() => setMode('edit')} sx={{ textTransform: 'none' }}>Edit details</Button>}
           {a.open && <Button onClick={() => setMode('reschedule')} sx={{ textTransform: 'none' }}>New date</Button>}
           {a.open && appointmentDayArrived(a.scheduledAt) && (
@@ -191,6 +195,10 @@ function EditForm({ d, onDone, onCancel }: { d: AppointmentDetail; onDone: () =>
   const [notes, setNotes] = useState(a.internalNotes ?? '');
   const [notifyVia, setNotify] = useState<NotifyVia>(a.notifyVia as NotifyVia);
   const [instructions, setInstructions] = useState(a.residentInstructions ?? '');
+  const [courtMatter, setCourtMatter] = useState(a.courtMatter ?? '');
+  const [courtSource, setCourtSource] = useState(a.courtSource ?? '');
+  const [courtReference, setCourtReference] = useState(a.courtReference ?? '');
+  const court = isCourtType(type);
   const { busy, run } = useSubmit(onDone);
   const refusal = notifyRefusal(notifyVia, { hasAccount: d.case.hasAccount }, participants);
   const toggle = (p: Participant) => setParticipants(participants.includes(p) ? participants.filter(x => x !== p) : [...participants, p]);
@@ -201,17 +209,29 @@ function EditForm({ d, onDone, onCancel }: { d: AppointmentDetail; onDone: () =>
         onClick={() => run(() => send(`/api/vawc/appointments/${a.id}`, 'PATCH', {
           action: 'update', type, venue: venue.trim(), assignedOfficerId: officer || null, participants, purpose: purpose.trim(), internalNotes: notes.trim(),
           notifyVia, residentInstructions: instructions.trim(),
-        }), 'Appointment updated')}>Save changes</Button>
+          ...(court && { courtMatter: courtMatter || undefined, courtSource: courtSource || undefined, courtReference: courtReference.trim() }),
+        }), 'Hearing updated')}>Save changes</Button>
     </>}>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25 }}>
-        <TextField select size="small" label="Appointment type" value={type} onChange={e => setType(e.target.value as AppointmentType)}>
+        <TextField select size="small" label="Hearing type" value={type} onChange={e => setType(e.target.value as AppointmentType)}>
           {APPOINTMENT_TYPE_KEYS.map(t => <MenuItem key={t} value={t}>{APPOINTMENT_TYPES[t].label}</MenuItem>)}
         </TextField>
         <TextField select size="small" label="Assigned VAWC officer" value={officer} onChange={e => setOfficer(e.target.value)}>
           <MenuItem value="">Not assigned</MenuItem>
           {d.officers.map(o => <MenuItem key={o.id} value={o.id}>{o.name}</MenuItem>)}
         </TextField>
-        <TextField size="small" label="Venue or approved meeting location" value={venue} onChange={e => setVenue(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
+        <TextField size="small" label={court ? 'Court (name and branch)' : 'Venue or approved meeting location'} value={venue} onChange={e => setVenue(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
+        {court && (
+          <>
+            <TextField select size="small" label="Court matter" value={courtMatter} onChange={e => setCourtMatter(e.target.value)}>
+              {COURT_MATTER_KEYS.map(k => <MenuItem key={k} value={k}>{COURT_MATTERS[k]}</MenuItem>)}
+            </TextField>
+            <TextField select size="small" label="Date officially provided by" value={courtSource} onChange={e => setCourtSource(e.target.value)}>
+              {COURT_SOURCE_KEYS.map(k => <MenuItem key={k} value={k}>{COURT_SOURCES[k]}</MenuItem>)}
+            </TextField>
+            <TextField size="small" label="Court case or docket number (if given)" value={courtReference} onChange={e => setCourtReference(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
+          </>
+        )}
       </Box>
       <FormGroup row>
         {d.case.participantChoices.map(p => (
@@ -254,7 +274,7 @@ function RescheduleForm({ d, requestId, onDone, onCancel }: { d: AppointmentDeta
         <TextField size="small" label="Venue" value={venue} onChange={e => setVenue(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
         <TextField size="small" label="Why the date changes (officials only)" value={reason} onChange={e => setReason(e.target.value)} sx={{ gridColumn: { sm: '1 / -1' } }} />
       </Box>
-      {clash && <ConflictList conflicts={clash} footer="The other appointment is not changed. Pick another time, or go ahead only if both can really happen." />}
+      {clash && <ConflictList conflicts={clash} footer="The other hearing is not changed. Pick another time, or go ahead only if both can really happen." />}
     </Panel>
   );
 }
@@ -314,7 +334,7 @@ function OutcomeForm({ d, amend, onDone, onCancel }: { d: AppointmentDetail; ame
           <MenuItem value="" disabled>Choose</MenuItem>
           {REFERRAL_STATUS_KEYS.map(k => <MenuItem key={k} value={k}>{REFERRAL_STATUS_OPTIONS[k]}</MenuItem>)}
         </TextField>
-        <TextField size="small" type="date" label="Next appointment (optional)" value={nextDate} onChange={e => setNextDate(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+        <TextField size="small" type="date" label="Next follow-up (optional)" value={nextDate} onChange={e => setNextDate(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
         <TextField size="small" type="time" label="Time" value={nextTime} onChange={e => setNextTime(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} disabled={!nextDate} />
       </Box>
     </Panel>

@@ -26,7 +26,7 @@ const NAV_ITEMS = [
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/blotter-officer/case-classification' },
   // One entry for every hearing page: the records (with the KP stage tabs) and
   // the calendar are reached from inside it, and it stays highlighted on each.
-  { id: 'hearings', label: 'Hearing', icon: Gavel, path: '/blotter-officer/hearings' },
+  { id: 'hearings', label: 'Hearings', icon: Gavel, path: '/blotter-officer/hearings' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/blotter-officer/ai-risk-prediction' },
   // Path kept as /reports so existing links still resolve; the page behind it
   // is now purely announcements.

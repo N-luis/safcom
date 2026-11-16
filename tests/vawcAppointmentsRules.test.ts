@@ -1,5 +1,5 @@
 /**
- * VAWC Appointments & Follow-ups - the rules, without a database.
+ * VAWC Hearings (stored as VawcAppointment) - the rules, without a database.
  * Run with:  npm run test:vawcappointments:rules
  * (The full workflows, through the routes and the database: npm run test:vawcappointments.)
  */
@@ -19,17 +19,20 @@ function ok(label: string, cond: boolean, extra = '') {
 }
 const read = (f: string) => fs.readFileSync(f, 'utf8');
 const sql = read('prisma/sql/019_vawc_appointments.sql');
+// 020 replaces 019's values check (one more type: the court's, tracked only); the rest of 019 stands.
+const sql020 = read('prisma/sql/020_vawc_proceedings.sql');
 const quoted = (s: string) => [...s.matchAll(/'([^']+)'/g)].map(m => m[1]);
 
 console.log('\nNo respondent, no mediation');
 ok('no participant is the respondent', !PARTICIPANT_KEYS.some(p => /RESPOND|ACCUSED/.test(p)));
-ok('no type is mediation, conciliation, reconciliation or a hearing', !APPOINTMENT_TYPE_KEYS.some(t => /MEDIAT|CONCILIAT|RECONCIL|HEARING|JOINT/.test(t)));
-ok('the five types asked for', APPOINTMENT_TYPE_KEYS.join() === 'VICTIM_INTERVIEW,INTAKE_FOLLOW_UP,SAFETY_FOLLOW_UP,REFERRAL_COORDINATION,CASE_CONFERENCE');
+ok('no type is mediation, conciliation, reconciliation or a joint session', !APPOINTMENT_TYPE_KEYS.some(t => /MEDIAT|CONCILIAT|RECONCIL|JOINT|KP/.test(t)));
+ok('the only "hearing" type is the court\'s, tracked only', APPOINTMENT_TYPE_KEYS.filter(t => /HEARING/.test(t)).join() === 'EXTERNAL_COURT_HEARING');
+ok('the six types asked for', APPOINTMENT_TYPE_KEYS.join() === 'VICTIM_INTERVIEW,INTAKE_FOLLOW_UP,SAFETY_FOLLOW_UP,REFERRAL_COORDINATION,CASE_CONFERENCE,EXTERNAL_COURT_HEARING');
 ok('a request naming the respondent or mediation is refused with the reason', forbiddenRequest({ participants: ['REPORTER', 'RESPONDENT'] }) !== null
   && forbiddenRequest({ type: 'MEDIATION' }) !== null && forbiddenRequest({ type: 'VICTIM_INTERVIEW', participants: ['REPORTER'] }) === null);
 
 console.log('\nThe database checks the same values');
-const check = sql.slice(sql.indexOf('VawcAppointment_values_check" CHECK'));
+const check = sql020.slice(sql020.indexOf('VawcAppointment_values_check" CHECK'));
 ok('types, statuses, notice choices, participants, attendance and referral status match the app', [...APPOINTMENT_TYPE_KEYS, ...Object.keys(APPOINTMENT_STATUSES), ...NOTIFY_KEYS,
   ...PARTICIPANT_KEYS, ...ATTENDANCE_KEYS, ...REFERRAL_STATUS_KEYS].every(v => check.includes(`'${v}'`)));
 const lists = [...sql.matchAll(/"caseType" IN \(([^)]+)\)/g)].map(m => quoted(m[1]));
@@ -79,11 +82,20 @@ ok('no date in the past, none more than a year ahead', appointmentTimeRefusal(ne
 console.log('\nKept apart from Hearing Management');
 ok('the VAWC case page shows appointments, never the hearings panel', /includes\(caseData\.caseType\) && <VawcAppointmentsPanel/.test(read('components/cases/CaseWorkspace.tsx'))
   && /!\(VAWC_TYPES as readonly string\[\]\)\.includes\(caseData\.caseType\) && <HearingsPanel/.test(read('components/cases/CaseWorkspace.tsx')));
-ok('the VAWC sidebar has Appointments; the blotter sidebar does not', read('app/vawc/layout.tsx').includes("path: '/vawc/appointments'")
-  && !read('app/blotter-officer/layout.tsx').includes('appointments'));
-// The only on-screen mentions are the two disclaimers saying what this is not.
-ok('no screen calls the appointment a hearing', ['VawcAppointments.tsx', 'AppointmentCalendar.tsx', 'CreateAppointmentDialog.tsx', 'AppointmentDetailsDialog.tsx', 'ResidentAppointments.tsx']
-  .every(f => !/>[^<{]*\bhearing\b/i.test(read(`components/vawcAppointments/${f}`).replace(/Blotter hearings are never shown here|Never a hearing/g, ''))));
+const vawcNav = read('app/vawc/layout.tsx');
+const blotterNav = read('app/blotter-officer/layout.tsx');
+const navOrder = (src: string) => [...src.matchAll(/label: '([^']+)'/g)].map(m => m[1]);
+ok('both sidebars say "Hearings", once, right after Case Classification', ['Hearings'].every(l => navOrder(vawcNav).filter(x => x === l).length === 1 && navOrder(blotterNav).filter(x => x === l).length === 1)
+  && navOrder(vawcNav)[navOrder(vawcNav).indexOf('Case Classification') + 1] === 'Hearings' && navOrder(blotterNav)[navOrder(blotterNav).indexOf('Case Classification') + 1] === 'Hearings',
+  navOrder(vawcNav).join() + ' | ' + navOrder(blotterNav).join());
+ok('the VAWC sidebar opens /vawc/hearings and shows no "Appointments" item', vawcNav.includes("path: '/vawc/hearings'") && !navOrder(vawcNav).some(l => /appointment/i.test(l)));
+ok('the blotter sidebar never links the VAWC module', !blotterNav.includes('/vawc/'));
+ok('old /vawc/appointments links redirect to /vawc/hearings', /redirect\(.*\/vawc\/hearings/.test(read('app/vawc/appointments/page.tsx')) && /redirect\('\/vawc\/hearings\/calendar'\)/.test(read('app/vawc/appointments/calendar/page.tsx')));
+// The officer screens say "hearing"; the resident's own page keeps "appointment" (its notices stay plain).
+ok('no officer screen still says "appointment"', ['VawcAppointments.tsx', 'AppointmentCalendar.tsx', 'CreateAppointmentDialog.tsx', 'AppointmentDetailsDialog.tsx', 'VawcAppointmentsPanel.tsx']
+  .every(f => !/>[^<>{};=()]*\bappointments?\b[^<>{};=()]*</i.test(read(`components/vawcAppointments/${f}`))
+    && !/(label|title|helperText|placeholder|button|done)="[^"]*\bappointments?\b/i.test(read(`components/vawcAppointments/${f}`))
+    && !/toast\.(success|error)\('[^']*\bappointments?\b/i.test(read(`components/vawcAppointments/${f}`))));
 
 console.log(`\n${pass} passed, ${fails.length} failed`);
 if (fails.length) { fails.forEach(x => console.log('  FAILED: ' + x)); process.exitCode = 1; }

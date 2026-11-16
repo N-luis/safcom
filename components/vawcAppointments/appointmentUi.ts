@@ -16,7 +16,7 @@ export const APPT_STATUS_COLOR: Record<AppointmentStatus, string> = {
 
 export interface AppointmentRow {
   id: string; reference: string; type: string; typeLabel: string; scheduledAt: string; venue: string; status: AppointmentStatus;
-  case: { id: string; caseNumber: string; caseType: string; status: string };
+  case: { id: string; caseNumber: string; caseType: string; status: string }; courtMatter: string | null;
   officer: { id: string; name: string } | null; participants: Participant[]; notifyVia: string; rescheduleCount: number;
   acknowledged: boolean; pendingRequests: number; overdue: boolean; canEdit: boolean;
 }
@@ -36,7 +36,8 @@ export interface Officer { id: string; name: string; role: string }
 
 export interface AppointmentDetail {
   appointment: {
-    id: string; caseId: string; reference: string; type: string; scheduledAt: string; venue: string; assignedOfficer: { id: string; name: string } | null;
+    id: string; caseId: string; reference: string; type: string; scheduledAt: string; venue: string;
+    courtMatter: string | null; courtSource: string | null; courtReference: string | null; assignedOfficer: { id: string; name: string } | null;
     participants: Participant[]; purpose: string; internalNotes: string | null; notifyVia: string; residentInstructions: string | null;
     status: AppointmentStatus; statusReason: string | null; rescheduleCount: number; attendance: string | null; outcomeNotes: string | null;
     followUpActions: string | null; referralStatus: string | null; nextAppointmentAt: string | null; residentSeenAt: string | null; residentAcknowledgedAt: string | null;

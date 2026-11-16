@@ -61,7 +61,10 @@
     "test:evidencephotos": "npx tsx --env-file=.env --conditions=react-server tests/evidencePhotos.test.ts",
     "test:caseexport": "npx tsx --env-file=.env --conditions=react-server tests/caseExport.test.ts",
     "test:staged": "npx tsx --env-file=.env --conditions=react-server tests/aiStaged.test.ts",
-    "eval:classification": "npx tsx --env-file=.env --conditions=react-server scripts/eval-classification.ts"
+    "eval:classification": "npx tsx --env-file=.env --conditions=react-server scripts/eval-classification.ts",
+    "test:vawcproceedings": "npx tsx --env-file=.env --conditions=react-server tests/vawcProceedings.test.ts",
+    "test:vawcproceedings:rules": "npx tsx --conditions=react-server tests/vawcProceedingsRules.test.ts",
+    "test:vawchearings": "npx tsx --env-file=.env --conditions=react-server tests/vawcHearings.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
