@@ -71,14 +71,22 @@ export async function GET(req: NextRequest) {
           hearing: { select: {
             case: { select: { id: true, caseNumber: true, caseType: true, status: true, riskLevel: true, residentId: true } } } } },
       }),
-      // Appointments the officer chose to tell this resident about (VAWC Appointments & Follow-ups).
+      // Appointments the officer chose to tell this resident about (the former VAWC
+      // Appointments, now read-only; each one migrated is a hearing - see below).
       prisma.vawcAppointmentEvent.findMany({
         where: { kind: { in: [...RESIDENT_APPOINTMENT_EVENTS] }, appointment: residentAppointmentWhere(auth.resident.residentId) },
         orderBy: { createdAt: 'desc' },
         take: limit,
-        select: { id: true, kind: true, after: true, createdAt: true },
+        select: { id: true, kind: true, after: true, createdAt: true, appointmentId: true },
       }),
     ]);
+    // An appointment notice opens the hearing it became (Appointments were merged into hearings).
+    const apptIds = [...new Set(appointmentEvents.map(e => e.appointmentId))];
+    const migrated = apptIds.length
+      ? await prisma.caseHearing.findMany({ where: { migratedFromAppointmentId: { in: apptIds }, ...residentHearingWhere(auth.resident.residentId) },
+          select: { id: true, migratedFromAppointmentId: true } })
+      : [];
+    const hearingOf = new Map(migrated.map(h => [h.migratedFromAppointmentId, h.id]));
 
     // The official entries those activities are about, read whole. Bound to
     // this resident's cases as well as to the ids, so a row can only ever
@@ -117,7 +125,7 @@ export async function GET(req: NextRequest) {
       return message ? [{
         id: e.id, source: 'case' as const, title: 'Appointment update', message, entryLabel: 'Appointment', color: '#0f766e', createdAt: e.createdAt,
         caseType: undefined, caseId: null, caseNumber: null, caseStatus: null, caseRiskLevel: null, level: null as string | null, requestId: null,
-        href: '/resident/hearings?tab=appointments',
+        href: hearingOf.has(e.appointmentId) ? `/resident/hearings?hearing=${encodeURIComponent(hearingOf.get(e.appointmentId)!)}` : '/resident/hearings',
       }] : [];
     });
 

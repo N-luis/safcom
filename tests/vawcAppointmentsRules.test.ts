@@ -80,8 +80,10 @@ ok('no date in the past, none more than a year ahead', appointmentTimeRefusal(ne
   && appointmentTimeRefusal(new Date(now.getTime() + 400 * 86_400_000), now) !== null && appointmentTimeRefusal(new Date(now.getTime() + 86_400_000), now) === null);
 
 console.log('\nKept apart from Hearing Management');
-ok('the VAWC case page shows appointments, never the hearings panel', /includes\(caseData\.caseType\) && <VawcAppointmentsPanel/.test(read('components/cases/CaseWorkspace.tsx'))
-  && /!\(VAWC_TYPES as readonly string\[\]\)\.includes\(caseData\.caseType\) && <HearingsPanel/.test(read('components/cases/CaseWorkspace.tsx')));
+// Changed by the VAWC hearings merge: a VAWC case shows the same hearings card as a blotter case, in its VAWC form (one component, not a copy).
+ok('the VAWC case page shows the shared hearings card in its VAWC form; the blotter page the blotter form', /includes\(caseData\.caseType\) && <HearingsPanel caseId=\{id\} onChanged=\{onSaved\} vawc \/>/.test(read('components/cases/CaseWorkspace.tsx'))
+  && /!\(VAWC_TYPES as readonly string\[\]\)\.includes\(caseData\.caseType\) && <HearingsPanel caseId=\{id\} onChanged=\{onSaved\} \/>/.test(read('components/cases/CaseWorkspace.tsx'))
+  && !/VawcAppointmentsPanel/.test(read('components/cases/CaseWorkspace.tsx')));
 const vawcNav = read('app/vawc/layout.tsx');
 const blotterNav = read('app/blotter-officer/layout.tsx');
 const navOrder = (src: string) => [...src.matchAll(/label: '([^']+)'/g)].map(m => m[1]);

@@ -3,21 +3,22 @@ import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
 import { noStore, residentHearingWhere, hearingPartySelect } from '@/lib/hearingsServer';
 import {
-  isLive, phDay, sessionTitle, kpFormName, residentHearingMessage, LIVE_NOTICE, NOTICE_STATUSES, HEARING_OUTCOMES, KP_STAGES, RESIDENT_STATUS_LABELS,
-  RESIDENT_INSTRUCTIONS, RESIDENT_EVENT_KINDS, RESCHEDULE_REQUESTS_PER_HEARING, isKpStage, type HearingOutcome, type NoticeStatus, type PartyRole,
+  isLive, phDay, residentTitle, stageLabel, kpFormName, residentHearingMessage, residentInstructionsFor, trackOf, LIVE_NOTICE, NOTICE_STATUSES,
+  HEARING_OUTCOMES, CASE_TRACKS, RESIDENT_STATUS_LABELS, RESIDENT_EVENT_KINDS, RESCHEDULE_REQUESTS_PER_HEARING, isHearingKind,
+  type HearingOutcome, type NoticeStatus, type PartyRole,
 } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * My Hearings & Notices: the Katarungang Pambarangay proceedings the
- * resident is a party to - as the complainant on a case they filed (or were
- * linked to), or as the respondent an official linked to their account -
- * with their own KP notices, their requests, what changed, and a short
- * outcome. Never the proceedings notes, attendance, agreements, the other
- * party's notice or contact details, or the case narrative. A draft is not
- * shown until an official schedules it.
+ * My Hearings & Notices: the hearings the resident is a party to, blotter
+ * (Katarungang Pambarangay proceedings) and VAWC alike - as the complainant
+ * on a case they filed - with their own notices, their requests, what
+ * changed, and a short outcome. Each says its case type (caseType: BLOTTER |
+ * VAWC) for the badge. Never the proceedings notes, attendance, agreements,
+ * the other party's notice, any party's address or contact details, or the
+ * case narrative. A draft is not shown until an official schedules it.
  */
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
       select: {
         id: true, reference: true, hearingNumber: true, stage: true, session: true, scheduledAt: true, venue: true, status: true, outcome: true, outcomeSummary: true,
         residentInstructions: true, residentIntent: true, residentIntentAt: true, rescheduleCount: true, updatedAt: true,
-        case: { select: { id: true, caseNumber: true, residentId: true } },
+        case: { select: { id: true, caseNumber: true, caseType: true, residentId: true } },
         ...hearingPartySelect,
         notices: { where: { status: { in: [...LIVE_NOTICE] }, recipientRole: { in: ['COMPLAINANT', 'RESPONDENT'] } }, orderBy: { generatedAt: 'desc' },
           select: { id: true, formNo: true, recipientRole: true, noticeNumber: true, status: true, issuedAt: true, acknowledgedAt: true, seenAt: true, scheduledAt: true, issuedById: true } },
@@ -50,9 +51,11 @@ export async function GET(req: NextRequest) {
       const notices = h.notices.filter(n => n.recipientRole === role);
       const pending = h.requests.find(r => r.status === 'PENDING');
       const updates = h.events.flatMap(e => { const m = residentHearingMessage(e, role); return m ? [{ id: e.id, message: m, at: e.createdAt }] : []; });
-      const stage = isKpStage(h.stage) ? h.stage : 'MEDIATION';
+      const stage = isHearingKind(h.stage) ? h.stage : 'MEDIATION';
+      const caseType = trackOf(h.case.caseType);
       return {
-        id: h.id, reference: h.reference, stage, stageLabel: KP_STAGES[stage].label, session: h.session, title: sessionTitle(stage, h.session),
+        id: h.id, reference: h.reference, stage, stageLabel: stageLabel(stage), session: h.session, title: residentTitle(stage, h.session),
+        caseType, caseTypeLabel: CASE_TRACKS[caseType],
         role, roleLabel: role === 'RESPONDENT' ? 'Respondent' : 'Complainant',
         // A respondent reaches the proceeding only, never the complainant's case record.
         case: { id: role === 'COMPLAINANT' && h.case.residentId === me ? h.case.id : null, caseNumber: h.case.caseNumber },
@@ -73,16 +76,16 @@ export async function GET(req: NextRequest) {
         canRequest: live && notPast && !pending && h.requests.length < RESCHEDULE_REQUESTS_PER_HEARING,
         outcome: h.status === 'COMPLETED' && h.outcome && h.outcome in HEARING_OUTCOMES
           ? { text: HEARING_OUTCOMES[h.outcome as HearingOutcome].resident, summary: h.outcomeSummary } : null,
-        instructions: live ? [...RESIDENT_INSTRUCTIONS[role], ...(h.residentInstructions ? [h.residentInstructions] : [])] : [],
+        instructions: live ? [...residentInstructionsFor(stage, role), ...(h.residentInstructions ? [h.residentInstructions] : [])] : [],
         updates, latestUpdate: updates[0] ?? null,
         updatedAt: h.updatedAt,
       };
     });
     // The history, case by case, with the next date still to come.
-    const byCase = new Map<string, { case: { id: string | null; caseNumber: string }; role: string; hearings: typeof view; next: (typeof view)[number] | null }>();
+    const byCase = new Map<string, { case: { id: string | null; caseNumber: string }; caseType: string; role: string; hearings: typeof view; next: (typeof view)[number] | null }>();
     for (const h of view) {
       const key = `${h.case.caseNumber}:${h.role}`;
-      const entry = byCase.get(key) ?? { case: h.case, role: h.role, hearings: [], next: null };
+      const entry = byCase.get(key) ?? { case: h.case, caseType: h.caseType, role: h.role, hearings: [], next: null };
       entry.hearings.push(h);
       if (h.upcoming && !entry.next) entry.next = h;
       byCase.set(key, entry);

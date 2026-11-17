@@ -1053,9 +1053,11 @@ model CaseHearing {
   reference             String     @unique
   /// The proceeding's order on the case: 1 for the first, and so on.
   hearingNumber         Int
-  /// The Katarungang Pambarangay stage (RA 7160 secs. 410-412):
-  /// MEDIATION before the Punong Barangay | CONSTITUTION of the Pangkat |
-  /// CONCILIATION before the Pangkat. lib/hearings.ts KP_STAGES.
+  /// On a blotter case, the Katarungang Pambarangay stage (RA 7160 secs.
+  /// 410-412): MEDIATION | CONSTITUTION | CONCILIATION (lib/hearings.ts
+  /// KP_STAGES). On a VAWC case, the VAWC hearing type - never a KP stage
+  /// (RA 9262 sec. 33): VAWC_DESK_HEARING | CASE_CONFERENCE | VICTIM_INTERVIEW
+  /// | FOLLOW_UP (VAWC_HEARING_TYPES). The case type itself comes from the case.
   stage                 String     @default("MEDIATION")
   /// Which session of that stage this is (a mediation may need more than one).
   session               Int        @default(1)
@@ -1114,6 +1116,10 @@ model CaseHearing {
   updatedById           String
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
+  /// The VawcAppointment this hearing was made from when the Appointments
+  /// were merged into hearings (scripts/migrate-appointments-to-hearings.ts):
+  /// unique, so running the migration again makes no second copy.
+  migratedFromAppointmentId String? @unique
 
   notices     CaseHearingNotice[]
   events      CaseHearingEvent[]
@@ -1121,6 +1127,7 @@ model CaseHearing {
   attachments CaseAttachment[]
 
   @@index([caseId])
+  @@index([caseId, scheduledAt])
   @@index([status, scheduledAt])
   @@index([assignedOfficialId])
 }

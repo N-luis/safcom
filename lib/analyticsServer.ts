@@ -19,7 +19,7 @@ import {
   STATUS_GROUPS, CLOSED_STATUSES, parseRange, latestAi, emergencyReasons, isHighPriority, priorityOrder,
   deskOf, KP_STAGES, KP_STAGE_KEYS, type AnalyticsScope, type StatusGroup,
 } from './analytics';
-import { sessionTitle } from './hearings';
+import { sessionTitle, VAWC_HEARING_TYPE_KEYS } from './hearings';
 
 type Where = Record<string, unknown>;
 
@@ -183,24 +183,39 @@ export async function hearingManagement(ctx: AnalyticsContext) {
     cancelled: count(h => h.status === 'CANCELLED', stage),
   }));
 
-  // The VAWC desk's own track: referrals, interventions and follow-ups -
-  // never hearings. Counts only, for the roles allowed them.
+  // The VAWC desk: referrals, interventions, follow-ups and its hearings (the
+  // same workflow, VAWC hearing types - never mediation). Counts only, for the
+  // roles allowed them.
   let vawc = null;
   if (ctx.scope !== 'blotter') {
     const vawcCases: Where = { AND: [ctx.countsWhere, { caseType: { in: [...VAWC_TYPES] } }] };
-    const [referrals, interventions, followUpsDue, appointments] = await Promise.all([
+    // Appointments merged into hearings are counted once, as hearings.
+    const merged = (await prisma.caseHearing.findMany({ where: { migratedFromAppointmentId: { not: null } }, select: { migratedFromAppointmentId: true } }))
+      .map(h => h.migratedFromAppointmentId as string);
+    const [referrals, interventions, followUpsDue, appointments, vawcHearings] = await Promise.all([
       prisma.caseReferral.groupBy({ by: ['status'], where: { case: vawcCases }, _count: true }),
       prisma.caseFollowUp.count({ where: { case: vawcCases, type: 'intervention', ...(ctx.from || ctx.to ? { createdAt: { ...(ctx.from && { gte: ctx.from }), ...(ctx.to && { lte: ctx.to }) } } : {}) } }),
       prisma.caseSafetyAssessment.count({ where: { case: vawcCases, followUpAt: { gte: now } } }),
       // VAWC Appointments & Follow-ups: type, status and dates only - never a note, a purpose or a name.
-      prisma.vawcAppointment.findMany({ where: { case: vawcCases }, select: { type: true, status: true, scheduledAt: true, rescheduleCount: true, referralStatus: true } }),
+      prisma.vawcAppointment.findMany({ where: { case: vawcCases, ...(merged.length && { id: { notIn: merged } }) },
+        select: { type: true, status: true, scheduledAt: true, rescheduleCount: true, referralStatus: true } }),
+      // VAWC hearings: type, status and dates only.
+      prisma.caseHearing.findMany({ where: { case: vawcCases, status: { not: 'DRAFT' } }, select: { stage: true, status: true, scheduledAt: true, rescheduleCount: true } }),
     ]);
     const inRange = (a: { scheduledAt: Date }) => (!ctx.from || a.scheduledAt >= ctx.from) && (!ctx.to || a.scheduledAt <= ctx.to);
     const open = (a: { status: string }) => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED';
     const ranged = appointments.filter(inRange);
+    const hInRange = vawcHearings.filter(inRange);
     vawc = {
       referrals: Object.fromEntries(referrals.map(r => [r.status, r._count])),
       interventions, followUpsDue,
+      hearings: {
+        upcoming: vawcHearings.filter(h => LIVE.includes(h.status) && h.scheduledAt >= now).length,
+        completed: hInRange.filter(h => h.status === 'COMPLETED').length,
+        rescheduled: hInRange.filter(h => h.rescheduleCount > 0).length,
+        cancelled: hInRange.filter(h => h.status === 'CANCELLED').length,
+        byType: Object.fromEntries(VAWC_HEARING_TYPE_KEYS.map(k => [k, hInRange.filter(h => h.stage === k).length])),
+      },
       appointments: {
         scheduled: appointments.filter(a => open(a) && a.scheduledAt >= now).length,
         completedInterviews: ranged.filter(a => a.status === 'COMPLETED' && a.type === 'VICTIM_INTERVIEW').length,

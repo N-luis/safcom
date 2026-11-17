@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rError } from '@/lib/residentAuth';
-import { loadHearingCase, kpNoticeInputFor, pdfResponse, residentHearingWhere, hearingPartySelect, recordEvent, hearingSnap } from '@/lib/hearingsServer';
+import { loadHearingCase, noticePdfFor, pdfResponse, residentHearingWhere, hearingPartySelect, recordEvent, hearingSnap } from '@/lib/hearingsServer';
 import { LIVE_NOTICE } from '@/lib/hearings';
-import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
- * A party's own KP notice as a PDF - only once it has been issued, and only
+ * A party's own notice as a PDF (the KP form, or on a VAWC case the VAWC
+ * Notice of Hearing) - only once it has been issued, and only
  * a notice addressed to their side (?id= picks one; else the latest). The
  * other party's notice is never served here. The first opening is recorded
  * as "seen" in the proceeding's history; it is not an acknowledgement.
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ hid:
     const c = await loadHearingCase(h.caseId);
     if (!c) return rError('Hearing not found', 404);
     const by = n.issuedById ? (await prisma.user.findUnique({ where: { id: n.issuedById }, select: { name: true } }))?.name ?? null : null;
-    const bytes = await buildKpNoticePdf(await kpNoticeInputFor(c, h, n, 'ISSUED', by));
+    const bytes = await noticePdfFor(c, h, n, 'ISSUED', by);
     if (!n.seenAt) {
       await prisma.$transaction(async tx => {
         const r = await tx.caseHearingNotice.updateMany({ where: { id: n.id, seenAt: null }, data: { seenAt: new Date() } });

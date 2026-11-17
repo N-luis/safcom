@@ -8,25 +8,28 @@ import {
   hearingPartySelect, partyAccounts, loadPangkat, pangkatConstituted, type HearingCase,
 } from '@/lib/hearingsServer';
 import {
-  nextStep, hearingReference, scheduleTimeRefusal, formatHearingWhen, sessionTitle, partyFormsFor, kpFormName, KP_STAGES, KP_STAGE_KEYS,
-  VAWC_HEARING_REFUSAL,
+  nextStep, hearingReference, scheduleTimeRefusal, formatHearingWhen, sessionTitle, partyFormsFor, kpFormName, stageLabel, stageParties, hasRespondent,
+  trackOf, HEARING_KIND_KEYS, VAWC_HEARING_TYPE_KEYS, type HearingKind,
 } from '@/lib/hearings';
-import { isVawcType } from '@/lib/reporterAccess';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
- * The Katarungang Pambarangay proceedings on one blotter case.
+ * The proceedings on one case - the same workflow for both case types:
+ * Katarungang Pambarangay proceedings on a blotter case, VAWC hearings on a
+ * VAWC case (RA 9262; never mediation or conciliation, never a KP form).
  *
  *   GET  - every proceeding with its notices, requests and history; the
- *          parties (and whether each has a SafeComm account); the Pangkat;
- *          the next stage the case may have, or why none.
- *   POST - create the next proceeding - mediation, the constitution of the
- *          Pangkat, or conciliation, in that order - as a draft (officials
- *          only) or scheduled, which makes the stage's KP notices for both
- *          parties at once. Refused on a VAWC case, on a case whose category
- *          no official has verified, and without an official's eligibility
- *          review - SafeComm records that review, it does not make the
- *          legal call.
+ *          parties (and whether each has a SafeComm account); the Pangkat
+ *          (blotter); the next proceeding the case may have, or why none -
+ *          on a VAWC case, every VAWC hearing type it may have.
+ *   POST - create the next proceeding as a draft (officials only) or
+ *          scheduled, which makes its notices for the parties at once.
+ *          Blotter: mediation, the constitution of the Pangkat, or
+ *          conciliation, in that order - refused on a case whose category no
+ *          official has verified, and without an official's eligibility
+ *          review (SafeComm records that review, it does not make the legal
+ *          call). VAWC: the hearing type the official chooses - never a KP
+ *          stage.
  */
 
 type Params = { params: Promise<{ id: string }> };
@@ -52,16 +55,8 @@ export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const g = await gateHearings(req, id, 'view');
   if ('error' in g) return g.error;
+  const track = trackOf(g.c.caseType);
   try {
-    if (isVawcType(g.c.caseType)) {
-      await g.log('permitted', g.access.code);
-      return noStore({ success: true, data: {
-        case: { id, caseNumber: g.c.caseNumber, caseType: g.c.caseType, status: g.c.status, hasReporterAccount: Boolean(g.c.residentId) },
-        hearings: [], next: null, canEdit: false, blocked: VAWC_HEARING_REFUSAL, vawc: true, pangkat: null,
-        eligibility: { eligible: false, reasons: [VAWC_HEARING_REFUSAL], warnings: [], categoryVerified: false, needsReview: false, review: null },
-        parties: { complainants: [], respondents: [] }, officials: [],
-      } });
-    }
     const [hearings, eligibility, parties, officials, pangkat] = await Promise.all([
       prisma.caseHearing.findMany({
         where: { caseId: id }, orderBy: [{ hearingNumber: 'asc' }, { createdAt: 'asc' }],
@@ -76,8 +71,9 @@ export async function GET(req: NextRequest, { params }: Params) {
       }),
       eligibilityOf(g.c),
       partiesOf(g.c),
-      presidingOfficials(),
-      loadPangkat(id),
+      presidingOfficials(track),
+      // The Pangkat is a Katarungang Pambarangay body: none on a VAWC case.
+      track === 'VAWC' ? Promise.resolve(null) : loadPangkat(id),
     ]);
     // Names for the history, read once. A resident is shown by their side, never by name.
     const ids = [...new Set([
@@ -92,9 +88,12 @@ export async function GET(req: NextRequest, { params }: Params) {
     const name = (uid: string | null | undefined) => (uid ? users.find(u => u.id === uid)?.name ?? 'Former official' : null);
 
     const step = nextStep(g.c.caseType, hearings, pangkatConstituted(pangkat));
+    const nextOf = (stage: HearingKind, session: number) => ({ stage, session, label: stageLabel(stage), title: sessionTitle(stage, session),
+      parties: stageParties(stage), forms: partyFormsFor(stage).map(f => ({ ...f, name: kpFormName(f.formNo) })) });
     await g.log('permitted', g.access.code);
     return noStore({ success: true, data: {
       case: { id, caseNumber: g.c.caseNumber, caseType: g.c.caseType, status: g.c.status, hasReporterAccount: Boolean(g.c.residentId) },
+      track, vawc: track === 'VAWC',
       hearings: hearings.map(h => {
         const accounts = partyAccounts(g.c);
         return {
@@ -111,8 +110,10 @@ export async function GET(req: NextRequest, { params }: Params) {
               : e.actorType === 'resident' ? `${e.actorId && e.actorId === accounts.RESPONDENT ? 'Respondent' : 'Complainant'} (SafeComm)` : 'SafeComm' })),
         };
       }),
-      next: step.stage ? { stage: step.stage, session: step.session, label: KP_STAGES[step.stage].label, title: sessionTitle(step.stage, step.session),
-        forms: partyFormsFor(step.stage).map(f => ({ ...f, name: kpFormName(f.formNo) })) } : null,
+      next: step.stage ? nextOf(step.stage, step.session) : null,
+      // A VAWC case: every hearing type it may have now, for the official to choose.
+      choices: step.stage && track === 'VAWC'
+        ? VAWC_HEARING_TYPE_KEYS.map(k => nextOf(k, hearings.filter(h => h.stage === k && h.status === 'COMPLETED').length + 1)) : null,
       canEdit: g.access.edit,
       accessMessage: g.access.message,
       // Why nothing can be created now, if so - shown instead of the button.
@@ -128,8 +129,8 @@ export async function GET(req: NextRequest, { params }: Params) {
 
 const idOrNull = z.string().trim().min(1).max(64).nullable().optional();
 const postSchema = z.object({
-  /** The stage the official means to create; it must be the case's next one. */
-  stage: z.enum(KP_STAGE_KEYS).optional(),
+  /** Blotter: the stage the official means to create - it must be the case's next one. VAWC: the hearing type chosen. */
+  stage: z.enum(HEARING_KIND_KEYS).optional(),
   ...scheduleFields,
   assignedOfficialId: idOrNull,
   complainantPartyId: idOrNull,
@@ -151,11 +152,12 @@ export async function POST(req: NextRequest, { params }: Params) {
       prisma.caseHearing.findMany({ where: { caseId: id }, select: { hearingNumber: true, stage: true, session: true, status: true, outcome: true } }),
       loadPangkat(id),
     ]);
-    const step = nextStep(g.c.caseType, existing, pangkatConstituted(pangkat));
+    const track = trackOf(g.c.caseType);
+    const step = nextStep(g.c.caseType, existing, pangkatConstituted(pangkat), d.stage);
     if (step.stage === null) { await g.log('denied', 'hearing_refused'); return errorResponse(step.refusal, 422); }
     if (d.stage && d.stage !== step.stage) {
       await g.log('denied', 'hearing_refused');
-      return errorResponse(`The next proceeding on this case is ${KP_STAGES[step.stage].label.toLowerCase()}, not ${KP_STAGES[d.stage].label.toLowerCase()}.`, 422);
+      return errorResponse(`The next proceeding on this case is ${stageLabel(step.stage).toLowerCase()}, not ${stageLabel(d.stage).toLowerCase()}.`, 422);
     }
     const eligibility = await eligibilityOf(g.c);
     if (!eligibility.eligible) { await g.log('denied', 'not_eligible'); return noStore({ success: false, error: eligibility.reasons[0], eligibility }, 422); }
@@ -165,17 +167,19 @@ export async function POST(req: NextRequest, { params }: Params) {
     if (timeRefusal) return errorResponse(timeRefusal, 400);
     const draft = d.asDraft === true;
     // The respondent is a record on this case. With only one person reported, it is that one.
-    let respondentPartyId = d.respondentPartyId ?? null;
-    if (!respondentPartyId) {
+    // A VAWC hearing held with the complainant alone names no respondent at all.
+    const withRespondent = hasRespondent(step.stage);
+    let respondentPartyId = withRespondent ? d.respondentPartyId ?? null : null;
+    if (withRespondent && !respondentPartyId) {
       const reported = await prisma.caseParty.findMany({ where: { caseId: id, role: 'REPORTED' }, select: { id: true }, take: 2 });
       if (reported.length === 1) respondentPartyId = reported[0].id;
       else if (!draft) {
         return errorResponse(reported.length
           ? 'Choose the respondent from the persons reported on this case.'
-          : 'Record the respondent on the case first (Case Records - persons reported). The summons and notices are addressed to them.', 400);
+          : `Record the respondent on the case first (Case Records - persons reported). The ${track === 'VAWC' ? 'notice is' : 'summons and notices are'} addressed to them.`, 400);
       }
     }
-    const people = await checkPeople(id, { ...d, respondentPartyId });
+    const people = await checkPeople(id, { ...d, respondentPartyId }, track);
     if (people) return errorResponse(people, 400);
     const venue = d.venue || 'Barangay Hall';
     const officialId = d.assignedOfficialId ?? g.actor.id;
@@ -207,7 +211,7 @@ export async function POST(req: NextRequest, { params }: Params) {
       await hearingActivity(tx, e.id, id, g.actor.id, draft
         ? `${title} drafted by ${by} (not yet scheduled)`
         : `${title} scheduled for ${formatHearingWhen(h.scheduledAt)} at ${venue} by ${by}`);
-      // One schedule, the stage's notices to both parties.
+      // One schedule, the notices to its parties (both, or the complainant alone).
       const notices = draft ? [] : await issueStageNotices(tx, g.c, h, g.actor.id, by);
       if (h.assignedOfficialId && h.assignedOfficialId !== g.actor.id) {
         await tx.notification.create({ data: {

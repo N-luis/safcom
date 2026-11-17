@@ -1,11 +1,11 @@
 import type { Prisma } from '@/app/generated/prisma/client';
 import { prisma } from './prisma';
 import { VAWC_TYPES } from './vawcTypes';
-import { BLOTTER_ROLES } from './reporterAccess';
+import { BLOTTER_ROLES, VAWC_DESK_ROLES } from './reporterAccess';
 import { complainantName } from './hearingsServer';
 import {
-  hearingEligibility, nextStep, sessionTitle, partyFormsFor, kpFormName, isOpen, CLOSED_CASE_STATUSES, HEARING_STATUSES, KP_ELIGIBILITY_LABELS,
-  type HearingStatus, type KpStage, type KpEligibilityState,
+  hearingEligibility, vawcHearingEligibility, nextStep, sessionTitle, partyFormsFor, kpFormName, isOpen, CLOSED_CASE_STATUSES, HEARING_STATUSES,
+  KP_ELIGIBILITY_LABELS, type HearingStatus, type HearingKind, type KpEligibilityState, type CaseTrack,
 } from './hearings';
 
 /**
@@ -18,7 +18,12 @@ import {
  * Listing follows Case Management: a blotter officer sees every blotter
  * case. Managing a case's hearings stays with the officer it is assigned to
  * (lib/hearingsServer.ts decideHearingAccess); an unassigned case shows the
- * officer they can take it. VAWC cases are never listed (RA 9262).
+ * officer they can take it.
+ *
+ * The VAWC desk's list is the same, for VAWC cases (track 'VAWC'): every VAWC
+ * case, managed by its assigned VAWC officer or the captain - no KP
+ * eligibility review (a VAWC case is never mediated), only a closed case has
+ * no hearing. The caller has already checked the role may read VAWC cases.
  */
 
 export type { KpEligibilityState };
@@ -26,6 +31,10 @@ export type CaseHearingState = 'NOT_SCHEDULED' | 'IN_PROGRESS' | 'AWAITING_NEXT'
 
 export const CASE_HEARING_LABELS: Record<CaseHearingState, string> = {
   NOT_SCHEDULED: 'No hearing yet', IN_PROGRESS: 'Proceeding open', AWAITING_NEXT: 'Next stage due', ENDED: 'Proceedings ended',
+};
+/** The same states on a VAWC case, which has no stages. */
+export const VAWC_CASE_HEARING_LABELS: Record<CaseHearingState, string> = {
+  NOT_SCHEDULED: 'No hearing yet', IN_PROGRESS: 'Hearing open', AWAITING_NEXT: 'Held - another may be set', ENDED: 'Hearings ended',
 };
 
 export interface HearingCaseFilters {
@@ -57,14 +66,16 @@ const caseSelect = {
     select: { decision: true, caseType: true, createdAt: true, note: true, version: true, checklist: true, approvedById: true } },
 } satisfies Prisma.CaseSelect;
 
-export async function listHearingCases(actor: { id: string; role: string }, f: HearingCaseFilters) {
+export async function listHearingCases(actor: { id: string; role: string }, f: HearingCaseFilters, track: CaseTrack = 'BLOTTER') {
   const role = actor.role.trim();
-  const blotter = BLOTTER_ROLES.includes(role);
+  const vawc = track === 'VAWC';
+  // The desk officer of this case type (blotter officer, or VAWC officer).
+  const blotter = (vawc ? VAWC_DESK_ROLES : BLOTTER_ROLES).includes(role);
   const q = f.q?.trim().slice(0, 60) || null;
   const statusFilter = !f.status || f.status === 'OPEN' ? { notIn: CLOSED_CASE_STATUSES } : f.status === 'ANY' ? undefined : { equals: f.status };
 
   const where: Prisma.CaseWhereInput = {
-    caseType: { notIn: [...VAWC_TYPES] },
+    caseType: vawc ? { in: [...VAWC_TYPES] } : { notIn: [...VAWC_TYPES] },
     ...(statusFilter && { status: statusFilter }),
     ...(q && { OR: [
       { caseNumber: { contains: q, mode: 'insensitive' } },
@@ -83,7 +94,7 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
   const rows = cases.map(c => {
     const category = c.assessmentHistory[0] ?? null;
     const review = c.kpReviews[0] ?? null;
-    const eligibility = hearingEligibility({
+    const eligibility = vawc ? vawcHearingEligibility(c.status) : hearingEligibility({
       caseType: c.caseType, status: c.status,
       verifiedCategory: category ? { caseType: category.caseType, at: category.createdAt } : null,
       review: review ? { decision: review.decision, caseType: review.caseType, at: review.createdAt, note: review.note,
@@ -107,15 +118,15 @@ export async function listHearingCases(actor: { id: string; role: string }, f: H
       id: c.id, caseNumber: c.caseNumber, caseType: c.caseType, status: c.status, filedAt: c.filedAt,
       complainant: complainantName(c, null),
       respondents: c.parties.map(p => ({ id: p.id, name: p.fullName || 'Not named' })),
-      eligibility: { state: eligibilityState, label: KP_ELIGIBILITY_LABELS[eligibilityState], reasons: eligibility.reasons, warnings: eligibility.warnings,
+      eligibility: { state: eligibilityState, label: vawc ? (eligibility.eligible ? 'Open' : 'Closed') : KP_ELIGIBILITY_LABELS[eligibilityState], reasons: eligibility.reasons, warnings: eligibility.warnings,
         categoryVerified: eligibility.categoryVerified },
       hearing: {
-        state: hearingState, label: CASE_HEARING_LABELS[hearingState],
+        state: hearingState, label: (vawc ? VAWC_CASE_HEARING_LABELS : CASE_HEARING_LABELS)[hearingState],
         latest: latest ? { id: latest.id, title: sessionTitle(latest.stage, latest.session), status: latest.status as HearingStatus,
           statusLabel: HEARING_STATUSES[latest.status as HearingStatus] ?? latest.status, scheduledAt: latest.scheduledAt } : null,
         held: held.length,
       },
-      next: step.stage ? { stage: step.stage as KpStage, session: step.session, title: sessionTitle(step.stage, step.session),
+      next: step.stage ? { stage: step.stage as HearingKind, session: step.session, title: sessionTitle(step.stage, step.session),
         forms: partyFormsFor(step.stage).map(x => ({ ...x, name: kpFormName(x.formNo) })) } : null,
       refusal: step.refusal,
       assignedTo: c.assignedTo ? { id: c.assignedTo.id, name: c.assignedTo.name, me: c.assignedTo.id === actor.id } : null,

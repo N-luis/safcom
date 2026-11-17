@@ -29,7 +29,6 @@ import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
-import VawcAppointmentsPanel from '@/components/vawcAppointments/VawcAppointmentsPanel';
 import { ProceedingsPanel } from '@/components/vawcAppointments/VawcProceedings';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
@@ -1041,12 +1040,12 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}
           <CaseRecordsPanel caseId={id} onChanged={onSaved} formPath={`${basePath}/${id}/referrals`} />
 
-          {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
+          {/* Hearings - the same workflow on both desks: KP proceedings on a blotter case, VAWC hearings on a VAWC case (never mediation - RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
 
           {/* VAWC cases only: their Hearings, BPOs and referrals, then the Service Referral Forms
               (VAWC desk and the captain only). The acknowledgement letter is in Reporter Information. */}
-          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} vawc />}
           {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
           {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
 

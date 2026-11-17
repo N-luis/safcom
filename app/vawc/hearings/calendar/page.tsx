@@ -1,8 +1,8 @@
 'use client';
 
-import AppointmentCalendar from '@/components/vawcAppointments/AppointmentCalendar';
+import HearingCalendar from '@/components/hearings/HearingCalendar';
 
-/** The VAWC Hearings calendar - separate from the Blotter desk's hearing calendar. */
+/** The VAWC Hearings calendar: the shared Hearing Calendar, showing VAWC hearings only (the Blotter desk's never shows them). */
 export default function VawcHearingsCalendarPage() {
-  return <AppointmentCalendar />;
+  return <HearingCalendar track="VAWC" caseBase="/vawc/cases" recordsHref="/vawc/hearings" />;
 }

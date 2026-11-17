@@ -4,17 +4,19 @@ import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import {
   gateHearings, noStore, eligibilityOf, recordEvent, hearingActivity, actorName, scheduleFields, instantOf, checkPeople,
-  findConflicts, conflictResponse, hearingSnap, issueStageNotices, supersedePartyNotices, hearingPartySelect, loadPangkat, pangkatRefusal,
+  findConflicts, conflictResponse, hearingSnap, issueStageNotices, supersedePartyNotices, hearingPartySelect, loadPangkat, pangkatRefusal, kindOf,
 } from '@/lib/hearingsServer';
 import {
-  allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, sessionTitle, outcomeLeadsTo, isKpStage,
-  HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES, STAGE_OUTCOMES, KP_STAGES, NOTICE_RECIPIENTS, type HearingStatus, type KpStage,
+  allowedFrom, isPastDay, hasDayArrived, phInstant, scheduleTimeRefusal, formatHearingWhen, sessionTitle, outcomeLeadsTo, outcomesFor, stageLabel,
+  hasRespondent, trackOf, HEARING_OUTCOMES, HEARING_OUTCOME_KEYS, HEARING_STATUSES, NOTICE_RECIPIENTS, type HearingStatus,
 } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
- * Everything an official does to one proceeding (mediation, constitution of
- * the Pangkat, or conciliation). Each action is allowed only
+ * Everything an official does to one proceeding - mediation, constitution of
+ * the Pangkat or conciliation on a blotter case; a VAWC hearing on a VAWC
+ * case (the same actions; the respondent's parts only when the hearing type
+ * is held with them). Each action is allowed only
  * from the statuses that make sense (lib/hearings.ts ALLOWED_FROM), and each
  * leaves a row in the hearing's history - a new date keeps the old one, a
  * note is added rather than edited, an outcome is recorded once.
@@ -72,7 +74,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
     const by = await actorName(g.actor.id);
     const me = g.actor.id;
-    const stage = (isKpStage(h.stage) ? h.stage : 'MEDIATION') as KpStage;
+    const stage = kindOf(h.stage);
+    const track = trackOf(g.c.caseType);
+    const withRespondent = hasRespondent(stage);
     const T = sessionTitle(stage, h.session);
     const snap = (at: Date, venue: string | null) => hearingSnap(h, at, venue);
     /** The proceeding as it is inside the transaction, for its notices. */
@@ -89,7 +93,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       if (!at) return errorResponse('Choose both the date and the time', 400);
       const timeRefusal = scheduleTimeRefusal(at);
       if (timeRefusal) return errorResponse(timeRefusal, 400);
-      const people = await checkPeople(id, d);
+      const people = await checkPeople(id, d, track);
       if (people) return errorResponse(people, 400);
       const conflicts = await findConflicts(g.actor, { at, venue: d.venue ?? h.venue,
         officialId: d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId, excludeId: hid });
@@ -98,7 +102,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         scheduledAt: at, venue: d.venue ?? h.venue,
         assignedOfficialId: d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId,
         complainantPartyId: d.complainantPartyId === undefined ? h.complainantPartyId : d.complainantPartyId,
-        respondentPartyId: d.respondentPartyId === undefined ? h.respondentPartyId : d.respondentPartyId,
+        // A VAWC hearing held with the complainant alone names no respondent.
+        respondentPartyId: !withRespondent ? null : d.respondentPartyId === undefined ? h.respondentPartyId : d.respondentPartyId,
         notes: d.notes === undefined ? h.notes : d.notes || null,
         residentInstructions: d.residentInstructions === undefined ? h.residentInstructions : d.residentInstructions || null,
       };
@@ -119,7 +124,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const eligibility = await eligibilityOf(g.c);
       if (!eligibility.eligible) return noStore({ success: false, error: eligibility.reasons[0], eligibility }, 422);
       if (scheduleTimeRefusal(h.scheduledAt)) return errorResponse('The draft\'s date and time have already passed. Set a new date first.', 400);
-      if (!h.respondentPartyId) return errorResponse('Choose the respondent first (edit the draft). The summons and notices are addressed to them.', 400);
+      if (withRespondent && !h.respondentPartyId) {
+        return errorResponse(`Choose the respondent first (edit the draft). The ${track === 'VAWC' ? 'notice is' : 'summons and notices are'} addressed to them.`, 400);
+      }
       const conflicts = await findConflicts(g.actor, { at: h.scheduledAt, venue: h.venue, officialId: h.assignedOfficialId, excludeId: hid });
       if (conflicts.length && !d.confirmConflicts) return conflictResponse(conflicts);
       await prisma.$transaction(async tx => {
@@ -131,7 +138,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     else if (d.action === 'details') {
-      const people = await checkPeople(id, d);
+      const people = await checkPeople(id, d, track);
       if (people) return errorResponse(people, 400);
       const official = d.assignedOfficialId === undefined ? h.assignedOfficialId : d.assignedOfficialId;
       const instructions = d.residentInstructions === undefined ? h.residentInstructions : d.residentInstructions || null;
@@ -183,7 +190,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     else if (d.action === 'attendance') {
-      const next = { complainantAttendance: d.complainant ?? h.complainantAttendance, respondentAttendance: d.respondent ?? h.respondentAttendance };
+      const next = { complainantAttendance: d.complainant ?? h.complainantAttendance,
+        respondentAttendance: withRespondent ? d.respondent ?? h.respondentAttendance : h.respondentAttendance };
       if (next.complainantAttendance === h.complainantAttendance && next.respondentAttendance === h.respondentAttendance) return noStore({ success: true, unchanged: true });
       await prisma.$transaction(async tx => {
         await write(tx, next);
@@ -204,12 +212,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     else if (d.action === 'complete') {
       if (!hasDayArrived(h.scheduledAt)) return errorResponse(`The ${T.toLowerCase()} is set for ${formatHearingWhen(h.scheduledAt)}. It can be recorded as held from that day.`, 409);
-      if (!STAGE_OUTCOMES[stage].includes(d.outcome)) {
-        return errorResponse(`"${HEARING_OUTCOMES[d.outcome].label}" is not an outcome of the ${KP_STAGES[stage].label.toLowerCase()}.`, 400);
+      if (!outcomesFor(stage).includes(d.outcome)) {
+        return errorResponse(`"${HEARING_OUTCOMES[d.outcome].label}" is not an outcome of the ${stageLabel(stage).toLowerCase()}.`, 400);
       }
       const cA = d.complainantAttendance ?? h.complainantAttendance;
-      const rA = d.respondentAttendance ?? h.respondentAttendance;
-      if (cA === 'NOT_RECORDED' || rA === 'NOT_RECORDED') return errorResponse('Record who attended (complainant and respondent) before recording the outcome.', 400);
+      const rA = withRespondent ? d.respondentAttendance ?? h.respondentAttendance : h.respondentAttendance;
+      if (cA === 'NOT_RECORDED' || (withRespondent && rA === 'NOT_RECORDED')) {
+        return errorResponse(withRespondent ? 'Record who attended (complainant and respondent) before recording the outcome.' : 'Record whether the complainant attended before recording the outcome.', 400);
+      }
       const constitutes = stage === 'CONSTITUTION' && d.outcome === 'PANGKAT_CONSTITUTED';
       const pangkat = constitutes ? await loadPangkat(id) : null;
       if (constitutes) {

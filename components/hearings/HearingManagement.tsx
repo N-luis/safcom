@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import { Gavel, Add, Search, CalendarMonth, Refresh, WarningAmber } from '@mui/icons-material';
 import {
-  HEARING_STATUSES, KP_STAGES, KP_STAGE_KEYS, isKpStage, NOTICE_STATUSES, ATTENDANCE, formatHearingDate, formatHearingTime, outcomeLabel,
-  type HearingStatus, type NoticeStatus, type Attendance, type KpStage,
+  HEARING_STATUSES, KP_STAGES, KP_STAGE_KEYS, isKpStage, NOTICE_STATUSES, ATTENDANCE, CASE_TRACKS, formatHearingDate, formatHearingTime, outcomeLabel,
+  type HearingStatus, type NoticeStatus, type Attendance, type KpStage, type CaseTrack,
 } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
 import HearingDetailsDialog from './HearingDetailsDialog';
@@ -18,7 +18,8 @@ import HearingCasesTable from './HearingCasesTable';
 import { NAVY, STATUS_COLOR, NOTICE_COLOR, ATTENDANCE_COLOR, chipSx, getJson } from './hearingUi';
 
 interface Row {
-  id: string; reference: string; hearingNumber: number; stage: KpStage; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus; outcome: string | null;
+  id: string; reference: string; hearingNumber: number; stage: string; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus; outcome: string | null;
+  track: CaseTrack; parties: ('COMPLAINANT' | 'RESPONDENT')[];
   rescheduleCount: number; updatedAt: string;
   case: { id: string; caseNumber: string; caseType: string; status: string };
   complainant: string; respondent: string; official: { id: string; name: string } | null;
@@ -27,7 +28,7 @@ interface Row {
   residentIntent: string | null; pendingRequests: number; overdue: boolean; approaching: boolean; canEdit: boolean;
 }
 interface ListData {
-  rows: Row[]; canCreate: boolean;
+  rows: Row[]; canCreate: boolean; tracks: CaseTrack[];
   summary: { total: number; drafts: number; upcoming: number; overdue: number; noticesPending: number; completed: number; rescheduled: number; cancelled: number; pendingRequests: number };
 }
 
@@ -53,14 +54,22 @@ const TAB_HINTS: Partial<Record<KpStage, string>> = {
  * the stage before it calls for it. Each tab is a page of its own, so it can
  * be linked to directly.
  */
-export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', view = 'CASES' }: {
+export default function HearingManagement({ caseBase, basePath = '/blotter-officer/hearings', view = 'CASES', track = 'BLOTTER', embedded = false }: {
   caseBase: string; basePath?: string; view?: HearingView;
+  /** Which case type: BLOTTER (the KP stages, each a page of its own) or VAWC (the same workflow, VAWC hearing types). */
+  track?: CaseTrack;
+  /** Inside another page that has its own heading (the VAWC desk's Hearings page). */
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const { mutate: mutateAll } = useSWRConfig();
-  const stage = isKpStage(view) ? view : null;
-  const tab = view;
-  const setTab = (v: HearingView) => router.push(v === 'CASES' ? basePath : v === 'ALL' ? `${basePath}/${PROCEEDINGS_SLUG}` : `${basePath}/${STAGE_SLUGS[v]}`);
+  const vawc = track === 'VAWC';
+  // The VAWC desk has two views (its cases, all its hearings) on one page; the blotter stages are pages of their own.
+  const [localView, setLocalView] = useState<HearingView>(view);
+  const tab = vawc ? localView : view;
+  const stage = isKpStage(tab) ? tab : null;
+  const setTab = (v: HearingView) => (vawc ? setLocalView(v)
+    : router.push(v === 'CASES' ? basePath : v === 'ALL' ? `${basePath}/${PROCEEDINGS_SLUG}` : `${basePath}/${STAGE_SLUGS[v as KpStage]}`));
   // A new or changed proceeding changes the case list too.
   const refreshCases = () => mutateAll((key: unknown) => typeof key === 'string' && key.startsWith('/api/hearings/cases'));
   const [q, setQ] = useState('');
@@ -71,6 +80,7 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
   const [open, setOpen] = useState<{ caseId: string; hearingId: string } | null>(null);
 
   const params = new URLSearchParams();
+  if (vawc) params.set('track', 'VAWC');
   if (stage) params.set('stage', stage);
   if (status) params.set('status', status);
   if (from) params.set('from', from);
@@ -89,8 +99,14 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
   ] : [];
 
   return (
-    <Box sx={{ p: { xs: 1.5, md: 3 }, maxWidth: 1400, mx: 'auto' }}>
+    <Box sx={embedded ? undefined : { p: { xs: 1.5, md: 3 }, maxWidth: 1400, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+        {embedded ? (
+          <Typography sx={{ flex: 1, fontSize: '0.82rem', color: '#64748b' }}>
+            The same hearing workflow as the Blotter desk, for VAWC cases: scheduling, notices, acknowledgement, requests for a new date, attendance and outcome.
+            Never mediation or conciliation (RA 9262 sec. 33), and confidential (sec. 44).
+          </Typography>
+        ) : (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flex: 1, minWidth: 0 }}>
           <Box sx={{ width: 40, height: 40, flexShrink: 0, borderRadius: 2, bgcolor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Gavel sx={{ color: '#0369a1' }} />
@@ -100,6 +116,7 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
             <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay proceedings for eligible blotter disputes: mediation, constitution of the Pangkat, conciliation. VAWC cases under RA 9262 are never heard here.</Typography>
           </Box>
         </Box>
+        )}
         <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexShrink: 0, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
           <Button variant="outlined" startIcon={<CalendarMonth />} href={`${basePath}/calendar`} sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
             Hearing Calendar
@@ -132,16 +149,16 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
 
           <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
-              <Tab value="CASES" label="Blotter cases" sx={{ textTransform: 'none', fontWeight: 600 }} />
-              <Tab value="ALL" label="All proceedings" sx={{ textTransform: 'none', fontWeight: 600 }} />
-              {KP_STAGE_KEYS.map(s => <Tab key={s} value={s} label={`${KP_STAGES[s].letter}. ${KP_STAGES[s].label}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
+              <Tab value="CASES" label={vawc ? 'VAWC cases' : 'Blotter cases'} sx={{ textTransform: 'none', fontWeight: 600 }} />
+              <Tab value="ALL" label={vawc ? 'All hearings' : 'All proceedings'} sx={{ textTransform: 'none', fontWeight: 600 }} />
+              {!vawc && KP_STAGE_KEYS.map(s => <Tab key={s} value={s} label={`${KP_STAGES[s].letter}. ${KP_STAGES[s].label}`} sx={{ textTransform: 'none', fontWeight: 600 }} />)}
             </Tabs>
             <CardContent sx={{ p: { xs: 1.5, md: 2 } }}>
               {stage && TAB_HINTS[stage] && <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>{TAB_HINTS[stage]}</Typography>}
-              {view === 'CASES' && (
-                <HearingCasesTable caseBase={caseBase} onCreate={caseId => setCreate({ caseId })} onOpenHearing={(caseId, hearingId) => setOpen({ caseId, hearingId })} />
+              {tab === 'CASES' && (
+                <HearingCasesTable caseBase={caseBase} track={track} onCreate={caseId => setCreate({ caseId })} onOpenHearing={(caseId, hearingId) => setOpen({ caseId, hearingId })} />
               )}
-              {view !== 'CASES' && (
+              {tab !== 'CASES' && (
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
                   <TextField size="small" placeholder="Case number or hearing ID" value={q} onChange={e => setQ(e.target.value)}
                     slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment> } }} />
@@ -154,15 +171,16 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
                   <Tooltip title="Reload"><IconButton onClick={() => mutate()} aria-label="Reload"><Refresh /></IconButton></Tooltip>
                 </Box>
               )}
-              {view !== 'CASES' && isLoading && !data && <Skeleton variant="rounded" height={240} />}
-              {view !== 'CASES' && data && <RecordsTable rows={data.rows} caseBase={caseBase} onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
+              {tab !== 'CASES' && isLoading && !data && <Skeleton variant="rounded" height={240} />}
+              {tab !== 'CASES' && data && <RecordsTable rows={data.rows} caseBase={caseBase} vawc={vawc} showTrack={(data.tracks ?? []).length > 1}
+                onOpen={r => setOpen({ caseId: r.case.id, hearingId: r.id })} filtered={Boolean(q || status || from || to)} />}
             </CardContent>
           </Card>
         </>
       )}
 
       {create && (
-        <CreateHearingDialog caseId={create.caseId} onClose={() => setCreate(null)}
+        <CreateHearingDialog caseId={create.caseId} track={track} onClose={() => setCreate(null)}
           classificationHref={id => `${caseBase}/${id}`}
           onCreated={() => { setCreate(null); void mutate(); void refreshCases(); }} />
       )}
@@ -175,12 +193,17 @@ export default function HearingManagement({ caseBase, basePath = '/blotter-offic
   );
 }
 
-function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseBase: string; onOpen: (r: Row) => void; filtered: boolean }) {
+function RecordsTable({ rows, caseBase, onOpen, filtered, vawc = false, showTrack = false }: {
+  rows: Row[]; caseBase: string; onOpen: (r: Row) => void; filtered: boolean; vawc?: boolean;
+  /** Rows of both case types: each carries a Blotter / VAWC badge. */
+  showTrack?: boolean;
+}) {
   if (!rows.length) {
     return (
       <Box sx={{ textAlign: 'center', py: 5 }}>
         <Gavel sx={{ fontSize: 36, color: '#cbd5e1' }} />
-        <Typography sx={{ color: '#64748b', fontSize: '0.88rem', mt: 1 }}>{filtered ? 'No proceeding matches these filters.' : 'No proceedings here yet. Every case starts with mediation before the Punong Barangay - create it on an eligible case.'}</Typography>
+        <Typography sx={{ color: '#64748b', fontSize: '0.88rem', mt: 1 }}>{filtered ? 'No proceeding matches these filters.'
+          : vawc ? 'No VAWC hearings yet. Create one from the VAWC cases tab.' : 'No proceedings here yet. Every case starts with mediation before the Punong Barangay - create it on an eligible case.'}</Typography>
       </Box>
     );
   }
@@ -189,7 +212,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
       <Table size="small" sx={{ minWidth: 980 }}>
         <TableHead>
           <TableRow sx={{ '& th': { fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' } }}>
-            <TableCell>Hearing ID</TableCell><TableCell>Case</TableCell><TableCell>Stage</TableCell><TableCell>Date and time</TableCell>
+            <TableCell>Hearing ID</TableCell><TableCell>Case</TableCell><TableCell>{vawc ? 'Hearing type' : 'Stage'}</TableCell><TableCell>Date and time</TableCell>
             <TableCell>Venue</TableCell><TableCell>Parties</TableCell><TableCell>Official</TableCell><TableCell>Status</TableCell>
             <TableCell>Notices</TableCell><TableCell>Attendance</TableCell><TableCell align="right" />
           </TableRow>
@@ -200,6 +223,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
               <TableCell sx={{ fontWeight: 700, color: NAVY, whiteSpace: 'nowrap' }}>{r.reference}</TableCell>
               <TableCell>
                 <a href={`${caseBase}/${r.case.id}`} onClick={e => e.stopPropagation()} style={{ color: '#0369a1', fontWeight: 600 }}>{r.case.caseNumber}</a>
+                {showTrack && <Chip size="small" label={CASE_TRACKS[r.track]} sx={{ ...chipSx(r.track === 'VAWC' ? '#7c3aed' : '#0f766e'), ml: 0.5, height: 18 }} />}
                 <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.case.caseType}</Typography>
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>{r.title}</TableCell>
@@ -208,7 +232,7 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
                 {r.approaching && <Chip size="small" label="Within 48h" sx={{ ...chipSx('#b45309'), ml: 0.5 }} />}
               </TableCell>
               <TableCell>{r.venue ?? 'Barangay Hall'}</TableCell>
-              <TableCell><Typography sx={{ fontSize: '0.78rem' }}>{r.complainant}</Typography><Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>vs {r.respondent}</Typography></TableCell>
+              <TableCell><Typography sx={{ fontSize: '0.78rem' }}>{r.complainant}</Typography><Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.parties.includes('RESPONDENT') ? `${r.track === 'VAWC' ? 'and' : 'vs'} ${r.respondent}` : 'Complainant only'}</Typography></TableCell>
               <TableCell>{r.official?.name ?? <span style={{ color: '#94a3b8' }}>Not assigned</span>}</TableCell>
               <TableCell>
                 <Chip size="small" label={HEARING_STATUSES[r.status]} sx={chipSx(STATUS_COLOR[r.status])} />
@@ -217,14 +241,14 @@ function RecordsTable({ rows, caseBase, onOpen, filtered }: { rows: Row[]; caseB
                 {r.pendingRequests > 0 && <Typography sx={{ fontSize: '0.7rem', color: '#b45309' }}>New date requested</Typography>}
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {(['complainant', 'respondent'] as const).map(k => (
+                {(['complainant', 'respondent'] as const).filter(k => k === 'complainant' || r.parties.includes('RESPONDENT')).map(k => (
                   <Box key={k} sx={{ fontSize: '0.72rem', color: r.notices[k] ? NOTICE_COLOR[r.notices[k]!] : '#94a3b8' }}>
                     {k === 'complainant' ? 'C' : 'R'}: {r.notices[k] ? NOTICE_STATUSES[r.notices[k]!] : 'none'}
                   </Box>
                 ))}
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {(['complainant', 'respondent'] as const).map(k => (
+                {(['complainant', 'respondent'] as const).filter(k => k === 'complainant' || r.parties.includes('RESPONDENT')).map(k => (
                   <Box key={k} sx={{ fontSize: '0.72rem', color: ATTENDANCE_COLOR[r.attendance[k]] }}>{k === 'complainant' ? 'C' : 'R'}: {ATTENDANCE[r.attendance[k]]}</Box>
                 ))}
               </TableCell>

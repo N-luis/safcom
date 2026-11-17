@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Chip, Button, Alert, Skeleton, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -18,6 +19,8 @@ interface ResidentNotice {
 }
 interface ResidentHearing {
   id: string; reference: string; stage: string; stageLabel: string; session: number; title: string;
+  /** Which desk's case: the badge beside the case number. */
+  caseType: 'BLOTTER' | 'VAWC'; caseTypeLabel: string;
   role: 'COMPLAINANT' | 'RESPONDENT'; roleLabel: string;
   /** The case id only for the complainant who filed it; a respondent sees the number alone. */
   case: { id: string | null; caseNumber: string };
@@ -30,7 +33,7 @@ interface ResidentHearing {
   outcome: { text: string; summary: string | null } | null;
   instructions: string[];
 }
-interface Data { upcoming: ResidentHearing[]; history: { case: { id: string | null; caseNumber: string }; role: string; hearings: ResidentHearing[]; next: ResidentHearing | null }[] }
+interface Data { upcoming: ResidentHearing[]; history: { case: { id: string | null; caseNumber: string }; caseType: 'BLOTTER' | 'VAWC'; role: string; hearings: ResidentHearing[]; next: ResidentHearing | null }[] }
 
 const NAVY = '#0c1e46';
 const TEAL = '#0f766e';
@@ -42,6 +45,8 @@ const fetcher = async (url: string) => {
 };
 const STATUS_COLOR: Record<string, string> = { SCHEDULED: '#0369a1', NOTICE_ISSUED: '#4f46e5', ACKNOWLEDGED: TEAL, RESCHEDULED: '#b45309', COMPLETED: '#15803d', CANCELLED: '#64748b' };
 const chip = (c: string) => ({ height: 24, fontWeight: 700, fontSize: '0.74rem', bgcolor: `${c}14`, color: c, border: `1px solid ${c}33` });
+/** The case type badge: Blotter or VAWC, in the page's chip style. */
+const CaseTypeChip = ({ t, label }: { t: 'BLOTTER' | 'VAWC'; label: string }) => <Chip size="small" label={label} sx={chip(t === 'VAWC' ? '#7c3aed' : '#0f766e')} />;
 const when = (d: string) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 async function post(hid: string, body: unknown) {
@@ -51,9 +56,9 @@ async function post(hid: string, body: unknown) {
 }
 
 /**
- * My Hearings & Notices: the Katarungang Pambarangay proceedings the
- * resident is a party to - as the complainant, or as the respondent an
- * official linked to their account - on one page: what is coming (with a
+ * My Hearings & Notices: the barangay hearings the resident is a party to -
+ * blotter (Katarungang Pambarangay) and VAWC alike, each with its case type
+ * badge - on one page (the former Appointments are among them): what is coming (with a
  * month calendar), and the history, case by case, with what changed and any
  * request for a new date. On a wide screen the upcoming hearings fill the
  * main column and the calendar and history sit beside them; on a narrow one
@@ -81,6 +86,16 @@ export default function ResidentHearings({ embedded = false }: { embedded?: bool
     { label: 'Cases with proceedings', value: data.history.length, color: '#4f46e5' },
   ] : [];
   const sectionTitle = { fontWeight: 800, color: NAVY, fontSize: '1.02rem' };
+  // ?hearing=<id> (an older appointment notice, say) opens the page at that hearing.
+  const focus = useSearchParams().get('hearing');
+  useEffect(() => {
+    if (!data || !focus) return;
+    const el = document.getElementById(`hearing-${focus}`) ?? document.getElementById(`hearing-history-${focus}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.outline = `2px solid ${TEAL}`;
+    el.style.outlineOffset = '2px';
+  }, [data, focus]);
 
   return (
     // Embedded: a tab of My Hearings & Notices (ResidentHearingsModule), which has the title and the padding.
@@ -92,7 +107,7 @@ export default function ResidentHearings({ embedded = false }: { embedded?: bool
         </Box>
       )}
       <Typography sx={{ fontSize: '0.88rem', color: '#64748b', mb: 2, maxWidth: 900 }}>
-        Barangay mediation and conciliation hearings you are a party to - as the complainant or the respondent. View, download or print your notices,
+        Barangay hearings you are a party to, for blotter and VAWC cases, as the complainant or the respondent. View, download or print your notices,
         acknowledge them, and ask for a new date. Dates, attendance and outcomes are recorded by barangay officials.
       </Typography>
 
@@ -184,12 +199,13 @@ function HearingHistory({ data }: { data: Data }) {
           <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
               <Typography sx={{ fontWeight: 800, color: NAVY, overflowWrap: 'anywhere' }}>Case {g.case.caseNumber}</Typography>
+              <CaseTypeChip t={g.caseType} label={g.caseType === 'VAWC' ? 'VAWC' : 'Blotter'} />
               <Chip size="small" label={`You are the ${g.role === 'RESPONDENT' ? 'respondent' : 'complainant'}`} sx={chip('#4f46e5')} />
               {g.next && <Chip size="small" label={`Next: ${g.next.title}, ${formatHearingDate(g.next.scheduledAt)}`} sx={{ ...chip('#0369a1'), maxWidth: '100%' }} />}
             </Box>
             <Box sx={{ display: 'grid', gap: 1.25 }}>
               {g.hearings.map(h => (
-                <Box key={h.id} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                <Box key={h.id} id={`hearing-history-${h.id}`} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', borderRadius: 1.5 }}>
                   <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: `${STATUS_COLOR[h.status] ?? '#64748b'}18`, color: STATUS_COLOR[h.status] ?? '#64748b',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}>{STAGE_CODE[h.stage] ?? ''}{h.session}</Box>
                   <Box sx={{ minWidth: 0 }}>
@@ -228,7 +244,7 @@ function HearingHistory({ data }: { data: Data }) {
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const STAGE_CODE: Record<string, string> = { MEDIATION: 'M', CONSTITUTION: 'P', CONCILIATION: 'C' };
+const STAGE_CODE: Record<string, string> = { MEDIATION: 'M', CONSTITUTION: 'P', CONCILIATION: 'C', VAWC_DESK_HEARING: 'V', CASE_CONFERENCE: 'K', VICTIM_INTERVIEW: 'I', FOLLOW_UP: 'F' };
 
 /** A month of the resident's hearings. A day with a hearing can be picked to show it below. */
 function ResidentMonth({ hearings, selected, onSelect }: { hearings: ResidentHearing[]; selected: string | null; onSelect: (d: string) => void }) {
@@ -290,13 +306,17 @@ function UpcomingCard({ h, onAck, onResched, refresh }: { h: ResidentHearing; on
     catch (e) { toast.error(e instanceof Error ? e.message : 'Could not save'); } finally { setSaving(false); }
   };
   return (
-    <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(15,23,42,0.06)' }}>
+    <Card id={`hearing-${h.id}`} sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(15,23,42,0.06)' }}>
       <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <Typography sx={{ fontWeight: 800, color: NAVY, fontSize: '1rem' }}>{h.stageLabel}{h.session > 1 ? ` - session ${h.session}` : ''}</Typography>
           <Chip size="small" label={h.statusLabel} sx={chip(STATUS_COLOR[h.status] ?? '#64748b')} />
           <Chip size="small" label={`You: ${h.roleLabel}`} sx={chip('#4f46e5')} />
-          <Typography sx={{ ml: { sm: 'auto' }, fontSize: '0.8rem', color: '#64748b' }}>Case {h.case.caseNumber} · {h.reference}</Typography>
+          <Box sx={{ ml: { sm: 'auto' }, display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
+            <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>Case {h.case.caseNumber}</Typography>
+            <CaseTypeChip t={h.caseType} label={h.caseTypeLabel} />
+            <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>· {h.reference}</Typography>
+          </Box>
         </Box>
         {h.latestUpdate && <Typography sx={{ mt: 0.75, fontSize: '0.8rem', color: '#475569' }}><b>Latest update:</b> {h.latestUpdate.message.split('\n')[0]} <span style={{ color: '#94a3b8' }}>({when(h.latestUpdate.at)})</span></Typography>}
         {h.rescheduled && <Alert severity="info" sx={{ mt: 1, borderRadius: 2, py: 0, fontSize: '0.8rem' }}>This hearing has a new date. The details below are the current ones.</Alert>}

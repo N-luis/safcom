@@ -142,9 +142,11 @@ async function main() {
       && !decideHearingAccess(actor('system_admin'), { caseType: 'Noise Complaint', assignedToId: 'x' }).edit);
     ok('access: another blotter officer may not, unless presiding', !decideHearingAccess(actor('officer'), { caseType: 'Noise Complaint', assignedToId: 'x' }).view
       && decideHearingAccess(actor('officer'), { caseType: 'Noise Complaint', assignedToId: 'x' }, true).edit);
-    ok('access: the VAWC desk runs no ordinary hearings; a VAWC case is hidden from the blotter desk',
+    // Changed by the VAWC hearings merge: a VAWC case now has hearings, run by its assigned VAWC officer (the same rule as the blotter desk's).
+    ok('access: the VAWC desk runs no blotter hearings - only its own VAWC cases; a VAWC case is hidden from the blotter desk',
       !decideHearingAccess(actor('vawc_officer'), { caseType: 'Noise Complaint', assignedToId: 'u1' }).view
-      && !decideHearingAccess(actor('vawc_officer'), { caseType: 'Domestic Violence', assignedToId: 'u1' }).edit
+      && decideHearingAccess(actor('vawc_officer'), { caseType: 'Domestic Violence', assignedToId: 'u1' }).edit
+      && !decideHearingAccess(actor('vawc_officer'), { caseType: 'Domestic Violence', assignedToId: 'x' }).view
       && decideHearingAccess(actor('officer'), { caseType: 'Domestic Violence', assignedToId: 'u1' }).hidden);
 
     // ── People and cases ──
@@ -207,14 +209,16 @@ async function main() {
 
     // ── TEST 9. VAWC protection ──
     console.log('\nTEST 9 - a VAWC case stays out of ordinary KP proceedings');
-    const vv = await create(KV.id, V.cookie, { date: futureDay, time: '09:00' });
+    const vv = await create(KV.id, V.cookie, { stage: 'MEDIATION', date: futureDay, time: '09:00' });
     ok('the VAWC officer cannot schedule mediation on a VAWC case', vv.status === 422 && /RA 9262/.test(vv.body.error ?? ''), `${vv.status}`);
     ok('nor can the captain', (await create(KV.id, C.cookie, { stage: 'MEDIATION', date: futureDay, time: '09:00' })).status === 422);
     ok('no eligibility review can be recorded on it', (await json(await kpPOST(req(`/api/cases/${KV.id}/kp-review`, C.cookie, 'POST', { answers: allYes, approve: true }), P(KV.id)))).status === 422);
     ok('no Pangkat can be recorded on it', (await pk(KV.id, C.cookie, { action: 'add_member', name: 'Someone Lupon', chosenBy: 'BOTH_PARTIES' })).status !== 200);
     ok('to the blotter desk the VAWC case is not found', (await json(await caseHearingsGET(req(`/api/cases/${KV.id}/hearings`, B.cookie), P(KV.id)))).status === 404);
+    // Changed by the VAWC hearings merge: the VAWC desk lists its own (VAWC) hearings - never the blotter desk's.
     const vlist = await json(await listGET(req('/api/hearings', V.cookie)));
-    ok('Hearing Management refuses the VAWC desk, with the reason - its own workflow stays separate', vlist.status === 403 && /RA 9262/.test(vlist.body.error ?? ''));
+    ok('the VAWC desk lists VAWC hearings only; asking for blotter hearings is refused', vlist.status === 200 && vlist.body.data.tracks.join() === 'VAWC'
+      && (await json(await listGET(req('/api/hearings?track=BLOTTER', V.cookie)))).status === 403);
     const cand = (await json(await candidatesGET(req(`/api/hearings/cases?q=${KV.caseNumber}`, C.cookie)))).body.data as Body;
     ok('a VAWC case looked up by number is shown with why it cannot have a hearing - and is not offered', cand.vawc?.id === KV.id && /RA 9262/.test(cand.vawc.reason)
       && !cand.rows.some((r: Body) => r.id === KV.id));

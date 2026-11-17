@@ -65,7 +65,7 @@ class Changed extends Error {}
 
 export async function POST(req: NextRequest, { params }: Params) {
   const { id } = await params;
-  const g = await gateHearings(req, id, 'edit');
+  const g = await gateHearings(req, id, 'edit', { kpOnly: true });
   if ('error' in g) return g.error;
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Check the Pangkat details', 400);

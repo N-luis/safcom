@@ -9,9 +9,9 @@ import {
 import { Close, Gavel, PictureAsPdf, Visibility, Event, AttachFile, Add } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import {
-  HEARING_STATUSES, HEARING_OUTCOMES, ATTENDANCE, NOTICE_STATUSES, NOTICE_METHODS, NOTICE_RECIPIENTS, STAGE_OUTCOMES, KP_STAGES, PANGKAT_CHOSEN_BY, PANGKAT_SIZE,
+  HEARING_STATUSES, HEARING_OUTCOMES, ATTENDANCE, NOTICE_STATUSES, NOTICE_METHODS, NOTICE_RECIPIENTS, KP_STAGES, PANGKAT_CHOSEN_BY, PANGKAT_SIZE,
   HEARING_EVENT_LABELS, allowedFrom, hasDayArrived, isLive, phDay, phTime, phInstant, formatHearingWhen, formatHearingDate, formatHearingTime, outcomeLabel,
-  outcomeLeadsTo, partyFormsFor, kpFormName, sessionTitle,
+  outcomeLeadsTo, outcomesFor, partyFormsFor, kpFormName, sessionTitle, stageLabel, hasRespondent, isKpStage, isVawcHearingType,
   type HearingOutcome, type Attendance, type NoticeRecipient, type NoticeMethod, type ScheduleConflict, type PangkatChosenBy, type PartyRole,
 } from '@/lib/hearings';
 import ConflictWarnings, { ConflictList } from './ConflictWarnings';
@@ -24,8 +24,11 @@ import {
 const when = (d: string | null) => (d ? new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '-');
 
 /**
- * One Katarungang Pambarangay proceeding, for the officials: its details,
- * its KP notices, the parties, the Pangkat (from
+ * One proceeding, for the officials - a Katarungang Pambarangay proceeding
+ * on a blotter case, or a VAWC hearing on a VAWC case (the same screens; no
+ * KP form, no Pangkat, no settlement, and the respondent's parts only when
+ * the hearing type is held with them): its details,
+ * its notices, the parties, the Pangkat (from
  * the constitution stage on), attendance and proceedings, the outcome its
  * stage allows, and the full history - and, for an official who may run it,
  * every action the proceeding allows at its status. Earlier proceedings on
@@ -75,7 +78,7 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <Gavel sx={{ color: '#0369a1' }} />
           <Typography component="span" sx={{ fontWeight: 800, color: NAVY, fontSize: '1.05rem' }}>
-            {h ? `${KP_STAGES[h.stage].letter}. ${KP_STAGES[h.stage].label}${h.session > 1 ? ` - session ${h.session}` : ''}` : 'Hearing'}
+            {h ? `${isKpStage(h.stage) ? `${KP_STAGES[h.stage].letter}. ` : ''}${stageLabel(h.stage)}${h.session > 1 ? ` - session ${h.session}` : ''}` : 'Hearing'}
           </Typography>
           {h && <Chip size="small" label={HEARING_STATUSES[h.status]} sx={chipSx(STATUS_COLOR[h.status])} />}
         </Box>
@@ -94,9 +97,9 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
           <>
             <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile sx={{ borderBottom: '1px solid #e2e8f0', px: 1 }}>
               <Tab value="overview" label="Overview" sx={{ textTransform: 'none' }} />
-              <Tab value="notices" label={`KP notices (${h.notices.filter(n => n.status !== 'SUPERSEDED' && n.recipientRole !== 'PANGKAT_MEMBER').length})`} sx={{ textTransform: 'none' }} />
+              <Tab value="notices" label={`${isVawcHearingType(h.stage) ? 'Notices' : 'KP notices'} (${h.notices.filter(n => n.status !== 'SUPERSEDED' && n.recipientRole !== 'PANGKAT_MEMBER').length})`} sx={{ textTransform: 'none' }} />
               <Tab value="parties" label="Parties" sx={{ textTransform: 'none' }} />
-              {h.stage !== 'MEDIATION' && <Tab value="pangkat" label="Pangkat" sx={{ textTransform: 'none' }} />}
+              {isKpStage(h.stage) && h.stage !== 'MEDIATION' && <Tab value="pangkat" label="Pangkat" sx={{ textTransform: 'none' }} />}
               <Tab value="proceedings" label="Attendance & proceedings" sx={{ textTransform: 'none' }} />
               <Tab value="outcome" label="Outcome" sx={{ textTransform: 'none' }} />
               <Tab value="history" label={`History (${h.events.length})`} sx={{ textTransform: 'none' }} />
@@ -104,10 +107,12 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
             <Box sx={{ p: 2 }}>
               {!data.canEdit && data.accessMessage && <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2, fontSize: '0.8rem' }}>{data.accessMessage}</Alert>}
               {tab === 'overview' && <Overview data={data} h={h} can={can} onDialog={setDialog}
-                onSchedule={() => ask({ title: `Schedule the ${h.title.toLowerCase()}?`, ok: `${h.title} scheduled - the KP notices were made for both parties`,
+                onSchedule={() => ask({ title: `Schedule the ${h.title.toLowerCase()}?`,
+                  ok: `${h.title} scheduled - ${isVawcHearingType(h.stage) ? (hasRespondent(h.stage) ? 'the notices were made for both parties' : 'the notice was made for the complainant') : 'the KP notices were made for both parties'}`,
                   lines: [`${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`,
                     ...partyFormsFor(h.stage).map(f => `${kpFormName(f.formNo)} to the ${f.recipientRole.toLowerCase()}: ${(f.recipientRole === 'COMPLAINANT' ? h.complainant.hasAccount : h.respondent.hasAccount) ? 'delivered to their SafeComm account' : 'to be handed over or served by an officer'}`),
-                    'Both parties are told the date, time and venue in SafeComm when they have an account.'], body: { action: 'schedule' } })} />}
+                    hasRespondent(h.stage) ? 'Both parties are told the date, time and venue in SafeComm when they have an account.' : 'The complainant is told the date, time and venue in SafeComm when they have an account. The respondent is not notified.'],
+                  body: { action: 'schedule' } })} />}
               {tab === 'notices' && <Notices caseId={caseId} h={h} canEdit={can('notice')} refresh={refresh} onDialog={n => setDialog(n)} />}
               {tab === 'parties' && <Parties data={data} h={h} />}
               {tab === 'pangkat' && <PangkatPanel data={data} h={h} canEdit={data.canEdit} refresh={refresh} />}
@@ -127,9 +132,9 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
           onClose={() => setDialog(null)} onSave={async body => ask(dialog.kind === 'edit'
             ? { title: `Save the changes to the draft of the ${h.title.toLowerCase()}?`, ok: 'Draft updated', body,
                 lines: [`Date and time: ${whenOf(body)}`, `Venue: ${String(body.venue ?? h.venue ?? 'Barangay Hall')}`, 'The earlier details are kept in the history.'] }
-            : { title: `Change the schedule of the ${h.title.toLowerCase()}?`, ok: 'New date set - new KP notices were made for both parties', body,
+            : { title: `Change the schedule of the ${h.title.toLowerCase()}?`, ok: `New date set - ${isVawcHearingType(h.stage) ? 'new notices were made' : 'new KP notices were made for both parties'}`, body,
                 lines: [`From: ${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`, `To: ${whenOf(body)} at ${String(body.venue ?? h.venue ?? 'Barangay Hall')}`,
-                  `Reason: ${String(body.reason ?? '')}`, 'The previous schedule stays in the history under your name. The notices for the old date are marked replaced and new ones are made for the new date; both parties are told.'] })} />
+                  `Reason: ${String(body.reason ?? '')}`, `The previous schedule stays in the history under your name. The notices for the old date are marked replaced and new ones are made for the new date; ${hasRespondent(h.stage) ? 'both parties are' : 'the complainant is'} told.`] })} />
       )}
       {h && data && dialog?.kind === 'details' && (
         <DetailsDialog data={data} h={h} onClose={() => setDialog(null)} onSave={async body => ask({ title: `Change the official or instructions for the ${h.title.toLowerCase()}?`, ok: 'Details updated', body,
@@ -137,7 +142,7 @@ export default function HearingDetailsDialog({ caseId, hearingId, onClose, onCha
       )}
       {h && dialog?.kind === 'cancel' && (
         <ReasonDialog title={`Cancel the ${h.title.toLowerCase()}`} label="Why it is cancelled *" confirm="Cancel hearing"
-          hint={h.status === 'DRAFT' ? 'The draft was never shown to the parties.' : 'Both parties are told the hearing was cancelled - not the reason.'}
+          hint={h.status === 'DRAFT' ? 'The draft was never shown to the parties.' : hasRespondent(h.stage) ? 'Both parties are told the hearing was cancelled - not the reason.' : 'The complainant is told the hearing was cancelled - not the reason.'}
           onClose={() => setDialog(null)} onSave={async reason => ask({ title: `Cancel the ${h.title.toLowerCase()}?`, ok: 'Hearing cancelled', body: { action: 'cancel', reason }, danger: true,
             lines: [`${formatHearingWhen(h.scheduledAt)} at ${h.venue ?? 'Barangay Hall'}`, `Reason: ${reason}`, 'The cancelled hearing stays on record with its history; its notices are marked replaced. This cannot be undone - a new hearing would be created instead.'] })} />
       )}
@@ -175,7 +180,9 @@ function Overview({ data, h, can, onDialog, onSchedule }: { data: CaseHearingsDa
   const later = data.hearings.find(x => x.hearingNumber === h.hearingNumber + 1 && x.status !== 'CANCELLED');
   const nextInfo = later ? `${later.title} - ${formatHearingWhen(later.scheduledAt)} (${HEARING_STATUSES[later.status].toLowerCase()})`
     : h.nextHearingAt ? `Proposed for ${formatHearingDate(h.nextHearingAt)} - not yet scheduled`
-      : h.outcome && !outcomeLeadsTo(h.stage, h.outcome) ? 'None - the barangay proceedings ended here' : 'Not set';
+      : h.outcome && !outcomeLeadsTo(h.stage, h.outcome) ? (isVawcHearingType(h.stage) ? 'None set' : 'None - the barangay proceedings ended here') : 'Not set';
+  const withR = hasRespondent(h.stage);
+  const sides = withR ? (['COMPLAINANT', 'RESPONDENT'] as const) : (['COMPLAINANT'] as const);
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       {pending.map(r => (
@@ -197,25 +204,27 @@ function Overview({ data, h, can, onDialog, onSchedule }: { data: CaseHearingsDa
       )}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 1.75 }}>
         <Field label="Hearing ID">{h.reference}</Field>
-        <Field label="Stage">{KP_STAGES[h.stage].label}{h.session > 1 ? `, session ${h.session}` : ''}</Field>
+        <Field label={isVawcHearingType(h.stage) ? 'Hearing type' : 'Stage'}>{stageLabel(h.stage)}{h.session > 1 ? `, session ${h.session}` : ''}</Field>
         <Field label="Case reference">{data.case.caseNumber}</Field>
         <Field label="Date">{formatHearingDate(h.scheduledAt)}</Field>
         <Field label="Time">{formatHearingTime(h.scheduledAt)}</Field>
         <Field label="Venue">{h.venue || 'Barangay Hall'}</Field>
         <Field label="Assigned official">{h.assignedOfficial?.name ?? 'Not assigned'}</Field>
         <Field label="Complainant">{h.complainant.name}<Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>{h.complainant.hasAccount ? 'SafeComm account' : 'No SafeComm account'}</Box></Field>
-        <Field label="Respondent">{h.respondent.name}<Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>{h.respondent.hasAccount ? 'SafeComm account' : 'No SafeComm account'}</Box></Field>
-        {(['COMPLAINANT', 'RESPONDENT'] as const).map(r => (
+        {withR
+          ? <Field label="Respondent">{h.respondent.name}<Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>{h.respondent.hasAccount ? 'SafeComm account' : 'No SafeComm account'}</Box></Field>
+          : <Field label="Respondent">Not a party to this hearing<Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>Held with the complainant only - not notified</Box></Field>}
+        {sides.map(r => (
           <Field key={r} label={`${NOTICE_RECIPIENTS[r]}'s notice`}>{(() => {
             const n = current(r);
-            return n ? <><Chip size="small" label={NOTICE_STATUSES[n.status]} sx={chipSx(NOTICE_COLOR[n.status])} /><Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>KP Form No. {n.formNo}</Box></> : 'Not made';
+            return n ? <><Chip size="small" label={NOTICE_STATUSES[n.status]} sx={chipSx(NOTICE_COLOR[n.status])} /><Box component="span" sx={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>{kpFormName(n.formNo).replace(/ - .*$/, '')}</Box></> : 'Not made';
           })()}</Field>
         ))}
         <Field label="Complainant's reply">{h.residentIntent === 'WILL_ATTEND' ? 'Will attend' : h.residentIntent === 'CANNOT_ATTEND' ? 'Cannot attend' : 'No reply yet'}</Field>
         <Field label="Attendance">
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             <Chip size="small" label={`C: ${ATTENDANCE[h.complainantAttendance]}`} sx={chipSx(ATTENDANCE_COLOR[h.complainantAttendance])} />
-            <Chip size="small" label={`R: ${ATTENDANCE[h.respondentAttendance]}`} sx={chipSx(ATTENDANCE_COLOR[h.respondentAttendance])} />
+            {withR && <Chip size="small" label={`R: ${ATTENDANCE[h.respondentAttendance]}`} sx={chipSx(ATTENDANCE_COLOR[h.respondentAttendance])} />}
           </Box>
         </Field>
         <Field label="Created">{when(h.createdAt)}{h.createdBy ? ` by ${h.createdBy}` : ''}</Field>
@@ -232,7 +241,7 @@ function Overview({ data, h, can, onDialog, onSchedule }: { data: CaseHearingsDa
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {can('update') && <Button size="small" variant="outlined" onClick={() => onDialog({ kind: 'edit' })} sx={{ textTransform: 'none' }}>Edit draft</Button>}
           {can('schedule') && (
-            <Button size="small" variant="contained" sx={{ textTransform: 'none', bgcolor: NAVY }} onClick={onSchedule} disabled={!h.respondent.partyId}>
+            <Button size="small" variant="contained" sx={{ textTransform: 'none', bgcolor: NAVY }} onClick={onSchedule} disabled={withR && !h.respondent.partyId}>
               Schedule (make the KP notices)
             </Button>
           )}
@@ -257,7 +266,7 @@ function Overview({ data, h, can, onDialog, onSchedule }: { data: CaseHearingsDa
                     <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{formatHearingWhen(x.scheduledAt)} · {x.venue ?? 'Barangay Hall'}</Typography>
                   </Box>
                   {x.outcome && <Typography sx={{ fontSize: '0.8rem', color: '#334155', mt: 0.5 }}><b>Outcome:</b> {outcomeLabel(x.outcome)}</Typography>}
-                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Attendance - complainant: {ATTENDANCE[x.complainantAttendance]}, respondent: {ATTENDANCE[x.respondentAttendance]}</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Attendance - complainant: {ATTENDANCE[x.complainantAttendance]}{hasRespondent(x.stage) ? `, respondent: ${ATTENDANCE[x.respondentAttendance]}` : ''}</Typography>
                   {x.agreements && <Typography sx={{ fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap' }}><b>Agreements / developments:</b> {x.agreements}</Typography>}
                   {x.nextAction && <Typography sx={{ fontSize: '0.8rem', color: '#334155' }}><b>Next action:</b> {x.nextAction}</Typography>}
                   {notes.length > 0 && (
@@ -289,7 +298,10 @@ function Notices({ caseId, h, canEdit, refresh, onDialog }: { caseId: string; h:
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>
-        Scheduling makes the stage&apos;s KP notices for both parties, for the one date. A party with a SafeComm account gets theirs there at once;
+        {isVawcHearingType(h.stage)
+          ? (hasRespondent(h.stage) ? 'Scheduling makes the VAWC Notice of Hearing for both parties - not a KP form - for the one date. ' : 'This hearing is held with the complainant only: scheduling makes their Notice of Hearing, and the respondent is not notified. ')
+          : <>Scheduling makes the stage&apos;s KP notices for both parties, for the one date. </>}
+        A party with a SafeComm account gets theirs there at once;
         for a party without one, the notice waits here until you record that it was handed over or served. A new date replaces the notices for the old one.
         SafeComm sends no text message or email.
       </Alert>
@@ -405,7 +417,9 @@ function Parties({ data, h }: { data: CaseHearingsData; h: Hearing }) {
   return (
     <Box sx={{ display: 'grid', gap: 2 }}>
       <PartyCard role="COMPLAINANT" party={complainant} />
-      {respondent ? <PartyCard role="RESPONDENT" party={respondent} />
+      {!hasRespondent(h.stage)
+        ? <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>This hearing is held with the complainant only. The respondent is not a party to it and is not notified.</Alert>
+        : respondent ? <PartyCard role="RESPONDENT" party={respondent} />
         : <Alert severity="warning" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>No respondent is chosen for this proceeding. Record the person reported in Case records, then choose them on the draft.</Alert>}
     </Box>
   );
@@ -563,7 +577,7 @@ function Proceedings({ caseId, h, can, act, refresh }: { caseId: string; h: Hear
       <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5 }}>
         <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: NAVY, mb: 1 }}>Attendance</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
-          {[{ label: `Complainant - ${h.complainant.name}`, v: cA, set: setCA }, { label: `Respondent - ${h.respondent.name}`, v: rA, set: setRA }].map(f => (
+          {[{ label: `Complainant - ${h.complainant.name}`, v: cA, set: setCA }, ...(hasRespondent(h.stage) ? [{ label: `Respondent - ${h.respondent.name}`, v: rA, set: setRA }] : [])].map(f => (
             <TextField key={f.label} select size="small" label={f.label} value={f.v} disabled={!can('attendance')} onChange={e => f.set(e.target.value as Attendance)}>
               {(Object.keys(ATTENDANCE) as Attendance[]).map(k => <MenuItem key={k} value={k}>{ATTENDANCE[k]}</MenuItem>)}
             </TextField>
@@ -655,6 +669,8 @@ function Outcome({ data, h, can, act, onScheduleNext }: { data: CaseHearingsData
   const constitutes = h.stage === 'CONSTITUTION' && outcome === 'PANGKAT_CONSTITUTED';
   const serving = (data.pangkat?.members ?? []).filter(m => !m.removedAt);
   const pangkatReady = serving.length === PANGKAT_SIZE && Boolean(data.pangkat?.chairmanMemberId && data.pangkat.secretaryMemberId);
+  const vawc = isVawcHearingType(h.stage);
+  const withR = hasRespondent(h.stage);
 
   if (h.status === 'COMPLETED') {
     const latest = h.hearingNumber === Math.max(...data.hearings.filter(x => x.status === 'COMPLETED').map(x => x.hearingNumber));
@@ -665,7 +681,9 @@ function Outcome({ data, h, can, act, onScheduleNext }: { data: CaseHearingsData
           <Chip label={outcomeLabel(h.outcome)} sx={{ fontWeight: 700, bgcolor: '#dcfce7', color: '#15803d' }} />
           <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>Recorded {when(h.completedAt)}{h.completedBy ? ` by ${h.completedBy}` : ''}</Typography>
         </Box>
-        <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>A completed hearing does not resolve the case - the case status is changed separately with a follow-up. A settlement or a certification to file action is not generated by SafeComm; record and file the signed document as the barangay does.</Typography>
+        <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>{vawc
+          ? 'A completed hearing does not resolve the case - the case status is changed separately with a follow-up. A VAWC case is never settled or mediated at the barangay (RA 9262 sec. 33).'
+          : 'A completed hearing does not resolve the case - the case status is changed separately with a follow-up. A settlement or a certification to file action is not generated by SafeComm; record and file the signed document as the barangay does.'}</Typography>
         {h.agreements && <Field label="Agreements or developments"><Box sx={{ whiteSpace: 'pre-wrap' }}>{h.agreements}</Box></Field>}
         <Field label="Summary shown to the parties">{h.outcomeSummary || <span style={{ color: '#94a3b8' }}>None - they see the outcome only</span>}</Field>
         <Field label="Next action">{h.nextAction || '-'}</Field>
@@ -691,12 +709,17 @@ function Outcome({ data, h, can, act, onScheduleNext }: { data: CaseHearingsData
         <TextField select size="small" label="Complainant attendance *" value={cA} onChange={e => setCA(e.target.value as Attendance)}>
           {(Object.keys(ATTENDANCE) as Attendance[]).map(k => <MenuItem key={k} value={k}>{ATTENDANCE[k]}</MenuItem>)}
         </TextField>
-        <TextField select size="small" label="Respondent attendance *" value={rA} onChange={e => setRA(e.target.value as Attendance)}>
-          {(Object.keys(ATTENDANCE) as Attendance[]).map(k => <MenuItem key={k} value={k}>{ATTENDANCE[k]}</MenuItem>)}
-        </TextField>
+        {withR && (
+          <TextField select size="small" label="Respondent attendance *" value={rA} onChange={e => setRA(e.target.value as Attendance)}>
+            {(Object.keys(ATTENDANCE) as Attendance[]).map(k => <MenuItem key={k} value={k}>{ATTENDANCE[k]}</MenuItem>)}
+          </TextField>
+        )}
         <TextField select size="small" label="Outcome *" value={outcome} onChange={e => setOutcome(e.target.value as HearingOutcome)} sx={{ gridColumn: { sm: '1 / -1' } }}
-          helperText={outcome ? (ends ? 'This ends the barangay proceedings - no further proceeding follows.' : `Next: ${KP_STAGES[leadsTo!].label.toLowerCase()}.`) : `The outcomes of the ${KP_STAGES[h.stage].label.toLowerCase()}. Separate from the case status.`}>
-          {STAGE_OUTCOMES[h.stage].map(k => <MenuItem key={k} value={k}>{HEARING_OUTCOMES[k].label}</MenuItem>)}
+          helperText={outcome
+            ? (vawc ? (ends ? 'No further hearing date applies to this outcome. Another hearing can still be scheduled if needed.' : 'Another hearing may be scheduled if needed.')
+              : ends ? 'This ends the barangay proceedings - no further proceeding follows.' : `Next: ${stageLabel(leadsTo).toLowerCase()}.`)
+            : `The outcomes of the ${stageLabel(h.stage).toLowerCase()}. Separate from the case status.`}>
+          {outcomesFor(h.stage).map(k => <MenuItem key={k} value={k}>{HEARING_OUTCOMES[k].label}</MenuItem>)}
         </TextField>
         {constitutes && !pangkatReady && (
           <Alert severity="warning" sx={{ gridColumn: { sm: '1 / -1' }, borderRadius: 2, fontSize: '0.8rem' }}>
@@ -705,14 +728,14 @@ function Outcome({ data, h, can, act, onScheduleNext }: { data: CaseHearingsData
         )}
         <TextField size="small" multiline minRows={2} label="Agreements or developments (officials only)" value={agreements} onChange={e => setAgreements(e.target.value)} slotProps={{ htmlInput: { maxLength: 3000 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
         <TextField size="small" multiline minRows={2} label="Summary for the parties (optional)" value={summary} onChange={e => setSummary(e.target.value)} slotProps={{ htmlInput: { maxLength: 600 } }} sx={{ gridColumn: { sm: '1 / -1' } }}
-          helperText="Shown to both parties in My Hearings & Notices with the outcome. Do not include either party's private details." />
+          helperText={withR ? "Shown to both parties in My Hearings & Notices with the outcome. Do not include either party's private details." : 'Shown to the complainant in My Hearings & Notices with the outcome.'} />
         <TextField size="small" label="Next action for the case" value={nextAction} onChange={e => setNextAction(e.target.value)} slotProps={{ htmlInput: { maxLength: 300 } }}
-          placeholder={h.stage === 'CONCILIATION' ? 'e.g. Issue certification to file action' : h.stage === 'MEDIATION' ? 'e.g. Constitute the Pangkat' : 'e.g. First conciliation hearing'} />
+          placeholder={vawc ? 'e.g. Refer to the MSWDO for counselling' : h.stage === 'CONCILIATION' ? 'e.g. Issue certification to file action' : h.stage === 'MEDIATION' ? 'e.g. Constitute the Pangkat' : 'e.g. First conciliation hearing'} />
         <TextField size="small" type="date" label="Proposed next hearing date" value={nextDate} onChange={e => setNextDate(e.target.value)} disabled={ends}
           slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: todayPh() } }} helperText="Optional - the next hearing is still scheduled separately" />
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" disabled={!outcome || busy || cA === 'NOT_RECORDED' || rA === 'NOT_RECORDED' || (constitutes && !pangkatReady)} sx={{ textTransform: 'none', bgcolor: NAVY }}
+        <Button variant="contained" disabled={!outcome || busy || cA === 'NOT_RECORDED' || (withR && rA === 'NOT_RECORDED') || (constitutes && !pangkatReady)} sx={{ textTransform: 'none', bgcolor: NAVY }}
           onClick={async () => {
             setBusy(true);
             await act({ action: 'complete', outcome, complainantAttendance: cA, respondentAttendance: rA, agreements: agreements.trim() || undefined,
@@ -763,6 +786,14 @@ function History({ h, officials }: { h: Hearing; officials: { id: string; name: 
               {keys.map(k => (
                 <Typography key={k} sx={{ fontSize: '0.78rem', color: '#475569' }}>{LABEL[k]}: {show(k, before[k])} → {show(k, after[k])}</Typography>
               ))}
+              {e.kind === 'migrated_from_appointment' && (
+                <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                  Appointment {String(after.appointmentReference ?? '')}, made {typeof after.createdAt === 'string' ? when(after.createdAt) : '-'}
+                  {typeof after.createdById === 'string' ? ` by ${officials.find(o => o.id === after.createdById)?.name ?? 'an official'}` : ''}
+                  {Array.isArray(after.participants) ? ` · participants: ${after.participants.map(p => String(p).toLowerCase().replace(/_/g, ' ')).join(', ')}` : ''}
+                  {typeof after.residentAcknowledgedAt === 'string' ? ` · acknowledged by the resident ${when(after.residentAcknowledgedAt)}` : ''}
+                </Typography>
+              )}
               {e.note && <Typography sx={{ fontSize: '0.8rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{e.note}</Typography>}
             </Box>
           </Box>
@@ -800,7 +831,7 @@ function ScheduleDialog({ data, h, mode, requestId, onClose, onSave }: { data: C
       <DialogTitle sx={{ fontWeight: 800, color: NAVY, fontSize: '1rem' }}>{mode === 'edit' ? `Edit draft - ${h.title.toLowerCase()}` : requestId ? 'Approve the request - set the new date' : `New date for the ${h.title.toLowerCase()}`}</DialogTitle>
       <DialogContent dividers sx={{ display: 'grid', gap: 1.5 }}>
         {request && <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{request.reason}{request.preferredSchedule ? ` - would suit them: ${request.preferredSchedule}` : ''}</Alert>}
-        {mode === 'reschedule' && <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>Now {formatHearingWhen(h.scheduledAt)}. The old date stays in the history, its notices are marked replaced, new KP notices are made for the new date, and both parties are told.</Typography>}
+        {mode === 'reschedule' && <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>Now {formatHearingWhen(h.scheduledAt)}. The old date stays in the history, its notices are marked replaced, new {isVawcHearingType(h.stage) ? '' : 'KP '}notices are made for the new date, and {hasRespondent(h.stage) ? 'both parties are' : 'the complainant is'} told.</Typography>}
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           <TextField size="small" type="date" label="Date *" value={date} onChange={e => setDate(e.target.value)} slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: todayPh() } }} />
           <TextField size="small" type="time" label="Time *" value={time} onChange={e => setTime(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
@@ -817,10 +848,12 @@ function ScheduleDialog({ data, h, mode, requestId, onClose, onSave }: { data: C
             <TextField select size="small" label="Complainant" value={complainant} onChange={e => setComplainant(e.target.value)}>
               {data.parties.complainants.map(p => <MenuItem key={p.id ?? 'reporter'} value={p.id ?? 'reporter'}>{p.name} - {p.label}</MenuItem>)}
             </TextField>
-            <TextField select size="small" label="Respondent" value={respondent} onChange={e => setRespondent(e.target.value)}>
-              <MenuItem value=""><em>Not named yet</em></MenuItem>
-              {data.parties.respondents.map(p => <MenuItem key={p.id} value={p.id!}>{p.name} - {p.label}</MenuItem>)}
-            </TextField>
+            {hasRespondent(h.stage) && (
+              <TextField select size="small" label="Respondent" value={respondent} onChange={e => setRespondent(e.target.value)}>
+                <MenuItem value=""><em>Not named yet</em></MenuItem>
+                {data.parties.respondents.map(p => <MenuItem key={p.id} value={p.id!}>{p.name} - {p.label}</MenuItem>)}
+              </TextField>
+            )}
             <TextField size="small" multiline minRows={2} label="Instructions for the parties" value={instructions} onChange={e => setInstructions(e.target.value)} slotProps={{ htmlInput: { maxLength: 600 } }} />
             <TextField size="small" multiline minRows={2} label="Internal note" value={notes} onChange={e => setNotes(e.target.value)} slotProps={{ htmlInput: { maxLength: 1000 } }} />
           </>

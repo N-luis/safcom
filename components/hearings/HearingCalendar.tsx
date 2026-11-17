@@ -7,19 +7,25 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight, Add, CalendarMonth, Refresh, Place, Person, ViewList } from '@mui/icons-material';
 import {
-  HEARING_STATUSES, CALENDAR_STATUS_GROUPS, KP_STAGES, KP_STAGE_KEYS, phDay, formatHearingTime, formatHearingDate,
-  type HearingStatus, type CalendarStatusGroup, type KpStage,
+  HEARING_STATUSES, CALENDAR_STATUS_GROUPS, KP_STAGES, KP_STAGE_KEYS, VAWC_HEARING_TYPES, VAWC_HEARING_TYPE_KEYS, CASE_TRACKS, phDay, formatHearingTime,
+  formatHearingDate, stageShort, isKpStage, isVawcHearingType, type HearingStatus, type CalendarStatusGroup, type HearingKind, type CaseTrack,
 } from '@/lib/hearings';
 import CreateHearingDialog from './CreateHearingDialog';
 import HearingDetailsDialog from './HearingDetailsDialog';
 import { NAVY, STATUS_COLOR, chipSx, getJson } from './hearingUi';
 
 interface Event {
-  id: string; reference: string; hearingNumber: number; stage: KpStage; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus;
+  id: string; reference: string; hearingNumber: number; stage: HearingKind; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus;
+  track: CaseTrack;
   case: { id: string; caseNumber: string; caseType: string };
   official: { id: string; name: string } | null; pendingRequests: number; overdue: boolean;
 }
-interface ListData { rows: Event[]; canCreate: boolean; filters: { categories: string[]; officials: { id: string; name: string }[] } }
+interface ListData {
+  rows: Event[]; canCreate: boolean; filters: { categories: string[]; officials: { id: string; name: string }[] };
+  tracks: CaseTrack[]; availableTracks: CaseTrack[];
+}
+/** A calendar code for the stage or hearing type: M, P, C (KP) or V, K, I, F (VAWC). */
+const stageCode = (s: string) => (isKpStage(s) ? KP_STAGES[s].code : isVawcHearingType(s) ? VAWC_HEARING_TYPES[s].code : '');
 
 type View = 'month' | 'week' | 'day' | 'upcoming' | 'completed' | 'cancelled';
 /** The list views: what is still to come, what was held, what was cancelled. */
@@ -42,17 +48,22 @@ const label = (d: string, o: Intl.DateTimeFormatOptions) => toDate(d).toLocaleDa
 /**
  * The officials' Hearing Calendar: the hearings they may see, by month, week
  * or day, or as a list of what is coming, what was held or what was
- * cancelled. Filters by Katarungang Pambarangay stage, status,
- * blotter category and assigned officer. Clicking a hearing opens its full
- * record and actions; clicking a day (for officials who schedule) starts a
- * new hearing on it. Only real hearing records appear - VAWC cases are never
- * on this calendar.
+ * cancelled. Filters by stage (or VAWC hearing type), status, category and
+ * assigned officer. Clicking a hearing opens its full record and actions;
+ * clicking a day (for officials who schedule) starts a new hearing on it.
+ * One case type per desk: the Blotter desk's calendar never shows a VAWC
+ * hearing and the VAWC desk's never a blotter one (track). A role that works
+ * with both (the Punong Barangay) may show both, each with its badge.
  */
-export default function HearingCalendar({ caseBase }: { caseBase: string }) {
+export default function HearingCalendar({ caseBase, track = 'BLOTTER', recordsHref = '/blotter-officer/hearings' }: {
+  caseBase: string; track?: CaseTrack; recordsHref?: string;
+}) {
   const today = phDay(new Date());
+  // BLOTTER | VAWC | ALL - ALL only for a role that may see both.
+  const [shown, setShown] = useState<CaseTrack | 'ALL'>(track);
   const [view, setView] = useState<View>('month');
   const [anchor, setAnchor] = useState(today);
-  const [stages, setStages] = useState<KpStage[]>([]);
+  const [stages, setStages] = useState<HearingKind[]>([]);
   const [groups, setGroups] = useState<CalendarStatusGroup[]>([]);
   const [category, setCategory] = useState('');
   const [official, setOfficial] = useState('');
@@ -69,7 +80,7 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
     return { from: today, to: addDays(today, 90) };
   }, [view, anchor, today]);
 
-  const q = new URLSearchParams({ from: range.from, to: range.to });
+  const q = new URLSearchParams({ from: range.from, to: range.to, track: shown });
   if (stages.length) q.set('stage', stages.join(','));
   // A list view is its own statuses; the upcoming list follows the chosen ones when there are.
   const list = LISTS[view];
@@ -104,13 +115,21 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
             <CalendarMonth sx={{ color: '#0369a1' }} />
           </Box>
           <Box>
-            <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>Hearing Calendar</Typography>
-            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Katarungang Pambarangay hearings you may see. VAWC cases and their appointments are never shown here.</Typography>
+            <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>{track === 'VAWC' ? 'VAWC Hearing Calendar' : 'Hearing Calendar'}</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>{shown === 'ALL' ? 'Blotter and VAWC hearings, each with its badge. VAWC hearings are confidential (RA 9262 sec. 44).'
+              : shown === 'VAWC' ? 'VAWC hearings you may see - confidential (RA 9262 sec. 44). Never mediation or conciliation.'
+                : 'Katarungang Pambarangay hearings you may see. VAWC cases and their hearings are never shown here.'}</Typography>
           </Box>
         </Box>
         <Box sx={{ ml: { sm: 'auto' }, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {/* Back to the records - the sidebar has one Hearing entry for both. */}
-          <Button variant="outlined" startIcon={<ViewList />} href="/blotter-officer/hearings" sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
+          {(data?.availableTracks ?? []).length > 1 && (
+            <TextField select size="small" label="Case type" value={shown} onChange={e => { setShown(e.target.value as CaseTrack | 'ALL'); setStages([]); setCategory(''); }} sx={{ minWidth: 150 }}>
+              {(data?.availableTracks ?? []).map(t => <MenuItem key={t} value={t}>{CASE_TRACKS[t]}</MenuItem>)}
+              <MenuItem value="ALL">Both</MenuItem>
+            </TextField>
+          )}
+          <Button variant="outlined" startIcon={<ViewList />} href={recordsHref} sx={{ textTransform: 'none', borderRadius: 2, minHeight: 40 }}>
             Hearing Records
           </Button>
           {data?.canCreate && (
@@ -152,8 +171,8 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
 
             {/* Filters */}
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', mb: 1.5 }}>
-              {KP_STAGE_KEYS.map(s => (
-                <Chip key={s} label={KP_STAGES[s].short} clickable onClick={() => setStages(l => toggle(l, s))} aria-pressed={stages.includes(s)}
+              {(shown === 'ALL' ? [] : shown === 'VAWC' ? VAWC_HEARING_TYPE_KEYS : KP_STAGE_KEYS).map(s => (
+                <Chip key={s} label={stageShort(s)} clickable onClick={() => setStages(l => toggle(l, s))} aria-pressed={stages.includes(s)}
                   variant={stages.includes(s) ? 'filled' : 'outlined'} sx={{ fontWeight: 600, ...(stages.includes(s) && { bgcolor: NAVY, color: '#fff' }) }} />
               ))}
               <Box sx={{ width: 8 }} />
@@ -162,7 +181,7 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
                   variant={groups.includes(g) ? 'filled' : 'outlined'}
                   sx={{ fontWeight: 600, ...(groups.includes(g) && { bgcolor: STATUS_COLOR[CALENDAR_STATUS_GROUPS[g].statuses[0] as HearingStatus], color: '#fff' }) }} />
               ))}
-              <TextField select size="small" label="Blotter category" value={category} onChange={e => setCategory(e.target.value)} sx={{ minWidth: 180 }}>
+              <TextField select size="small" label={shown === 'BLOTTER' ? 'Blotter category' : 'Category'} value={category} onChange={e => setCategory(e.target.value)} sx={{ minWidth: 180 }}>
                 <MenuItem value="">All categories</MenuItem>
                 {(data?.filters.categories ?? []).map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
               </TextField>
@@ -188,7 +207,7 @@ export default function HearingCalendar({ caseBase }: { caseBase: string }) {
         </Card>
       )}
 
-      {create && <CreateHearingDialog caseId={create.caseId} initialDate={create.date} classificationHref={id => `${caseBase}/${id}`}
+      {create && <CreateHearingDialog caseId={create.caseId} initialDate={create.date} track={shown === 'VAWC' ? 'VAWC' : 'BLOTTER'} classificationHref={id => `${caseBase}/${id}`}
         onClose={() => setCreate(null)} onCreated={() => { setCreate(null); void mutate(); }} />}
       {open && <HearingDetailsDialog caseId={open.caseId} hearingId={open.hearingId} caseHref={`${caseBase}/${open.caseId}`}
         onClose={() => setOpen(null)} onChanged={() => mutate()} onScheduleNext={caseId => { setOpen(null); setCreate({ caseId }); }} />}
@@ -206,7 +225,7 @@ function EventChip({ e, onOpen, full = false }: { e: Event; onOpen: (e: Event) =
         sx={{ display: 'block', width: '100%', textAlign: 'left', border: 0, borderLeft: `3px solid ${c}`, cursor: 'pointer', borderRadius: 1, px: 0.5, py: 0.25, mt: 0.25,
           bgcolor: `${c}14`, color: c, fontSize: '0.68rem', fontWeight: 700, fontFamily: 'inherit', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: full ? 'normal' : 'nowrap',
           textDecoration: e.status === 'CANCELLED' ? 'line-through' : 'none', '&:focus-visible': { outline: `2px solid ${c}` } }}>
-        {formatHearingTime(e.scheduledAt)} · {KP_STAGES[e.stage]?.code ?? ''}{e.session} · {e.case.caseNumber}
+        {formatHearingTime(e.scheduledAt)} · {stageCode(e.stage)}{e.session} · {e.case.caseNumber}{e.track === 'VAWC' && <Box component="span" sx={{ ml: 0.5, px: 0.4, borderRadius: 0.5, bgcolor: '#7c3aed1f', color: '#7c3aed' }}>VAWC</Box>}
         {full && (
           <Box component="span" sx={{ display: 'block', fontWeight: 500, color: '#475569' }}>
             {e.venue ?? 'Barangay Hall'} · {e.official?.name ?? 'No officer'} · {HEARING_STATUSES[e.status]}

@@ -3,14 +3,15 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { errorResponse } from '@/lib/auth';
 import {
-  gateHearings, noStore, actorName, complainantName, respondentName, kpNoticeInputFor, pdfResponse, issueStageNotices, hearingPartySelect,
+  gateHearings, noStore, actorName, complainantName, respondentName, noticePdfFor, pdfResponse, issueStageNotices, hearingPartySelect, kindOf,
 } from '@/lib/hearingsServer';
-import { allowedFrom, partyFormsFor, isKpStage, NOTICE_RECIPIENTS, type PartyRole } from '@/lib/hearings';
-import { buildKpNoticePdf } from '@/lib/kpNoticesPdf';
+import { allowedFrom, partyFormsFor, stageParties, NOTICE_RECIPIENTS, type PartyRole } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
 /**
- * A proceeding's KP notices to the parties.
+ * A proceeding's notices to the parties: the stage's KP form on a blotter
+ * case, the VAWC Notice of Hearing on a VAWC case (lib/vawcNoticePdf.ts) -
+ * to the parties its hearing type is held with.
  *
  *   GET  ?recipient=COMPLAINANT|RESPONDENT - preview the stage's form for
  *        that party as a PDF, marked "preview - not issued". Nothing is stored.
@@ -40,12 +41,13 @@ export async function GET(req: NextRequest, { params }: Params) {
     const h = await load(id, hid);
     if (!h) return errorResponse('Hearing not found', 404);
     const r = recipient.data;
-    const form = partyFormsFor(isKpStage(h.stage) ? h.stage : 'MEDIATION').find(f => f.recipientRole === r)!;
+    const form = partyFormsFor(kindOf(h.stage)).find(f => f.recipientRole === r);
+    if (!form) return errorResponse(`This hearing is held with the complainant only - there is no notice to the ${NOTICE_RECIPIENTS[r].toLowerCase()}.`, 400);
     const name = r === 'COMPLAINANT' ? complainantName(g.c, h.complainantParty) : respondentName(h.respondentParty);
-    const bytes = await buildKpNoticePdf(await kpNoticeInputFor(g.c, h,
-      { formNo: form.formNo, noticeNumber: null, recipientRole: r, recipientName: name, issuedAt: null }, 'PREVIEW', await actorName(g.actor.id)));
+    const bytes = await noticePdfFor(g.c, h,
+      { formNo: form.formNo, noticeNumber: null, recipientRole: r, recipientName: name, issuedAt: null }, 'PREVIEW', await actorName(g.actor.id));
     await g.log('permitted', `${g.access.code}:notice_preview`);
-    return pdfResponse(bytes, `Preview-KP${form.formNo}-${h.reference}-${r}.pdf`, true);
+    return pdfResponse(bytes, `Preview-${form.formNo ? `KP${form.formNo}` : 'NH'}-${h.reference}-${r}.pdf`, true);
   } catch (e) {
     logRouteError('GET /api/cases/[id]/hearings/[hid]/notices', e);
     return errorResponse('The preview could not be produced right now.', 503);
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const h = await load(id, hid);
     if (!h) return errorResponse('Hearing not found', 404);
     if (!allowedFrom('notice', h.status)) return errorResponse('Notices are made for a scheduled hearing.', 409);
+    if (!stageParties(h.stage).includes(recipient)) return errorResponse(`This hearing is held with the complainant only - there is no notice to the ${NOTICE_RECIPIENTS[recipient].toLowerCase()}.`, 400);
     const current = await prisma.caseHearingNotice.findFirst({ where: { hearingId: hid, recipientRole: recipient, status: { not: 'SUPERSEDED' } } });
     if (current) return errorResponse(`A notice to the ${NOTICE_RECIPIENTS[recipient].toLowerCase()} for this date is already on record (${current.noticeNumber}).`, 409);
     const by = await actorName(g.actor.id);

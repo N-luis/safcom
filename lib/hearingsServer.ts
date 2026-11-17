@@ -15,17 +15,25 @@ import { canSeeVawc } from './caseAccess';
 import { loadActor, BLOTTER_ROLES, VAWC_DESK_ROLES, isVawcType, type Actor } from './reporterAccess';
 import { noStore } from './caseRecordsServer';
 import {
-  hearingEligibility, phInstant, formatHearingWhen, sameVenue, statusFromNotices, partyFormsFor, noticeNumber, kpFormName, sessionTitle, isKpStage,
-  OPEN_STATUSES, VAWC_HEARING_REFUSAL, NOTICE_RECIPIENTS, type Eligibility, type ScheduleConflict, type KpStage, type KpFormNo, type PartyRole,
+  hearingEligibility, vawcHearingEligibility, phInstant, formatHearingWhen, sameVenue, statusFromNotices, partyFormsFor, noticeNumber, kpFormName, sessionTitle,
+  isKpStage, isHearingKind, isVawcHearingType, hasRespondent, trackOf, OPEN_STATUSES, NOTICE_RECIPIENTS,
+  type Eligibility, type ScheduleConflict, type KpFormNo, type PartyRole, type CaseTrack, type HearingKind,
 } from './hearings';
 import { VAWC_TYPES } from './vawcTypes';
 import { BARANGAY_CONTEXT, HEARING_SLOT_MINUTES } from './safecommConfig';
-import type { KpNoticeInput } from './kpNoticesPdf';
+import { buildKpNoticePdf, type KpNoticeInput } from './kpNoticesPdf';
+import { buildVawcNoticePdf } from './vawcNoticePdf';
 
 export { noStore };
 
+/** A KP record asked for on a VAWC case. */
+export const VAWC_KP_REFUSAL = 'VAWC cases under RA 9262 are not subject to barangay mediation or conciliation: no Katarungang Pambarangay eligibility review or Pangkat is recorded on one.';
+
 /** Who presides over a hearing: a blotter officer or the captain. */
 export const PRESIDING_ROLES = [...BLOTTER_ROLES, 'admin'];
+/** Who presides over a VAWC case's hearing: the VAWC desk or the captain. */
+export const VAWC_PRESIDING_ROLES = [...VAWC_DESK_ROLES, 'admin'];
+export const presidingRolesFor = (track: CaseTrack) => (track === 'VAWC' ? VAWC_PRESIDING_ROLES : PRESIDING_ROLES);
 
 export interface HearingAccess {
   view: boolean;
@@ -38,14 +46,16 @@ export interface HearingAccess {
 }
 
 /**
- * The rule, on its own so it can be tested:
- *   - blotter officer: the case's assigned officer, or the official presiding
- *     over one of its hearings, runs them;
- *   - captain: runs hearings on any blotter case;
- *   - system administrator: may view, never schedule or record;
- *   - VAWC desk: no ordinary hearings - RA 9262 cases stay in the VAWC
- *     workflow, and blotter cases are the other desk's;
- *   - a VAWC case is not found for anyone outside the VAWC roles.
+ * The rule, on its own so it can be tested. The same for both case types,
+ * each on its own desk:
+ *   - blotter officer (blotter case) / VAWC officer (VAWC case): the case's
+ *     assigned officer, or the official presiding over one of its hearings,
+ *     runs them;
+ *   - captain: runs hearings on any case (and reads VAWC cases already);
+ *   - system administrator: may view blotter hearings, never schedule or
+ *     record - and never a VAWC case's;
+ *   - a VAWC case is not found for anyone outside the VAWC roles (RA 9262
+ *     sec. 44), and a VAWC officer has no blotter hearings to run.
  */
 export function decideHearingAccess(actor: Actor, c: { caseType: string; assignedToId: string | null }, presides = false): HearingAccess {
   const role = actor.role.trim();
@@ -54,11 +64,16 @@ export function decideHearingAccess(actor: Actor, c: { caseType: string; assigne
   if (!actor.active) return no('inactive', 'Your account is not active.');
   if (isVawcType(c.caseType)) {
     if (!canSeeVawc(role)) return no('vawc_restricted', 'Case not found.', { hidden: true });
-    // Visible to the VAWC roles, but there is nothing to run: the refusal is the answer.
-    return { view: true, edit: false, hidden: false, code: 'vawc_case', message: VAWC_HEARING_REFUSAL, canClaim: false };
+    if (VAWC_DESK_ROLES.includes(role)) {
+      if (c.assignedToId === actor.id || presides) return { view: true, edit: true, hidden: false, code: 'assigned', message: null, canClaim: false };
+      return no('not_assigned', 'Only the officer assigned to this case (or the official presiding over its hearing) can manage its hearings. Take the case first if it is unassigned.',
+        { canClaim: c.assignedToId === null });
+    }
+    if (role === 'admin') return { view: true, edit: true, hidden: false, code: 'captain', message: null, canClaim: false };
+    return no('role_not_permitted', 'Your role cannot manage hearings.');
   }
   if (VAWC_DESK_ROLES.includes(role)) {
-    return no('wrong_desk', 'Hearings are for blotter cases. VAWC officers keep RA 9262 cases in the VAWC workflow - intervention, referral and follow-up.');
+    return no('wrong_desk', 'This is a blotter case. VAWC officers manage hearings on VAWC cases only - blotter cases are the Blotter desk\'s.');
   }
   if (BLOTTER_ROLES.includes(role)) {
     if (c.assignedToId === actor.id || presides) return { view: true, edit: true, hidden: false, code: 'assigned', message: null, canClaim: false };
@@ -91,8 +106,12 @@ export type HearingGate =
   | { error: Response }
   | { actor: Actor; c: HearingCase; access: HearingAccess; log: (outcome: 'permitted' | 'denied', code: string) => Promise<void> };
 
-/** May this official see (or run) this case's hearings? */
-export async function gateHearings(req: NextRequest, caseId: string, need: 'view' | 'edit'): Promise<HearingGate> {
+/**
+ * May this official see (or run) this case's hearings? kpOnly: a
+ * Katarungang Pambarangay record (the eligibility review, the Pangkat) -
+ * refused on a VAWC case (422), whoever asks: RA 9262 sec. 33.
+ */
+export async function gateHearings(req: NextRequest, caseId: string, need: 'view' | 'edit', opts: { kpOnly?: boolean } = {}): Promise<HearingGate> {
   const auth = await requireAuth(req);
   if ('status' in auth) return { error: auth };
   const actor = await loadActor(auth.user.userId);
@@ -101,7 +120,7 @@ export async function gateHearings(req: NextRequest, caseId: string, need: 'view
   let presides = false;
   try {
     c = await loadHearingCase(caseId);
-    if (c && BLOTTER_ROLES.includes(actor.role) && c.assignedToId !== actor.id) {
+    if (c && [...BLOTTER_ROLES, ...VAWC_DESK_ROLES].includes(actor.role) && c.assignedToId !== actor.id) {
       presides = (await prisma.caseHearing.count({ where: { caseId, assignedOfficialId: actor.id, status: { not: 'CANCELLED' } } })) > 0;
     }
   } catch {
@@ -116,14 +135,22 @@ export async function gateHearings(req: NextRequest, caseId: string, need: 'view
   if (access.hidden) { await log('denied', access.code); return { error: errorResponse('Case not found', 404) }; }
   if (!access.view || (need === 'edit' && !access.edit)) {
     await log('denied', access.code);
-    const status = access.code === 'vawc_case' ? 422 : 403;
-    return { error: noStore({ success: false, error: access.message ?? 'Not permitted', code: access.code, canClaim: access.canClaim }, status) };
+    return { error: noStore({ success: false, error: access.message ?? 'Not permitted', code: access.code, canClaim: access.canClaim }, 403) };
+  }
+  if (opts.kpOnly && isVawcType(c.caseType)) {
+    await log('denied', 'vawc_case');
+    return { error: noStore({ success: false, error: VAWC_KP_REFUSAL, code: 'vawc_case' }, 422) };
   }
   return { actor, c, access, log };
 }
 
-/** The case's eligibility for an ordinary hearing, from what the officials recorded. */
+/**
+ * The case's eligibility for a hearing, from what the officials recorded. A
+ * VAWC case needs no KP review (it is never mediated): only a closed case
+ * has no hearing.
+ */
 export async function eligibilityOf(c: HearingCase): Promise<Eligibility> {
+  if (isVawcType(c.caseType)) return vawcHearingEligibility(c.status);
   const [category, review] = await Promise.all([
     prisma.assessmentHistory.findFirst({
       where: { caseId: c.id, kind: { in: ['category_confirm', 'category_change', 'walk_in'] }, actorId: { not: null } },
@@ -145,10 +172,10 @@ export async function eligibilityOf(c: HearingCase): Promise<Eligibility> {
   });
 }
 
-/** Officials a hearing may be assigned to. */
-export async function presidingOfficials() {
+/** Officials a hearing may be assigned to: the case's own desk, or the captain. */
+export async function presidingOfficials(track: CaseTrack = 'BLOTTER') {
   return prisma.user.findMany({
-    where: { active: true, role: { in: PRESIDING_ROLES } },
+    where: { active: true, role: { in: presidingRolesFor(track) } },
     select: { id: true, name: true, role: true }, orderBy: { name: 'asc' },
   });
 }
@@ -225,8 +252,9 @@ export function instantOf(d: { date?: string; time?: string; scheduledAt?: strin
   return d.scheduledAt ? new Date(d.scheduledAt) : null;
 }
 
-/** The chosen parties and official must be this case's records and an official who may preside. */
-export async function checkPeople(caseId: string, d: { assignedOfficialId?: string | null; complainantPartyId?: string | null; respondentPartyId?: string | null }): Promise<string | null> {
+/** The chosen parties and official must be this case's records and an official who may preside (on the case's own desk). */
+export async function checkPeople(caseId: string, d: { assignedOfficialId?: string | null; complainantPartyId?: string | null; respondentPartyId?: string | null },
+  track: CaseTrack = 'BLOTTER'): Promise<string | null> {
   if (d.complainantPartyId) {
     const p = await prisma.caseParty.findFirst({ where: { id: d.complainantPartyId, caseId, role: 'AFFECTED' }, select: { id: true } });
     if (!p) return 'The complainant must be the reporter or a person affected recorded on this case.';
@@ -236,8 +264,8 @@ export async function checkPeople(caseId: string, d: { assignedOfficialId?: stri
     if (!p) return 'The respondent must be a person reported on this case.';
   }
   if (d.assignedOfficialId) {
-    const u = await prisma.user.findFirst({ where: { id: d.assignedOfficialId, active: true, role: { in: PRESIDING_ROLES } }, select: { id: true } });
-    if (!u) return 'The assigned official must be an active blotter officer or the barangay captain.';
+    const u = await prisma.user.findFirst({ where: { id: d.assignedOfficialId, active: true, role: { in: presidingRolesFor(track) } }, select: { id: true } });
+    if (!u) return track === 'VAWC' ? 'The assigned official must be an active VAWC officer or the barangay captain.' : 'The assigned official must be an active blotter officer or the barangay captain.';
   }
   return null;
 }
@@ -260,12 +288,44 @@ export function partyAccounts(c: { residentId: string | null }) {
   return { COMPLAINANT: c.residentId ?? null, RESPONDENT: null } as Record<PartyRole, string | null>;
 }
 
-/** The proceedings a resident takes part in: those on the cases they filed. Never a draft, never a VAWC case. */
+/**
+ * The proceedings a resident takes part in: those on the cases they filed,
+ * blotter and VAWC alike (a VAWC case's own complainant is a party to it).
+ * Never a draft.
+ */
 export function residentHearingWhere(residentId: string) {
   return {
     status: { not: 'DRAFT' },
-    case: { caseType: { notIn: [...VAWC_TYPES] }, residentId },
+    case: { residentId },
   } satisfies Prisma.CaseHearingWhereInput;
+}
+
+/**
+ * The hearings an official may list, for one case type: a blotter or VAWC
+ * officer's own cases (or those they preside over), every one for the
+ * captain - and for the system administrator, blotter hearings only. Null
+ * when the role may not list that case type at all.
+ */
+export function hearingListScope(actor: Actor, track: CaseTrack): Prisma.CaseHearingWhereInput | null {
+  const role = actor.role.trim();
+  const ofTrack = { case: { caseType: track === 'VAWC' ? { in: [...VAWC_TYPES] } : { notIn: [...VAWC_TYPES] } } };
+  const own = { OR: [{ case: { assignedToId: actor.id } }, { assignedOfficialId: actor.id }] };
+  if (track === 'VAWC') {
+    if (!canSeeVawc(role)) return null;
+    return VAWC_DESK_ROLES.includes(role) ? { AND: [ofTrack, own] } : ofTrack;
+  }
+  if (BLOTTER_ROLES.includes(role)) return { AND: [ofTrack, own] };
+  if (role === 'admin' || role === 'system_admin') return ofTrack;
+  return null;
+}
+
+/** The case types a role works with, its own desk first. */
+export function tracksFor(role: string): CaseTrack[] {
+  const r = role.trim();
+  if (VAWC_DESK_ROLES.includes(r)) return ['VAWC'];
+  if (r === 'admin') return ['BLOTTER', 'VAWC'];
+  if (BLOTTER_ROLES.includes(r) || r === 'system_admin') return ['BLOTTER'];
+  return [];
 }
 
 /** What every event about a proceeding carries, so a party's message can be told from it alone. */
@@ -299,6 +359,9 @@ export function pangkatRefusal(p: { chairmanMemberId: string | null; secretaryMe
 type HearingForNotice = { id: string; caseId: string; reference: string; hearingNumber: number; stage: string; session: number; scheduledAt: Date; venue: string | null;
   status: string; rescheduleCount: number; complainantParty: PartyRef; respondentParty: PartyRef };
 
+/** The proceeding's stage as one the workflow knows. */
+export const kindOf = (stage: string): HearingKind => (isHearingKind(stage) ? stage : 'MEDIATION');
+
 /**
  * The stage's notices to the parties, made when a proceeding is scheduled or
  * its date changes - one per party, for the one schedule: KP 8 and KP 9 for
@@ -310,7 +373,7 @@ type HearingForNotice = { id: string; caseId: string; reference: string; hearing
  */
 export async function issueStageNotices(tx: Prisma.TransactionClient, c: HearingCase, h: HearingForNotice, actorId: string, by: string,
   only?: PartyRole[]) {
-  const stage = (isKpStage(h.stage) ? h.stage : 'MEDIATION') as KpStage;
+  const stage = kindOf(h.stage);
   const accounts = partyAccounts(c);
   const now = new Date();
   const made = [];
@@ -350,6 +413,28 @@ export async function syncHearingStatus(tx: Prisma.TransactionClient, h: { id: s
 /** The notices to the parties that no longer hold - on a new date, or a cancellation. KP 11 stays: it is not about a date. */
 export const supersedePartyNotices = (tx: Prisma.TransactionClient, hearingId: string) =>
   tx.caseHearingNotice.updateMany({ where: { hearingId, status: { not: 'SUPERSEDED' }, recipientRole: { not: 'PANGKAT_MEMBER' } }, data: { status: 'SUPERSEDED', supersededAt: new Date() } });
+
+/**
+ * A notice as a PDF: the KP form on a blotter case, the VAWC Notice of
+ * Hearing on a VAWC case (a hearing type with no KP form).
+ */
+export async function noticePdfFor(c: HearingCase,
+  h: { reference: string; stage: string; scheduledAt: Date; venue: string | null; complainantParty: PartyRef; respondentParty: PartyRef },
+  n: { formNo: number | null; noticeNumber: string | null; recipientRole: string; recipientName: string; scheduledAt?: Date; venue?: string | null;
+    issuedAt: Date | null; generatedAt?: Date | null },
+  state: KpNoticeInput['state'], preparedBy: string | null): Promise<Uint8Array> {
+  if (!n.formNo && isVawcHearingType(h.stage)) {
+    return buildVawcNoticePdf({
+      noticeNumber: n.noticeNumber, caseNumber: c.caseNumber, hearingType: h.stage,
+      complainant: complainantName(c, h.complainantParty), respondent: hasRespondent(h.stage) ? respondentName(h.respondentParty) : null,
+      recipient: n.recipientName, recipientRole: n.recipientRole === 'RESPONDENT' ? 'RESPONDENT' : 'COMPLAINANT', hearingReference: h.reference,
+      scheduledAt: n.scheduledAt ?? h.scheduledAt, venue: n.venue === undefined ? h.venue : n.venue,
+      datedAt: n.issuedAt ?? n.generatedAt ?? null, issuedBy: preparedBy,
+      barangay: BARANGAY_CONTEXT.name, municipality: c.municipality || 'Bocaue', province: c.province || 'Bulacan', state,
+    });
+  }
+  return buildKpNoticePdf(await kpNoticeInputFor(c, h, n, state, preparedBy));
+}
 
 /** What a KP form prints, from the proceeding and the case as they are now. */
 export async function kpNoticeInputFor(c: HearingCase,
@@ -426,3 +511,37 @@ export const conflictResponse = (conflicts: ScheduleConflict[]) => noStore({
   success: false, code: 'schedule_conflict', conflicts,
   error: `Scheduling conflict: ${conflicts[0].message}${conflicts.length > 1 ? ` (and ${conflicts.length - 1} more)` : ''} Nothing was changed.`,
 }, 409);
+
+// ── A case moved to the other desk ───────────────────────────────────────────
+
+/**
+ * When an official moves a case between the Blotter and VAWC desks, its open
+ * hearings no longer fit: a KP mediation may not go on once the case is VAWC
+ * (RA 9262 sec. 33), and a VAWC hearing skips the KP eligibility review on a
+ * blotter case. So each open one (draft or scheduled) is cancelled, with the
+ * reason, in its history and on the case timeline; pending requests for a new
+ * date are answered. Notices already issued stay on record as issued - they
+ * are not regenerated - and new notices follow the new case type. Access
+ * follows the case type at once: it is read from the case on every request.
+ * Returns how many were cancelled. Run inside the reclassification's
+ * transaction, so both happen or neither.
+ */
+export async function closeHearingsOnReclassification(tx: Prisma.TransactionClient, caseId: string, fromType: string, toType: string, actorId: string) {
+  const from = trackOf(fromType), to = trackOf(toType);
+  if (from === to) return 0;
+  const open = await tx.caseHearing.findMany({ where: { caseId, status: { in: [...OPEN_STATUSES] } } });
+  const reason = `The case was reclassified from ${fromType} (${from === 'VAWC' ? 'VAWC' : 'Blotter'}) to ${toType} (${to === 'VAWC' ? 'VAWC' : 'Blotter'}). Schedule a new hearing under the new case type.`;
+  const now = new Date();
+  for (const h of open) {
+    await tx.caseHearing.update({ where: { id: h.id }, data: {
+      status: 'CANCELLED', activeKey: null, openKey: null, statusReason: reason.slice(0, 300), cancelledAt: now, cancelledById: actorId, updatedById: actorId,
+    } });
+    await tx.caseHearingRequest.updateMany({ where: { hearingId: h.id, status: 'PENDING' },
+      data: { status: 'DECLINED', pendingKey: null, reviewedById: actorId, reviewedAt: now, reviewNote: 'The hearing was cancelled.' } });
+    const e = await recordEvent(tx, { hearingId: h.id, caseId, kind: 'cancelled', actorType: 'official', actorId,
+      before: { status: h.status, caseType: fromType },
+      after: { ...hearingSnap(h, h.scheduledAt, h.venue), wasDraft: h.status === 'DRAFT', reclassified: true, caseType: toType }, note: reason });
+    await hearingActivity(tx, e.id, caseId, actorId, `${sessionTitle(h.stage, h.session)} cancelled - ${reason}`);
+  }
+  return open.length;
+}

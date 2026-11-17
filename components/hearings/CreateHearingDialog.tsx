@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { Gavel } from '@mui/icons-material';
 import toast from 'react-hot-toast';
-import { phDay, phTime, type ScheduleConflict } from '@/lib/hearings';
+import { phDay, phTime, type ScheduleConflict, type CaseTrack, type HearingKind } from '@/lib/hearings';
 import { REFERRAL_AGENCIES, type ReferralAgency } from '@/lib/caseRecords';
 import type { HearingCaseRow } from '@/lib/hearingCasesServer';
 import ConflictWarnings, { ConflictList } from './ConflictWarnings';
@@ -26,7 +26,14 @@ const ELIGIBILITY_TITLE: Record<HearingCaseRow['eligibility']['state'], string> 
 interface CaseListData { rows: HearingCaseRow[]; vawc: { id: string; caseNumber: string; caseType: string; status: string; reason: string } | null }
 
 /**
- * Create the next Katarungang Pambarangay proceeding on a blotter case.
+ * Create a hearing - the same dialog for both case types. On a blotter case:
+ * the next Katarungang Pambarangay proceeding. On a VAWC case (track VAWC):
+ * the VAWC hearing type the official chooses (VAWC Desk Hearing, Case
+ * Conference, interview, follow-up) - no KP stage, no eligibility review,
+ * the VAWC Notice of Hearing instead of a KP form, and the respondent only
+ * on a hearing type held with them.
+ *
+ * On a blotter case it creates the next Katarungang Pambarangay proceeding.
  * The case is chosen first (or given) and its records load with it: the
  * reference, the complainant, the respondent, the category and the status.
  * Whatever still stands in the way is shown and can be done here by the
@@ -37,8 +44,10 @@ interface CaseListData { rows: HearingCaseRow[]; vawc: { id: string; caseNumber:
  * conciliation - and the dialog says which KP forms scheduling makes, and
  * how each party gets theirs.
  */
-export default function CreateHearingDialog({ caseId: fixedCase, initialDate, onClose, onCreated, classificationHref }: {
+export default function CreateHearingDialog({ caseId: fixedCase, initialDate, onClose, onCreated, classificationHref, track = 'BLOTTER' }: {
   caseId?: string; onClose: () => void; onCreated: (caseId: string) => void;
+  /** Which desk's cases the case picker lists. */
+  track?: CaseTrack;
   /** A day picked on the calendar (YYYY-MM-DD). */
   initialDate?: string;
   /** Where an official changes the category, when the one on file is wrong. */
@@ -49,7 +58,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   const [q, setQ] = useState('');
   const [picked, setPicked] = useState<HearingCaseRow | null>(null);
   const caseId = fixedCase ?? picked?.id ?? null;
-  const candidates = useSWR<CaseListData>(fixedCase ? null : `/api/hearings/cases?pageSize=25${q ? `&q=${encodeURIComponent(q)}` : ''}`, getJson, { keepPreviousData: true });
+  const candidates = useSWR<CaseListData>(fixedCase ? null : `/api/hearings/cases?pageSize=25${track === 'VAWC' ? '&track=VAWC' : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`, getJson, { keepPreviousData: true });
   const detail = useSWR<CaseHearingsData>(caseId ? `/api/cases/${caseId}/hearings` : null, getJson);
   const d = detail.data;
   const { mutate: mutateAll } = useSWRConfig();
@@ -66,6 +75,8 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   const [instructions, setInstructions] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState<'draft' | 'schedule' | null>(null);
+  // A VAWC case: the hearing type the official picks (null = the first offered).
+  const [kindIn, setKind] = useState<HearingKind | null>(null);
   const [busy, setBusy] = useState<'claim' | 'category' | null>(null);
   const [reviewAgain, setReviewAgain] = useState(false);
   // Set when the server found a clash: shown with the choice to go ahead.
@@ -85,7 +96,9 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
   const cParty = d?.parties.complainants.find(p => (p.id ?? 'reporter') === complainant);
   const rParty = d?.parties.respondents.find(p => p.id === respondent);
 
-  const next = d?.next ?? null;
+  const vawc = d?.track === 'VAWC' || Boolean(d?.vawc);
+  const next = (vawc && d?.choices?.find(c => c.stage === kindIn)) || d?.next || null;
+  const withRespondent = next ? next.parties.includes('RESPONDENT') : true;
   const ready = Boolean(d && d.canEdit && d.eligibility.eligible && next && !d.blocked);
   const hasAnswers = Boolean(d?.eligibility.answers && Object.keys(d.eligibility.answers).length);
   const detailError = detail.error as (Error & { status?: number; canClaim?: boolean }) | undefined;
@@ -115,10 +128,10 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
         stage: next.stage, date, time, venue: venue.trim(), asDraft, confirmConflicts,
         assignedOfficialId: official || null,
         complainantPartyId: complainant === 'reporter' ? null : complainant,
-        respondentPartyId: respondent || null,
+        respondentPartyId: withRespondent ? respondent || null : null,
         residentInstructions: instructions.trim() || undefined, notes: notes.trim() || undefined,
       });
-      toast.success(asDraft ? `${next.title} saved as a draft` : `${next.title} scheduled - ${next.forms.map(f => `KP Form No. ${f.formNo}`).filter((x, i, a) => a.indexOf(x) === i).join(' and ')} made for the parties`);
+      toast.success(asDraft ? `${next.title} saved as a draft` : `${next.title} scheduled - ${next.forms.map(f => (f.formNo ? `KP Form No. ${f.formNo}` : f.name)).filter((x, i, a) => a.indexOf(x) === i).join(' and ')} made for ${next.parties.length > 1 ? 'the parties' : 'the complainant'}`);
       setClash(null);
       onCreated(caseId);
     } catch (e) {
@@ -151,7 +164,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             getOptionLabel={o => `${o.caseNumber} - ${o.caseType}`}
             isOptionEqualToValue={(a, b) => a.id === b.id}
             getOptionDisabled={o => 'vawcOnly' in o}
-            noOptionsText={candidates.error ? candidates.error.message : 'No blotter case matches.'}
+            noOptionsText={candidates.error ? candidates.error.message : track === 'VAWC' ? 'No VAWC case matches.' : 'No blotter case matches.'}
             renderOption={(props, o) => (
               <li {...props} key={o.id}>
                 {'vawcOnly' in o ? (
@@ -189,7 +202,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             {d.eligibility.warnings.map(w => <Alert key={w} severity="warning" sx={{ borderRadius: 2, fontSize: '0.8rem' }}>{w}</Alert>)}
             {!d.eligibility.eligible && !(d.eligibility.state === 'NOT_ELIGIBLE' && d.eligibility.exclusions.length > 0 && !d.vawc && !reviewAgain) && (
               <Alert severity={d.vawc || d.eligibility.state === 'NOT_ELIGIBLE' ? 'error' : 'info'} sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.25 }}>{d.vawc ? 'No ordinary barangay hearing for this case' : ELIGIBILITY_TITLE[d.eligibility.state]}</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.84rem', mb: 0.25 }}>{d.vawc ? 'No hearing can be created on this case' : ELIGIBILITY_TITLE[d.eligibility.state]}</Typography>
                 {d.eligibility.reasons.map(r => <Box key={r}>{r}</Box>)}
                 {!d.eligibility.categoryVerified && !d.vawc && d.canEdit && (
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.75 }}>
@@ -214,7 +227,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             {d.eligibility.eligible && d.blocked && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.blocked}</Alert>}
             {!d.canEdit && <Alert severity="info" sx={{ borderRadius: 2 }}>{d.accessMessage ?? 'You can view this case\'s hearings but not create one.'}</Alert>}
 
-            {!d.vawc && d.canEdit && !d.parties.respondents.length && <RecordRespondent caseId={d.case.id} onSaved={refresh} />}
+            {d.canEdit && withRespondent && !d.parties.respondents.length && <RecordRespondent caseId={d.case.id} vawc={vawc} onSaved={refresh} />}
             {ready && next && (
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
                 <Alert severity="info" icon={false} sx={{ gridColumn: { sm: '1 / -1' }, borderRadius: 2, fontSize: '0.8rem' }}>
@@ -229,10 +242,19 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                     );
                   })}
                   {next.stage === 'CONSTITUTION' && <Box sx={{ mt: 0.5 }}>KP Form No. 11 goes to each Pangkat member once they are recorded on the proceeding.</Box>}
+                  {vawc && !withRespondent && <Box sx={{ mt: 0.5 }}>Held with the complainant only: the respondent is not a party to it and is not notified.</Box>}
+                  {vawc && <Box sx={{ mt: 0.5 }}>Not mediation or conciliation, and no KP form (RA 9262 sec. 33).</Box>}
                   <Box sx={{ mt: 0.5, color: '#64748b' }}>Nothing is sent by text message or email.</Box>
                 </Alert>
-                <TextField size="small" label="Proceeding stage" value={next.title} disabled
-                  helperText="The case's next stage - each comes only after the one before it" />
+                {vawc && d.choices?.length ? (
+                  <TextField select size="small" label="Hearing type *" value={next.stage} onChange={e => { setKind(e.target.value as HearingKind); setClash(null); }}
+                    helperText="VAWC hearing types - never mediation or conciliation">
+                    {d.choices.map(c => <MenuItem key={c.stage} value={c.stage}>{c.label}{c.parties.includes('RESPONDENT') ? ' - complainant and respondent' : ' - complainant only'}</MenuItem>)}
+                  </TextField>
+                ) : (
+                  <TextField size="small" label="Proceeding stage" value={next.title} disabled
+                    helperText="The case's next stage - each comes only after the one before it" />
+                )}
                 <TextField select size="small" label="Issuing / presiding official" value={official} onChange={e => { setOfficial(e.target.value); setClash(null); }}
                   slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }} helperText="Presides over or handles the hearing">
                   <MenuItem value=""><em>Me</em></MenuItem>
@@ -247,15 +269,19 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
                 <TextField select size="small" label="Complainant / requesting party" value={complainant} onChange={e => setComplainant(e.target.value)}>
                   {d.parties.complainants.map(p => <MenuItem key={p.id ?? 'reporter'} value={p.id ?? 'reporter'}>{p.name} - {p.label}</MenuItem>)}
                 </TextField>
-                <TextField select size="small" label="Respondent" value={respondent} onChange={e => setRespondent(e.target.value)}
-                  error={!respondent}
-                  helperText={d.parties.respondents.length ? 'From the people recorded on the case - the summons and notices are addressed to them' : 'Record the respondent above first (a draft can be saved without)'}>
-                  <MenuItem value=""><em>Not named yet (draft only)</em></MenuItem>
-                  {d.parties.respondents.map(p => <MenuItem key={p.id} value={p.id!}>{p.name} - {p.label}</MenuItem>)}
-                </TextField>
+                {withRespondent ? (
+                  <TextField select size="small" label="Respondent" value={respondent} onChange={e => setRespondent(e.target.value)}
+                    error={!respondent}
+                    helperText={d.parties.respondents.length ? `From the people recorded on the case - the ${vawc ? 'notice is' : 'summons and notices are'} addressed to them` : 'Record the respondent above first (a draft can be saved without)'}>
+                    <MenuItem value=""><em>Not named yet (draft only)</em></MenuItem>
+                    {d.parties.respondents.map(p => <MenuItem key={p.id} value={p.id!}>{p.name} - {p.label}</MenuItem>)}
+                  </TextField>
+                ) : (
+                  <TextField size="small" label="Respondent" value="Not a party to this hearing" disabled helperText="Not notified" />
+                )}
                 <TextField size="small" multiline minRows={2} label="Instructions for the parties (optional)" value={instructions}
                   onChange={e => setInstructions(e.target.value)} slotProps={{ htmlInput: { maxLength: 600 } }} sx={{ gridColumn: { sm: '1 / -1' } }}
-                  helperText="Shown to both parties in My Hearings & Notices, with the standard instructions" />
+                  helperText={withRespondent ? 'Shown to both parties in My Hearings & Notices, with the standard instructions' : 'Shown to the complainant in My Hearings & Notices, with the standard instructions'} />
                 <TextField size="small" multiline minRows={2} label="Internal note (officials only, optional)" value={notes}
                   onChange={e => setNotes(e.target.value)} slotProps={{ htmlInput: { maxLength: 1000 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />
                 <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
@@ -279,7 +305,7 @@ export default function CreateHearingDialog({ caseId: fixedCase, initialDate, on
             <Button variant="outlined" onClick={() => save(true)} disabled={saving !== null} sx={{ textTransform: 'none' }}>
               {saving === 'draft' ? <CircularProgress size={16} /> : 'Save as draft'}
             </Button>
-            <Button variant="contained" onClick={() => save(false)} disabled={saving !== null || !respondent} sx={{ textTransform: 'none', bgcolor: NAVY }}>
+            <Button variant="contained" onClick={() => save(false)} disabled={saving !== null || (withRespondent && !respondent)} sx={{ textTransform: 'none', bgcolor: NAVY }}>
               {saving === 'schedule' ? <CircularProgress size={16} color="inherit" /> : `Schedule ${next?.title.toLowerCase()}`}
             </Button>
           </>
@@ -369,7 +395,7 @@ function CaseInfo({ d }: { d: CaseHearingsData }) {
  * official's record (Case records, PUT /api/cases/:id/records). The summons
  * is addressed to them; it is never guessed from the narrative.
  */
-function RecordRespondent({ caseId, onSaved }: { caseId: string; onSaved: () => void }) {
+function RecordRespondent({ caseId, onSaved, vawc = false }: { caseId: string; onSaved: () => void; vawc?: boolean }) {
   const [fullName, setName] = useState('');
   const [age, setAge] = useState('');
   const [address, setAddress] = useState('');
@@ -390,7 +416,7 @@ function RecordRespondent({ caseId, onSaved }: { caseId: string; onSaved: () => 
     <Box sx={{ border: '1px solid #fcd34d', bgcolor: '#fffbeb', borderRadius: 2, p: 1.5, display: 'grid', gap: 1 }}>
       <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: NAVY }}>Record the respondent</Typography>
       <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>
-        No person reported is recorded on this case. The summons (KP Form No. 9) is addressed to the respondent, so record them as the complainant names them.
+        No person reported is recorded on this case. {vawc ? 'The Notice of Hearing to the respondent' : 'The summons (KP Form No. 9)'} is addressed to the respondent, so record them as the complainant names them.
         This is saved to the case records.
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 1 }}>

@@ -2,7 +2,7 @@
  * What the hearing screens share: the shapes the routes return, fetching,
  * and the colours each status reads in.
  */
-import type { HearingStatus, Attendance, NoticeStatus, KpStage, PangkatChosenBy } from '@/lib/hearings';
+import type { HearingStatus, Attendance, NoticeStatus, HearingKind, PangkatChosenBy, CaseTrack } from '@/lib/hearings';
 import type { Eligibility, ScheduleConflict } from '@/lib/hearings';
 
 export const NAVY = '#0c1e46';
@@ -17,7 +17,7 @@ export interface HearingNotice {
 export interface HearingEvent { id: string; kind: string; actorType: string; before: Record<string, unknown> | null; after: Record<string, unknown> | null; note: string | null; createdAt: string; by: string | null }
 export interface HearingRequest { id: string; requesterRole: 'COMPLAINANT' | 'RESPONDENT'; reason: string; preferredSchedule: string | null; status: 'PENDING' | 'APPROVED' | 'DECLINED'; createdAt: string; reviewedAt: string | null; reviewNote: string | null; reviewedBy: string | null }
 export interface Hearing {
-  id: string; caseId: string; reference: string; hearingNumber: number; stage: KpStage; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus;
+  id: string; caseId: string; reference: string; hearingNumber: number; stage: HearingKind; session: number; title: string; scheduledAt: string; venue: string | null; status: HearingStatus;
   outcome: string | null; agreements: string | null; outcomeSummary: string | null; nextAction: string | null; nextHearingAt: string | null;
   residentInstructions: string | null; statusReason: string | null; notes: string | null; rescheduleCount: number;
   residentIntent: 'WILL_ATTEND' | 'CANNOT_ATTEND' | null; residentIntentAt: string | null;
@@ -33,7 +33,13 @@ export interface PartyOption {
   /** Set for the reporter, whose own SafeComm account receives the complainant's notices. */
   account: { reporter: true } | null;
 }
-export interface NextStep { stage: KpStage; session: number; label: string; title: string; forms: { formNo: number; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; name: string }[] }
+export interface NextStep {
+  stage: HearingKind; session: number; label: string; title: string;
+  /** Who it is held with - and so who gets a notice. */
+  parties: ('COMPLAINANT' | 'RESPONDENT')[];
+  /** formNo null: the VAWC Notice of Hearing (no KP form). */
+  forms: { formNo: number | null; recipientRole: 'COMPLAINANT' | 'RESPONDENT'; name: string }[];
+}
 export interface PangkatMember {
   id: string; name: string; chosenBy: PangkatChosenBy; userId: string | null; createdAt: string; addedBy: string | null;
   removedAt: string | null; removedBy: string | null; removedReason: string | null;
@@ -45,6 +51,10 @@ export interface Pangkat {
 export interface CaseHearingsData {
   case: { id: string; caseNumber: string; caseType: string; status: string; hasReporterAccount?: boolean };
   hearings: Hearing[]; next: NextStep | null; pangkat: Pangkat | null; canEdit: boolean; accessMessage?: string | null; blocked: string | null; vawc?: boolean;
+  /** The case type: BLOTTER (KP stages) or VAWC (VAWC hearing types). */
+  track?: CaseTrack;
+  /** A VAWC case: every hearing type it may have now, for the official to choose. */
+  choices?: NextStep[] | null;
   eligibility: Eligibility; parties: { complainants: PartyOption[]; respondents: PartyOption[] }; officials: { id: string; name: string; role: string }[];
 }
 

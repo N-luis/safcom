@@ -9,6 +9,7 @@ import {
 import { Search, Refresh, FolderOpen } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import type { HearingCaseRow, KpEligibilityState, CaseHearingState } from '@/lib/hearingCasesServer';
+import type { CaseTrack } from '@/lib/hearings';
 import { ELIGIBILITY_COLOR } from './CreateHearingDialog';
 import { NAVY, STATUS_COLOR, chipSx, getJson, send } from './hearingUi';
 
@@ -23,18 +24,24 @@ const ELIGIBILITY_OPTIONS: [KpEligibilityState, string][] = [
 const HEARING_OPTIONS: [CaseHearingState, string][] = [
   ['NOT_SCHEDULED', 'No hearing yet'], ['IN_PROGRESS', 'Proceeding open'], ['AWAITING_NEXT', 'Next stage due'], ['ENDED', 'Proceedings ended'],
 ];
+/** A VAWC case has no stages: one hearing is open, or none is. */
+const VAWC_HEARING_OPTIONS: [CaseHearingState, string][] = [
+  ['NOT_SCHEDULED', 'No hearing yet'], ['IN_PROGRESS', 'Hearing open'], ['AWAITING_NEXT', 'Held - another may be set'],
+];
 const HEARING_STATE_COLOR: Record<CaseHearingState, string> = { NOT_SCHEDULED: '#64748b', IN_PROGRESS: '#0369a1', AWAITING_NEXT: '#4f46e5', ENDED: '#15803d' };
 const tightChip = { fontSize: '0.68rem', '& .MuiChip-label': { px: 0.75 } };
 const shortDate = (d: Date | string) => new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric' });
 
 /**
- * The blotter cases, for finding the one to schedule - with a hearing or not
- * yet. Each shows its Katarungang Pambarangay eligibility as the officials
- * recorded it (eligible, not eligible, or still to be reviewed - never
- * assumed) and what the official may do next with it.
+ * The cases, for finding the one to schedule - with a hearing or not yet.
+ * Blotter: each shows its Katarungang Pambarangay eligibility as the
+ * officials recorded it (eligible, not eligible, or still to be reviewed -
+ * never assumed). VAWC (track VAWC): the VAWC cases, with no KP eligibility -
+ * a VAWC case is never mediated. Each shows what the official may do next.
  */
-export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }: {
+export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing, track = 'BLOTTER' }: {
   caseBase: string;
+  track?: CaseTrack;
   /** Open the Create Hearing dialog on this case - it also takes the eligibility review. */
   onCreate: (caseId: string) => void;
   onOpenHearing: (caseId: string, hearingId: string) => void;
@@ -47,7 +54,8 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
   const [pageSize, setPageSize] = useState(25);
   const [claiming, setClaiming] = useState<string | null>(null);
 
-  const params = new URLSearchParams({ status, page: String(page), pageSize: String(pageSize) });
+  const vawc = track === 'VAWC';
+  const params = new URLSearchParams({ status, page: String(page), pageSize: String(pageSize), ...(vawc && { track: 'VAWC' }) });
   if (q.trim()) params.set('q', q.trim());
   if (eligibility) params.set('eligibility', eligibility);
   if (hearing) params.set('hearing', hearing);
@@ -63,11 +71,13 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
   return (
     <Box>
       <Typography sx={{ fontSize: '0.8rem', color: '#475569', mb: 1.5 }}>
-        Every blotter case, scheduled or not. Eligibility for Katarungang Pambarangay proceedings is what an official recorded - the confirmed category
-        and the eligibility review. A case is pending until it is reviewed, and is not eligible only when an
-        official recorded a legal exclusion. VAWC cases (RA 9262) are not listed.
+        {vawc
+          ? 'Every VAWC case, scheduled or not. A VAWC case is never mediated or conciliated (RA 9262 sec. 33), so there is no KP eligibility review - any open case may have a hearing. Confidential: only the VAWC desk and the Punong Barangay see this list.'
+          : <>Every blotter case, scheduled or not. Eligibility for Katarungang Pambarangay proceedings is what an official recorded - the confirmed category
+            and the eligibility review. A case is pending until it is reviewed, and is not eligible only when an
+            official recorded a legal exclusion. VAWC cases (RA 9262) are not listed.</>}
       </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: vawc ? '2fr 1fr 1fr auto' : '2fr 1fr 1fr 1fr auto' }, gap: 1, mb: 1.5 }}>
         <TextField size="small" placeholder="Case reference, complainant or respondent" value={q} onChange={e => filter(setQ)(e.target.value)}
           slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18 }} /></InputAdornment> } }} />
         <TextField select size="small" label="Case status" value={status} onChange={e => filter(setStatus)(e.target.value)}>
@@ -75,13 +85,15 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
           <MenuItem value="ANY">Any status</MenuItem>
           {(data?.statuses ?? []).map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
         </TextField>
-        <TextField select size="small" label="KP eligibility" value={eligibility} onChange={e => filter(setEligibility)(e.target.value)}>
-          <MenuItem value="">Any</MenuItem>
-          {ELIGIBILITY_OPTIONS.map(([k, l]) => <MenuItem key={k} value={k}>{l}{data ? ` (${data.counts.eligibility[k]})` : ''}</MenuItem>)}
-        </TextField>
+        {!vawc && (
+          <TextField select size="small" label="KP eligibility" value={eligibility} onChange={e => filter(setEligibility)(e.target.value)}>
+            <MenuItem value="">Any</MenuItem>
+            {ELIGIBILITY_OPTIONS.map(([k, l]) => <MenuItem key={k} value={k}>{l}{data ? ` (${data.counts.eligibility[k]})` : ''}</MenuItem>)}
+          </TextField>
+        )}
         <TextField select size="small" label="Hearing status" value={hearing} onChange={e => filter(setHearing)(e.target.value)}>
           <MenuItem value="">Any</MenuItem>
-          {HEARING_OPTIONS.map(([k, l]) => <MenuItem key={k} value={k}>{l}{data ? ` (${data.counts.hearing[k]})` : ''}</MenuItem>)}
+          {(vawc ? VAWC_HEARING_OPTIONS : HEARING_OPTIONS).map(([k, l]) => <MenuItem key={k} value={k}>{l}{data ? ` (${data.counts.hearing[k]})` : ''}</MenuItem>)}
         </TextField>
         <Tooltip title="Reload"><IconButton onClick={() => mutate()} aria-label="Reload cases">{isValidating ? <CircularProgress size={20} /> : <Refresh />}</IconButton></Tooltip>
       </Box>
@@ -95,7 +107,9 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
         <Box sx={{ textAlign: 'center', py: 5 }}>
           <FolderOpen sx={{ fontSize: 36, color: '#cbd5e1' }} />
           <Typography sx={{ color: '#64748b', fontSize: '0.88rem', mt: 1 }}>
-            {q || eligibility || hearing || status !== 'OPEN' ? 'No blotter case matches these filters.' : 'No open blotter cases. Cases filed or recorded on the blotter desk appear here.'}
+            {q || eligibility || hearing || status !== 'OPEN'
+              ? `No ${vawc ? 'VAWC' : 'blotter'} case matches these filters.`
+              : vawc ? 'No open VAWC cases. Reports classified as VAWC appear here.' : 'No open blotter cases. Cases filed or recorded on the blotter desk appear here.'}
           </Typography>
         </Box>
       )}
@@ -106,7 +120,7 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
               <TableHead>
                 <TableRow sx={{ '& th': { fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' } }}>
                   <TableCell>Case reference</TableCell><TableCell>Complainant</TableCell><TableCell>Respondent</TableCell><TableCell>Case category</TableCell>
-                  <TableCell>Date reported</TableCell><TableCell>Case status</TableCell><TableCell>KP eligibility</TableCell><TableCell>Hearing status</TableCell>
+                  <TableCell>Date reported</TableCell><TableCell>Case status</TableCell>{!vawc && <TableCell>KP eligibility</TableCell>}<TableCell>Hearing status</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -131,11 +145,13 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
                     </TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{shortDate(r.filedAt)}</TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{r.status}</TableCell>
-                    <TableCell>
-                      <Tooltip title={r.eligibility.reasons.join(' ') || 'Reviewed by an official as eligible for barangay conciliation'}>
-                        <Chip size="small" label={r.eligibility.label} sx={{ ...chipSx(ELIGIBILITY_COLOR[r.eligibility.state]), ...tightChip }} />
-                      </Tooltip>
-                    </TableCell>
+                    {!vawc && (
+                      <TableCell>
+                        <Tooltip title={r.eligibility.reasons.join(' ') || 'Reviewed by an official as eligible for barangay conciliation'}>
+                          <Chip size="small" label={r.eligibility.label} sx={{ ...chipSx(ELIGIBILITY_COLOR[r.eligibility.state]), ...tightChip }} />
+                        </Tooltip>
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Chip size="small" label={r.hearing.label} sx={{ ...chipSx(HEARING_STATE_COLOR[r.hearing.state]), ...tightChip }} />
                       {r.hearing.latest && r.hearing.state === 'IN_PROGRESS' && (
@@ -143,9 +159,9 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
                           {r.hearing.latest.title} · {r.hearing.latest.statusLabel} · {shortDate(r.hearing.latest.scheduledAt)}
                         </Typography>
                       )}
-                      {r.hearing.state === 'AWAITING_NEXT' && r.next && <Typography sx={{ fontSize: '0.7rem', color: '#4f46e5', mt: 0.25 }}>Next: {r.next.title}</Typography>}
+                      {!vawc && r.hearing.state === 'AWAITING_NEXT' && r.next && <Typography sx={{ fontSize: '0.7rem', color: '#4f46e5', mt: 0.25 }}>Next: {r.next.title}</Typography>}
                     </TableCell>
-                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}><RowAction r={r} claiming={claiming === r.id} onClaim={claim} onCreate={onCreate} onOpenHearing={onOpenHearing} /></TableCell>
+                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}><RowAction r={r} vawc={vawc} claiming={claiming === r.id} onClaim={claim} onCreate={onCreate} onOpenHearing={onOpenHearing} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -161,8 +177,8 @@ export default function HearingCasesTable({ caseBase, onCreate, onOpenHearing }:
 }
 
 /** What the official can do with this case now. */
-function RowAction({ r, claiming, onClaim, onCreate, onOpenHearing }: {
-  r: HearingCaseRow; claiming: boolean; onClaim: (r: HearingCaseRow) => void; onCreate: (caseId: string) => void; onOpenHearing: (caseId: string, hearingId: string) => void;
+function RowAction({ r, vawc, claiming, onClaim, onCreate, onOpenHearing }: {
+  r: HearingCaseRow; vawc: boolean; claiming: boolean; onClaim: (r: HearingCaseRow) => void; onCreate: (caseId: string) => void; onOpenHearing: (caseId: string, hearingId: string) => void;
 }) {
   const btn = { textTransform: 'none' as const, borderRadius: 2, px: 1, minWidth: 0, fontSize: '0.76rem' };
   if (!r.canManage) {
@@ -185,6 +201,8 @@ function RowAction({ r, claiming, onClaim, onCreate, onOpenHearing }: {
     return <Button size="small" variant="contained" onClick={() => onCreate(r.id)} sx={{ ...btn, bgcolor: NAVY }}>Create hearing</Button>;
   }
   if (r.eligibility.state === 'PENDING_REVIEW') return <Button size="small" variant="outlined" color="warning" onClick={() => onCreate(r.id)} sx={btn}>Review eligibility</Button>;
+  if (vawc && r.hearing.latest) return <Button size="small" onClick={() => onOpenHearing(r.id, r.hearing.latest!.id)} sx={btn}>View hearings</Button>;
+  if (vawc) return <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Case closed</Typography>;
   if (r.eligibility.state === 'NOT_ELIGIBLE') return <Button size="small" color="error" onClick={() => onCreate(r.id)} sx={btn}>Why not eligible</Button>;
   return <Button size="small" onClick={() => onCreate(r.id)} sx={btn}>View case</Button>;
 }

@@ -1,29 +1,42 @@
 /**
- * VAWC Hearings (the renamed VAWC Appointments; records in VawcAppointment) -
- * the specification's checks 1 to 20, through the real routes and the real
- * database, in-process (no dev server). Check 21 (desktop, tablet and mobile
- * layouts) is done in a browser.
+ * VAWC hearings on the shared hearing workflow (CaseHearing), through the
+ * real routes and the real database, in-process (no dev server).
  * Run with:  npm run test:vawchearings
  *
- * Needs migrations 019 and 020 applied. Temporary rows are marked PROBE-VH
- * and removed at the end. Fictional data only.
+ * Covers: VAWC hearing types (never mediation or conciliation), a VAWC
+ * official creating and running a hearing exactly as the blotter desk does,
+ * the VAWC Notice of Hearing (not a KP form), who may reach VAWC hearings
+ * (server-side), the resident page with both case types, the respondent's
+ * payload, and reclassifying a case with hearings. The blotter workflow
+ * itself is tests/hearings.test.ts (unchanged except its VAWC lines).
+ *
+ * Needs prisma/sql/022 applied. Temporary rows are marked PROBE-VH and
+ * removed at the end. Fictional data only.
  */
-import fs from 'fs';
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
-import { phDay } from '../lib/hearings';
-import { GET as listGET, POST as createPOST } from '../app/api/vawc/appointments/route';
-import { GET as casesGET } from '../app/api/vawc/appointments/cases/route';
-import { GET as oneGET, PATCH as onePATCH } from '../app/api/vawc/appointments/[aid]/route';
-import { GET as residentGET } from '../app/api/resident/appointments/route';
-import { POST as residentPOST } from '../app/api/resident/appointments/[aid]/route';
+import {
+  KP_STAGES, VAWC_HEARING_TYPES, VAWC_HEARING_TYPE_KEYS, HEARING_TYPES, KP_KEYS, outcomesFor, partyFormsFor, nextStep, stageLabel, residentHearingMessage, phDay,
+} from '../lib/hearings';
+import { notificationsVisibleTo } from '../lib/caseAccess';
+import { vawcNoticeBody } from '../lib/vawcNoticePdf';
+import { GET as caseHearingsGET, POST as caseHearingsPOST } from '../app/api/cases/[id]/hearings/route';
+import { PATCH as hearingPATCH } from '../app/api/cases/[id]/hearings/[hid]/route';
+import { GET as noticePreview, POST as noticePOST } from '../app/api/cases/[id]/hearings/[hid]/notices/route';
+import { GET as noticePDF } from '../app/api/cases/[id]/hearings/[hid]/notices/[nid]/pdf/route';
+import { POST as pangkatPOST } from '../app/api/cases/[id]/pangkat/route';
+import { POST as kpPOST } from '../app/api/cases/[id]/kp-review/route';
+import { GET as listGET } from '../app/api/hearings/route';
+import { GET as candidatesGET } from '../app/api/hearings/cases/route';
+import { PATCH as classPATCH } from '../app/api/cases/[id]/classification/route';
+import { GET as residentGET } from '../app/api/resident/hearings/route';
+import { POST as residentPOST } from '../app/api/resident/hearings/[hid]/route';
+import { GET as residentNotice } from '../app/api/resident/hearings/[hid]/notice/route';
 import { GET as updatesGET } from '../app/api/resident/updates/route';
-import { GET as hearingCasesGET } from '../app/api/hearings/cases/route';
-import { GET as hearingsGET } from '../app/api/hearings/route';
-import { POST as caseHearingsPOST } from '../app/api/cases/[id]/hearings/route';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -37,219 +50,224 @@ const req = (path: string, cookie: string, method = 'GET', body?: unknown) => ne
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = Record<string, any>;
 const json = async (res: Response | undefined) => res ? { status: res.status, body: await res.json().catch(() => ({})) as Body } : { status: 0, body: {} as Body };
-const refuse = async (fn: () => Promise<unknown>) => { try { await fn(); return false; } catch { return true; } };
-const read = (f: string) => fs.readFileSync(f, 'utf8');
-const navLabels = (src: string) => [...src.matchAll(/\{ id: '([^']+)', label: '([^']+)'[^}]*path: '([^']+)'/g)].map(m => ({ id: m[1], label: m[2], path: m[3] }));
+async function pdfText(res: Response | undefined) {
+  const bytes = new Uint8Array(await res!.arrayBuffer());
+  const doc = await getDocument({ data: bytes, useSystemFonts: true, isEvalSupported: false }).promise;
+  let out = '';
+  for (let i = 1; i <= doc.numPages; i++) out += (await (await doc.getPage(i)).getTextContent()).items.map(it => ('str' in it ? it.str : '')).join(' ') + '\n';
+  return out.replace(/\s+/g, ' ');
+}
+const allYes = Object.fromEntries(KP_KEYS.map(k => [k, 'YES']));
 
 async function main() {
   const users: string[] = []; const caseIds: string[] = []; const residents: string[] = [];
   const pw = await bcrypt.hash(`${TAG}-unused`, 4);
   try {
-    // ── 1-4  The sidebars and the pages each opens ──
-    console.log('TEST 1-4  Sidebar: "Hearings" for both desks, same place, separate modules');
-    const vNav = navLabels(read('app/vawc/layout.tsx'));
-    const bNav = navLabels(read('app/blotter-officer/layout.tsx'));
-    ok('1. VAWC officers see "Hearings", not "Appointments"', vNav.some(n => n.label === 'Hearings') && !vNav.some(n => /appointment/i.test(n.label)), vNav.map(n => n.label).join());
-    const after = (nav: typeof vNav) => nav[nav.findIndex(n => n.label === 'Case Classification') + 1]?.label;
-    ok('2. the same place as the Blotter item: right after Case Classification, same icon', after(vNav) === 'Hearings' && after(bNav) === 'Hearings'
-      && /id: 'hearings', label: 'Hearings', icon: Gavel/.test(read('app/vawc/layout.tsx')) && /id: 'hearings', label: 'Hearings', icon: Gavel/.test(read('app/blotter-officer/layout.tsx')),
-      `${after(vNav)} / ${after(bNav)}`);
-    ok('3. the Blotter item still opens its KP Hearing Management, unchanged', bNav.find(n => n.label === 'Hearings')?.path === '/blotter-officer/hearings'
-      && /HearingManagement/.test(read('app/blotter-officer/hearings/page.tsx')));
-    ok('4. the VAWC item opens /vawc/hearings (the VAWC module); old /vawc/appointments links redirect there', vNav.find(n => n.label === 'Hearings')?.path === '/vawc/hearings'
-      && /VawcAppointments/.test(read('app/vawc/hearings/page.tsx')) && /redirect\(/.test(read('app/vawc/appointments/page.tsx')));
+    // ── 1. The rules ──
+    console.log('\n1. VAWC hearing types and labels');
+    const vawcLabels = VAWC_HEARING_TYPE_KEYS.map(k => `${VAWC_HEARING_TYPES[k].label} ${VAWC_HEARING_TYPES[k].short} ${VAWC_HEARING_TYPES[k].resident}`).join(' ');
+    ok('no VAWC hearing type says mediation, conciliation or settlement', !/mediat|concilia|settle|pangkat|lupon/i.test(vawcLabels), vawcLabels);
+    ok('the hearing types are keyed by case type, and the blotter stages are unchanged', HEARING_TYPES.BLOTTER === KP_STAGES
+      && KP_STAGES.MEDIATION.label === 'Mediation before the Punong Barangay' && KP_STAGES.CONSTITUTION.label === 'Constitution of the Pangkat'
+      && KP_STAGES.CONCILIATION.label === 'Conciliation before the Pangkat' && Object.keys(HEARING_TYPES.VAWC).join() === VAWC_HEARING_TYPE_KEYS.join());
+    ok('a VAWC hearing never offers a settlement, a certification to file action or a withdrawal', VAWC_HEARING_TYPE_KEYS.every(k =>
+      !outcomesFor(k).some(o => ['SETTLED', 'NOT_SETTLED', 'CERTIFICATE_TO_FILE', 'WITHDRAWN', 'PANGKAT_CONSTITUTED', 'CONTINUED'].includes(o))));
+    ok('a VAWC notice is no KP form; only the desk hearing calls the respondent', partyFormsFor('VAWC_DESK_HEARING').map(f => `${f.formNo}${f.recipientRole[0]}`).join() === 'nullC,nullR'
+      && partyFormsFor('VICTIM_INTERVIEW').map(f => f.recipientRole).join() === 'COMPLAINANT' && partyFormsFor('MEDIATION').map(f => f.formNo).join() === '8,9');
+    ok('a VAWC case never gets a KP stage; a blotter case never gets a VAWC type', nextStep('Domestic Violence', [], false, 'MEDIATION').stage === null
+      && nextStep('Noise Complaint', [], false, 'CASE_CONFERENCE').stage === null && nextStep('Domestic Violence', [], false, 'CASE_CONFERENCE').stage === 'CASE_CONFERENCE'
+      && nextStep('Noise Complaint', [], false).stage === 'MEDIATION');
+    ok('a resident is told about a VAWC hearing in neutral words', /^Hearing at the barangay is scheduled/.test(residentHearingMessage({ kind: 'scheduled',
+      after: { hearingNumber: 1, stage: 'VAWC_DESK_HEARING', session: 1, scheduledAt: new Date().toISOString() } }) ?? ''));
+    ok('the VAWC notice text: not mediation, confidential, no KP warning', vawcNoticeBody({ hearingType: 'VAWC_DESK_HEARING', scheduledAt: new Date(), venue: null, recipientRole: 'RESPONDENT' })
+      .join(' ').match(/not a mediation or conciliation proceeding.*confidential/) !== null
+      && !/counterclaim|contempt|FAIL NOT/i.test(vawcNoticeBody({ hearingType: 'VAWC_DESK_HEARING', scheduledAt: new Date(), venue: null, recipientRole: 'RESPONDENT' }).join(' ')));
 
+    // ── People and cases ──
     const mk = async (k: string, role: string) => {
       const u = await prisma.user.create({ data: { email: `probe.vh.${k}.${process.pid}@safcom.local`, name: `${TAG} ${k}`, password: pw, role } });
       users.push(u.id);
       return { ...u, cookie: `safcom_token=${signToken({ userId: u.id, email: u.email, role })}` };
     };
+    const B = await mk('blotter', 'officer');
     const V = await mk('vawc', 'vawc_officer');
     const V2 = await mk('vawc2', 'vawc_officer');
-    const B = await mk('blotter', 'officer');
     const C = await mk('captain', 'admin');
-    const SA = await mk('sysadmin', 'system_admin');
+    const S = await mk('sysadmin', 'system_admin');
     const mkRes = async (k: string, first: string) => {
-      const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${k}-${process.pid}`, firstName: first, lastName: 'Probe', age: 30, gender: 'Female',
-        barangay: 'Ayukit', address: `${k} fictional address`, emailVerified: true } });
+      const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${k}-${process.pid}`, firstName: first, lastName: 'Fictional', age: 31, gender: 'Female',
+        barangay: 'Ayukit', address: `${k} Confidential Address St`, contactNumber: `0917555${String(process.pid % 10000).padStart(4, '0')}`, emailVerified: true } });
       residents.push(r.id);
       return { ...r, cookie: `resident_token=${signResidentToken({ residentId: r.id, email: 'x', name: first, role: 'resident' })}` };
     };
-    const R1 = await mkRes('a', 'Ana');   // filed the VAWC case
-    const R2 = await mkRes('b', 'Bea');   // unrelated resident
+    const R1 = await mkRes('a', 'Ana');      // files every case here: the complainant
+    const R2 = await mkRes('b', 'Bea');      // a party to nothing here
     let n = 0;
+    const NARRATIVE = 'SECRET-NARRATIVE fictional account of the incident';
     const mkCase = async (d: Record<string, unknown>) => {
-      const c = await prisma.case.create({ data: { caseNumber: `${TAG}-${process.pid}-${++n}`, residentName: 'Fictional Reporter', caseType: 'Domestic Violence',
-        barangay: 'Probe Street', description: 'fictional test narrative', status: 'Open', riskLevel: 'High', residentId: R1.id, assignedToId: V.id,
-        reportingRelationship: 'SELF', contactPreference: 'no_phone', ...d } as never });
+      const c = await prisma.case.create({ data: { caseNumber: `${TAG}-${process.pid}-${++n}`, residentName: 'Ana Fictional', caseType: 'Noise Complaint',
+        barangay: 'Ortega Compound', description: NARRATIVE, status: 'Open', riskLevel: 'Low', residentId: R1.id, assignedToId: B.id, ...d } as never });
       caseIds.push(c.id); return c;
     };
-    const KV = await mkCase({});                                                                   // assigned to V, filed by R1
-    // A VAWC case with every optional detail empty, never scheduled: it must still be listed.
-    const KVbare = await mkCase({ caseType: 'Economic Abuse', riskLevel: null, residentId: null, contactPreference: null, reportingRelationship: null });
-    const KVfree = await mkCase({ caseType: 'Stalking', assignedToId: null });                      // unassigned: V may take it
-    const KVother = await mkCase({ assignedToId: V2.id });                                         // another officer's
-    const KB = await mkCase({ caseType: 'Noise Complaint', assignedToId: B.id, contactPreference: null, reportingRelationship: null }); // blotter
+    const eligible = async (caseId: string) => {
+      await prisma.assessmentHistory.create({ data: { caseId, kind: 'category_confirm', caseType: 'Noise Complaint', rationale: {}, actorId: B.id } });
+      await prisma.caseKpReview.create({ data: { caseId, decision: 'ELIGIBLE', caseType: 'Noise Complaint', checklist: allYes, reviewedById: B.id, version: 2, approvedById: B.id, approvedAt: new Date() } });
+    };
+    const KV = await mkCase({ caseType: 'Domestic Violence', assignedToId: V.id });
+    await prisma.caseParty.create({ data: { caseId: KV.id, role: 'REPORTED', fullName: 'Fictional Respondent', address: '9 Hidden Street', source: 'reporter' } });
+    await prisma.caseParty.create({ data: { caseId: KV.id, role: 'AFFECTED', fullName: 'Ana Fictional', address: 'AFFECTED-ADDRESS 1 Safe House', contactNumber: '09170000001', source: 'reporter' } });
+    const KB = await mkCase({});
+    await prisma.caseParty.create({ data: { caseId: KB.id, role: 'REPORTED', fullName: 'Fictional Neighbor', source: 'official' } });
+    await eligible(KB.id);
+    const KR = await mkCase({});
+    await prisma.caseParty.create({ data: { caseId: KR.id, role: 'REPORTED', fullName: 'Fictional Partner', source: 'official' } });
+    await eligible(KR.id);
 
-    const PA = (aid: string) => ({ params: Promise.resolve({ aid }) });
-    const create = (cookie: string, body: Body) => createPOST(req('/api/vawc/appointments', cookie, 'POST', body)).then(json);
-    const patch = (aid: string, cookie: string, body: Body) => onePATCH(req(`/api/vawc/appointments/${aid}`, cookie, 'PATCH', body), PA(aid)).then(json);
-    const one = (aid: string, cookie: string) => oneGET(req(`/api/vawc/appointments/${aid}`, cookie), PA(aid)).then(json);
-    const list = (cookie: string, q = '') => listGET(req(`/api/vawc/appointments?${q}`, cookie)).then(json);
-    const picker = (cookie: string, q = '') => casesGET(req(`/api/vawc/appointments/cases?${q}`, cookie)).then(json);
-    const feed = async (cookie: string) => ((await json(await updatesGET(req('/api/resident/updates?limit=30', cookie)))).body.data ?? []) as Body[];
-    const day = (o: number) => phDay(new Date(Date.now() + o * 86_400_000));
+    const P = (id: string) => ({ params: Promise.resolve({ id }) });
+    const PH = (id: string, hid: string) => ({ params: Promise.resolve({ id, hid }) });
+    const create = (caseId: string, cookie: string, body: Body) => caseHearingsPOST(req(`/api/cases/${caseId}/hearings`, cookie, 'POST', body), P(caseId)).then(json);
+    const patch = (caseId: string, hid: string, cookie: string, body: Body) => hearingPATCH(req(`/api/cases/${caseId}/hearings/${hid}`, cookie, 'PATCH', body), PH(caseId, hid)).then(json);
+    const detail = (caseId: string, cookie: string) => caseHearingsGET(req(`/api/cases/${caseId}/hearings`, cookie), P(caseId)).then(json);
+    const list = (cookie: string, q = '') => listGET(req(`/api/hearings?${q}`, cookie)).then(json);
+    const resident = async (cookie: string) => (await json(await residentGET(req('/api/resident/hearings', cookie)))).body;
+    const rpost = (hid: string, body: Body, cookie: string) => residentPOST(req(`/api/resident/hearings/${hid}`, cookie, 'POST', body), { params: Promise.resolve({ hid }) }).then(json);
+    const future = new Date(Date.now() + 6 * 86_400_000);
+    const futureDay = phDay(future);
+    const arrive = (hid: string) => prisma.caseHearing.update({ where: { id: hid }, data: { scheduledAt: new Date(Date.now() - 2 * 60_000) } });
 
-    console.log('\nTEST 5-8  The cases');
-    const pk = await picker(V.cookie);
-    const ids = (pk.body.data?.rows ?? []).map((r: Body) => r.id) as string[];
-    ok('5. the VAWC officer sees actual VAWC cases: their own and the unassigned ones', pk.status === 200 && ids.includes(KV.id) && ids.includes(KVfree.id), JSON.stringify(pk.body).slice(0, 200));
-    ok('   ...not another officer\'s case', !ids.includes(KVother.id));
-    ok('   ...with reference, type, date, status and assigned officer', (() => { const r = pk.body.data.rows.find((x: Body) => x.id === KV.id);
-      return r?.caseNumber === KV.caseNumber && r.caseType === 'Domestic Violence' && Boolean(r.filedAt) && r.status === 'Open' && r.assignedTo?.id === V.id && r.canSchedule === true; })());
-    ok('   the Punong Barangay sees every VAWC case', ((await picker(C.cookie)).body.data.rows as Body[]).some(r => r.id === KVother.id));
-    ok('6. no blotter case in the list, nor when searched for by its reference', !ids.includes(KB.id)
-      && !((await picker(V.cookie, `q=${encodeURIComponent(KB.caseNumber)}`)).body.data.rows as Body[]).length);
-    ok('7. a case with no hearing and every optional field empty is listed', ids.includes(KVbare.id));
-    const ctx = await picker(V.cookie, `caseId=${KVbare.id}`);
-    ok('   ...and selecting it loads (this call failed before: the table was missing)', ctx.status === 200 && ctx.body.data.appointments === 0 && ctx.body.data.canEdit === true, `${ctx.status} ${ctx.body.error ?? ''}`);
-    const ctx1 = await picker(V.cookie, `caseId=${KV.id}`);
-    const c1 = ctx1.body.data?.case;
-    ok('8. selecting a case loads its own details: reference, type, officer, account, safe-contact preference', ctx1.status === 200 && c1.id === KV.id && c1.caseNumber === KV.caseNumber
-      && c1.caseType === 'Domestic Violence' && c1.assignedTo?.id === V.id && c1.hasAccount === true && c1.contact.preference === 'no_phone' && !('description' in c1) && !('residentName' in c1));
-    ok('   the blotter case cannot be selected (refused with the reason)', (await picker(V.cookie, `caseId=${KB.id}`)).status === 422);
+    // ── 2. A VAWC official creates a hearing ──
+    console.log('\n2. A report classified VAWC: the VAWC desk lists it and creates a hearing');
+    const cands = await json(await candidatesGET(req('/api/hearings/cases?track=VAWC&pageSize=100', V.cookie)));
+    ok('the VAWC case is on the VAWC desk\'s case list, managed by its officer', cands.status === 200 && cands.body.data.rows.some((r: Body) => r.id === KV.id && r.canManage)
+      && cands.body.data.rows.every((r: Body) => r.caseType !== 'Noise Complaint'));
+    ok('the blotter desk cannot ask for the VAWC case list (403)', (await json(await candidatesGET(req('/api/hearings/cases?track=VAWC', B.cookie)))).status === 403);
+    ok('the VAWC desk\'s default list is VAWC cases', (await json(await candidatesGET(req('/api/hearings/cases?pageSize=100', V.cookie)))).body.data.track === 'VAWC');
+    const d0 = await detail(KV.id, V.cookie);
+    ok('the case\'s hearings: no KP review, every VAWC type offered, the desk\'s officials', d0.status === 200 && d0.body.data.track === 'VAWC' && d0.body.data.eligibility.eligible
+      && d0.body.data.choices.map((c: Body) => c.stage).join() === VAWC_HEARING_TYPE_KEYS.join() && d0.body.data.pangkat === null
+      && d0.body.data.officials.every((o: Body) => ['vawc_officer', 'vawc', 'vawc_lead', 'admin'].includes(o.role)));
+    ok('a KP stage on a VAWC case is refused (RA 9262)', (await create(KV.id, V.cookie, { stage: 'MEDIATION', date: futureDay, time: '09:00' })).status === 422);
+    ok('no KP review or Pangkat may be recorded on it', (await json(await kpPOST(req(`/api/cases/${KV.id}/kp-review`, C.cookie, 'POST', { answers: allYes, approve: true }), P(KV.id)))).status === 422
+      && (await json(await pangkatPOST(req(`/api/cases/${KV.id}/pangkat`, C.cookie, 'POST', { action: 'add_member', name: 'Fictional Lupon', chosenBy: 'BOTH_PARTIES' }), P(KV.id)))).status === 422);
+    ok('another VAWC officer, not assigned, may not create one (403)', (await create(KV.id, V2.cookie, { stage: 'VAWC_DESK_HEARING', date: futureDay, time: '09:00' })).status === 403);
+    const c1 = await create(KV.id, V.cookie, { stage: 'VAWC_DESK_HEARING', date: futureDay, time: '10:00', venue: 'Barangay Hall, Room 2' });
+    ok('the assigned VAWC officer schedules a VAWC Desk Hearing (201)', c1.status === 201, `${c1.status} ${c1.body.error ?? ''}`);
+    const H1 = c1.body.data as Body;
+    const n1 = await prisma.caseHearingNotice.findMany({ where: { hearingId: H1.id }, orderBy: { recipientRole: 'asc' } });
+    ok('same workflow: scheduled with a notice to each party - the VAWC Notice of Hearing, no KP form', H1.stage === 'VAWC_DESK_HEARING' && /^HRG-.*-V1$/.test(H1.reference)
+      && n1.length === 2 && n1.every(x => x.formNo === null && x.noticeNumber.startsWith('NH-'))
+      && n1.find(x => x.recipientRole === 'COMPLAINANT')?.status === 'ISSUED' && n1.find(x => x.recipientRole === 'RESPONDENT')?.status === 'GENERATED');
+    ok('its status follows the notices, as on the blotter desk', (await prisma.caseHearing.findUnique({ where: { id: H1.id } }))?.status === 'NOTICE_ISSUED');
+    const pv = await noticePreview(req(`/api/cases/${KV.id}/hearings/${H1.id}/notices?recipient=RESPONDENT`, V.cookie), PH(KV.id, H1.id));
+    const pvText = await pdfText(pv);
+    ok('the respondent\'s notice: VAWC Notice of Hearing, not a KP form, no complainant address or contact', pv.status === 200 && /NOTICE OF HEARING/.test(pvText)
+      && /BARANGAY VAWC DESK/.test(pvText) && /VAWC Desk Hearing/.test(pvText) && !/KP Form No|SUMMONS|S U M M O N S/.test(pvText)
+      && !/Confidential Address|AFFECTED-ADDRESS|0917555|09170000001|SECRET-NARRATIVE/.test(pvText), pvText.slice(0, 200));
+    const rn = n1.find(x => x.recipientRole === 'RESPONDENT')!;
+    ok('the stored respondent notice prints the same way', (await noticePDF(req(`/api/cases/${KV.id}/hearings/${H1.id}/notices/${rn.id}/pdf`, C.cookie),
+      { params: Promise.resolve({ id: KV.id, hid: H1.id, nid: rn.id }) })).status === 200);
 
-    console.log('\nTEST 9-13  Create, save, list, calendar, refresh');
-    const base = { caseId: KV.id, type: 'VICTIM_INTERVIEW', date: day(3), time: '10:00', venue: 'VAWC Desk - private room', participants: ['REPORTER'],
-      purpose: 'PROBE-PURPOSE initial private interview', internalNotes: 'PROBE-INTERNAL do not disclose', notifyVia: 'SAFECOMM_ACCOUNT', residentInstructions: 'Bring any papers you have.' };
-    const key = `${TAG}-key-${process.pid}-a`;
-    const [c1a, c1b] = await Promise.all([create(V.cookie, { ...base, submissionKey: key }), create(V.cookie, { ...base, submissionKey: key })]);
-    const aid = (c1a.body.data?.id ?? c1b.body.data?.id) as string;
-    ok('9. Create Hearing succeeds', [c1a.status, c1b.status].includes(201), `${c1a.status} ${c1a.body.error ?? ''} / ${c1b.status} ${c1b.body.error ?? ''}`);
-    ok('   a double submit of the same form saves one record', c1a.body.data?.id === c1b.body.data?.id && (await prisma.vawcAppointment.count({ where: { caseId: KV.id } })) === 1,
-      `${c1a.status}/${c1b.status}`);
-    const again = await create(V.cookie, { ...base, submissionKey: key });
-    ok('   ...and a retry later returns that record, nothing new', again.status === 200 && again.body.data.duplicate === true && again.body.data.id === aid);
-    const row = await prisma.vawcAppointment.findUnique({ where: { id: aid } });
-    ok('10. saved against the VAWC case id, the officer, type, date, venue, purpose, status and timestamps', row?.caseId === KV.id && row.assignedOfficerId === V.id
-      && row.createdById === V.id && row.type === 'VICTIM_INTERVIEW' && phDay(row.scheduledAt) === day(3) && row.venue === base.venue && row.purpose === base.purpose
-      && row.status === 'SCHEDULED' && Boolean(row.createdAt) && Boolean(row.updatedAt) && row.participants.join() === 'REPORTER');
+    // ── 3. Who may reach VAWC hearings ──
+    console.log('\n3. Who may reach VAWC hearings (server-side)');
+    ok('a blotter officer: the VAWC case\'s hearings are not found (404 - its existence is not confirmed)', (await detail(KV.id, B.cookie)).status === 404
+      && (await create(KV.id, B.cookie, { stage: 'VAWC_DESK_HEARING', date: futureDay, time: '11:00' })).status === 404
+      && (await patch(KV.id, H1.id, B.cookie, { action: 'proceedings', note: 'probe' })).status === 404);
+    ok('a blotter officer asking for the VAWC hearing list: 403', (await list(B.cookie, 'track=VAWC')).status === 403 && (await list(B.cookie, 'track=ALL')).body.data?.rows.every((r: Body) => r.track === 'BLOTTER'));
+    ok('the system administrator: no VAWC hearings (403 on the list, 404 on the case)', (await list(S.cookie, 'track=VAWC')).status === 403 && (await detail(KV.id, S.cookie)).status === 404);
+    ok('the blotter desk\'s calendar never shows the VAWC hearing', !(await list(B.cookie)).body.data.rows.some((r: Body) => r.id === H1.id)
+      && !(await list(C.cookie)).body.data.rows.some((r: Body) => r.id === H1.id));
+    const vl = await list(V.cookie);
+    ok('the VAWC desk\'s list and calendar show it, with its case type', vl.status === 200 && vl.body.data.rows.some((r: Body) => r.id === H1.id && r.track === 'VAWC'));
+    const both = await list(C.cookie, 'track=ALL');
+    ok('the captain may see both case types, each marked', both.status === 200 && both.body.data.tracks.join() === 'BLOTTER,VAWC' && both.body.data.rows.some((r: Body) => r.id === H1.id && r.track === 'VAWC'));
 
-    // The court date: a Hearing type, with the court's details, tracked only.
-    ok('   a court date without its matter or official source is refused', (await create(V.cookie, { ...base, type: 'EXTERNAL_COURT_HEARING', venue: 'RTC Branch 1', time: '08:30' })).status === 400);
-    ok('   court details on another type are refused', (await create(V.cookie, { ...base, courtMatter: 'TPO', courtSource: 'COURT_NOTICE', time: '13:00' })).status === 400);
-    ok('   SafeComm cannot be asked to conduct it', (await create(V.cookie, { ...base, action: 'conduct_hearing', type: 'EXTERNAL_COURT_HEARING', courtMatter: 'TPO', courtSource: 'COURT_NOTICE' })).status === 400);
-    const ct = await create(V.cookie, { ...base, type: 'EXTERNAL_COURT_HEARING', date: day(5), time: '08:30', venue: 'RTC Branch 12 (Family Court) - fictional',
-      courtMatter: 'TPO', courtSource: 'COURT_NOTICE', courtReference: 'FC-PROBE-0001', purpose: 'PROBE accompany the client to the TPO hearing', submissionKey: `${TAG}-key-${process.pid}-c` });
-    const cid = ct.body.data?.id as string;
-    const crow = cid ? await prisma.vawcAppointment.findUnique({ where: { id: cid } }) : null;
-    ok('   an external court hearing is saved as a Hearing with its court details', ct.status === 201 && crow?.type === 'EXTERNAL_COURT_HEARING' && crow.courtMatter === 'TPO'
-      && crow.courtSource === 'COURT_NOTICE' && crow.courtReference === 'FC-PROBE-0001', `${ct.status} ${ct.body.error ?? ''}`);
-    ok('   the database refuses court details on another type', await refuse(() => prisma.vawcAppointment.update({ where: { id: aid }, data: { courtMatter: 'TPO' } })));
-    ok('   the database refuses a court type without its source', await refuse(() => prisma.vawcAppointment.update({ where: { id: cid }, data: { courtSource: null } })));
-    for (const t of ['INTAKE_FOLLOW_UP', 'SAFETY_FOLLOW_UP', 'REFERRAL_COORDINATION', 'CASE_CONFERENCE']) {
-      const r = await create(V.cookie, { ...base, caseId: KVbare.id, type: t, date: day(6), time: ['09:00', '10:30', '13:00', '14:30'][['INTAKE_FOLLOW_UP', 'SAFETY_FOLLOW_UP', 'REFERRAL_COORDINATION', 'CASE_CONFERENCE'].indexOf(t)],
-        participants: t === 'CASE_CONFERENCE' ? ['VAWC_STAFF'] : ['REPORTER'], notifyVia: 'OFFICER_CONTACT', residentInstructions: undefined });
-      ok(`   type ${t} is saved on the case that had no hearing`, r.status === 201, `${r.status} ${r.body.error ?? ''}`);
-    }
+    // ── 4. Blotter alongside ──
+    const cb = await create(KB.id, B.cookie, { date: futureDay, time: '14:00' });
+    ok('a blotter mediation is created exactly as before (KP 8 and KP 9)', cb.status === 201 && cb.body.data.stage === 'MEDIATION'
+      && (await prisma.caseHearingNotice.findMany({ where: { hearingId: cb.body.data.id } })).map(x => x.formNo).sort().join() === '8,9');
+    const HB = cb.body.data as Body;
 
-    const l = await list(V.cookie, 'view=upcoming');
-    const lr = (l.body.data?.rows ?? []).find((r: Body) => r.id === aid);
-    ok('11. it is in the Hearings list with the case reference, type, date, officer and status', l.status === 200 && lr?.case.caseNumber === KV.caseNumber
-      && lr.typeLabel === 'Victim-survivor interview' && phDay(lr.scheduledAt) === day(3) && lr.officer?.id === V.id && lr.status === 'SCHEDULED');
-    const cal = await list(V.cookie, `from=${day(-3)}&to=${day(38)}`);
-    const calIds = (cal.body.data?.rows ?? []).map((r: Body) => r.id) as string[];
-    ok('12. it is in the calendar\'s range, from the same records, once each', cal.status === 200 && calIds.includes(aid) && calIds.includes(cid) && new Set(calIds).size === calIds.length);
-    const fresh = `safcom_token=${signToken({ userId: V.id, email: V.email, role: 'vawc_officer' })}`;
-    ok('13. still there after a refresh and a new sign-in', ((await list(fresh, 'view=all')).body.data.rows as Body[]).some(r => r.id === aid));
+    // ── 5. The resident ──
+    console.log('\n5. My Hearings & Notices: both case types');
+    const r1 = await resident(R1.cookie);
+    const all1 = (r1.data.history as Body[]).flatMap(g => g.hearings);
+    ok('both hearings are listed, each with its case type', all1.some(h => h.id === H1.id && h.caseType === 'VAWC') && all1.some(h => h.id === HB.id && h.caseType === 'BLOTTER'));
+    ok('upcoming counts both', r1.data.upcoming.some((h: Body) => h.id === H1.id) && r1.data.upcoming.some((h: Body) => h.id === HB.id));
+    ok('the history groups carry the badge', (r1.data.history as Body[]).some(g => g.caseType === 'VAWC') && (r1.data.history as Body[]).some(g => g.caseType === 'BLOTTER'));
+    const mineV = all1.find(h => h.id === H1.id)!;
+    ok('the VAWC hearing reads in neutral words, with VAWC instructions (no KP rules)', mineV.title === 'Hearing at the barangay' && mineV.stageLabel === 'VAWC Desk Hearing'
+      && mineV.roleLabel === 'Complainant' && !mineV.instructions.join(' ').match(/Katarungang|counterclaim|summons/i) && /confidential/i.test(mineV.instructions.join(' ')));
+    const payload = JSON.stringify(r1);
+    ok('the resident API carries no address, contact number or narrative of anyone', !/Confidential Address|AFFECTED-ADDRESS|9 Hidden Street|0917555|09170000001|SECRET-NARRATIVE/.test(payload)
+      && !/"(address|contactNumber|description|narrative)"/.test(payload));
+    ok('another resident sees none of it', !(await resident(R2.cookie)).data.history.length);
+    ok('...and cannot act on it or open its notice (404)', (await rpost(H1.id, { action: 'acknowledge' }, R2.cookie)).status === 404
+      && (await residentNotice(req(`/api/resident/hearings/${H1.id}/notice`, R2.cookie), { params: Promise.resolve({ hid: H1.id }) })).status === 404);
+    const myNotice = await residentNotice(req(`/api/resident/hearings/${H1.id}/notice`, R1.cookie), { params: Promise.resolve({ hid: H1.id }) });
+    const myText = await pdfText(myNotice);
+    ok('the complainant opens their VAWC notice (not a KP form)', myNotice.status === 200 && /NOTICE OF HEARING/.test(myText) && !/KP Form No/.test(myText));
+    ok('the complainant acknowledges it - the hearing reads acknowledged', (await rpost(H1.id, { action: 'acknowledge' }, R1.cookie)).status === 200
+      && (await prisma.caseHearing.findUnique({ where: { id: H1.id } }))?.status === 'ACKNOWLEDGED');
+    const rq = await rpost(H1.id, { action: 'reschedule', reason: 'Fictional: I have a clinic appointment that day', preferredSchedule: 'Any morning next week' }, R1.cookie);
+    ok('and asks for a new date (201)', rq.status === 201);
+    const told = await prisma.notification.findMany({ where: { caseId: KV.id, title: { startsWith: 'New date requested' } } });
+    const visV = await prisma.notification.count({ where: { AND: [{ id: { in: told.map(t => t.id) } }, notificationsVisibleTo({ userId: V.id, role: 'vawc_officer' })] } });
+    const visB = await prisma.notification.count({ where: { AND: [{ id: { in: told.map(t => t.id) } }, notificationsVisibleTo({ userId: B.id, role: 'officer' })] } });
+    ok('the request goes to the VAWC officials - never the blotter desk', told.length > 0 && visV > 0 && visB === 0);
 
-    console.log('\nTEST 14-16  Reschedule, cancel, complete, follow-up');
-    const rs = await patch(aid, V.cookie, { action: 'reschedule', date: day(4), time: '14:00', reason: 'Fictional: the client asked for the afternoon' });
-    const moved = await prisma.vawcAppointment.findUnique({ where: { id: aid } });
-    ok('14. rescheduling works: new date, status, count and history', rs.status === 200 && moved?.status === 'RESCHEDULED' && moved.rescheduleCount === 1 && phDay(moved.scheduledAt) === day(4)
-      && (await prisma.vawcAppointmentEvent.count({ where: { appointmentId: aid, kind: 'rescheduled' } })) === 1, `${rs.status} ${rs.body.error ?? ''}`);
-    const toCancel = (await create(V.cookie, { ...base, date: day(8), time: '11:00', notifyVia: 'NONE', participants: ['VAWC_STAFF'], residentInstructions: undefined })).body.data.id as string;
-    const cn = await patch(toCancel, V.cookie, { action: 'cancel', reason: 'Fictional: no longer needed' });
-    const cancelled = await prisma.vawcAppointment.findUnique({ where: { id: toCancel } });
-    ok('15. cancellation works, kept with its reason', cn.status === 200 && cancelled?.status === 'CANCELLED' && Boolean(cancelled.cancelledAt) && cancelled.statusReason === 'Fictional: no longer needed');
-    ok('    a cancelled hearing cannot be moved', (await patch(toCancel, V.cookie, { action: 'reschedule', date: day(9), time: '09:00', reason: 'x x x' })).status === 409);
-    ok('    the outcome cannot be recorded before the day', (await patch(aid, V.cookie, { action: 'record', held: true, attendance: 'ATTENDED' })).status === 409);
-    await prisma.vawcAppointment.update({ where: { id: aid }, data: { scheduledAt: new Date(Date.now() - 3_600_000) } });  // its day has come (fictional)
-    const done = await patch(aid, V.cookie, { action: 'record', held: true, attendance: 'ATTENDED', outcomeNotes: 'PROBE-OUTCOME fictional', followUpActions: 'Fictional: safety plan review',
-      referralStatus: 'TO_BE_MADE', nextDate: day(10), nextTime: '09:00' });
-    const held = await prisma.vawcAppointment.findUnique({ where: { id: aid } });
-    ok('16. marked completed with attendance, outcome, follow-up actions and the next date', done.status === 200 && held?.status === 'COMPLETED' && held.attendance === 'ATTENDED'
-      && held.outcomeNotes === 'PROBE-OUTCOME fictional' && held.followUpActions === 'Fictional: safety plan review' && phDay(held.nextAppointmentAt!) === day(10));
-    ok('    the outcome can be added to afterwards', (await patch(aid, V.cookie, { action: 'amend_outcome', referralStatus: 'IN_PROGRESS' })).status === 200
-      && (await prisma.vawcAppointment.findUnique({ where: { id: aid } }))?.referralStatus === 'IN_PROGRESS');
-    const fu = await create(V.cookie, { ...base, type: 'SAFETY_FOLLOW_UP', date: day(10), time: '09:00', submissionKey: `${TAG}-key-${process.pid}-f` });
-    ok('    a follow-up hearing is added on the same case', fu.status === 201 && (await prisma.vawcAppointment.findUnique({ where: { id: fu.body.data.id } }))?.caseId === KV.id);
-    const hist = await one(aid, V.cookie);
-    ok('    the history keeps each step, with who did it', hist.status === 200 && ['created', 'resident_notified', 'rescheduled', 'completed', 'outcome_amended']
-      .every(k => (hist.body.data.appointment.events as Body[]).some(e => e.kind === k)), (hist.body.data?.appointment?.events ?? []).map((e: Body) => e.kind).join());
-    ok('    the history cannot be rewritten (database)', await refuse(() => prisma.vawcAppointmentEvent.updateMany({ where: { appointmentId: aid }, data: { note: 'x' } })));
+    // ── 6. The VAWC official handles it, and records the outcome ──
+    console.log('\n6. The VAWC official handles the request and records the outcome');
+    const reqRow = await prisma.caseHearingRequest.findFirst({ where: { hearingId: H1.id, status: 'PENDING' } });
+    const newDay = phDay(new Date(Date.now() + 8 * 86_400_000));
+    const ap = await patch(KV.id, H1.id, V.cookie, { action: 'reschedule', date: newDay, time: '10:00', reason: 'At the complainant\'s request', requestId: reqRow?.id });
+    const after = await prisma.caseHearing.findUnique({ where: { id: H1.id }, include: { notices: true, requests: true } });
+    ok('approved with a new date: old notices replaced, new VAWC notices made', ap.status === 200 && after?.status === 'RESCHEDULED' && after.requests[0].status === 'APPROVED'
+      && after.notices.filter(x => x.status === 'SUPERSEDED').length === 2 && after.notices.filter(x => x.status !== 'SUPERSEDED').every(x => x.formNo === null));
+    const msgs = (await resident(R1.cookie)).data.history.flatMap((g: Body) => g.hearings).find((h: Body) => h.id === H1.id).updates.map((u: Body) => u.message).join(' | ');
+    ok('the resident is told, in neutral words', /request for a new date for the hearing at the barangay was approved/i.test(msgs) && !/VAWC|violence|abuse/i.test(msgs), msgs);
+    await arrive(H1.id);
+    ok('"Amicable settlement" is refused on a VAWC hearing', (await patch(KV.id, H1.id, V.cookie, { action: 'complete', outcome: 'SETTLED', complainantAttendance: 'PRESENT', respondentAttendance: 'PRESENT' })).status === 400);
+    ok('attendance of both parties is required, as on the blotter desk', (await patch(KV.id, H1.id, V.cookie, { action: 'complete', outcome: 'HELD', complainantAttendance: 'PRESENT' })).status === 400);
+    const done = await patch(KV.id, H1.id, V.cookie, { action: 'complete', outcome: 'HELD', complainantAttendance: 'PRESENT', respondentAttendance: 'ABSENT', nextAction: 'Fictional: refer to the MSWDO' });
+    ok('the outcome is recorded (held)', done.status === 200 && (await prisma.caseHearing.findUnique({ where: { id: H1.id } }))?.status === 'COMPLETED');
 
-    console.log('\nTEST 17  The resident');
-    const f1 = await feed(R1.cookie);
-    const notes = f1.filter(u => u.title === 'Appointment update').map(u => String(u.message));
-    ok('17. the resident who filed the case gets in-app notices with the date', notes.some(m => /appointment with the barangay on/.test(m)) && notes.some(m => /new date/.test(m)), notes.join(' | '));
-    ok('    the court date notice is plain: a date, no court, no case', notes.some(m => /scheduled date on .* has been noted for you/.test(m)) && !notes.some(m => /court|RTC|TPO|VAWC|abuse|violence|PROBE|SC-|interview/i.test(m)));
-    const mine = await json(await residentGET(req('/api/resident/appointments', R1.cookie)));
-    const mineText = JSON.stringify(mine.body);
-    ok('    My Appointments shows the date and instructions, never the purpose, notes, outcome or reference', mine.status === 200 && mine.body.data.upcoming.length >= 1
-      && !/PROBE-PURPOSE|PROBE-INTERNAL|PROBE-OUTCOME|APT-|FC-PROBE/.test(mineText) && mineText.includes('Bring any papers you have.'));
-    ok('    a court date tells them the barangay does not hold it', mineText.includes('The barangay does not hold this hearing'));
-    ok('    a hearing kept to the officials (no notice) never reaches the account', !(mine.body.data.all as Body[]).some(a => a.id === toCancel));
-    const upcomingCourt = (mine.body.data.upcoming as Body[]).find(a => a.title === 'Court date');
-    const ack = await json(await residentPOST(req(`/api/resident/appointments/${cid}`, R1.cookie, 'POST', { action: 'acknowledge' }), PA(cid)));
-    ok('    the resident acknowledges', Boolean(upcomingCourt) && ack.status === 200 && Boolean((await prisma.vawcAppointment.findUnique({ where: { id: cid } }))?.residentAcknowledgedAt));
-    const ask = await json(await residentPOST(req(`/api/resident/appointments/${fu.body.data.id}`, R1.cookie, 'POST', { action: 'reschedule', reason: 'Fictional: I work that morning', preferredSchedule: 'Afternoons' }), PA(fu.body.data.id)));
-    ok('    ...and asks for a new date', ask.status === 201);
-    const toV = await prisma.notification.findMany({ where: { caseId: KV.id, userId: V.id }, select: { title: true, message: true } });
-    ok('    the assigned official is told of both answers', toV.some(x => /acknowledged by the resident/.test(x.title)) && toV.some(x => /New date requested/.test(x.title)), toV.map(x => x.title).join(' | '));
-    ok('    the staff notices carry no purpose, note or outcome', !/PROBE-PURPOSE|PROBE-INTERNAL|PROBE-OUTCOME|Fictional: I work/.test(JSON.stringify(toV)));
-    ok('    an unrelated resident is told nothing and sees nothing', !(await feed(R2.cookie)).some(u => u.title === 'Appointment update')
-      && ((await json(await residentGET(req('/api/resident/appointments', R2.cookie)))).body.data.all as Body[]).length === 0);
-    ok('    nor can they act on someone else\'s hearing', (await json(await residentPOST(req(`/api/resident/appointments/${cid}`, R2.cookie, 'POST', { action: 'acknowledge' }), PA(cid)))).status === 404);
-    ok('    the respondent is never a participant (route and database)', (await create(V.cookie, { ...base, participants: ['REPORTER', 'RESPONDENT'] })).status === 400
-      && await refuse(() => prisma.vawcAppointment.update({ where: { id: aid }, data: { participants: ['REPORTER', 'RESPONDENT'] } })));
+    // ── 7. A complainant-only hearing type ──
+    console.log('\n7. A hearing with the complainant only');
+    const c2 = await create(KV.id, V.cookie, { stage: 'VICTIM_INTERVIEW', date: futureDay, time: '15:00', respondentPartyId: (await prisma.caseParty.findFirst({ where: { caseId: KV.id, role: 'REPORTED' } }))!.id });
+    const H2 = c2.body.data as Body;
+    const n2 = c2.status === 201 ? await prisma.caseHearingNotice.findMany({ where: { hearingId: H2.id } }) : [];
+    ok('an interview names no respondent and notifies the complainant only', c2.status === 201 && H2.respondentPartyId === null && n2.length === 1 && n2[0].recipientRole === 'COMPLAINANT',
+      `${c2.status} ${c2.body.error ?? ''}`);
+    ok('no notice can be made for the respondent', (await json(await noticePOST(req(`/api/cases/${KV.id}/hearings/${H2.id}/notices`, V.cookie, 'POST', { recipient: 'RESPONDENT' }), PH(KV.id, H2.id)))).status === 400);
+    await arrive(H2.id);
+    ok('it is recorded with the complainant\'s attendance alone', (await patch(KV.id, H2.id, V.cookie, { action: 'complete', outcome: 'HELD', complainantAttendance: 'PRESENT' })).status === 200);
 
-    console.log('\nTEST 18  Who may reach the records');
-    ok('18. a blotter officer: the list is refused, the hearing does not exist', (await list(B.cookie)).status === 403 && (await one(aid, B.cookie)).status === 404
-      && (await picker(B.cookie)).status === 403);
-    ok('    the system administrator: the same', (await list(SA.cookie)).status === 403 && (await one(aid, SA.cookie)).status === 404);
-    ok('    another VAWC officer cannot open or change this case\'s hearings', (await one(aid, V2.cookie)).status === 403
-      && (await patch(cid, V2.cookie, { action: 'cancel', reason: 'x x x' })).status === 403
-      && !((await list(V2.cookie, 'view=all')).body.data.rows as Body[]).some(r => r.caseId === KV.id || r.case?.id === KV.id));
-    ok('    the Punong Barangay may view, not change, what is not assigned to them', (await one(aid, C.cookie)).status === 200 && (await patch(cid, C.cookie, { action: 'cancel', reason: 'x x x' })).status === 403);
-    ok('    a resident session cannot use the officials\' routes', (await list(R1.cookie)).status === 401 && (await create(R1.cookie, base)).status === 401);
-    ok('    internal notes reach only the officials\' detail view', (await one(aid, V.cookie)).body.data.appointment.internalNotes === 'PROBE-INTERNAL do not disclose'
-      && !JSON.stringify((await list(V.cookie, 'view=all')).body).includes('PROBE-INTERNAL'));
-    ok('    every look and change is in the access log', (await prisma.reporterAccessLog.count({ where: { caseId: KV.id, fields: { has: 'vawc_appointments' } } })) >= 10);
-    ok('    the public API roles cannot read the tables (RLS on, nothing granted)', (await prisma.$queryRaw<{ n: bigint }[]>`
-      SELECT count(*)::bigint AS n FROM information_schema.role_table_grants WHERE table_schema = 'public'
-      AND table_name IN ('VawcAppointment','VawcAppointmentEvent','VawcAppointmentRequest') AND grantee IN ('anon','authenticated')`)[0].n === BigInt(0)
-      && (await prisma.$queryRaw<{ n: bigint }[]>`SELECT count(*)::bigint AS n FROM pg_class WHERE relname IN ('VawcAppointment','VawcAppointmentEvent','VawcAppointmentRequest') AND relrowsecurity`)[0].n === BigInt(3));
-
-    console.log('\nTEST 19  VAWC and Blotter hearings stay apart');
-    const kp = await json(await caseHearingsPOST(req(`/api/cases/${KV.id}/hearings`, C.cookie, 'POST', { stage: 'MEDIATION', date: day(3), time: '09:00', venue: 'Barangay Hall' }), { params: Promise.resolve({ id: KV.id }) }));
-    ok('19. KP mediation on the VAWC case is refused', kp.status === 422, `${kp.status} ${kp.body.error}`);
-    ok('    the database refuses a KP hearing row on it, and a VAWC hearing on the blotter case', await refuse(() => prisma.caseHearing.create({ data: { caseId: KV.id, reference: `${TAG}-kp`, hearingNumber: 1,
-      scheduledAt: new Date(), createdById: C.id, updatedById: C.id } })) && await refuse(() => prisma.vawcAppointment.create({ data: { caseId: KB.id, reference: `${TAG}-x`,
-      type: 'VICTIM_INTERVIEW', scheduledAt: new Date(), venue: 'x', participants: ['REPORTER'], purpose: 'x', notifyVia: 'NONE', createdById: V.id, updatedById: V.id } })));
-    const bh = await json(await hearingCasesGET(req('/api/hearings/cases', B.cookie)));
-    ok('    the Blotter Hearings list has the blotter case and no VAWC case', bh.status === 200 && JSON.stringify(bh.body).includes(KB.caseNumber) && !JSON.stringify(bh.body).includes(KV.caseNumber));
-    ok('    the VAWC desk is refused the Blotter Hearings module', (await json(await hearingsGET(req('/api/hearings', V.cookie)))).status === 403);
-    ok('    a VAWC hearing on the blotter case is refused by the route', (await create(V.cookie, { ...base, caseId: KB.id })).status === 422);
-
-    console.log('\nTEST 20  Records made before the rename still load');
-    // The live database had no VAWC appointment rows before 019 was applied; this is a row in the
-    // 019 shape (no court columns, no submission key), written the way the old module wrote it.
-    const legacy = await prisma.vawcAppointment.create({ data: { caseId: KV.id, reference: `APT-${KV.caseNumber}-legacy`, type: 'INTAKE_FOLLOW_UP',
-      scheduledAt: new Date(Date.now() + 12 * 86_400_000), venue: 'VAWC Desk', participants: ['REPORTER'], purpose: 'PROBE legacy row', notifyVia: 'OFFICER_CONTACT',
-      createdById: V.id, updatedById: V.id } });
-    ok('20. an appointment saved before the rename loads in Hearings (list and details) on its original case', ((await list(V.cookie, 'view=all')).body.data.rows as Body[])
-      .some(r => r.id === legacy.id && r.case.id === KV.id) && (await one(legacy.id, V.cookie)).body.data?.appointment?.caseId === KV.id);
+    // ── 8. Reclassification ──
+    console.log('\n8. A case moved between desks with a hearing on it');
+    const cr = await create(KR.id, B.cookie, { date: futureDay, time: '16:00' });
+    const HR = cr.body.data as Body;
+    const kp8 = await prisma.caseHearingNotice.findFirst({ where: { hearingId: HR.id, recipientRole: 'COMPLAINANT' } });
+    const rc = await json(await classPATCH(req(`/api/cases/${KR.id}/classification`, B.cookie, 'PATCH', { caseType: 'Domestic Violence', reason: 'Fictional: the respondent is her partner' }), P(KR.id)));
+    const hr = await prisma.caseHearing.findUnique({ where: { id: HR.id }, include: { events: true, notices: true } });
+    ok('reclassified to VAWC: the open mediation is cancelled, with the reason, in its history', rc.status === 200 && rc.body.data?.hearingsCancelled === 1 && hr?.status === 'CANCELLED'
+      && hr.events.some(e => e.kind === 'cancelled' && (e.after as Body)?.reclassified === true) && /reclassified/.test(hr.statusReason ?? ''), JSON.stringify(rc.body).slice(0, 200));
+    ok('notices already issued stay issued (not regenerated)', hr?.notices.find(x => x.id === kp8?.id)?.status === kp8?.status && hr?.notices.length === 2);
+    ok('the change is in the audit trail', await prisma.assessmentHistory.count({ where: { caseId: KR.id, kind: 'category_change' } }) === 1
+      && await prisma.activity.count({ where: { caseId: KR.id, type: 'hearing', message: { contains: 'reclassified' } } }) === 1);
+    ok('access follows at once: the blotter desk no longer finds it', (await detail(KR.id, B.cookie)).status === 404 && (await detail(KR.id, C.cookie)).status === 200
+      && !(await list(B.cookie)).body.data.rows.some((r: Body) => r.id === HR.id));
+    const cv = await create(KR.id, C.cookie, { stage: 'CASE_CONFERENCE', date: futureDay, time: '08:30' });
+    ok('a new hearing on it uses the VAWC type and notice', cv.status === 201 && (await prisma.caseHearingNotice.findMany({ where: { hearingId: cv.body.data.id } })).every(x => x.formNo === null && x.noticeNumber.startsWith('NH-')),
+      `${cv.status} ${cv.body.error ?? ''}`);
+    const back = await json(await classPATCH(req(`/api/cases/${KR.id}/classification`, C.cookie, 'PATCH', { caseType: 'Noise Complaint', reason: 'Fictional: not an intimate partner after all' }), P(KR.id)));
+    ok('moved back to the blotter desk: the open VAWC hearing is cancelled too', back.status === 200 && back.body.data?.hearingsCancelled === 1
+      && (await prisma.caseHearing.findUnique({ where: { id: cv.body.data.id } }))?.status === 'CANCELLED');
+    const rs = (await resident(R1.cookie)).data.history as Body[];
+    ok('the resident sees each hearing under the case\'s current type', rs.find(g => g.case.caseNumber === KR.caseNumber)?.caseType === 'BLOTTER');
+    const feed = ((await json(await updatesGET(req('/api/resident/updates?limit=20', R1.cookie)))).body.data ?? []) as Body[];
+    const hearingFeed = feed.filter(u => u.entryLabel === 'Hearing update');
+    ok('the resident is told a hearing was cancelled - not why', hearingFeed.some(u => /cancelled/.test(u.message ?? '')) && !hearingFeed.some(u => /reclassified|Domestic Violence/.test(u.message ?? '')));
+    ok('hearing labels on the VAWC desk never name a KP stage', VAWC_HEARING_TYPE_KEYS.every(k => !/Mediation|Conciliation|Pangkat/.test(stageLabel(k))));
   } finally {
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });
     await prisma.activity.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });
@@ -262,8 +280,7 @@ async function main() {
     await prisma.user.deleteMany({ where: { id: { in: users } } });
   }
   ok('every test row removed', await prisma.case.count({ where: { caseNumber: { startsWith: TAG } } }) === 0
-    && await prisma.vawcAppointment.count({ where: { caseId: { in: caseIds } } }) === 0
-    && await prisma.vawcAppointmentEvent.count({ where: { caseId: { in: caseIds } } }) === 0
+    && await prisma.caseHearing.count({ where: { caseId: { in: caseIds } } }) === 0
     && await prisma.resident.count({ where: { residentNumber: { startsWith: TAG } } }) === 0
     && await prisma.user.count({ where: { email: { startsWith: 'probe.vh.' } } }) === 0);
   console.log(`\n${pass} passed, ${fails.length} failed`);

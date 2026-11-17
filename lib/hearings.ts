@@ -14,9 +14,16 @@
  *
  * Shared by the pages (browser) and the routes (server); no database access.
  *
+ * The same workflow serves VAWC cases (RA 9262), keyed by the case type:
+ * the same scheduling, notices, statuses, acknowledgement, requests for a new
+ * date, attendance and outcome - but never a Katarungang Pambarangay stage,
+ * never mediation or conciliation (sec. 33) and never a KP form. A VAWC case
+ * has its own hearing types (VAWC_HEARING_TYPES) and its own Notice of
+ * Hearing (lib/vawcNoticePdf.ts).
+ *
  * Rules that hold everywhere:
- *   - a VAWC case under RA 9262 never enters this workflow - it stays in the
- *     VAWC desk's own (intervention, protection orders, referral, follow-up);
+ *   - a VAWC case never enters a KP stage, and a blotter case never gets a
+ *     VAWC hearing type - the database checks it too (prisma/sql/022);
  *   - each proceeding is scheduled by an official, one at a time, and only
  *     when the stage before it calls for it - nothing is created in advance;
  *   - status (where a proceeding stands), outcome (what came of it) and the
@@ -36,9 +43,56 @@ export const KP_STAGES = {
 export type KpStage = keyof typeof KP_STAGES;
 export const KP_STAGE_KEYS = Object.keys(KP_STAGES) as [KpStage, ...KpStage[]];
 export const isKpStage = (s: unknown): s is KpStage => typeof s === 'string' && s in KP_STAGES;
-export const stageShort = (s: string | null | undefined) => (isKpStage(s) ? KP_STAGES[s].short : 'Proceeding');
+
+// ── VAWC hearing types (RA 9262) ─────────────────────────────────────────────
+
+/**
+ * The hearings a VAWC case may have, on the same workflow. None is mediation
+ * or conciliation (RA 9262 sec. 33), and no KP form is used. "parties" is who
+ * is notified: only the VAWC Desk Hearing calls the respondent; the others
+ * are with the complainant alone, so a victim-survivor is never asked to
+ * meet the respondent at them. A Barangay Protection Order is issued ex
+ * parte on the day it is applied for (sec. 14) - no hearing is held for it -
+ * so it is recorded under Protection orders, not here. "resident" is how the
+ * type reads to the resident: no case type and no "VAWC".
+ */
+export const VAWC_HEARING_TYPES = {
+  VAWC_DESK_HEARING: { label: 'VAWC Desk Hearing', short: 'VAWC desk hearing', code: 'V', resident: 'Hearing at the barangay', parties: ['COMPLAINANT', 'RESPONDENT'] },
+  CASE_CONFERENCE: { label: 'Case Conference', short: 'Case conference', code: 'K', resident: 'Case conference', parties: ['COMPLAINANT'] },
+  VICTIM_INTERVIEW: { label: 'Victim-Survivor Interview', short: 'Victim-survivor interview', code: 'I', resident: 'Private interview', parties: ['COMPLAINANT'] },
+  FOLLOW_UP: { label: 'Follow-up Meeting', short: 'Follow-up meeting', code: 'F', resident: 'Follow-up meeting', parties: ['COMPLAINANT'] },
+} as const;
+export type VawcHearingType = keyof typeof VAWC_HEARING_TYPES;
+export const VAWC_HEARING_TYPE_KEYS = Object.keys(VAWC_HEARING_TYPES) as [VawcHearingType, ...VawcHearingType[]];
+export const isVawcHearingType = (s: unknown): s is VawcHearingType => typeof s === 'string' && s in VAWC_HEARING_TYPES;
+
+/** Which desk's hearings: the case type decides. */
+export const CASE_TRACKS = { BLOTTER: 'Blotter', VAWC: 'VAWC' } as const;
+export type CaseTrack = keyof typeof CASE_TRACKS;
+export const CASE_TRACK_KEYS = Object.keys(CASE_TRACKS) as [CaseTrack, ...CaseTrack[]];
+export const trackOf = (caseType: string): CaseTrack => (isVawc(caseType) ? 'VAWC' : 'BLOTTER');
+export const isCaseTrack = (s: unknown): s is CaseTrack => typeof s === 'string' && s in CASE_TRACKS;
+
+/** The hearing types each case type may have - the Create Hearing list for each. */
+export const HEARING_TYPES = { BLOTTER: KP_STAGES, VAWC: VAWC_HEARING_TYPES } as const;
+/** A proceeding's stage: a KP stage on a blotter case, a VAWC hearing type on a VAWC case. */
+export type HearingKind = KpStage | VawcHearingType;
+export const HEARING_KIND_KEYS = [...KP_STAGE_KEYS, ...VAWC_HEARING_TYPE_KEYS] as [HearingKind, ...HearingKind[]];
+export const isHearingKind = (s: unknown): s is HearingKind => isKpStage(s) || isVawcHearingType(s);
+/** The case type a stage belongs to. */
+export const stageTrack = (s: string | null | undefined): CaseTrack => (isVawcHearingType(s) ? 'VAWC' : 'BLOTTER');
+/** "Mediation before the Punong Barangay", "VAWC Desk Hearing", ... */
+export const stageLabel = (s: string | null | undefined) => (isKpStage(s) ? KP_STAGES[s].label : isVawcHearingType(s) ? VAWC_HEARING_TYPES[s].label : 'Proceeding');
+export const stageShort = (s: string | null | undefined) => (isKpStage(s) ? KP_STAGES[s].short : isVawcHearingType(s) ? VAWC_HEARING_TYPES[s].short : 'Proceeding');
 /** "Mediation", "Mediation - session 2", ... */
 export const sessionTitle = (stage: string | null | undefined, session = 1) => `${stageShort(stage)}${session > 1 ? ` - session ${session}` : ''}`;
+/** As a resident reads it: a VAWC type in neutral words. */
+export const residentTitle = (stage: string | null | undefined, session = 1) =>
+  isVawcHearingType(stage) ? `${VAWC_HEARING_TYPES[stage].resident}${session > 1 ? ` - session ${session}` : ''}` : sessionTitle(stage, session);
+/** The parties a proceeding is held with - and so who gets a notice. */
+export const stageParties = (s: string | null | undefined): ('COMPLAINANT' | 'RESPONDENT')[] =>
+  isVawcHearingType(s) ? [...VAWC_HEARING_TYPES[s].parties] : ['COMPLAINANT', 'RESPONDENT'];
+export const hasRespondent = (s: string | null | undefined) => stageParties(s).includes('RESPONDENT');
 
 /** The KP forms the workflow produces (DILG Katarungang Pambarangay Handbook, Annexes). */
 export const KP_FORMS = {
@@ -49,10 +103,17 @@ export const KP_FORMS = {
   12: { title: 'Notice of Hearing (Conciliation Proceedings)', stage: 'CONCILIATION' },
 } as const;
 export type KpFormNo = keyof typeof KP_FORMS;
-export const kpFormName = (n: number | null | undefined) => (n && n in KP_FORMS ? `KP Form No. ${n} - ${KP_FORMS[n as KpFormNo].title}` : 'Notice');
+/** A notice's name: its KP form, or - with no form (a VAWC case) - the Notice of Hearing. */
+export const VAWC_NOTICE_NAME = 'Notice of Hearing';
+export const kpFormName = (n: number | null | undefined) => (n && n in KP_FORMS ? `KP Form No. ${n} - ${KP_FORMS[n as KpFormNo].title}` : VAWC_NOTICE_NAME);
 
-/** The notices a stage's schedule produces for the parties: one schedule, one notice per party. */
-export function partyFormsFor(stage: KpStage): { formNo: KpFormNo; recipientRole: 'COMPLAINANT' | 'RESPONDENT' }[] {
+/**
+ * The notices a stage's schedule produces for the parties: one schedule, one
+ * notice per party. A VAWC hearing type has no KP form (formNo null): each
+ * party it is held with gets the VAWC Notice of Hearing.
+ */
+export function partyFormsFor(stage: string): { formNo: KpFormNo | null; recipientRole: 'COMPLAINANT' | 'RESPONDENT' }[] {
+  if (isVawcHearingType(stage)) return stageParties(stage).map(r => ({ formNo: null, recipientRole: r }));
   if (stage === 'MEDIATION') return [{ formNo: 8, recipientRole: 'COMPLAINANT' }, { formNo: 9, recipientRole: 'RESPONDENT' }];
   if (stage === 'CONSTITUTION') return [{ formNo: 10, recipientRole: 'COMPLAINANT' }, { formNo: 10, recipientRole: 'RESPONDENT' }];
   return [{ formNo: 12, recipientRole: 'COMPLAINANT' }, { formNo: 12, recipientRole: 'RESPONDENT' }];
@@ -113,6 +174,9 @@ export const HEARING_OUTCOMES = {
   CERTIFICATE_TO_FILE: { label: 'Certification to file action issued', ends: true, resident: 'A certification to file action was issued.' },
   WITHDRAWN: { label: 'Complaint withdrawn', ends: true, resident: 'The complaint was withdrawn.' },
   OTHER_DISPOSITION: { label: 'Otherwise disposed of', ends: true, resident: 'The matter was disposed of by the barangay.' },
+  // VAWC hearings only: neither speaks of a settlement.
+  HELD: { label: 'Held - next steps recorded', ends: false, resident: 'The hearing was held. The barangay will tell you about any next step.' },
+  FURTHER_HEARING: { label: 'Another hearing needed', ends: false, resident: 'Another hearing is needed. The barangay will tell you the date.' },
 } as const;
 export type HearingOutcome = keyof typeof HEARING_OUTCOMES;
 export const HEARING_OUTCOME_KEYS = Object.keys(HEARING_OUTCOMES) as [HearingOutcome, ...HearingOutcome[]];
@@ -124,6 +188,13 @@ export const STAGE_OUTCOMES: Record<KpStage, HearingOutcome[]> = {
   CONSTITUTION: ['PANGKAT_CONSTITUTED', 'CONTINUED', 'WITHDRAWN', 'OTHER_DISPOSITION'],
   CONCILIATION: ['SETTLED', 'NOT_SETTLED', 'CONTINUED', 'CERTIFICATE_TO_FILE', 'RESPONDENT_ABSENT', 'COMPLAINANT_ABSENT', 'REFERRED', 'WITHDRAWN', 'OTHER_DISPOSITION'],
 };
+/** A VAWC hearing's outcomes: no settlement, and no withdrawal of a complaint (RA 9262 is a public offence). */
+export const VAWC_OUTCOMES: HearingOutcome[] = ['HELD', 'FURTHER_HEARING', 'RESPONDENT_ABSENT', 'COMPLAINANT_ABSENT', 'REFERRED', 'OTHER_DISPOSITION'];
+/** The outcomes a proceeding of this stage may record. */
+export function outcomesFor(stage: string): HearingOutcome[] {
+  if (isVawcHearingType(stage)) return VAWC_OUTCOMES.filter(o => o !== 'RESPONDENT_ABSENT' || hasRespondent(stage));
+  return STAGE_OUTCOMES[isKpStage(stage) ? stage : 'MEDIATION'];
+}
 
 /**
  * Where an outcome leads: the next stage, or null when the barangay
@@ -132,8 +203,10 @@ export const STAGE_OUTCOMES: Record<KpStage, HearingOutcome[]> = {
  * conciliation without settlement ends here - a certification to file action
  * may follow, recorded by an official (it is never produced by itself).
  */
-export function outcomeLeadsTo(stage: KpStage, outcome: string): KpStage | null {
+export function outcomeLeadsTo(stage: HearingKind, outcome: string): HearingKind | null {
   if (HEARING_OUTCOMES[outcome as HearingOutcome]?.ends) return null;
+  // A VAWC hearing: another of the same type may follow, as the official decides.
+  if (isVawcHearingType(stage)) return stage;
   if (stage === 'MEDIATION') return outcome === 'NOT_SETTLED' ? 'CONSTITUTION' : 'MEDIATION';
   if (stage === 'CONSTITUTION') return outcome === 'PANGKAT_CONSTITUTED' ? 'CONCILIATION' : 'CONSTITUTION';
   return outcome === 'NOT_SETTLED' ? null : 'CONCILIATION';
@@ -164,15 +237,16 @@ export const NOTICE_METHODS = {
 } as const;
 export type NoticeMethod = keyof typeof NOTICE_METHODS;
 
-/** HRG-<case>-M1 (mediation, session 1), -P1 (constitution), -C2 (conciliation, session 2); a replaced one gets -2. */
-export const hearingReference = (caseNumber: string, stage: KpStage, session: number, attempt = 1) =>
-  `HRG-${caseNumber}-${KP_STAGES[stage].code}${session}${attempt > 1 ? `-${attempt}` : ''}`;
+/** HRG-<case>-M1 (mediation, session 1), -P1 (constitution), -C2 (conciliation, session 2), -V1 (VAWC desk hearing); a replaced one gets -2. */
+export const hearingReference = (caseNumber: string, stage: HearingKind, session: number, attempt = 1) =>
+  `HRG-${caseNumber}-${isVawcHearingType(stage) ? VAWC_HEARING_TYPES[stage].code : KP_STAGES[stage].code}${session}${attempt > 1 ? `-${attempt}` : ''}`;
 /**
  * KP8-<case>-M1-C1: the form, the proceeding (its reference without "HRG-",
- * so a replacement's -2 carries over), the recipient and which copy.
+ * so a replacement's -2 carries over), the recipient and which copy. A VAWC
+ * Notice of Hearing (no KP form) is NH-<case>-V1-C1.
  */
-export const noticeNumber = (hearingRef: string, formNo: number, recipient: NoticeRecipient, seq: number) =>
-  `KP${formNo}-${hearingRef.replace(/^HRG-/, '')}-${recipient === 'COMPLAINANT' ? 'C' : recipient === 'RESPONDENT' ? 'R' : 'PM'}${seq}`;
+export const noticeNumber = (hearingRef: string, formNo: number | null, recipient: NoticeRecipient, seq: number) =>
+  `${formNo ? `KP${formNo}` : 'NH'}-${hearingRef.replace(/^HRG-/, '')}-${recipient === 'COMPLAINANT' ? 'C' : recipient === 'RESPONDENT' ? 'R' : 'PM'}${seq}`;
 
 /**
  * Where a live hearing stands once its notices to the parties are counted:
@@ -342,7 +416,8 @@ export interface Eligibility {
   review: EligibilityInput['review'];
 }
 
-export const VAWC_HEARING_REFUSAL = 'VAWC cases under RA 9262 are not subject to barangay mediation or conciliation. Keep this case in the VAWC workflow - intervention, safety assistance, referral and follow-up.';
+export const VAWC_HEARING_REFUSAL = 'VAWC cases under RA 9262 are not subject to barangay mediation or conciliation. Schedule a VAWC hearing type instead (VAWC Desk Hearing, Case Conference, interview or follow-up) - never a Katarungang Pambarangay stage.';
+export const NOT_A_VAWC_CASE = 'VAWC hearing types are for VAWC cases only. A blotter case follows the Katarungang Pambarangay stages.';
 
 /** Saved answers that are still one of KP_ANSWERS - an "Unknown" saved before it was removed reads as not answered. */
 const answersOf = (v: unknown): KpAnswers => {
@@ -411,6 +486,19 @@ export function hearingEligibility(i: EligibilityInput): Eligibility {
   return { eligible: reasons.length === 0 && state === 'ELIGIBLE', state, reasons, warnings, categoryVerified, needsReview, exclusions, answers, review: i.review };
 }
 
+/**
+ * May this VAWC case have a hearing? No KP eligibility review applies (it is
+ * never mediated or conciliated): only a closed case has none.
+ */
+export function vawcHearingEligibility(status: string): Eligibility {
+  const closed = CLOSED_CASE_STATUSES.includes(status);
+  return {
+    eligible: !closed, state: closed ? 'NOT_ELIGIBLE' : 'ELIGIBLE',
+    reasons: closed ? [`This case is ${status.toLowerCase()}. A closed case has no further hearings.`] : [],
+    warnings: [], categoryVerified: true, needsReview: false, exclusions: [], answers: null, review: null,
+  };
+}
+
 // ── Which proceeding may come next ──────────────────────────────────────────
 
 type HearingLite = { hearingNumber: number; stage?: string | null; session?: number | null; status: string; outcome?: string | null };
@@ -422,20 +510,28 @@ type HearingLite = { hearingNumber: number; stage?: string | null; session?: num
  * constituted Pangkat; none after the proceedings ended. A cancelled
  * proceeding may be replaced.
  */
-export function nextStep(caseType: string, existing: HearingLite[], pangkatConstituted: boolean):
-  { stage: KpStage; session: number; refusal: null } | { stage: null; session: null; refusal: string } {
+export function nextStep(caseType: string, existing: HearingLite[], pangkatConstituted: boolean, wanted?: string | null):
+  { stage: HearingKind; session: number; refusal: null } | { stage: null; session: null; refusal: string } {
   const no = (refusal: string) => ({ stage: null, session: null, refusal });
-  if (isVawc(caseType)) return no(VAWC_HEARING_REFUSAL);
+  // A VAWC case never gets a KP stage; a blotter case never gets a VAWC type.
+  if (isVawc(caseType) && wanted && isKpStage(wanted)) return no(VAWC_HEARING_REFUSAL);
+  if (!isVawc(caseType) && wanted && isVawcHearingType(wanted)) return no(NOT_A_VAWC_CASE);
   const open = existing.find(h => isOpen(h.status));
   if (open) return no(`${sessionTitle(open.stage, open.session ?? 1)} is still open. Record it as held or cancel it first.`);
-  const held = existing.filter(h => h.status === 'COMPLETED').sort((a, b) => a.hearingNumber - b.hearingNumber);
+  // A VAWC case: any VAWC hearing type, one open at a time, as the official chooses.
+  if (isVawc(caseType)) {
+    const stage: VawcHearingType = isVawcHearingType(wanted) ? wanted : 'VAWC_DESK_HEARING';
+    return { stage, session: existing.filter(h => h.stage === stage && h.status === 'COMPLETED').length + 1, refusal: null };
+  }
+  // Only the case's KP proceedings count (a hearing held while it was a VAWC case does not).
+  const held = existing.filter(h => h.status === 'COMPLETED' && (h.stage == null || isKpStage(h.stage))).sort((a, b) => a.hearingNumber - b.hearingNumber);
   const last = held.at(-1);
   let stage: KpStage = 'MEDIATION';
   if (last) {
     const lastStage = isKpStage(last.stage) ? last.stage : 'MEDIATION';
     const next = outcomeLeadsTo(lastStage, last.outcome ?? '');
     if (!next) return no(`The barangay proceedings ended at ${stageShort(lastStage).toLowerCase()} (${outcomeLabel(last.outcome)?.toLowerCase() ?? 'recorded'}). No further proceeding is scheduled.`);
-    stage = next;
+    stage = isKpStage(next) ? next : 'MEDIATION';
   }
   if (stage === 'CONCILIATION' && !pangkatConstituted) return no('The Pangkat has not been constituted yet - conciliation hearings come after it is.');
   const session = existing.filter(h => (h.stage ?? 'MEDIATION') === stage && h.status === 'COMPLETED').length + 1;
@@ -447,9 +543,9 @@ export function nextStep(caseType: string, existing: HearingLite[], pangkatConst
  * check on what the official asked for.
  */
 export function hearingRefusal(caseType: string, existing: HearingLite[], stage: string, pangkatConstituted = false): string | null {
-  const step = nextStep(caseType, existing, pangkatConstituted);
+  const step = nextStep(caseType, existing, pangkatConstituted, stage);
   if (step.stage === null) return step.refusal;
-  if (stage !== step.stage) return `The next proceeding on this case is ${KP_STAGES[step.stage].label.toLowerCase()}, not ${isKpStage(stage) ? KP_STAGES[stage].label.toLowerCase() : 'that'}.`;
+  if (stage !== step.stage) return `The next proceeding on this case is ${stageLabel(step.stage).toLowerCase()}, not ${isHearingKind(stage) ? stageLabel(stage).toLowerCase() : 'that'}.`;
   return null;
 }
 
@@ -496,6 +592,7 @@ export const HEARING_EVENT_LABELS: Record<string, string> = {
   attachment_added: 'Attachment added',
   reminder: 'Reminder sent',
   attention: 'Officials alerted',
+  migrated_from_appointment: 'Moved from VAWC Appointments',
 };
 
 /**
@@ -516,7 +613,7 @@ export function residentHearingMessage(e: { kind: string; after: unknown }, role
   if (!(RESIDENT_EVENT_KINDS as readonly string[]).includes(e.kind)) return null;
   const a = (e.after ?? {}) as Record<string, unknown>;
   if (typeof a.hearingNumber !== 'number') return null;
-  const what = sessionTitle(typeof a.stage === 'string' ? a.stage : 'MEDIATION', typeof a.session === 'number' ? a.session : 1);
+  const what = residentTitle(typeof a.stage === 'string' ? a.stage : 'MEDIATION', typeof a.session === 'number' ? a.session : 1);
   const when = typeof a.scheduledAt === 'string' ? formatHearingWhen(a.scheduledAt) : null;
   const venue = typeof a.venue === 'string' && a.venue ? ` at ${a.venue}` : '';
   const mine = (r: unknown) => (r ?? 'COMPLAINANT') === role;
@@ -559,6 +656,26 @@ export const RESIDENT_INSTRUCTIONS: Record<PartyRole, string[]> = {
     'As the summons says, refusing or willfully failing to appear may bar you from filing a counterclaim arising from the complaint.',
   ],
 };
+/**
+ * A VAWC hearing's instructions: nothing about KP rules, counterclaims or
+ * contempt - those belong to the Katarungang Pambarangay summons.
+ */
+export const VAWC_RESIDENT_INSTRUCTIONS: Record<PartyRole, string[]> = {
+  COMPLAINANT: [
+    'Bring a valid ID and any documents related to your report. You may bring a support person you trust.',
+    'Arrive 15 minutes before the time on your notice and report to the barangay VAWC desk.',
+    'If you cannot attend, or it is not safe for you to come, request a new date here - the date changes only when an official approves it.',
+    'This hearing is confidential (RA 9262 sec. 44). It is not mediation or conciliation.',
+  ],
+  RESPONDENT: [
+    'Appear in person at the date, time and place on your notice, and bring a valid ID.',
+    'If you cannot attend, request a new date here as early as you can - the date changes only when an official approves it.',
+    'This hearing is confidential (RA 9262 sec. 44). It is not mediation or conciliation.',
+  ],
+};
+/** The instructions for one party of one proceeding. */
+export const residentInstructionsFor = (stage: string | null | undefined, role: PartyRole) =>
+  (isVawcHearingType(stage) ? VAWC_RESIDENT_INSTRUCTIONS : RESIDENT_INSTRUCTIONS)[role];
 /** Kept for the pages that still read one list: the complainant's. */
 export const RESIDENT_HEARING_INSTRUCTIONS = RESIDENT_INSTRUCTIONS.COMPLAINANT;
 

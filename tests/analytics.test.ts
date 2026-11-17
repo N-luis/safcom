@@ -207,7 +207,8 @@ async function main() {
     ok('one record per hearing, the old date kept in its history', list.hearings.length === 2 && h2row?.rescheduleCount === 1
       && h2row.events.some((e: Body) => e.kind === 'rescheduled' && e.before?.scheduledAt === soon));
     await prisma.case.update({ where: { id: v1.id }, data: { assignedToId: V.id } });
-    ok('a VAWC case is refused a hearing', (await hear(v1.id, V.cookie, { scheduledAt: soon })).status === 422);
+    // Changed by the VAWC hearings merge: a VAWC case has VAWC hearings now - never a KP stage.
+    ok('a VAWC case is refused a KP proceeding', (await hear(v1.id, V.cookie, { stage: 'MEDIATION', scheduledAt: soon })).status === 422);
     const hb = (await get('hearings', B.cookie, 'scope=blotter')).body.data;
     ok('mediation held, the Pangkat constitution rescheduled, one upcoming', hb.byStage[0].completed - before.hearB.byStage[0].completed === 1
       && hb.rescheduled - before.hearB.rescheduled === 1 && hb.upcomingCount - before.hearB.upcomingCount === 1

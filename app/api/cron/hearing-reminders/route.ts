@@ -1,9 +1,8 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/auth';
-import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { recordEvent, hearingActivity, notifyOfficials, hearingSnap } from '@/lib/hearingsServer';
-import { LIVE_STATUSES, LIVE_NOTICE, formatHearingWhen, sessionTitle } from '@/lib/hearings';
+import { LIVE_STATUSES, LIVE_NOTICE, formatHearingWhen, sessionTitle, stageParties } from '@/lib/hearings';
 import { HEARING_REMINDER_HOURS, HEARING_NOTICE_ALERT_HOURS } from '@/lib/safecommConfig';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +41,6 @@ export async function GET(req: NextRequest) {
         status: { in: [...LIVE_STATUSES] },
         // Coming up within the longest lead time, or already past and still open.
         scheduledAt: { gte: new Date(now.getTime() - 14 * 86_400_000), lte: new Date(now.getTime() + horizon * 3_600_000) },
-        case: { caseType: { notIn: [...VAWC_TYPES] } },
       },
       include: {
         case: { select: { id: true, caseNumber: true, assignedToId: true } },
@@ -59,7 +57,8 @@ export async function GET(req: NextRequest) {
       const hoursLeft = (h.scheduledAt.getTime() - now.getTime()) / 3_600_000;
       const snap = hearingSnap(h, h.scheduledAt, h.venue);
       const T = sessionTitle(h.stage, h.session);
-      const missing = ['COMPLAINANT', 'RESPONDENT'].filter(r => !h.notices.some(n => n.recipientRole === r));
+      // Only the parties this hearing is held with get a notice (a VAWC interview: the complainant alone).
+      const missing = stageParties(h.stage).filter(r => !h.notices.some(n => n.recipientRole === r));
       const when = `${formatHearingWhen(h.scheduledAt)}${h.venue ? ` at ${h.venue}` : ''}`;
 
       // Reminder: the nearest lead time reached, unless it (or a nearer one) was sent for this date.

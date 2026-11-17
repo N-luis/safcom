@@ -82,6 +82,7 @@ export type CaseHearingMinAggregateOutputType = {
   updatedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  migratedFromAppointmentId: string | null
 }
 
 export type CaseHearingMaxAggregateOutputType = {
@@ -121,6 +122,7 @@ export type CaseHearingMaxAggregateOutputType = {
   updatedById: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  migratedFromAppointmentId: string | null
 }
 
 export type CaseHearingCountAggregateOutputType = {
@@ -160,6 +162,7 @@ export type CaseHearingCountAggregateOutputType = {
   updatedById: number
   createdAt: number
   updatedAt: number
+  migratedFromAppointmentId: number
   _all: number
 }
 
@@ -213,6 +216,7 @@ export type CaseHearingMinAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
+  migratedFromAppointmentId?: true
 }
 
 export type CaseHearingMaxAggregateInputType = {
@@ -252,6 +256,7 @@ export type CaseHearingMaxAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
+  migratedFromAppointmentId?: true
 }
 
 export type CaseHearingCountAggregateInputType = {
@@ -291,6 +296,7 @@ export type CaseHearingCountAggregateInputType = {
   updatedById?: true
   createdAt?: true
   updatedAt?: true
+  migratedFromAppointmentId?: true
   _all?: true
 }
 
@@ -417,6 +423,7 @@ export type CaseHearingGroupByOutputType = {
   updatedById: string
   createdAt: Date
   updatedAt: Date
+  migratedFromAppointmentId: string | null
   _count: CaseHearingCountAggregateOutputType | null
   _avg: CaseHearingAvgAggregateOutputType | null
   _sum: CaseHearingSumAggregateOutputType | null
@@ -479,6 +486,7 @@ export type CaseHearingWhereInput = {
   updatedById?: Prisma.StringFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
+  migratedFromAppointmentId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
   case?: Prisma.XOR<Prisma.CaseScalarRelationFilter, Prisma.CaseWhereInput>
   assignedOfficial?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   complainantParty?: Prisma.XOR<Prisma.CasePartyNullableScalarRelationFilter, Prisma.CasePartyWhereInput> | null
@@ -526,6 +534,7 @@ export type CaseHearingOrderByWithRelationInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  migratedFromAppointmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   case?: Prisma.CaseOrderByWithRelationInput
   assignedOfficial?: Prisma.UserOrderByWithRelationInput
   complainantParty?: Prisma.CasePartyOrderByWithRelationInput
@@ -541,6 +550,7 @@ export type CaseHearingWhereUniqueInput = Prisma.AtLeast<{
   reference?: string
   activeKey?: string
   openKey?: string
+  migratedFromAppointmentId?: string
   AND?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
   OR?: Prisma.CaseHearingWhereInput[]
   NOT?: Prisma.CaseHearingWhereInput | Prisma.CaseHearingWhereInput[]
@@ -584,7 +594,7 @@ export type CaseHearingWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.CaseHearingEventListRelationFilter
   requests?: Prisma.CaseHearingRequestListRelationFilter
   attachments?: Prisma.CaseAttachmentListRelationFilter
-}, "id" | "reference" | "activeKey" | "openKey">
+}, "id" | "reference" | "activeKey" | "openKey" | "migratedFromAppointmentId">
 
 export type CaseHearingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -623,6 +633,7 @@ export type CaseHearingOrderByWithAggregationInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  migratedFromAppointmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CaseHearingCountOrderByAggregateInput
   _avg?: Prisma.CaseHearingAvgOrderByAggregateInput
   _max?: Prisma.CaseHearingMaxOrderByAggregateInput
@@ -670,6 +681,7 @@ export type CaseHearingScalarWhereWithAggregatesInput = {
   updatedById?: Prisma.StringWithAggregatesFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearing"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CaseHearing"> | Date | string
+  migratedFromAppointmentId?: Prisma.StringNullableWithAggregatesFilter<"CaseHearing"> | string | null
 }
 
 export type CaseHearingCreateInput = {
@@ -705,6 +717,7 @@ export type CaseHearingCreateInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -752,6 +765,7 @@ export type CaseHearingUncheckedCreateInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -791,6 +805,7 @@ export type CaseHearingUpdateInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -838,6 +853,7 @@ export type CaseHearingUncheckedUpdateInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -881,6 +897,7 @@ export type CaseHearingCreateManyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
 }
 
 export type CaseHearingUpdateManyMutationInput = {
@@ -916,6 +933,7 @@ export type CaseHearingUpdateManyMutationInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseHearingUncheckedUpdateManyInput = {
@@ -955,6 +973,7 @@ export type CaseHearingUncheckedUpdateManyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseHearingListRelationFilter = {
@@ -1009,6 +1028,7 @@ export type CaseHearingCountOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  migratedFromAppointmentId?: Prisma.SortOrder
 }
 
 export type CaseHearingAvgOrderByAggregateInput = {
@@ -1054,6 +1074,7 @@ export type CaseHearingMaxOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  migratedFromAppointmentId?: Prisma.SortOrder
 }
 
 export type CaseHearingMinOrderByAggregateInput = {
@@ -1093,6 +1114,7 @@ export type CaseHearingMinOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  migratedFromAppointmentId?: Prisma.SortOrder
 }
 
 export type CaseHearingSumOrderByAggregateInput = {
@@ -1365,6 +1387,7 @@ export type CaseHearingCreateWithoutAssignedOfficialInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
   respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
@@ -1410,6 +1433,7 @@ export type CaseHearingUncheckedCreateWithoutAssignedOfficialInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -1482,6 +1506,7 @@ export type CaseHearingScalarWhereInput = {
   updatedById?: Prisma.StringFilter<"CaseHearing"> | string
   createdAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CaseHearing"> | Date | string
+  migratedFromAppointmentId?: Prisma.StringNullableFilter<"CaseHearing"> | string | null
 }
 
 export type CaseHearingCreateWithoutCaseInput = {
@@ -1517,6 +1542,7 @@ export type CaseHearingCreateWithoutCaseInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
   respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
@@ -1562,6 +1588,7 @@ export type CaseHearingUncheckedCreateWithoutCaseInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -1627,6 +1654,7 @@ export type CaseHearingCreateWithoutComplainantPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   respondentParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsRespondentInput
@@ -1672,6 +1700,7 @@ export type CaseHearingUncheckedCreateWithoutComplainantPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -1721,6 +1750,7 @@ export type CaseHearingCreateWithoutRespondentPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -1766,6 +1796,7 @@ export type CaseHearingUncheckedCreateWithoutRespondentPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -1847,6 +1878,7 @@ export type CaseHearingCreateWithoutAttachmentsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -1893,6 +1925,7 @@ export type CaseHearingUncheckedCreateWithoutAttachmentsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
@@ -1947,6 +1980,7 @@ export type CaseHearingUpdateWithoutAttachmentsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -1993,6 +2027,7 @@ export type CaseHearingUncheckedUpdateWithoutAttachmentsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -2031,6 +2066,7 @@ export type CaseHearingCreateWithoutNoticesInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -2077,6 +2113,7 @@ export type CaseHearingUncheckedCreateWithoutNoticesInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
@@ -2131,6 +2168,7 @@ export type CaseHearingUpdateWithoutNoticesInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -2177,6 +2215,7 @@ export type CaseHearingUncheckedUpdateWithoutNoticesInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
@@ -2215,6 +2254,7 @@ export type CaseHearingCreateWithoutEventsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -2261,6 +2301,7 @@ export type CaseHearingUncheckedCreateWithoutEventsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   requests?: Prisma.CaseHearingRequestUncheckedCreateNestedManyWithoutHearingInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
@@ -2315,6 +2356,7 @@ export type CaseHearingUpdateWithoutEventsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -2361,6 +2403,7 @@ export type CaseHearingUncheckedUpdateWithoutEventsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
@@ -2399,6 +2442,7 @@ export type CaseHearingCreateWithoutRequestsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   case: Prisma.CaseCreateNestedOneWithoutHearingsInput
   assignedOfficial?: Prisma.UserCreateNestedOneWithoutPresidedHearingsInput
   complainantParty?: Prisma.CasePartyCreateNestedOneWithoutHearingsAsComplainantInput
@@ -2445,6 +2489,7 @@ export type CaseHearingUncheckedCreateWithoutRequestsInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
   notices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutHearingInput
   events?: Prisma.CaseHearingEventUncheckedCreateNestedManyWithoutHearingInput
   attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutHearingInput
@@ -2499,6 +2544,7 @@ export type CaseHearingUpdateWithoutRequestsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -2545,6 +2591,7 @@ export type CaseHearingUncheckedUpdateWithoutRequestsInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutHearingNestedInput
@@ -2586,6 +2633,7 @@ export type CaseHearingCreateManyAssignedOfficialInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
 }
 
 export type CaseHearingUpdateWithoutAssignedOfficialInput = {
@@ -2621,6 +2669,7 @@ export type CaseHearingUpdateWithoutAssignedOfficialInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
   respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
@@ -2666,6 +2715,7 @@ export type CaseHearingUncheckedUpdateWithoutAssignedOfficialInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -2708,6 +2758,7 @@ export type CaseHearingUncheckedUpdateManyWithoutAssignedOfficialInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseHearingCreateManyCaseInput = {
@@ -2746,6 +2797,7 @@ export type CaseHearingCreateManyCaseInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
 }
 
 export type CaseHearingUpdateWithoutCaseInput = {
@@ -2781,6 +2833,7 @@ export type CaseHearingUpdateWithoutCaseInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
   respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
@@ -2826,6 +2879,7 @@ export type CaseHearingUncheckedUpdateWithoutCaseInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -2868,6 +2922,7 @@ export type CaseHearingUncheckedUpdateManyWithoutCaseInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseHearingCreateManyComplainantPartyInput = {
@@ -2906,6 +2961,7 @@ export type CaseHearingCreateManyComplainantPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
 }
 
 export type CaseHearingCreateManyRespondentPartyInput = {
@@ -2944,6 +3000,7 @@ export type CaseHearingCreateManyRespondentPartyInput = {
   updatedById: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  migratedFromAppointmentId?: string | null
 }
 
 export type CaseHearingUpdateWithoutComplainantPartyInput = {
@@ -2979,6 +3036,7 @@ export type CaseHearingUpdateWithoutComplainantPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   respondentParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsRespondentNestedInput
@@ -3024,6 +3082,7 @@ export type CaseHearingUncheckedUpdateWithoutComplainantPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -3066,6 +3125,7 @@ export type CaseHearingUncheckedUpdateManyWithoutComplainantPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CaseHearingUpdateWithoutRespondentPartyInput = {
@@ -3101,6 +3161,7 @@ export type CaseHearingUpdateWithoutRespondentPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   case?: Prisma.CaseUpdateOneRequiredWithoutHearingsNestedInput
   assignedOfficial?: Prisma.UserUpdateOneWithoutPresidedHearingsNestedInput
   complainantParty?: Prisma.CasePartyUpdateOneWithoutHearingsAsComplainantNestedInput
@@ -3146,6 +3207,7 @@ export type CaseHearingUncheckedUpdateWithoutRespondentPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutHearingNestedInput
   events?: Prisma.CaseHearingEventUncheckedUpdateManyWithoutHearingNestedInput
   requests?: Prisma.CaseHearingRequestUncheckedUpdateManyWithoutHearingNestedInput
@@ -3188,6 +3250,7 @@ export type CaseHearingUncheckedUpdateManyWithoutRespondentPartyInput = {
   updatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  migratedFromAppointmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -3285,6 +3348,7 @@ export type CaseHearingSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  migratedFromAppointmentId?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
   complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
@@ -3333,6 +3397,7 @@ export type CaseHearingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  migratedFromAppointmentId?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
   complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
@@ -3376,6 +3441,7 @@ export type CaseHearingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  migratedFromAppointmentId?: boolean
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
   complainantParty?: boolean | Prisma.CaseHearing$complainantPartyArgs<ExtArgs>
@@ -3419,9 +3485,10 @@ export type CaseHearingSelectScalar = {
   updatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  migratedFromAppointmentId?: boolean
 }
 
-export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "hearingNumber" | "stage" | "session" | "scheduledAt" | "venue" | "status" | "activeKey" | "openKey" | "assignedOfficialId" | "complainantPartyId" | "respondentPartyId" | "complainantAttendance" | "respondentAttendance" | "outcome" | "agreements" | "outcomeSummary" | "nextAction" | "nextHearingAt" | "residentInstructions" | "statusReason" | "notes" | "rescheduleCount" | "residentIntent" | "residentIntentAt" | "reminderSentAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["caseHearing"]>
+export type CaseHearingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "hearingNumber" | "stage" | "session" | "scheduledAt" | "venue" | "status" | "activeKey" | "openKey" | "assignedOfficialId" | "complainantPartyId" | "respondentPartyId" | "complainantAttendance" | "respondentAttendance" | "outcome" | "agreements" | "outcomeSummary" | "nextAction" | "nextHearingAt" | "residentInstructions" | "statusReason" | "notes" | "rescheduleCount" | "residentIntent" | "residentIntentAt" | "reminderSentAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "migratedFromAppointmentId", ExtArgs["result"]["caseHearing"]>
 export type CaseHearingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficial?: boolean | Prisma.CaseHearing$assignedOfficialArgs<ExtArgs>
@@ -3471,9 +3538,11 @@ export type $CaseHearingPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     hearingNumber: number
     /**
-     * The Katarungang Pambarangay stage (RA 7160 secs. 410-412):
-     * MEDIATION before the Punong Barangay | CONSTITUTION of the Pangkat |
-     * CONCILIATION before the Pangkat. lib/hearings.ts KP_STAGES.
+     * On a blotter case, the Katarungang Pambarangay stage (RA 7160 secs.
+     * 410-412): MEDIATION | CONSTITUTION | CONCILIATION (lib/hearings.ts
+     * KP_STAGES). On a VAWC case, the VAWC hearing type - never a KP stage
+     * (RA 9262 sec. 33): VAWC_DESK_HEARING | CASE_CONFERENCE | VICTIM_INTERVIEW
+     * | FOLLOW_UP (VAWC_HEARING_TYPES). The case type itself comes from the case.
      */
     stage: string
     /**
@@ -3566,6 +3635,12 @@ export type $CaseHearingPayload<ExtArgs extends runtime.Types.Extensions.Interna
     updatedById: string
     createdAt: Date
     updatedAt: Date
+    /**
+     * The VawcAppointment this hearing was made from when the Appointments
+     * were merged into hearings (scripts/migrate-appointments-to-hearings.ts):
+     * unique, so running the migration again makes no second copy.
+     */
+    migratedFromAppointmentId: string | null
   }, ExtArgs["result"]["caseHearing"]>
   composites: {}
 }
@@ -4033,6 +4108,7 @@ export interface CaseHearingFieldRefs {
   readonly updatedById: Prisma.FieldRef<"CaseHearing", 'String'>
   readonly createdAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CaseHearing", 'DateTime'>
+  readonly migratedFromAppointmentId: Prisma.FieldRef<"CaseHearing", 'String'>
 }
     
 

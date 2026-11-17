@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { requireAuth, errorResponse } from '@/lib/auth';
-import { loadActor, BLOTTER_ROLES } from '@/lib/reporterAccess';
+import { loadActor, BLOTTER_ROLES, VAWC_DESK_ROLES } from '@/lib/reporterAccess';
 import { noStore, findConflicts } from '@/lib/hearingsServer';
 import { phInstant, scheduleTimeRefusal } from '@/lib/hearings';
 import { logRouteError } from '@/lib/hearingCasesServer';
@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
   if ('status' in auth) return auth;
   const actor = await loadActor(auth.user.userId);
   if (!actor?.active) return errorResponse('Unauthorized', 401);
-  if (!BLOTTER_ROLES.includes(actor.role) && actor.role !== 'admin') return noStore({ success: false, error: 'Only officials who schedule hearings can check the schedule.' }, 403);
+  // Both desks schedule hearings (a VAWC officer on VAWC cases); a clash is described without a reference the official may not view.
+  if (!BLOTTER_ROLES.includes(actor.role) && !VAWC_DESK_ROLES.includes(actor.role) && actor.role !== 'admin') return noStore({ success: false, error: 'Only officials who schedule hearings can check the schedule.' }, 403);
   const sp = req.nextUrl.searchParams;
   const at = phInstant(sp.get('date') ?? '', sp.get('time') ?? '');
   const invalid = scheduleTimeRefusal(at);

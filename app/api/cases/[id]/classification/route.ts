@@ -6,6 +6,7 @@ import { canSeeVawc, isVawcCaseHidden } from '@/lib/caseAccess';
 import { categoryByName } from '@/lib/classificationSchema';
 import { analyzeIntake } from '@/lib/intake';
 import { answersFromTranscript } from '@/lib/intakeServer';
+import { closeHearingsOnReclassification } from '@/lib/hearingsServer';
 
 /**
  * An officer confirms or changes a case's category.
@@ -19,6 +20,13 @@ import { answersFromTranscript } from '@/lib/intakeServer';
  * how a misrouted report reaches the right officer: a blotter officer can
  * refer a case to the VAWC desk (and then no longer sees it), and the VAWC
  * desk can send one back.
+ *
+ * Its hearings follow the case type at once (who may see and run them is read
+ * from the case). Moved to the other desk, the case's open hearings are
+ * cancelled with the reason (lib/hearingsServer.ts
+ * closeHearingsOnReclassification): a KP mediation may not continue on a
+ * VAWC case, and a VAWC hearing skips the KP review on a blotter case.
+ * Notices already issued stay on record as issued.
  */
 const schema = z.object({
   caseType: z.string().min(1).max(120),
@@ -72,11 +80,13 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   }).result;
 
   try {
+    let hearingsCancelled = 0;
     await prisma.$transaction(async tx => {
       await tx.case.update({
         where: { id },
         data: { caseType: target.category, requiresOfficerReview: false },
       });
+      if (!confirming) hearingsCancelled = await closeHearingsOnReclassification(tx, id, current.caseType, target.category, auth.user.userId);
       await tx.assessmentHistory.create({
         data: {
           caseId: id,
@@ -95,6 +105,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
               criteria: under.matchedCriteria.map(m => `L${m.level} ${m.indicator}`),
               note: 'Recorded for the officer; the case risk level was not changed by reclassification.',
             },
+            ...(hearingsCancelled > 0 && { hearingsCancelled }),
           })),
           actorId: auth.user.userId,
           reason: reason || null,
@@ -130,6 +141,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       // The officer who referred it no longer has access; the page needs to know.
       referredAway,
       stillVisible: !referredAway && (canSeeVawc(auth.user.role) || target.desk === 'Blotter'),
+      hearingsCancelled,
     });
   } catch {
     return errorResponse('Server error', 500);

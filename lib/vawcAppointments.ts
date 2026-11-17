@@ -254,7 +254,7 @@ const when = (iso: unknown) => {
  * it is safe for anyone who sees the screen: an appointment "with the
  * barangay" and its date. Never the case type, the purpose, the officer, a
  * note, the case number, or the words VAWC, abuse or violence - those stay
- * behind My Hearings & Notices (its Appointments tab), behind the resident's own login.
+ * behind My Hearings & Notices, behind the resident's own login.
  */
 export function residentAppointmentMessage(e: { kind: string; after: unknown }): string | null {
   const a = (e.after && typeof e.after === 'object' ? e.after : {}) as Record<string, unknown>;
