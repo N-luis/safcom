@@ -8,7 +8,7 @@ import {
   useMediaQuery, useTheme,
 } from '@mui/material';
 import {
-  Dashboard, FolderOpen, Psychology, Assessment,
+  Dashboard, FolderOpen, Psychology,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
   Logout, MonitorHeart, Message, ArrowBack, Category, Campaign, EventAvailable,
 } from '@mui/icons-material';
@@ -27,7 +27,6 @@ const NAV_ITEMS = [
   { id: 'appointments', label: 'Appointments', icon: EventAvailable, path: '/vawc/appointments' },
   { id: 'classify', label: 'Case Classification', icon: Category, path: '/vawc/case-classification' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/vawc/ai-risk' },
-  { id: 'reports', label: 'Reports', icon: Assessment, path: '/vawc/reports' },
   { id: 'announcements', label: 'Announcements', icon: Campaign, path: '/vawc/announcements' },
   { id: 'messages', label: 'Messages', icon: Message, path: '/vawc/messages' },
   { id: 'notifications', label: 'Notifications', icon: Notifications, path: '/vawc/notifications' },

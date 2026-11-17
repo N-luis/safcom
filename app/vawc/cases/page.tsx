@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import {
   Search, Add, FolderOpen, Assessment, LocationOn, CalendarToday,
-  Edit, CheckCircle, Close, AutoAwesome, OpenInNew, Visibility,
+  Edit, CheckCircle, Close, AutoAwesome, OpenInNew, Visibility, FileDownload,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
@@ -20,6 +20,8 @@ import { VAWC_TYPES } from '@/lib/vawcTypes';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
+import { useCurrentUser } from '@/hooks/useApi';
+import { canSeeVawc } from '@/lib/caseAccess';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -222,6 +224,32 @@ export default function VawcCasesPage() {
   const [selected, setSelected] = useState<CaseRow | null>(null);
   const [preset, setPreset] = useState('');
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const { data: me } = useCurrentUser();
+  const [exporting, setExporting] = useState(false);
+
+  // Every VAWC case this official may reach, whatever the page or filters show - built on the server
+  // (/api/vawc/cases/export), case information only. Success is said only once the file is in hand.
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/vawc/cases/export', { credentials: 'include' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? 'The export could not be made. Nothing was downloaded.');
+      }
+      const filename = res.headers.get('X-Export-Filename') ?? 'SafeComm_VAWC_All_Cases.csv';
+      const count = Number(res.headers.get('X-Export-Count') ?? 0);
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success(`Exported ${count} VAWC case${count === 1 ? '' : 's'} - ${filename}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'The export could not be made. Nothing was downloaded.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Deep-link support: dashboard links navigate here with ?highlight=,
   // ?filter=<preset key>, ?riskLevel=, ?status=, ?search=
@@ -320,6 +348,14 @@ export default function VawcCasesPage() {
             {VAWC_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
           </Select>
         </FormControl>
+        {/* All VAWC cases this official may reach - not just this page; the server checks the role and every row again */}
+        {canSeeVawc(me?.role) && (
+          <Button variant="outlined" onClick={exportCsv} disabled={exporting}
+            startIcon={exporting ? <CircularProgress size={16} color="inherit" /> : <FileDownload />}
+            sx={{ ml: { md: 'auto' }, width: { xs: '100%', sm: 'auto' }, borderRadius: 2, fontWeight: 600, borderColor: '#0c1e46', color: '#0c1e46' }}>
+            {exporting ? 'Exporting…' : 'Export CSV'}
+          </Button>
+        )}
       </Box>
       {/* How a date in the search was read - said, never silently assumed */}
       {search && data?.search?.note && (

@@ -51,6 +51,7 @@
     "test:dashboardannouncements": "npx tsx tests/dashboardAnnouncements.test.tsx",
     "test:kpreview": "npx tsx tests/kpReviewNoUnknown.test.tsx",
     "test:intakemarkers": "npx tsx tests/intakeNoMarkers.test.tsx",
+    "test:vawcexport": "npx tsx --env-file=.env --conditions=react-server tests/vawcCaseExport.test.ts",
     "test:vawcappointments": "npx tsx --env-file=.env --conditions=react-server tests/vawcAppointments.test.ts",
     "test:vawcappointments:rules": "npx tsx --conditions=react-server tests/vawcAppointmentsRules.test.ts",
     "db:vawc-appointments": "npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/019_vawc_appointments.schema.sql && npx tsx --env-file=.env scripts/run-sql.ts prisma/sql/019_vawc_appointments.sql",
