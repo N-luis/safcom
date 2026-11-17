@@ -27,7 +27,6 @@ import CategoryReview from '@/components/cases/CategoryReview';
 import IntakeReviewPanel, { CompletenessChip, type IntakeRecord, type HistoryRow } from '@/components/cases/IntakeReviewPanel';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
-import ReportReviewPanel from '@/components/cases/ReportReviewPanel';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
 import VawcAppointmentsPanel from '@/components/vawcAppointments/VawcAppointmentsPanel';
@@ -1020,72 +1019,12 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
 
-          {/* VAWC Appointments & Follow-ups - VAWC cases only, never a hearing */}
-          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
-          {/* BPOs, court dates (recorded, never held here) and referrals - VAWC cases only */}
-          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
-
-          {/* The letter confirming receipt of the report */}
-          <AcknowledgementPanel caseId={id} onChanged={onSaved} />
-
-          {/* The case's other record types; the intake is at the top right */}
-          <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
-
-          {/* AI Assessment */}
-          <AIAssessmentCard
-            ai={caseData.aiRiskAssessment}
-            riskLevel={caseData.riskLevel}
-            caseId={id}
-            onReviewed={() => revalidate()}
-            completeness={caseData.informationCompleteness}
-            needsReview={caseData.requiresOfficerReview}
-            intake={caseData.intake}
-            history={caseData.assessmentHistory}
-            caseType={caseData.caseType}
-            basePath={basePath}
-          />
-
-          {/* Original Description */}
-          <Card>
-            <CardContent sx={{ p: 2 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1 }}>
-                Original Report
-              </Typography>
-              <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#f8fafc' }}>
-                <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#475569' }}>
-                  {caseData.description}
-                </Typography>
-              </Paper>
-              {/* The photos are in Evidence Attachments, at the top of the right-hand column. */}
-              {(caseData.attachments ?? []).length > 0 && (
-                <Typography sx={{ mt: 1.25, fontSize: '0.8rem', color: '#0369a1' }}>
-                  <a href="#evidence-attachments" style={{ color: 'inherit' }}>
-                    {(caseData.attachments ?? []).length} photo{(caseData.attachments ?? []).length === 1 ? '' : 's'} with this report - see Evidence Attachments
-                  </a>
-                </Typography>
-              )}
-              {caseData.notes && (
-                <Box sx={{ mt: 1.5 }}>
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>
-                    Additional Notes
-                  </Typography>
-                  <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fefce8', borderColor: '#fef08a' }}>
-                    <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#78350f', whiteSpace: 'pre-wrap' }}>
-                      {caseData.notes}
-                    </Typography>
-                  </Paper>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
         </Grid>
 
-        {/* Right: Report Review and Clarification, then the timeline */}
+        {/* Right: evidence, the timeline, then the risk assessment and the original report (fills the column) */}
         <Grid size={{ xs: 12, md: 7 }}>
           {/* Evidence Attachments: every photo the reporter sent, from the stored files */}
           <Box sx={{ mb: 2.5 }}><EvidenceGallery caseId={id} audience="staff" /></Box>
-          {/* The original report and SafeComm AI's organized draft; clarification, interviews, approval */}
-          <Box sx={{ mb: 2.5 }}><ReportReviewPanel caseId={id} /></Box>
           <Card sx={{ height: 'fit-content' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
@@ -1168,6 +1107,63 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
               )}
             </CardContent>
           </Card>
+          <Box sx={{ mt: 2.5 }}>
+            {/* AI Assessment */}
+            <AIAssessmentCard
+              ai={caseData.aiRiskAssessment}
+              riskLevel={caseData.riskLevel}
+              caseId={id}
+              onReviewed={() => revalidate()}
+              completeness={caseData.informationCompleteness}
+              needsReview={caseData.requiresOfficerReview}
+              intake={caseData.intake}
+              history={caseData.assessmentHistory}
+              caseType={caseData.caseType}
+              basePath={basePath}
+            />
+  
+            {/* Original Description */}
+            <Card>
+              <CardContent sx={{ p: 2 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1 }}>
+                  Original Report
+                </Typography>
+                <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#f8fafc' }}>
+                  <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#475569' }}>
+                    {caseData.description}
+                  </Typography>
+                </Paper>
+                {/* The photos are in Evidence Attachments, at the top of the right-hand column. */}
+                {(caseData.attachments ?? []).length > 0 && (
+                  <Typography sx={{ mt: 1.25, fontSize: '0.8rem', color: '#0369a1' }}>
+                    <a href="#evidence-attachments" style={{ color: 'inherit' }}>
+                      {(caseData.attachments ?? []).length} photo{(caseData.attachments ?? []).length === 1 ? '' : 's'} with this report - see Evidence Attachments
+                    </a>
+                  </Typography>
+                )}
+                {caseData.notes && (
+                  <Box sx={{ mt: 1.5 }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', mb: 0.75 }}>
+                      Additional Notes
+                    </Typography>
+                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fefce8', borderColor: '#fef08a' }}>
+                      <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.65, color: '#78350f', whiteSpace: 'pre-wrap' }}>
+                        {caseData.notes}
+                      </Typography>
+                    </Paper>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+
+          {/* VAWC cases only: their Hearings, then BPOs and referrals; the letter confirming receipt; the case's other record types */}
+          <Box sx={{ mt: 2.5 }}>
+            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
+            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
+            <AcknowledgementPanel caseId={id} onChanged={onSaved} />
+            <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
+          </Box>
         </Grid>
       </Grid>
     </Box>
