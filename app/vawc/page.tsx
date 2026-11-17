@@ -182,7 +182,7 @@ export default function VawcDashboard() {
 
   const { data: stats } = useSWR<Stats>('/api/vawc/stats', fetcher, { refreshInterval: 30000 });
   const { data: trends } = useSWR<TrendRow[]>(`/api/vawc/trends?period=${trendPeriod}`, fetcher, { refreshInterval: 60000 });
-  const { data: urgentData } = useSWR<UrgentData>('/api/vawc/urgent?limit=3', fetcher, { refreshInterval: 30000 });
+  const { data: urgentData } = useSWR<UrgentData>('/api/vawc/urgent?limit=6', fetcher, { refreshInterval: 30000 });
 
   const total = stats?.total ?? null;
   const resolved = stats?.resolved ?? 0;
@@ -402,7 +402,7 @@ export default function VawcDashboard() {
           )}
         </Box>
 
-        <TableContainer>
+        <TableContainer sx={{ flex: 1 }}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
@@ -413,7 +413,7 @@ export default function VawcDashboard() {
             </TableHead>
             <TableBody>
               {!urgentData ? (
-                Array.from({ length: 3 }).map((_, i) => (
+                Array.from({ length: 6 }).map((_, i) => (
                   <TableRow key={i}>
                     {Array.from({ length: 4 }).map((__, j) => (
                       <TableCell key={j}><Skeleton variant="text" width={80} /></TableCell>
@@ -461,7 +461,7 @@ export default function VawcDashboard() {
         </TableContainer>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', py: 1.75, borderTop: '1px solid #f1f5f9' }}>
+        <Box sx={{ textAlign: 'center', py: 1.75, borderTop: '1px solid #f1f5f9', mt: 'auto' }}>
           <Button
             size="small" endIcon={<ArrowForward sx={{ fontSize: 14 }} />}
             onClick={() => router.push('/vawc/cases?filter=urgent')}
