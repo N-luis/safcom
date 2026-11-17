@@ -1,8 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import ResidentAppointments from '@/components/vawcAppointments/ResidentAppointments';
-
-/** My Appointments: the appointments the barangay set with the resident on their own reports. */
-export default function MyAppointmentsPage() {
-  return <ResidentAppointments />;
+/** Appointments are a tab of My Hearings & Notices; an old link or bookmark lands there. */
+export default function MyAppointmentsRedirect() {
+  redirect('/resident/hearings?tab=appointments');
 }

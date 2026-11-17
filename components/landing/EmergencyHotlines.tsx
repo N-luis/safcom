@@ -186,7 +186,8 @@ export default function EmergencyHotlines() {
       <Typography role="status" aria-live="polite"
         sx={failed
           ? { mt: 1, color: AMBER, fontSize: '0.78rem', lineHeight: 1.4 }
-          : { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' }}>
+          // Visually hidden. Pixel strings: in sx a bare 1 means 100%, which pushed this off the side of the page.
+          : { position: 'absolute', width: '1px', height: '1px', m: '-1px', p: 0, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap', border: 0 }}>
         {failed ? `Could not copy automatically. ${failed.number} is selected - copy it with Ctrl+C or a long press.`
           : result ? `${result.name} number ${result.number} copied` : ''}
       </Typography>

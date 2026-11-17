@@ -254,7 +254,7 @@ const when = (iso: unknown) => {
  * it is safe for anyone who sees the screen: an appointment "with the
  * barangay" and its date. Never the case type, the purpose, the officer, a
  * note, the case number, or the words VAWC, abuse or violence - those stay
- * behind My Appointments, behind the resident's own login.
+ * behind My Hearings & Notices (its Appointments tab), behind the resident's own login.
  */
 export function residentAppointmentMessage(e: { kind: string; after: unknown }): string | null {
   const a = (e.after && typeof e.after === 'object' ? e.after : {}) as Record<string, unknown>;
@@ -262,18 +262,18 @@ export function residentAppointmentMessage(e: { kind: string; after: unknown }):
   // A court date is the court's, not the barangay's - said without the word "court", which the preview never shows.
   if (isCourtType(String(a.type ?? ''))) {
     switch (e.kind) {
-      case 'created': return at ? `A scheduled date on ${at} has been noted for you. Open My Appointments for the details.` : null;
-      case 'rescheduled': return at ? `A scheduled date noted for you has changed: ${at}. Open My Appointments for the details.` : null;
-      case 'cancelled': return 'A scheduled date noted for you was removed. Open My Appointments for the details.';
+      case 'created': return at ? `A scheduled date on ${at} has been noted for you. Open My Hearings & Notices for the details.` : null;
+      case 'rescheduled': return at ? `A scheduled date noted for you has changed: ${at}. Open My Hearings & Notices for the details.` : null;
+      case 'cancelled': return 'A scheduled date noted for you was removed. Open My Hearings & Notices for the details.';
       default: break;
     }
   }
   switch (e.kind) {
-    case 'created': return at ? `You have an appointment with the barangay on ${at}. Open My Appointments for the details.` : null;
-    case 'rescheduled': return at ? `Your appointment with the barangay has a new date: ${at}. Open My Appointments for the details.` : null;
+    case 'created': return at ? `You have an appointment with the barangay on ${at}. Open My Hearings & Notices for the details.` : null;
+    case 'rescheduled': return at ? `Your appointment with the barangay has a new date: ${at}. Open My Hearings & Notices for the details.` : null;
     case 'cancelled': return at ? `Your appointment with the barangay on ${at} was cancelled.` : 'Your appointment with the barangay was cancelled.';
-    case 'request_approved': return 'Your request for a new appointment date was approved. Open My Appointments to see the new date.';
-    case 'request_declined': return 'Your request for a new appointment date was answered. Open My Appointments to see the reply.';
+    case 'request_approved': return 'Your request for a new appointment date was approved. Open My Hearings & Notices to see the new date.';
+    case 'request_declined': return 'Your request for a new appointment date was answered. Open My Hearings & Notices to see the reply.';
     default: return null;
   }
 }

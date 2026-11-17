@@ -15,6 +15,7 @@ import IntakeDocumentPreview from '@/components/intake/IntakeDocumentPreview';
 import KpForm7Preview from '@/components/intake/KpForm7Preview';
 import toast from 'react-hot-toast';
 import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
+import IntakePeopleInvolved, { reportHint, SOURCE_LABEL, type PeopleContext } from '@/components/cases/IntakePeopleInvolved';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 import { riskText } from '@/lib/triageLabels';
 import {
@@ -57,6 +58,8 @@ interface Context {
   reporter: null | { name: string; residentNumber: string; address: string; barangay: string; age: string; gender: string; registeredAt: string };
   affectedPerson: string;
   accusedPerson: string;
+  /** The person affected and the person reported, by their records on the case. */
+  people?: PeopleContext;
   warnings: string[];
 }
 interface IntakeData {
@@ -429,6 +432,9 @@ export default function OfficialIntakeForm({ caseId, basePath }: { caseId: strin
                     <Button size="small" onClick={() => setAnswer('currentAddress', { value: { ...(responses.currentAddress?.value as Record<string, string> ?? {}), street: ctx.reporter!.address } })}>
                       Use the registered address (confirm with the client)
                     </Button>
+                  ) : form.type === 'VAWC_INTAKE' && ctx.people && reportHint(it.key, ctx.people) ? (
+                    <ReportHint hint={reportHint(it.key, ctx.people)!} canUse={editable && (it.key === 'currentAddress' || it.key === 'perpAddress')}
+                      onUse={v => setAnswer(it.key, { value: { ...(responses[it.key]?.value as Record<string, string> ?? {}), street: v } })} />
                   ) : null} />
               ))}
             </Box>
@@ -568,6 +574,16 @@ function SaveStatus({ state, dirty, completed, onRetry }: { state: SaveState; di
 
 // ─── Section 1: from the records ─────────────────────────────────────────────
 
+/** What the report says for this item - for the official to confirm and enter; never filled in on its own. */
+function ReportHint({ hint, canUse, onUse }: { hint: { text: string; source: 'reporter' | 'official' }; canUse: boolean; onUse: (v: string) => void }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+      <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>{SOURCE_LABEL[hint.source]}: <b>{hint.text}</b></Typography>
+      {canUse && <Button size="small" onClick={() => onUse(hint.text)}>Use as the street (confirm with the client)</Button>}
+    </Box>
+  );
+}
+
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <Box sx={{ display: 'flex', gap: 1, py: 0.5, flexWrap: 'wrap' }}>
@@ -610,11 +626,19 @@ function CaseSection({ ctx, caseId }: { ctx: Context; caseId: string }) {
               <Row label="Age · sex (registered)" value={`${ctx.reporter.age} · ${ctx.reporter.gender}`} />
             </>
           ) : <Typography sx={{ fontSize: '0.84rem', color: '#64748b' }}>Not provided.</Typography>}
-          <Typography sx={{ fontWeight: 800, fontSize: '0.86rem', color: '#0c1e46', mt: 1.5, mb: 0.5 }}>C. Affected person and accused person</Typography>
-          <Row label="Affected person" value={ctx.affectedPerson} />
-          <Row label="Accused / reported person" value={ctx.accusedPerson} />
         </Grid>
       </Grid>
+      <Divider sx={{ my: 2 }} />
+      <Typography sx={{ fontWeight: 800, fontSize: '0.86rem', color: '#0c1e46', mb: 0.25 }}>C. People involved</Typography>
+      <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mb: 1 }}>
+        What the resident gave on the report, kept as given. Details added or verified by an official are shown separately; update them in this form or in the case records.
+      </Typography>
+      {ctx.people ? <IntakePeopleInvolved people={ctx.people} /> : (
+        <>
+          <Row label="Affected person" value={ctx.affectedPerson} />
+          <Row label="Accused / reported person" value={ctx.accusedPerson} />
+        </>
+      )}
       <Divider sx={{ my: 2 }} />
       <Typography sx={{ fontWeight: 800, fontSize: '0.86rem', color: '#0c1e46', mb: 0.5 }}>The resident&rsquo;s original report (unchanged)</Typography>
       <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5, mb: 2 }}>

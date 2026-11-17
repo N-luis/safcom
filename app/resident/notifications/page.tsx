@@ -198,7 +198,7 @@ function NotificationDialog({ u, onClose, onOpenCase, onOpenHref }: {
               '&:hover': { bgcolor: '#0d9488' },
             }}
           >
-            View my appointments
+            View in My Hearings &amp; Notices
           </Button>
         )}
       </DialogActions>

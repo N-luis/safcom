@@ -84,8 +84,9 @@ async function main() {
     ok('E: the complaint and the relief requested', ['complaintNature', 'complaintStatement', 'requestedRelief', 'additionalInfo'].every(k => bl.sections[4].items.some(i => i.key === k)));
     ok('F: initial action, the officer\'s own notes, referral, follow-up, date filed, acknowledgment', ['actionTaken', 'initialObservations', 'referralInfo', 'recommendedNextSteps', 'dateFiled', 'acknowledgment']
       .every(k => bl.sections[5].items.some(i => i.key === k)));
-    ok('an unknown respondent need not be named', missingIn(bl, { respondentUnknown: { value: 'yes' } }).every(i => i.key !== 'respondentName')
-      && missingIn(bl, {}).some(i => i.key === 'respondentName'));
+    // Blanks are allowed (N/A, Unknown and Declined were removed): only the VAWC safety and consent check blocks completion.
+    ok('a respondent need not be named, known or not', missingIn(bl, { respondentUnknown: { value: 'yes' } }).every(i => i.key !== 'respondentName')
+      && missingIn(bl, {}).every(i => i.key !== 'respondentName'));
     ok('occupation is optional', missingIn(bl, {}).every(i => i.key !== 'complainantOccupation'));
     ok('the forms share no victim-survivor items', !bl.byKey.victimName && !bl.byKey.typeOfViolence && Boolean(FORMS.VAWC_INTAKE.byKey.victimName));
     ok('a VAWC case cannot be recorded as "settled"', resolutionRefusal('SETTLED', 'Domestic Violence') !== null && resolutionRefusal('SETTLED', 'Noise Complaint') === null);

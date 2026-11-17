@@ -65,7 +65,7 @@ async function post(hid: string, body: unknown) {
  * dates and keeps the record - nothing here changes the schedule, the
  * attendance record, the notes or the outcome.
  */
-export default function ResidentHearings() {
+export default function ResidentHearings({ embedded = false }: { embedded?: boolean } = {}) {
   const { data, error, isLoading, mutate } = useSWR<Data>('/api/resident/hearings', fetcher);
   const [ack, setAck] = useState<{ h: ResidentHearing; n: ResidentNotice } | null>(null);
   const [resched, setResched] = useState<ResidentHearing | null>(null);
@@ -83,11 +83,14 @@ export default function ResidentHearings() {
   const sectionTitle = { fontWeight: 800, color: NAVY, fontSize: '1.02rem' };
 
   return (
-    <Box sx={{ maxWidth: 1760, mx: 'auto', width: '100%', p: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5 }}>
-        <Gavel sx={{ color: TEAL }} />
-        <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', md: '1.5rem' }, color: NAVY }}>My Hearings &amp; Notices</Typography>
-      </Box>
+    // Embedded: a tab of My Hearings & Notices (ResidentHearingsModule), which has the title and the padding.
+    <Box sx={embedded ? { width: '100%' } : { maxWidth: 1760, mx: 'auto', width: '100%', p: { xs: 2, sm: 3 }, boxSizing: 'border-box' }}>
+      {!embedded && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5 }}>
+          <Gavel sx={{ color: TEAL }} />
+          <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', md: '1.5rem' }, color: NAVY }}>My Hearings &amp; Notices</Typography>
+        </Box>
+      )}
       <Typography sx={{ fontSize: '0.88rem', color: '#64748b', mb: 2, maxWidth: 900 }}>
         Barangay mediation and conciliation hearings you are a party to - as the complainant or the respondent. View, download or print your notices,
         acknowledge them, and ask for a new date. Dates, attendance and outcomes are recorded by barangay officials.

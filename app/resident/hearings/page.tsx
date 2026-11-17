@@ -1,8 +1,9 @@
 'use client';
 
-import ResidentHearings from '@/components/hearings/ResidentHearings';
+import { Suspense } from 'react';
+import ResidentHearingsModule from '@/components/hearings/ResidentHearingsModule';
 
-/** My Hearings & Notices: the proceedings the resident is a party to - upcoming, on the calendar, and the history. */
+/** My Hearings & Notices: the hearings and notices, and the appointments, in one place (Suspense: it reads ?tab=). */
 export default function MyHearingsPage() {
-  return <ResidentHearings />;
+  return <Suspense><ResidentHearingsModule /></Suspense>;
 }

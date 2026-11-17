@@ -40,7 +40,7 @@ const REQUEST_LABEL = { PENDING: 'Waiting for the barangay', APPROVED: 'Approved
  * acknowledgement, and a way to ask for a new date. Nothing about the
  * officials' notes or records.
  */
-export default function ResidentAppointments() {
+export default function ResidentAppointments({ embedded = false }: { embedded?: boolean } = {}) {
   const { data, error, isLoading, mutate } = useSWR<Data>('/api/resident/appointments', fetcher, { refreshInterval: 60_000 });
   const [ask, setAsk] = useState<Item | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -53,13 +53,16 @@ export default function ResidentAppointments() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1.5, md: 3 }, maxWidth: 1100, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
-        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#ccfbf1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <EventAvailable sx={{ color: '#0f766e' }} />
+    // Embedded: the Appointments tab of My Hearings & Notices (ResidentHearingsModule), which has the title.
+    <Box sx={embedded ? { width: '100%', maxWidth: 1100 } : { p: { xs: 1.5, md: 3 }, maxWidth: 1100, mx: 'auto' }}>
+      {!embedded && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#ccfbf1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <EventAvailable sx={{ color: '#0f766e' }} />
+          </Box>
+          <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>My Appointments</Typography>
         </Box>
-        <Typography component="h1" sx={{ fontWeight: 800, fontSize: '1.3rem', color: NAVY }}>My Appointments</Typography>
-      </Box>
+      )}
 
       {error && !data && <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" onClick={() => mutate()}>Retry</Button>}>{error.message}</Alert>}
       {isLoading && !data && <Skeleton variant="rounded" height={180} />}

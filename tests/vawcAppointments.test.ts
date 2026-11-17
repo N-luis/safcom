@@ -152,7 +152,7 @@ async function main() {
     const f1 = await feed(R1.cookie);
     const notice = f1.find(u => u.title === 'Appointment update');
     ok('the reporter who filed the case gets an in-app notice', Boolean(notice) && /appointment with the barangay/.test(notice?.message ?? ''));
-    ok('it opens My Appointments, not the case', notice?.href === '/resident/appointments' && notice?.caseId === null);
+    ok('it opens the Appointments tab of My Hearings & Notices, not the case', notice?.href === '/resident/hearings?tab=appointments' && notice?.caseId === null);
     ok('another resident gets nothing', !(await feed(R2.cookie)).some(u => u.title === 'Appointment update')
       && (await mine(R2.cookie)).body.data.all.length === 0);
     const m1 = await mine(R1.cookie);

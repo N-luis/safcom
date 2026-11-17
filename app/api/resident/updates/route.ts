@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
       return message ? [{
         id: e.id, source: 'case' as const, title: 'Appointment update', message, entryLabel: 'Appointment', color: '#0f766e', createdAt: e.createdAt,
         caseType: undefined, caseId: null, caseNumber: null, caseStatus: null, caseRiskLevel: null, level: null as string | null, requestId: null,
-        href: '/resident/appointments',
+        href: '/resident/hearings?tab=appointments',
       }] : [];
     });
 

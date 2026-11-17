@@ -74,8 +74,11 @@ export async function loadIntakeCase(caseId: string) {
       assignedToId: true, residentId: true, residentName: true,
       reportingRelationship: true, affectedPersonNote: true, reporterIdentityWithheld: true,
       contactPreference: true, incidentDate: true, incidentTimeApprox: true,
-      parties: { where: { role: 'REPORTED' }, orderBy: { updatedAt: 'desc' },
-        select: { source: true, fullName: true, age: true, address: true, relationship: true, details: true } },
+      // Both people a report may name - the person affected and the person reported - each as the
+      // resident gave them and as an official recorded them (lib/caseRecords; one row per role and source).
+      parties: { orderBy: { updatedAt: 'desc' },
+        select: { role: true, source: true, fullName: true, age: true, address: true, contactNumber: true, relationship: true,
+          dependentsAffected: true, details: true, updatedAt: true } },
       attachments: { select: { id: true }, take: 1 },
       assignedTo: { select: { name: true } },
       intake: { select: { narrative: true } },
@@ -120,6 +123,17 @@ export function intakeContext(c: IntakeCase) {
     if (!r.email) warnings.push('The reporter has no e-mail address on file.');
   }
   if (!self && !anonymous) warnings.push('The reporter says this report is about someone else. Do not treat the reporter as the victim-survivor.');
+  // The people involved, by their records on the case - the resident's own entry first, then what an
+  // official added or verified. Never matched by name, and the resident's entry is never rewritten.
+  const person = (role: 'AFFECTED' | 'REPORTED') => c.parties.filter(p => p.role === role)
+    .sort((a, b) => (a.source === b.source ? 0 : a.source === 'reporter' ? -1 : 1))
+    .map(p => ({
+      source: p.source === 'official' ? 'official' as const : 'reporter' as const,
+      fullName: p.fullName?.trim() || null, age: p.age ?? null, address: p.address?.trim() || null,
+      contactNumber: role === 'AFFECTED' ? p.contactNumber?.trim() || null : null,
+      relationship: p.relationship?.trim() || null, dependentsAffected: role === 'AFFECTED' ? p.dependentsAffected ?? null : null,
+      details: p.details?.trim() || null, updatedAt: p.updatedAt.toISOString(),
+    }));
   return {
     case: {
       id: c.id, caseNumber: c.caseNumber, submittedAt: c.filedAt.toISOString(), category: c.caseType,
@@ -133,6 +147,8 @@ export function intakeContext(c: IntakeCase) {
       : self ? 'The reporter (they reported this about themselves)'
         : c.affectedPersonNote?.trim() || 'Someone other than the reporter - not identified on the report',
     accusedPerson: 'Not recorded on the original report - see Section D',
+    people: { reporterIsAffected: self && !anonymous, anonymous, affectedNote: !self && !anonymous ? c.affectedPersonNote?.trim() || null : null,
+      affected: person('AFFECTED'), reported: person('REPORTED') },
     warnings,
   };
 }
@@ -165,6 +181,14 @@ export function startingAnswers(c: IntakeCase, actor: { role: string; name?: str
   if ((rel === 'THIRD_PARTY' || rel === 'ON_BEHALF') && r) {
     set('informantName', { value: `${r.firstName} ${r.lastName}`.trim() }, 'registered resident profile');
   }
+  // The people the report named (an official's record first, else the resident's): only what fits an
+  // item exactly. A name is one line on the report and is not split into parts here - it is shown beside
+  // the item for the official to enter.
+  const party = (role: 'AFFECTED' | 'REPORTED') => c.parties.find(p => p.role === role && p.source === 'official') ?? c.parties.find(p => p.role === role && p.source === 'reporter');
+  const affected = rel !== 'SELF' ? party('AFFECTED') : undefined;
+  const reported = party('REPORTED');
+  if (affected?.age !== null && affected?.age !== undefined) set('age', { value: String(affected.age) }, affected.source === 'official' ? 'official record on the case' : 'the report');
+  if (reported?.age !== null && reported?.age !== undefined) set('perpAge', { value: String(reported.age) }, reported.source === 'official' ? 'official record on the case' : 'the report');
   if (rel === 'SELF' && r) {
     set('victimName', { value: { last: r.lastName, first: r.firstName } }, 'registered resident profile');
     if (r.age) set('age', { value: String(r.age) }, 'registered resident profile');
@@ -206,7 +230,8 @@ function startingBlotterAnswers(c: IntakeCase, actor: { name?: string | null }) 
   if (pref) set('preferredContact', { value: pref }, 'the report');
 
   // The person reported: an official's record first, else the reporter's.
-  const p = c.parties.find(x => x.source === 'official') ?? c.parties.find(x => x.source === 'reporter');
+  const reportedParties = c.parties.filter(x => x.role === 'REPORTED');
+  const p = reportedParties.find(x => x.source === 'official') ?? reportedParties.find(x => x.source === 'reporter');
   if (p) {
     const from = p.source === 'official' ? 'official record on the case' : 'the report';
     // The record keeps one line for the name: it goes in as the name as written.
