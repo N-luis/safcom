@@ -8,6 +8,7 @@ import {
 import { Diversity3, Add, Edit, ContentCopy } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { SEX_AT_BIRTH } from '@/lib/victimSurvivors';
+import Fold from './Fold';
 
 /**
  * The victim-survivors of a VAWC case, one per person, for the women-and-
@@ -57,9 +58,11 @@ export default function VictimSurvivorsPanel({ caseId }: { caseId: string }) {
           </Button>
         )}
       </Box>
-      <Typography sx={{ fontSize: '0.78rem', color: '#64748b', mb: 1 }}>
-        One entry per person affected - a mother and each of her children are separate entries. Only sex at birth, age at the incident and the VAWC client code are kept here, for the women and children figures in Analytics; names stay in the intake form.
-      </Typography>
+      <Fold title="How it is counted" mb={0.5}>
+        <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
+          One entry per person affected - a mother and each of her children are separate entries. Only sex at birth, age at the incident and the VAWC client code are kept here, for the women and children figures in Analytics; names stay in the intake form.
+        </Typography>
+      </Fold>
       {error ? <Alert severity="warning" sx={{ borderRadius: 2 }}>{error.message}</Alert> : isLoading || !data ? <Skeleton variant="rounded" height={60} /> : (
         <>
           {active.length === 0 && (

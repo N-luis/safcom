@@ -898,6 +898,62 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
   const riskCol = RISK_COLOR[caseData.riskLevel ?? ''] ?? '#94a3b8';
   const statusCol = STATUS_COLOR[caseData.status] ?? '#94a3b8';
 
+  const isVawcCase = (VAWC_TYPES as readonly string[]).includes(caseData.caseType);
+  const caseInfoCard = (
+    <Card sx={{ mb: 2 }}>
+      <CardContent sx={{ p: 2 }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1.5 }}>
+          Case Information
+        </Typography>
+        {[
+          { label: 'Reporter / Subject', value: caseData.residentName, Icon: Person },
+          { label: 'Case Type', value: caseData.caseType, Icon: FolderOpen },
+          { label: 'Location / Street', value: caseData.barangay, Icon: LocationOn },
+          { label: 'Date Filed', value: fullDate(caseData.filedAt), Icon: AccessTime },
+          {
+            label: 'Assigned Officer',
+            value: caseData.assignedTo?.name ?? 'Unassigned',
+            Icon: Person,
+          },
+        ].map(({ label, value, Icon }) => (
+          <Box key={label} sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
+            <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon sx={{ fontSize: 14, color: '#64748b' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{label}</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{value}</Typography>
+            </Box>
+          </Box>
+        ))}
+
+        {caseData.resolvedAt && (
+          <Box sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
+            <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <CheckCircle sx={{ fontSize: 14, color: '#22c55e' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Resolved On</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#22c55e' }}>{fullDate(caseData.resolvedAt)}</Typography>
+            </Box>
+          </Box>
+        )}
+
+        <Divider sx={{ my: 1.25 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+            Last updated {timeAgo(caseData.updatedAt)}
+          </Typography>
+          <Chip
+            label={`${(caseData.followUps ?? []).length} follow-up${(caseData.followUps ?? []).length !== 1 ? 's' : ''}`}
+            size="small"
+            sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }}
+          />
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <Box>
 
@@ -976,59 +1032,8 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
         {/* Left: Case Info + AI + Description */}
         <Grid size={{ xs: 12, md: 5 }}>
 
-          {/* Case Info */}
-          <Card sx={{ mb: 2 }}>
-            <CardContent sx={{ p: 2 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: '#0c1e46', mb: 1.5 }}>
-                Case Information
-              </Typography>
-              {[
-                { label: 'Reporter / Subject', value: caseData.residentName, Icon: Person },
-                { label: 'Case Type', value: caseData.caseType, Icon: FolderOpen },
-                { label: 'Location / Street', value: caseData.barangay, Icon: LocationOn },
-                { label: 'Date Filed', value: fullDate(caseData.filedAt), Icon: AccessTime },
-                {
-                  label: 'Assigned Officer',
-                  value: caseData.assignedTo?.name ?? 'Unassigned',
-                  Icon: Person,
-                },
-              ].map(({ label, value, Icon }) => (
-                <Box key={label} sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
-                  <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon sx={{ fontSize: 14, color: '#64748b' }} />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>{label}</Typography>
-                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{value}</Typography>
-                  </Box>
-                </Box>
-              ))}
-
-              {caseData.resolvedAt && (
-                <Box sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
-                  <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <CheckCircle sx={{ fontSize: 14, color: '#22c55e' }} />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>Resolved On</Typography>
-                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#22c55e' }}>{fullDate(caseData.resolvedAt)}</Typography>
-                  </Box>
-                </Box>
-              )}
-
-              <Divider sx={{ my: 1.25 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
-                  Last updated {timeAgo(caseData.updatedAt)}
-                </Typography>
-                <Chip
-                  label={`${(caseData.followUps ?? []).length} follow-up${(caseData.followUps ?? []).length !== 1 ? 's' : ''}`}
-                  size="small"
-                  sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontSize: '0.72rem', height: 22 }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
+          {/* Case Info: here on a blotter case; on a VAWC case it heads the right column (its left column is the longer one) */}
+          {!isVawcCase && caseInfoCard}
 
           {/* Reporter information: masked until "View Resident Information" - access decided and logged on the server */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
@@ -1039,11 +1044,18 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
 
+          {/* VAWC cases only: their Hearings, BPOs and referrals, then the Service Referral Forms
+              (VAWC desk and the captain only). The acknowledgement letter is in Reporter Information. */}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
+
 
         </Grid>
 
         {/* Right: evidence, the timeline, then the risk assessment and the original report (fills the column) */}
         <Grid size={{ xs: 12, md: 7 }}>
+          {isVawcCase && caseInfoCard}
           {/* Evidence Attachments: every photo the reporter sent, from the stored files */}
           <Box sx={{ mb: 2.5 }}><EvidenceGallery caseId={id} audience="staff" /></Box>
           <Card sx={{ height: 'fit-content' }}>
@@ -1175,13 +1187,6 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </Card>
           </Box>
 
-          {/* VAWC cases only: their Hearings, BPOs and referrals, then the Service Referral Forms
-              (VAWC desk and the captain only). The acknowledgement letter is in Reporter Information. */}
-          <Box sx={{ mt: 2.5 }}>
-            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
-            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
-            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
-          </Box>
         </Grid>
       </Grid>
     </Box>

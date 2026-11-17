@@ -4,13 +4,13 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import {
   Box, Typography, Card, CardContent, Chip, Button, Alert, Skeleton, Divider, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, RadioGroup, Radio, FormControlLabel, FormControl, InputLabel, Select, MenuItem, Collapse,
+  DialogActions, TextField, FormControl, InputLabel, Select, MenuItem,
   CircularProgress, useMediaQuery,
 } from '@mui/material';
-import { Lock, PersonOutlined, HealthAndSafety, Share, Edit, Add, History, Warning, PictureAsPdf } from '@mui/icons-material';
+import { Lock, PersonOutlined, Share, Edit, Add, PictureAsPdf } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import {
-  REPORT_PATH_LABEL, REPORTING_CHANNELS, SAFETY_QUESTIONS, ANSWER_LABEL, YES_NO_UNKNOWN, REFERRAL_AGENCIES,
+  REPORT_PATH_LABEL, REPORTING_CHANNELS, ANSWER_LABEL, YES_NO_UNKNOWN, REFERRAL_AGENCIES,
   REFERRAL_STATUSES, referralAgenciesFor, RESOLUTION_TYPES, type ReportPath, type ReportingChannel, type ReferralAgency, type ReferralStatus,
   type YesNoUnknownAnswer, type ResolutionType,
 } from '@/lib/caseRecords';
@@ -21,8 +21,8 @@ import { REFERRAL_FORM_LABELS, EMPTY_REFERRAL_FORM, CLIENT_SEX, formOf, type Ref
 
 /**
  * The case's records beside the narrative, for officials: the report details,
- * the person affected and the person reported, the initial safety assessment
- * (VAWC) and the referrals. Officer-only - none of this reaches the reporter.
+ * the person affected and the person reported, and the referrals. Officer-only -
+ * none of this reaches the reporter. (The initial safety assessment is no longer shown here.)
  *
  * What the reporter said and what an official recorded are shown apart; an
  * official's correction never replaces the reporter's account.
@@ -208,86 +208,6 @@ function PartyBlock({ title, role, parties, vawc, selfReport, note, edit, onEdit
   );
 }
 
-// ─── Safety assessment ───────────────────────────────────────────────────────
-
-function SafetyDialog({ caseId, start, onClose, onSaved }: { caseId: string; start: Safety | null; onClose: () => void; onSaved: () => void }) {
-  const [a, setA] = useState<Record<string, string>>(() => Object.fromEntries(SAFETY_QUESTIONS.map(q => [q.key, start?.[q.key] ?? ''])));
-  const [t, setT] = useState({
-    additionalConcerns: start?.additionalConcerns ?? '', initialAction: start?.initialAction ?? '',
-    assistanceProvided: start?.assistanceProvided ?? '', protectionActions: start?.protectionActions ?? '',
-    preferredAssistance: start?.preferredAssistance ?? '', followUpRequirements: start?.followUpRequirements ?? '',
-    safetyPlan: start?.safetyPlan ?? '',
-    followUpAt: start?.followUpAt ? new Date(start.followUpAt).toISOString().slice(0, 16) : '',
-  });
-  // Optional: an urgent case is recorded without waiting to confirm a safe contact.
-  const [safeContact, setSafeContact] = useState<string>(start?.safeContactConfirmed ?? '');
-  const [saving, setSaving] = useState(false);
-  const unanswered = SAFETY_QUESTIONS.filter(q => !a[q.key]);
-  const save = async () => {
-    if (unanswered.length) { toast.error('Answer every question - "Not known" is an answer'); return; }
-    setSaving(true);
-    try {
-      const out = await send(`/api/cases/${caseId}/safety`, 'PUT', {
-        ...a, ...t, ...(safeContact && { safeContactConfirmed: safeContact }), followUpAt: t.followUpAt ? new Date(t.followUpAt).toISOString() : '', expectedVersion: start?.version ?? 0,
-      });
-      if (out.flaggedUrgent) toast.error('Flagged for urgent review - the desks have been notified', { duration: 6000 });
-      else toast.success('Safety assessment saved');
-      onSaved();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Could not save');
-    } finally { setSaving(false); }
-  };
-  const urgentNow = a.immediateConcern === 'yes' || a.urgentAssistance === 'yes';
-  return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm" scroll="paper">
-      <DialogTitle sx={{ fontWeight: 800, color: NAVY }}>
-        Initial safety assessment
-        <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>Officer-only. Answer from what you know now - you can update it later; earlier versions are kept.</Typography>
-      </DialogTitle>
-      <DialogContent dividers sx={{ display: 'grid', gap: 1.25 }}>
-        {SAFETY_QUESTIONS.map(q => (
-          <Box key={q.key}>
-            <Typography id={`sq-${q.key}`} sx={{ fontSize: '0.86rem', fontWeight: 700, color: NAVY }}>{q.label}</Typography>
-            <RadioGroup row aria-labelledby={`sq-${q.key}`} value={a[q.key]} onChange={e => setA(p => ({ ...p, [q.key]: e.target.value }))}>
-              {YES_NO_UNKNOWN.map(v => <FormControlLabel key={v} value={v} control={<Radio size="small" />} label={ANSWER_LABEL[v]} />)}
-            </RadioGroup>
-          </Box>
-        ))}
-        {urgentNow && (
-          <Alert severity="error" icon={<Warning />} sx={{ borderRadius: 2 }}>
-            Saving flags this case for urgent review and notifies the desks at once. Follow the urgent-response
-            protocol now - do not wait for this form or for any AI result.
-          </Alert>
-        )}
-        <Box>
-          <Typography id="sq-safeContact" sx={{ fontSize: '0.86rem', fontWeight: 700, color: NAVY }}>Has a safe way to contact the victim-survivor been confirmed?</Typography>
-          <Typography sx={{ fontSize: '0.74rem', color: '#64748b' }}>Optional - do not delay an urgent case for it.</Typography>
-          <RadioGroup row aria-labelledby="sq-safeContact" value={safeContact} onChange={e => setSafeContact(e.target.value)}>
-            {YES_NO_UNKNOWN.map(v => <FormControlLabel key={v} value={v} control={<Radio size="small" />} label={ANSWER_LABEL[v]} />)}
-          </RadioGroup>
-        </Box>
-        <TextField size="small" label="Preferred assistance" placeholder="What the victim-survivor asks for - e.g. counseling, medical check, shelter, legal help"
-          value={t.preferredAssistance} onChange={e => setT(p => ({ ...p, preferredAssistance: e.target.value }))} slotProps={{ htmlInput: { maxLength: 500 } }} />
-        <TextField size="small" label="Additional safety concerns" multiline minRows={2} value={t.additionalConcerns} onChange={e => setT(p => ({ ...p, additionalConcerns: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
-        <TextField size="small" label="Initial action taken" multiline minRows={2} value={t.initialAction} onChange={e => setT(p => ({ ...p, initialAction: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
-        <TextField size="small" label="Assistance provided" multiline minRows={2} value={t.assistanceProvided} onChange={e => setT(p => ({ ...p, assistanceProvided: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
-        <TextField size="small" label="Protection-related actions" multiline minRows={2} value={t.protectionActions} onChange={e => setT(p => ({ ...p, protectionActions: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
-        <TextField size="small" label="Safety planning" placeholder="The safety plan agreed with the victim-survivor - where to go, who to call, code words, documents to keep ready"
-          multiline minRows={3} value={t.safetyPlan} onChange={e => setT(p => ({ ...p, safetyPlan: e.target.value }))} slotProps={{ htmlInput: { maxLength: 2000 } }} />
-        <TextField size="small" label="Follow-up requirements" multiline minRows={2} value={t.followUpRequirements}
-          onChange={e => setT(p => ({ ...p, followUpRequirements: e.target.value }))} slotProps={{ htmlInput: { maxLength: 1000 } }} />
-        <TextField size="small" label="Follow-up schedule" type="datetime-local" value={t.followUpAt} onChange={e => setT(p => ({ ...p, followUpAt: e.target.value }))} slotProps={{ inputLabel: { shrink: true } }} />
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 1.5 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none' }}>Cancel</Button>
-        <Button variant="contained" onClick={save} disabled={saving} color={urgentNow ? 'error' : 'primary'} sx={{ textTransform: 'none', ...(!urgentNow && { bgcolor: NAVY }) }}>
-          {saving ? <CircularProgress size={16} color="inherit" /> : urgentNow ? 'Save and flag as urgent' : 'Save assessment'}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 // ─── Referrals ───────────────────────────────────────────────────────────────
 
 /**
@@ -456,11 +376,9 @@ function ReferralDialog({ caseId, desk, referral, onClose, onSaved }: {
 export default function CaseRecordsPanel({ caseId, onChanged, formPath }: { caseId: string; onChanged?: () => void; formPath?: string }) {
   const { data, error, isLoading, mutate } = useSWR<Records>(`/api/cases/${caseId}/records`, fetcher);
   const [party, setParty] = useState<{ role: 'AFFECTED' | 'REPORTED'; start: Party | null } | null>(null);
-  const [safetyOpen, setSafetyOpen] = useState(false);
   const [referralOpen, setReferralOpen] = useState(false);
   const [editingReferral, setEditingReferral] = useState<Referral | null>(null);
-  const [showSafetyHistory, setShowSafetyHistory] = useState(false);
-  const saved = () => { setParty(null); setSafetyOpen(false); setReferralOpen(false); void mutate(); onChanged?.(); };
+  const saved = () => { setParty(null); setReferralOpen(false); void mutate(); onChanged?.(); };
 
   const updateReferral = async (r: Referral, status: ReferralStatus) => {
     try {
@@ -544,73 +462,6 @@ export default function CaseRecordsPanel({ caseId, onChanged, formPath }: { case
                 </>
               )}
 
-              {/* Safety assessment - the VAWC desk's */}
-              {vawc && (
-                <>
-                  <Divider />
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, flexWrap: 'wrap' }}>
-                      <HealthAndSafety sx={{ fontSize: 17, color: '#b45309' }} />
-                      <Typography sx={{ ...label, color: '#b45309' }}>Initial safety assessment</Typography>
-                      {edit && (
-                        <Button size="small" startIcon={data.safety ? <Edit sx={{ fontSize: 14 }} /> : <Add sx={{ fontSize: 14 }} />}
-                          onClick={() => setSafetyOpen(true)} sx={{ ml: 'auto', textTransform: 'none', minHeight: 32 }}>
-                          {data.safety ? 'Update' : 'Record assessment'}
-                        </Button>
-                      )}
-                    </Box>
-                    {data.safety ? (
-                      <>
-                        {SAFETY_QUESTIONS.map(q => (
-                          <Box key={q.key} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 0.4 }}>
-                            <Typography sx={{ fontSize: '0.82rem', color: '#334155' }}>{q.label}</Typography>
-                            <Chip size="small" label={ANSWER_LABEL[data.safety![q.key]]} sx={{
-                              height: 20, fontSize: '0.72rem', fontWeight: 700, flexShrink: 0,
-                              bgcolor: data.safety![q.key] === 'yes' ? '#fef2f2' : data.safety![q.key] === 'no' ? '#f0fdf4' : '#f1f5f9',
-                              color: data.safety![q.key] === 'yes' ? '#b91c1c' : data.safety![q.key] === 'no' ? '#15803d' : '#475569',
-                            }} />
-                          </Box>
-                        ))}
-                        <Box sx={{ mt: 0.75 }}>
-                          <Field name="Additional concerns" value={data.safety.additionalConcerns} />
-                          <Field name="Initial action" value={data.safety.initialAction} />
-                          <Field name="Assistance provided" value={data.safety.assistanceProvided} />
-                          <Field name="Protection actions" value={data.safety.protectionActions} />
-                          <Field name="Safe contact confirmed" value={data.safety.safeContactConfirmed ? ANSWER_LABEL[data.safety.safeContactConfirmed] : null} />
-                          <Field name="Preferred assistance" value={data.safety.preferredAssistance} />
-                          <Field name="Safety plan" value={data.safety.safetyPlan} />
-                          <Field name="Follow-up requirements" value={data.safety.followUpRequirements} />
-                          <Field name="Follow-up" value={data.safety.followUpAt ? when(data.safety.followUpAt) : null} />
-                        </Box>
-                        <Typography sx={{ fontSize: '0.74rem', color: '#94a3b8' }}>
-                          Version {data.safety.version} · {data.safety.updatedBy ?? 'an official'} · {when(data.safety.updatedAt)}
-                        </Typography>
-                        {data.safetyHistory.length > 1 && (
-                          <>
-                            <Button size="small" startIcon={<History sx={{ fontSize: 14 }} />} onClick={() => setShowSafetyHistory(v => !v)}
-                              sx={{ px: 0, textTransform: 'none', color: '#475569' }}>
-                              {showSafetyHistory ? 'Hide' : 'Show'} earlier versions ({data.safetyHistory.length - 1})
-                            </Button>
-                            <Collapse in={showSafetyHistory}>
-                              {data.safetyHistory.slice(1).map(h => (
-                                <Typography key={h.id} sx={{ fontSize: '0.76rem', color: '#64748b' }}>
-                                  {when(h.at)} · {h.by ?? 'an official'} · immediate concern: {ANSWER_LABEL[(h.snapshot.immediateConcern ?? 'unknown') as YesNoUnknownAnswer]}
-                                  {h.snapshot.initialAction ? ` · action: ${h.snapshot.initialAction}` : ''}
-                                </Typography>
-                              ))}
-                            </Collapse>
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                        Not recorded yet. An immediate danger is acted on at once - this form does not need to be finished first.
-                      </Typography>
-                    )}
-                  </Box>
-                </>
-              )}
-
               <Divider />
 
               {/* Referrals */}
@@ -666,7 +517,6 @@ export default function CaseRecordsPanel({ caseId, onChanged, formPath }: { case
               </Box>
 
               {party && <PartyDialog caseId={caseId} role={party.role} vawc={vawc} start={party.start} onClose={() => setParty(null)} onSaved={saved} />}
-              {safetyOpen && <SafetyDialog caseId={caseId} start={data.safety} onClose={() => setSafetyOpen(false)} onSaved={saved} />}
               {referralOpen && <ReferralDialog caseId={caseId} desk={data.report.desk} onClose={() => setReferralOpen(false)} onSaved={saved} />}
               {editingReferral && <ReferralDialog caseId={caseId} desk={data.report.desk} referral={editingReferral} onClose={() => setEditingReferral(null)}
                 onSaved={() => { setEditingReferral(null); saved(); }} />}
