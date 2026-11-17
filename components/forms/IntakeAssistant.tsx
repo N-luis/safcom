@@ -12,6 +12,7 @@ import type { IntakeAnswer, IntakeResult, Completeness } from '@/lib/intake';
 import type { InterviewQuestion, InterviewState, InterviewTurn, ReportingRelationship } from '@/lib/interviewTypes';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 import { useLanguage } from '@/lib/i18n';
+import CompletenessBar, { questionProgress } from './CompletenessBar';
 
 /**
  * SafeComm Assist: the follow-up questions after a resident has written what
@@ -132,9 +133,6 @@ const T: Record<Lang, Record<string, string>> = {
  */
 export type AssistState = 'URGENT' | 'FOLLOW_UP_REQUIRED' | 'INCOMPLETE' | 'READY';
 
-const STEP: Record<Completeness, number> = {
-  INSUFFICIENT: 1, PARTIAL: 2, SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT: 3,
-};
 const STEP_COLOR: Record<Completeness, string> = {
   INSUFFICIENT: '#f97316', PARTIAL: '#eab308', SUFFICIENT_FOR_PRELIMINARY_ASSESSMENT: '#22c55e',
 };
@@ -279,6 +277,11 @@ export default function IntakeAssistant({
     }
     : aiMode ? null : result?.nextQuestion ?? null;
   const danger = Boolean(result?.immediateSafetyConcern || interview?.possibleOngoingDanger);
+  // How far the questions have come, for the completeness bar: each answer (or skip) moves it on, and it
+  // is full only when nothing is left to ask. While the next reading loads, more may still come.
+  const answered = aiMode ? turns.length : answers.length;
+  const remaining = aiMode ? queue.length : result?.nextQuestion ? 1 : 0;
+  const progress = !q && !loading ? 1 : questionProgress(answered, remaining, (aiMode ? moreRounds : Boolean(result?.nextQuestion)) || loading);
   const busy = loading || disabled;
 
   return (
@@ -364,14 +367,7 @@ export default function IntakeAssistant({
             <Typography sx={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
               {t.complete}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5 }} aria-label={t[result.informationCompleteness]}>
-              {[1, 2, 3].map(i => (
-                <Box key={i} sx={{
-                  flex: 1, height: 6, borderRadius: 3,
-                  bgcolor: i <= STEP[result.informationCompleteness] ? STEP_COLOR[result.informationCompleteness] : '#e2e8f0',
-                }} />
-              ))}
-            </Box>
+            <CompletenessBar level={result.informationCompleteness} progress={progress} loading={loading} label={`${t.complete}: ${t[result.informationCompleteness]}`} />
             <Typography sx={{ fontSize: '0.78rem', color: '#475569', mt: 0.5 }}>{result.completenessExplanation}</Typography>
           </Box>
 

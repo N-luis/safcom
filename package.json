@@ -51,6 +51,7 @@
     "test:dashboardannouncements": "npx tsx tests/dashboardAnnouncements.test.tsx",
     "test:kpreview": "npx tsx tests/kpReviewNoUnknown.test.tsx",
     "test:intakemarkers": "npx tsx tests/intakeNoMarkers.test.tsx",
+    "test:completenessbar": "npx tsx tests/completenessBar.test.tsx",
     "test:peopleinvolved:ui": "npx tsx tests/peopleInvolvedUi.test.tsx",
     "test:peopleinvolved": "npx tsx --env-file=.env --conditions=react-server tests/peopleInvolved.test.ts",
     "test:vawcexport": "npx tsx --env-file=.env --conditions=react-server tests/vawcCaseExport.test.ts",
