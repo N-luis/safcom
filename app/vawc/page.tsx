@@ -21,6 +21,7 @@ import useSWR from 'swr';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
 import DashboardAnnouncements from '@/components/announcements/DashboardAnnouncements';
 import DonutBreakdown from '@/components/charts/DonutBreakdown';
+import ResidentDirectory from '@/components/dashboard/ResidentDirectory';
 
 const MotionTableRow = motion(TableRow);
 
@@ -375,8 +376,11 @@ export default function VawcDashboard() {
         </Grid>
       </Grid>
 
+      {/* Urgent Cases, with the Resident Directory beside it (stacked below lg) */}
+      <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
+        <Grid size={{ xs: 12, lg: 'grow' }} sx={{ minWidth: 0 }}>
       {/* Urgent Cases */}
-      <Card>
+      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Dark header */}
         <Box sx={{
           px: 2.5, py: 1.75, bgcolor: '#0c1e46',
@@ -467,6 +471,12 @@ export default function VawcDashboard() {
           </Button>
         </Box>
       </Card>
+        </Grid>
+        {/* Resident Directory: registered residents by name; profiles one at a time, logged */}
+        <Grid size={{ xs: 12, lg: 'auto' }} sx={{ width: { lg: 320 } }}>
+          <ResidentDirectory accent="#7c3aed" />
+        </Grid>
+      </Grid>
     </Box>
   );
 }

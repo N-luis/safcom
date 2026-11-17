@@ -18,6 +18,7 @@ import { useCaseStats, useCases } from '@/hooks/useApi';
 import { useRouter } from 'next/navigation';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
 import DashboardAnnouncements from '@/components/announcements/DashboardAnnouncements';
+import ResidentDirectory from '@/components/dashboard/ResidentDirectory';
 
 const CATEGORY_COLORS = ['#14b8a6', '#3b82f6', '#f97316', '#8b5cf6', '#ef4444', '#94a3b8'];
 
@@ -324,8 +325,11 @@ export default function BlotterDashboard() {
         </Grid>
       </Grid>
 
+      {/* Recently Assigned Cases, with the Resident Directory beside it (stacked below lg) */}
+      <Grid container spacing={2.5} sx={{ alignItems: 'stretch' }}>
+        <Grid size={{ xs: 12, lg: 'grow' }} sx={{ minWidth: 0 }}>
       {/* Recently Assigned Cases table */}
-      <Card>
+      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <CardContent sx={{ p: 2.5, pb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5, flexWrap: 'wrap', gap: 1.5 }}>
             <Box>
@@ -355,7 +359,7 @@ export default function BlotterDashboard() {
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9' } }}>
+              <TableRow sx={{ '& th': { bgcolor: '#f8fafc', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', py: 1.25, borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' } }}>
                 {['Case ID', 'Reporter / Subject', 'Category', 'Status', 'Risk Level', 'Timestamp', ''].map(h => (
                   <TableCell key={h}>{h}</TableCell>
                 ))}
@@ -384,7 +388,7 @@ export default function BlotterDashboard() {
                     onClick={() => setSelectedCase(c)}
                   >
                     <TableCell>
-                      <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46', whiteSpace: 'nowrap' }}>#{c.caseNumber}</Typography>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -407,7 +411,7 @@ export default function BlotterDashboard() {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: STATUS_COLOR[c.status] ?? '#94a3b8' }} />
-                        <Typography sx={{ fontSize: '0.9rem', color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600 }}>
+                        <Typography sx={{ fontSize: '0.9rem', color: STATUS_COLOR[c.status] ?? '#94a3b8', fontWeight: 600, whiteSpace: 'nowrap' }}>
                           {c.status}
                         </Typography>
                       </Box>
@@ -418,7 +422,7 @@ export default function BlotterDashboard() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary' }}>{timeAgo(c.filedAt)}</Typography>
+                      <Typography sx={{ fontSize: '0.86rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>{timeAgo(c.filedAt)}</Typography>
                     </TableCell>
                     <TableCell>
                       <Tooltip title="View Details">
@@ -459,6 +463,12 @@ export default function BlotterDashboard() {
           </Box>
         </Box>
       </Card>
+        </Grid>
+        {/* Resident Directory: registered residents by name; profiles one at a time, logged */}
+        <Grid size={{ xs: 12, lg: 'auto' }} sx={{ width: { lg: 320 } }}>
+          <ResidentDirectory accent="#1d4ed8" />
+        </Grid>
+      </Grid>
 
       {selectedCase && (
         <CaseDetailDialog

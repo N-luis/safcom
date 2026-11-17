@@ -68,7 +68,8 @@
     "eval:classification": "npx tsx --env-file=.env --conditions=react-server scripts/eval-classification.ts",
     "test:vawcproceedings": "npx tsx --env-file=.env --conditions=react-server tests/vawcProceedings.test.ts",
     "test:vawcproceedings:rules": "npx tsx --conditions=react-server tests/vawcProceedingsRules.test.ts",
-    "test:vawchearings": "npx tsx --env-file=.env --conditions=react-server tests/vawcHearings.test.ts"
+    "test:vawchearings": "npx tsx --env-file=.env --conditions=react-server tests/vawcHearings.test.ts",
+    "test:residentdirectory": "npx tsx --env-file=.env --conditions=react-server tests/residentDirectory.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
