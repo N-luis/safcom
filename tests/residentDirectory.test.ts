@@ -96,6 +96,8 @@ async function main() {
       && res.email === `bea.${pid}@example.invalid` && Boolean(res.registeredAt) && res.accountStatus === 'Active');
     ok('never a password, sign-in id, username, internal note or risk flag', !/PROBE-HASH|probe_clerk|probe_rd_|PROBE-INTERNAL/.test(JSON.stringify(p1.body))
       && !['password', 'clerkId', 'username', 'notes', 'riskLevel'].some(k => k in (res ?? {})));
+    ok('no resident ID and no verification state (ID verification was removed)', !['residentNumber', 'emailVerified'].some(k => k in (res ?? {}))
+      && !JSON.stringify(p1.body).includes(`${TAG}-${pid}-`) && !/verified/i.test(JSON.stringify(p1.body)));
     ok('Call Resident: a tel: link to their own number', p1.body.data.telHref === 'tel:+639170000001');
     ok('a name is not an id: looking up by name finds nothing', (await view(B.cookie, `Bea ${last}`)).status === 404);
     const p4 = await view(B.cookie, R4.id);

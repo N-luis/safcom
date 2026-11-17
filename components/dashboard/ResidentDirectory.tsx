@@ -20,8 +20,8 @@ import { displayPhMobile } from '@/lib/phoneNumber';
 interface ListData { rows: { id: string; name: string }[]; total: number; page: number; pageSize: number; pages: number }
 interface Profile {
   resident: {
-    id: string; fullName: string | null; residentNumber: string | null; age: number | null; sex: string | null; address: string | null; barangay: string | null;
-    phone: string | null; email: string | null; accountStatus: string | null; emailVerified: boolean; registeredAt: string; updatedAt: string;
+    id: string; fullName: string | null; age: number | null; sex: string | null; address: string | null; barangay: string | null;
+    phone: string | null; email: string | null; accountStatus: string | null; registeredAt: string; updatedAt: string;
   };
   contact: { callAllowed: boolean; label: string; guidance: string };
   telHref: string | null;
@@ -130,7 +130,6 @@ function ResidentProfileDialog({ id, name, onClose }: { id: string; name: string
           <>
             <Section title="Personal">
               <Field k="Full name" v={r.fullName} />
-              <Field k="Resident ID" v={r.residentNumber} />
               <Field k="Age" v={r.age !== null ? `${r.age} (as given at registration)` : null} />
               <Field k="Sex" v={r.sex} />
               <Field k="Address" v={r.address} />
@@ -150,7 +149,6 @@ function ResidentProfileDialog({ id, name, onClose }: { id: string; name: string
             <Divider />
             <Section title="Account">
               <Field k="Account status" v={r.accountStatus} />
-              <Field k="Verification" v={r.emailVerified ? 'E-mail verified' : 'E-mail not verified'} />
               <Field k="Registered" v={day(r.registeredAt)} />
               <Field k="Last updated" v={day(r.updatedAt)} />
             </Section>

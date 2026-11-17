@@ -45,9 +45,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
 
     const r = await prisma.resident.findFirst({
       where: { id, status: { in: DIRECTORY_STATUSES } },
-      // Never: password, clerkId, username, notes, riskLevel - nor any case.
-      select: { id: true, residentNumber: true, firstName: true, lastName: true, age: true, gender: true, barangay: true, address: true,
-        contactNumber: true, email: true, status: true, emailVerified: true, registeredAt: true, updatedAt: true },
+      // Never: password, clerkId, username, notes, riskLevel, residentNumber, emailVerified - nor any case.
+      // No resident ID and no verification state: ID verification was removed from SafeComm.
+      select: { id: true, firstName: true, lastName: true, age: true, gender: true, barangay: true, address: true,
+        contactNumber: true, email: true, status: true, registeredAt: true, updatedAt: true },
     });
     if (!r) { await log('denied', 'not_found'); return errorResponse('Resident not found', 404); }
 
@@ -64,7 +65,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
       resident: {
         id: r.id,
         fullName: [text(r.firstName), text(r.lastName)].filter(Boolean).join(' ') || null,
-        residentNumber: text(r.residentNumber),
         age: typeof r.age === 'number' && r.age > 0 ? r.age : null,
         sex: text(r.gender),
         address: text(r.address),
@@ -72,7 +72,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
         phone,
         email,
         accountStatus: text(r.status),
-        emailVerified: r.emailVerified,
         registeredAt: r.registeredAt,
         updatedAt: r.updatedAt,
       },
