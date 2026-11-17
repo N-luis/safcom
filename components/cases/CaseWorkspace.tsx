@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useState, useMemo, useRef, useEffect,
+  useState, useMemo,
 } from 'react';
 import {
   useRouter,
@@ -31,12 +31,11 @@ import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
 import VawcAppointmentsPanel from '@/components/vawcAppointments/VawcAppointmentsPanel';
 import { ProceedingsPanel } from '@/components/vawcAppointments/VawcProceedings';
-import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
 import ReportingDeskPanel from '@/components/cases/ReportingDeskPanel';
 import { caseNumberLabel, RESOLUTION_TYPES, resolutionTypesFor, pathOfType, type ResolutionType } from '@/lib/caseRecords';
-import IntakeFormButton, { CaseRecordActions } from '@/components/cases/OfficialIntakeCard';
+import IntakeFormButton from '@/components/cases/OfficialIntakeCard';
 import ServiceReferralHistory, { CreateServiceReferralButton } from '@/components/referrals/ServiceReferralHistory';
 import { triageOf } from '@/lib/triageLabels';
 
@@ -779,12 +778,6 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
   const [timelineFilter, setTimelineFilter] = useState<'all' | 'interventions'>('all');
   const [editTarget, setEditTarget] = useState<{ fid: string; content: string; outcome: string } | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
-  // A quick action opens the follow-up composer with its type chosen.
-  const [composer, setComposer] = useState<{ type: string; nonce: number }>({ type: 'note', nonce: 0 });
-  const composerRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (composer.nonce > 0) composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [composer.nonce]);
 
   const { data: caseData, isLoading, mutate: revalidate } = useCaseDetail(id) as {
     data: CaseDetail | undefined; isLoading: boolean; mutate: () => void;
@@ -1043,19 +1036,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}
           <CaseRecordsPanel caseId={id} onChanged={onSaved} formPath={`${basePath}/${id}/referrals`} />
 
-          {/* Service Referral Forms and their acknowledgements - VAWC cases, VAWC desk and the captain only */}
-          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
-
           {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
 
-          {/* Blotter: the letter confirming receipt, then the case's other record types (VAWC: in the right column) */}
-          {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && (
-            <>
-              <AcknowledgementPanel caseId={id} onChanged={onSaved} />
-              <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
-            </>
-          )}
 
         </Grid>
 
@@ -1097,10 +1080,7 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
               </Box>
 
               {/* Add Follow-Up Form */}
-              <Box ref={composerRef}>
-                <AddFollowUpForm key={composer.nonce} caseId={id} currentStatus={caseData.status} caseType={caseData.caseType} onSaved={onSaved}
-                  initialType={composer.type} startOpen={composer.nonce > 0} />
-              </Box>
+              <AddFollowUpForm caseId={id} currentStatus={caseData.status} caseType={caseData.caseType} onSaved={onSaved} />
 
               {/* Edit inline form */}
               {editTarget && (
@@ -1195,17 +1175,12 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </Card>
           </Box>
 
-          {/* VAWC cases only: their Hearings, then BPOs and referrals; the letter confirming receipt; the case's other record types.
-              Here, not on the left, because a VAWC case's left column is the longer one. */}
+          {/* VAWC cases only: their Hearings, BPOs and referrals, then the Service Referral Forms
+              (VAWC desk and the captain only). The acknowledgement letter is in Reporter Information. */}
           <Box sx={{ mt: 2.5 }}>
             {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
             {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
-            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && (
-              <>
-                <AcknowledgementPanel caseId={id} onChanged={onSaved} />
-                <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
-              </>
-            )}
+            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ServiceReferralHistory caseId={id} basePath={basePath} />}
           </Box>
         </Grid>
       </Grid>

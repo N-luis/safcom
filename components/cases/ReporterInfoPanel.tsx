@@ -6,6 +6,7 @@ import { Box, Typography, Card, CardContent, Button, Alert, CircularProgress, Sk
 import { Phone, Email, Visibility, VisibilityOff, Sms, Lock, AssignmentInd } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { displayPhMobile } from '@/lib/phoneNumber';
+import AcknowledgementPanel from './AcknowledgementPanel';
 
 /**
  * Reporter Information on the official's case page.
@@ -117,7 +118,8 @@ export default function ReporterInfoPanel({ caseId, onAssigned }: { caseId: stri
   };
 
   if (isLoading) return <Skeleton variant="rectangular" height={140} sx={{ borderRadius: 2, mb: 2 }} />;
-  if (error || !data) return null;
+  // Without the reporter summary the letter still has a place, as its own card.
+  if (error || !data) return <AcknowledgementPanel caseId={caseId} onChanged={onAssigned} />;
 
   const { reporter, contact, safety, urgency, access } = data;
   const r = info?.resident ?? null;
@@ -281,6 +283,9 @@ export default function ReporterInfoPanel({ caseId, onAssigned }: { caseId: stri
         {access.canReveal && reporter.registered && (
           <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 1 }}>Each view is recorded in the access log.</Typography>
         )}
+
+        {/* The letter confirming to this reporter that the report was received */}
+        <AcknowledgementPanel caseId={caseId} onChanged={onAssigned} embedded />
       </CardContent>
     </Card>
   );

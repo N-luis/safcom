@@ -27,7 +27,8 @@ const fetcher = async (url: string) => {
 };
 const when = (d: string) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-export default function AcknowledgementPanel({ caseId, onChanged }: { caseId: string; onChanged?: () => void }) {
+/** `embedded`: a section inside another card (Reporter Information), not a card of its own. */
+export default function AcknowledgementPanel({ caseId, onChanged, embedded = false }: { caseId: string; onChanged?: () => void; embedded?: boolean }) {
   const { data, error, isLoading, mutate } = useSWR<Data>(`/api/cases/${caseId}/acknowledgement`, fetcher);
   const [busy, setBusy] = useState(false);
   const [method, setMethod] = useState<IssueMethod | ''>('');
@@ -47,12 +48,11 @@ export default function AcknowledgementPanel({ caseId, onChanged }: { caseId: st
   };
 
   const l = data?.letter ?? null;
-  return (
-    <Card sx={{ mb: 2 }}>
-      <CardContent sx={{ p: 2 }}>
+  const body = (
+    <>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
           <MarkEmailRead sx={{ fontSize: 17, color: '#0f766e' }} />
-          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: NAVY }}>Acknowledgement letter</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: embedded ? '0.88rem' : '0.94rem', color: NAVY }}>Acknowledgement letter</Typography>
           {l && <Chip size="small" label={l.status === 'ISSUED' ? 'Issued' : 'Pending'}
             sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: l.status === 'ISSUED' ? '#f0fdf4' : '#fffbeb', color: l.status === 'ISSUED' ? '#15803d' : '#a16207' }} />}
         </Box>
@@ -94,7 +94,12 @@ export default function AcknowledgementPanel({ caseId, onChanged }: { caseId: st
             </Box>
           </>
         )}
-      </CardContent>
+    </>
+  );
+  if (embedded) return <Box sx={{ borderTop: '1px solid #e2e8f0', mt: 1.5, pt: 1.5 }}>{body}</Box>;
+  return (
+    <Card sx={{ mb: 2 }}>
+      <CardContent sx={{ p: 2 }}>{body}</CardContent>
     </Card>
   );
 }
