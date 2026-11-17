@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import {
   BLOTTER_CATEGORIES, VAWC_CATEGORIES, categoryByName, MATRIX_REVIEW_STATUS,
 } from '@/lib/classificationSchema';
+import Fold from './Fold';
 
 /**
  * The officer's decision on a case's category.
@@ -83,20 +84,27 @@ export default function CategoryReview({ caseId, caseType, basePath, onChanged }
       {meta && (
         <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.4 }}>
           <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{meta.definition}</Typography>
-          {meta.legalBasis.length > 0 && (
-            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
-              <b>Where to look:</b> {meta.legalBasis.join('; ')}
-            </Typography>
-          )}
-          {meta.confirm.length > 0 && (
-            <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
-              <b>Confirm before relying on it:</b> {meta.confirm.join(' ')}
-            </Typography>
-          )}
           <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
             <b>{CONCILIATION[meta.conciliation]}</b>{meta.referral ? ` · Usual referral: ${meta.referral}` : ''}
           </Typography>
-          <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontStyle: 'italic' }}>{MATRIX_REVIEW_STATUS}</Typography>
+          {/* The law and what to confirm: long, and read when deciding - folded. */}
+          {(meta.legalBasis.length > 0 || meta.confirm.length > 0) && (
+            <Fold title="Legal guidance" mb={0}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.4 }}>
+                {meta.legalBasis.length > 0 && (
+                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
+                    <b>Where to look:</b> {meta.legalBasis.join('; ')}
+                  </Typography>
+                )}
+                {meta.confirm.length > 0 && (
+                  <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>
+                    <b>Confirm before relying on it:</b> {meta.confirm.join(' ')}
+                  </Typography>
+                )}
+                <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontStyle: 'italic' }}>{MATRIX_REVIEW_STATUS}</Typography>
+              </Box>
+            </Fold>
+          )}
         </Box>
       )}
 

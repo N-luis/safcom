@@ -6,6 +6,7 @@ import { FactCheck } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { KP_CHECKLIST, KP_ANSWER_LABELS, KP_ELIGIBILITY_LABELS, decideKpReview, type KpAnswer, type KpAnswers, type KpEligibilityState } from '@/lib/hearings';
 import { NAVY, send, chipSx } from './hearingUi';
+import Fold from '@/components/cases/Fold';
 
 const STATE_COLOR: Record<KpEligibilityState, string> = { PENDING_REVIEW: '#64748b', ELIGIBLE: '#15803d', NOT_ELIGIBLE: '#b91c1c' };
 const ANSWER_COLOR: Record<KpAnswer, 'success' | 'error' | 'standard'> = { YES: 'success', NO: 'error', NOT_APPLICABLE: 'standard' };
@@ -48,10 +49,12 @@ export default function KpReviewForm({ caseId, caseType, initial, onSaved }: {
         <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: NAVY }}>Eligibility review - Katarungang Pambarangay</Typography>
         <Chip size="small" label={`${KP_ELIGIBILITY_LABELS[outcome.decision]} · ${answered}/${KP_CHECKLIST.length} answered`} sx={{ ...chipSx(STATE_COLOR[outcome.decision]), ml: 'auto' }} />
       </Box>
-      <Typography sx={{ fontSize: '0.78rem', color: '#475569', mb: 1 }}>
-        For the verified category <b>{caseType}</b>, from RA 7160 secs. 408, 409 and 412(b) and RA 9262. Answer what you have checked and leave the rest for later. Only a <b>No</b> - an exclusion you found - makes the case not eligible.
-        The review is kept with your name and the date; saving it again keeps the earlier one.
-      </Typography>
+      <Fold title="How to answer" mb={0.5}>
+        <Typography sx={{ fontSize: '0.78rem', color: '#475569' }}>
+          For the verified category <b>{caseType}</b>, from RA 7160 secs. 408, 409 and 412(b) and RA 9262. Answer what you have checked and leave the rest for later. Only a <b>No</b> - an exclusion you found - makes the case not eligible.
+          The review is kept with your name and the date; saving it again keeps the earlier one.
+        </Typography>
+      </Fold>
       <Box sx={{ display: 'grid', gap: 1 }}>
         {KP_CHECKLIST.map(c => (
           <Box key={c.key} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr auto' }, gap: 0.75, alignItems: 'center', borderBottom: '1px solid #e2e8f0', pb: 1 }}>

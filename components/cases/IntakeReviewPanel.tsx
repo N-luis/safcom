@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Box, Typography, Chip, Button, Collapse, Divider, Alert } from '@mui/material';
 import { FormatQuote, History, QuestionAnswer, ReportProblem, MenuBook } from '@mui/icons-material';
+import Fold from './Fold';
 
 /**
  * What the assisted intake recorded, laid out for the officer deciding on it.
@@ -181,6 +182,8 @@ export default function IntakeReviewPanel({ intake, history }: {
                   <Chip size="small" label="Not matched to source" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: '#fef2f2', color: '#b91c1c' }} />
                 )}
               </Box>
+              {/* The level is above; the criteria, caveats and source text behind it are folded. */}
+              <Fold title="Why this level" count={(intake.matchedCriteria ?? []).length} mb={0}>
               {(intake.matchedCriteria ?? []).map((m, i) => (
                 <Typography key={i} sx={{ fontSize: '0.8rem', color: '#334155' }}>
                   • <b>L{m.level}</b> “{m.indicator}”
@@ -229,6 +232,7 @@ export default function IntakeReviewPanel({ intake, history }: {
                 {intake.knowledgeBaseStatus ? `${KB_STATUS[intake.knowledgeBaseStatus] ?? intake.knowledgeBaseStatus}. ` : ''}
                 An operational triage framework, not a legal determination. {intake.assessedBy ?? ''}
               </Typography>
+              </Fold>
             </Box>
           )}
 
@@ -236,8 +240,7 @@ export default function IntakeReviewPanel({ intake, history }: {
 
           {/* The AI interview, exactly as it went */}
           {intake.aiInterview && intake.aiInterview.turns.length > 0 && (
-            <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, mb: 1.25, bgcolor: '#fcfcfd' }}>
-              <Typography sx={label}>Follow-up interview ({intake.aiInterview.turns.length} question{intake.aiInterview.turns.length === 1 ? '' : 's'})</Typography>
+            <Fold title="Follow-up interview" count={intake.aiInterview.turns.length}>
               {intake.aiInterview.turns.map(t => (
                 <Box key={t.id} sx={{ mb: 0.5 }}>
                   <Typography sx={{ fontSize: '0.8rem', color: '#0c1e46' }}>{t.text}</Typography>
@@ -247,7 +250,7 @@ export default function IntakeReviewPanel({ intake, history }: {
                   </Typography>
                 </Box>
               ))}
-            </Box>
+            </Fold>
           )}
 
           {/* Category: what the words describe, beside what was chosen */}
@@ -266,9 +269,13 @@ export default function IntakeReviewPanel({ intake, history }: {
               {intake.selectedCategory ? `A category was sent with the report: ${intake.selectedCategory} (context only) · ` : ''}
               Route: {intake.route === 'VAWC' ? 'VAWC desk' : 'Blotter desk'}
             </Typography>
-            {intake.categoryRationale.map(r => (
-              <Typography key={r} sx={{ fontSize: '0.78rem', color: '#64748b' }}>• {r}</Typography>
-            ))}
+            {intake.categoryRationale.length > 0 && (
+              <Fold title="Why this category" count={intake.categoryRationale.length} mb={0}>
+                {intake.categoryRationale.map(r => (
+                  <Typography key={r} sx={{ fontSize: '0.78rem', color: '#64748b' }}>• {r}</Typography>
+                ))}
+              </Fold>
+            )}
           </Box>
 
           {intake.conflicts.length > 0 && (
@@ -279,9 +286,8 @@ export default function IntakeReviewPanel({ intake, history }: {
 
           {/* Indicators, in the resident's own words */}
           {intake.supportingIndicators.length > 0 && (
-            <>
-              <Typography sx={label}>Reported indicators — not verified</Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.25 }}>
+            <Fold title="Reported indicators — not verified" count={intake.supportingIndicators.length}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 {intake.supportingIndicators.map((i, n) => (
                   <Box key={n} sx={{ display: 'flex', gap: 0.75, alignItems: 'flex-start' }}>
                     <FormatQuote sx={{ fontSize: 15, color: '#94a3b8', mt: '2px', flexShrink: 0 }} />
@@ -292,16 +298,15 @@ export default function IntakeReviewPanel({ intake, history }: {
                   </Box>
                 ))}
               </Box>
-            </>
+            </Fold>
           )}
 
           {intake.missingInformation.length > 0 && (
-            <>
-              <Typography sx={label}>Still unknown</Typography>
-              <Typography sx={{ fontSize: '0.82rem', color: '#475569', mb: 1.25 }}>
+            <Fold title="Still unknown" count={intake.missingInformation.length}>
+              <Typography sx={{ fontSize: '0.82rem', color: '#475569' }}>
                 {intake.missingInformation.join('; ')}. Unknown is not taken as safe or as dangerous.
               </Typography>
-            </>
+            </Fold>
           )}
 
           {intake.turns.length > 0 && (
@@ -327,12 +332,12 @@ export default function IntakeReviewPanel({ intake, history }: {
             </>
           )}
 
-          <Box sx={{ mt: 1 }}>
-            <Typography sx={label}>Original narrative</Typography>
+          {/* The same text is in the Original Report card: folded here. */}
+          <Fold title="Original narrative" mb={0}>
             <Typography sx={{ fontSize: '0.84rem', color: '#334155', whiteSpace: 'pre-wrap', bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 1.5, p: 1 }}>
               {intake.narrative}
             </Typography>
-          </Box>
+          </Fold>
         </>
       ) : (
         <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', mb: 1 }}>

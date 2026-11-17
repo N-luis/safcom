@@ -7,7 +7,7 @@ import {
   useRouter,
 } from 'next/navigation';
 import {
-  Box, Typography, Card, CardContent, Grid, Chip, Button, IconButton, Divider, LinearProgress, Skeleton, TextField, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper, Collapse, CircularProgress, Checkbox, FormControlLabel,
+  Box, Typography, Card, CardContent, Grid, Chip, Button, IconButton, Divider, LinearProgress, Skeleton, TextField, Select, MenuItem, FormControl, InputLabel, Tooltip, Paper, Collapse, CircularProgress, Checkbox, FormControlLabel, FormHelperText,
 } from '@mui/material';
 import {
   ArrowBack, Add, Save, Edit, Delete, CheckCircle, LocationOn, Person, AccessTime, FolderOpen, Shield, Search, AutoAwesome, Psychology, Notes, Update, Close, OpenInNew, Share,
@@ -125,11 +125,6 @@ const STATUS_STAGES = [
   { key: 'Resolved',                 label: 'Closed / Resolved',       color: '#22c55e' },
 ];
 
-const ALL_STATUSES = [
-  'Open', 'Under Investigation', 'In Progress',
-  'Intervention in Progress', 'Pending Resolution',
-  'Resolved', 'Closed',
-];
 
 const STATUS_STEP: Record<string, number> = {
   'Open': 0, 'In Progress': 1, 'Under Investigation': 1,
@@ -142,6 +137,28 @@ const STATUS_COLOR: Record<string, string> = {
   'Intervention in Progress': '#8b5cf6', 'Pending Resolution': '#f59e0b',
   'Resolved': '#22c55e', 'Closed': '#94a3b8',
 };
+
+/**
+ * The statuses a timeline entry can move a case to - one per stage of the
+ * progress tracker, plus Closed. "In Progress" is the investigation stage
+ * (the status the dashboards count as ongoing); the older "Under
+ * Investigation" still displays on cases that have it, but is not offered.
+ */
+const ENTRY_STATUSES = ['Open', 'In Progress', 'Intervention in Progress', 'Pending Resolution', 'Resolved', 'Closed'];
+const STATUS_LABEL: Record<string, string> = { 'In Progress': 'In Progress (under investigation)' };
+/** The entry types the follow-up route accepts (an Official Intake is made from the intake form, not here). */
+const ENTRY_TYPES = ['note', 'investigation', 'intervention', 'evidence', 'status_change'] as const;
+/** An entry of this type moves the case to this stage... */
+const TYPE_TO_STATUS: Record<string, string> = { investigation: 'In Progress', intervention: 'Intervention in Progress' };
+/** ...and choosing a status makes the entry the matching type. */
+const statusToType = (status: string) =>
+  status === 'In Progress' || status === 'Under Investigation' ? 'investigation'
+    : status === 'Intervention in Progress' ? 'intervention' : 'status_change';
+/** The status an entry of this type sets - only ever forward, never back to an earlier stage. */
+function statusForType(type: string, current: string): string {
+  const to = TYPE_TO_STATUS[type];
+  return to && (STATUS_STEP[to] ?? 0) > (STATUS_STEP[current] ?? 0) ? to : '';
+}
 
 const FOLLOWUP_META: Record<string, { label: string; color: string; Icon: typeof Notes }> = {
   note:           { label: 'Note',                  color: '#64748b', Icon: Notes },
@@ -376,8 +393,9 @@ function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType
   const [open, setOpen] = useState(startOpen);
   const [type, setType] = useState(initialType);
   const [content, setContent] = useState('');
-  const [updateStatus, setUpdateStatus] = useState(false);
-  const [statusTo, setStatusTo] = useState('');
+  // '' = the status stays as it is. Set with the type, and the type with it (pickType / pickStatus).
+  const [statusTo, setStatusTo] = useState(() => statusForType(initialType, currentStatus));
+  const updateStatus = statusTo !== '';
   const [outcome, setOutcome] = useState('');
   // Internal unless the official chooses otherwise: a working note is not
   // correspondence, and on a VAWC case it may not be safe to send.
@@ -389,7 +407,19 @@ function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType
   const closing = updateStatus && (statusTo === 'Resolved' || statusTo === 'Closed') && statusTo !== currentStatus;
   const resolutionMissing = closing && (!resolutionType || resolutionSummary.trim().length < 5);
 
-  const reset = () => { setType('note'); setContent(''); setUpdateStatus(false); setStatusTo(''); setOutcome(''); setShare(false); setResolutionType(''); setResolutionSummary(''); };
+  const pickType = (t: string) => {
+    setType(t);
+    // A status change entry keeps the status chosen; any other type sets its own stage, or none.
+    if (t !== 'status_change') setStatusTo(statusForType(t, currentStatus));
+  };
+  const pickStatus = (st: string) => {
+    setStatusTo(st);
+    if (st) setType(statusToType(st));
+    else if (type === 'status_change') setType('note');
+  };
+  const statusMissing = type === 'status_change' && !statusTo;
+
+  const reset = () => { setType('note'); setContent(''); setStatusTo(''); setOutcome(''); setShare(false); setResolutionType(''); setResolutionSummary(''); };
 
   const submit = async () => {
     if (!content.trim()) return;
@@ -446,19 +476,50 @@ function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType
                 </IconButton>
               </Box>
 
-              <FormControl fullWidth size="small" sx={{ mb: 1.5 }}>
-                <InputLabel>Entry Type</InputLabel>
-                <Select value={type} label="Entry Type" onChange={e => setType(e.target.value)} sx={{ borderRadius: 2 }}>
-                  {Object.entries(FOLLOWUP_META).map(([k, v]) => (
-                    <MenuItem key={k} value={k}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5, mb: 1.5 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Entry Type</InputLabel>
+                  <Select value={type} label="Entry Type" onChange={e => pickType(e.target.value)} sx={{ borderRadius: 2 }}>
+                    {ENTRY_TYPES.map(k => (
+                      <MenuItem key={k} value={k}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: FOLLOWUP_META[k].color, flexShrink: 0 }} />
+                          {FOLLOWUP_META[k].label}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth size="small" error={statusMissing}>
+                  <InputLabel shrink>Case Status</InputLabel>
+                  <Select value={statusTo} label="Case Status" notched onChange={e => pickStatus(e.target.value)} sx={{ borderRadius: 2 }} displayEmpty
+                    renderValue={v => {
+                      const st = v || currentStatus;
+                      return (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLOR[st] ?? '#94a3b8', flexShrink: 0 }} />
+                          <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{v ? (STATUS_LABEL[v] ?? v) : `${currentStatus} (no change)`}</Box>
+                        </Box>
+                      );
+                    }}>
+                    <MenuItem value="" disabled={type === 'status_change'}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: v.color, flexShrink: 0 }} />
-                        {v.label}
+                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLOR[currentStatus] ?? '#94a3b8', flexShrink: 0 }} />
+                        {currentStatus} (no change)
                       </Box>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {ENTRY_STATUSES.filter(st => st !== currentStatus).map(st => (
+                      <MenuItem key={st} value={st}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLOR[st] ?? '#94a3b8', flexShrink: 0 }} />
+                          {STATUS_LABEL[st] ?? st}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {statusMissing && <FormHelperText>Choose the new status</FormHelperText>}
+                </FormControl>
+              </Box>
 
               <TextField
                 fullWidth multiline rows={3} size="small"
@@ -485,51 +546,20 @@ function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType
                 />
               )}
 
-              <Box sx={{
-                p: 1.25, borderRadius: 2, bgcolor: '#f8fafc', border: '1px solid #f1f5f9', mb: 1.5,
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: updateStatus ? 1.25 : 0 }}>
-                  <Box
-                    component="input" type="checkbox"
-                    checked={updateStatus}
-                    onChange={e => setUpdateStatus((e.target as HTMLInputElement).checked)}
-                    style={{ cursor: 'pointer', width: 14, height: 14, accentColor: '#0c1e46' }}
-                  />
-                  <Typography sx={{ fontSize: '0.9rem', color: '#374151', cursor: 'pointer' }} onClick={() => setUpdateStatus(p => !p)}>
-                    Also update case status
-                  </Typography>
-                  <Chip label={currentStatus} size="small" sx={{ bgcolor: `${STATUS_COLOR[currentStatus] ?? '#94a3b8'}18`, color: STATUS_COLOR[currentStatus] ?? '#94a3b8', fontWeight: 600, fontSize: '0.72rem', height: 22, ml: 'auto' }} />
-                </Box>
-                {updateStatus && (
+              {closing && (
+                <Box sx={{ mb: 1.5, display: 'grid', gap: 1.25 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>New Status</InputLabel>
-                    <Select value={statusTo} label="New Status" onChange={e => setStatusTo(e.target.value)} sx={{ borderRadius: 2 }}>
-                      {ALL_STATUSES.filter(s => s !== currentStatus).map(s => (
-                        <MenuItem key={s} value={s}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLOR[s] ?? '#94a3b8', flexShrink: 0 }} />
-                            {s}
-                          </Box>
-                        </MenuItem>
-                      ))}
+                    <InputLabel>How was it resolved? *</InputLabel>
+                    <Select value={resolutionType} label="How was it resolved? *" onChange={e => setResolutionType(e.target.value as ResolutionType)} sx={{ borderRadius: 2 }}>
+                      {resolutionTypesFor(pathOfType(caseType)).map(k => <MenuItem key={k} value={k}>{RESOLUTION_TYPES[k].label}</MenuItem>)}
                     </Select>
                   </FormControl>
-                )}
-                {closing && (
-                  <Box sx={{ mt: 1.25, display: 'grid', gap: 1.25 }}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>How was it resolved? *</InputLabel>
-                      <Select value={resolutionType} label="How was it resolved? *" onChange={e => setResolutionType(e.target.value as ResolutionType)} sx={{ borderRadius: 2 }}>
-                        {resolutionTypesFor(pathOfType(caseType)).map(k => <MenuItem key={k} value={k}>{RESOLUTION_TYPES[k].label}</MenuItem>)}
-                      </Select>
-                    </FormControl>
-                    <TextField size="small" fullWidth multiline minRows={2} label="Resolution details *" value={resolutionSummary}
-                      onChange={e => setResolutionSummary(e.target.value)} slotProps={{ htmlInput: { maxLength: 2000 } }}
-                      placeholder="What was agreed or done, and by whom"
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
-                  </Box>
-                )}
-              </Box>
+                  <TextField size="small" fullWidth multiline minRows={2} label="Resolution details *" value={resolutionSummary}
+                    onChange={e => setResolutionSummary(e.target.value)} slotProps={{ htmlInput: { maxLength: 2000 } }}
+                    placeholder="What was agreed or done, and by whom"
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                </Box>
+              )}
 
               <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: share ? '#f0fdfa' : '#f8fafc', border: `1px solid ${share ? '#99f6e4' : '#f1f5f9'}`, mb: 1.5 }}>
                 <FormControlLabel
@@ -550,7 +580,7 @@ function AddFollowUpForm({ caseId, currentStatus, caseType, onSaved, initialType
                 </Button>
                 <Button
                   variant="contained"
-                  disabled={saving || !content.trim() || resolutionMissing}
+                  disabled={saving || !content.trim() || resolutionMissing || statusMissing}
                   onClick={submit}
                   startIcon={saving ? <CircularProgress size={14} color="inherit" /> : <Save />}
                   sx={{ borderRadius: 2, bgcolor: '#0c1e46', '&:hover': { bgcolor: '#1a3a6e' }, flex: 2 }}
@@ -1019,6 +1049,14 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
           {/* Barangay conciliation hearings - never on a VAWC case (RA 9262) */}
           {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <HearingsPanel caseId={id} onChanged={onSaved} />}
 
+          {/* Blotter: the letter confirming receipt, then the case's other record types (VAWC: in the right column) */}
+          {!(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && (
+            <>
+              <AcknowledgementPanel caseId={id} onChanged={onSaved} />
+              <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
+            </>
+          )}
+
         </Grid>
 
         {/* Right: evidence, the timeline, then the risk assessment and the original report (fills the column) */}
@@ -1157,12 +1195,17 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
             </Card>
           </Box>
 
-          {/* VAWC cases only: their Hearings, then BPOs and referrals; the letter confirming receipt; the case's other record types */}
+          {/* VAWC cases only: their Hearings, then BPOs and referrals; the letter confirming receipt; the case's other record types.
+              Here, not on the left, because a VAWC case's left column is the longer one. */}
           <Box sx={{ mt: 2.5 }}>
             {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
             {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
-            <AcknowledgementPanel caseId={id} onChanged={onSaved} />
-            <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
+            {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && (
+              <>
+                <AcknowledgementPanel caseId={id} onChanged={onSaved} />
+                <CaseRecordActions onQuickAction={type => setComposer(c => ({ type, nonce: c.nonce + 1 }))} />
+              </>
+            )}
           </Box>
         </Grid>
       </Grid>
