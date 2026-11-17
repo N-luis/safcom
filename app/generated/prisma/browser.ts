@@ -351,3 +351,12 @@ export type CasePangkat = Prisma.CasePangkatModel
  * with when and why, rather than deleted.
  */
 export type CasePangkatMember = Prisma.CasePangkatMemberModel
+/**
+ * Model KpFormRecord
+ * A filled KP Form (Katarungang Pambarangay: KP 7, 8, 9, 16, 18, 19) on a
+ * walk-in report. The walk-in report is the blotter case it filed, so
+ * walk_in_report_id is that case's id - never a VAWC case (RA 9262 sec. 33;
+ * the database refuses it too). `data` holds the case's shared values and
+ * this form's own, exactly as the official typed them.
+ */
+export type KpFormRecord = Prisma.KpFormRecordModel

@@ -156,6 +156,8 @@ model Case {
   vawcBpos         VawcBpo[]
   vawcReferrals    VawcReferral[]
   acknowledgement  AcknowledgementLetter?
+  /// KP Forms filled from this walk-in report (blotter cases only).
+  kpFormRecords    KpFormRecord[]
   kpReviews        CaseKpReview[]
   pangkat          CasePangkat?
   victimSurvivors  CaseVictimSurvivor[]
@@ -1543,4 +1545,27 @@ model CasePangkatMember {
   removedReason String?
 
   @@index([pangkatId])
+}
+
+/// A filled KP Form (Katarungang Pambarangay: KP 7, 8, 9, 16, 18, 19) on a
+/// walk-in report. The walk-in report is the blotter case it filed, so
+/// walk_in_report_id is that case's id - never a VAWC case (RA 9262 sec. 33;
+/// the database refuses it too). `data` holds the case's shared values and
+/// this form's own, exactly as the official typed them.
+model KpFormRecord {
+  id             String   @id @default(cuid())
+  walkInReportId String   @map("walk_in_report_id")
+  walkInReport   Case     @relation(fields: [walkInReportId], references: [id], onDelete: Cascade)
+  /// KP7 | KP8 | KP9 | KP16 | KP18 | KP19
+  formType       String   @map("form_type")
+  /// Usaping Barangay Blg., as written on this form (for the list).
+  caseNo         String?  @map("case_no")
+  data           Json
+  createdById    String   @map("created_by")
+  updatedById    String?  @map("updated_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([walkInReportId, updatedAt])
+  @@map("kp_form_records")
 }

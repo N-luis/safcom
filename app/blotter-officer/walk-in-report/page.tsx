@@ -11,6 +11,7 @@ export default function BlotterWalkInPage() {
       prefix="BLT"
       basePath="/blotter-officer/case-management"
       intakeLabel="Blotter Intake Form"
+      kpForms
     />
   );
 }

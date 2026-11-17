@@ -69,7 +69,9 @@
     "test:vawcproceedings": "npx tsx --env-file=.env --conditions=react-server tests/vawcProceedings.test.ts",
     "test:vawcproceedings:rules": "npx tsx --conditions=react-server tests/vawcProceedingsRules.test.ts",
     "test:vawchearings": "npx tsx --env-file=.env --conditions=react-server tests/vawcHearings.test.ts",
-    "test:residentdirectory": "npx tsx --env-file=.env --conditions=react-server tests/residentDirectory.test.ts"
+    "test:residentdirectory": "npx tsx --env-file=.env --conditions=react-server tests/residentDirectory.test.ts",
+    "test:kpforms": "npx tsx tests/kpForms.test.tsx",
+    "test:kpforms:api": "npx tsx --env-file=.env --conditions=react-server tests/kpFormsApi.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
@@ -89,7 +91,9 @@
     "@types/nodemailer": "^8.0.2",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.40.0",
+    "html2canvas-pro": "2.6.0",
     "jsonwebtoken": "^9.0.3",
+    "jspdf": "4.2.1",
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
     "next": "16.2.6",

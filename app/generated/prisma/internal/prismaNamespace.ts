@@ -427,7 +427,8 @@ export const ModelName = {
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
-  CasePangkatMember: 'CasePangkatMember'
+  CasePangkatMember: 'CasePangkatMember',
+  KpFormRecord: 'KpFormRecord'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -443,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3703,6 +3704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KpFormRecord: {
+      payload: Prisma.$KpFormRecordPayload<ExtArgs>
+      fields: Prisma.KpFormRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KpFormRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KpFormRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.KpFormRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KpFormRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        findMany: {
+          args: Prisma.KpFormRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>[]
+        }
+        create: {
+          args: Prisma.KpFormRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        createMany: {
+          args: Prisma.KpFormRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KpFormRecordCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>[]
+        }
+        delete: {
+          args: Prisma.KpFormRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        update: {
+          args: Prisma.KpFormRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.KpFormRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KpFormRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KpFormRecordUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>[]
+        }
+        upsert: {
+          args: Prisma.KpFormRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KpFormRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.KpFormRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKpFormRecord>
+        }
+        groupBy: {
+          args: Prisma.KpFormRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KpFormRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KpFormRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KpFormRecordCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4713,6 +4788,21 @@ export const CasePangkatMemberScalarFieldEnum = {
 export type CasePangkatMemberScalarFieldEnum = (typeof CasePangkatMemberScalarFieldEnum)[keyof typeof CasePangkatMemberScalarFieldEnum]
 
 
+export const KpFormRecordScalarFieldEnum = {
+  id: 'id',
+  walkInReportId: 'walkInReportId',
+  formType: 'formType',
+  caseNo: 'caseNo',
+  data: 'data',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KpFormRecordScalarFieldEnum = (typeof KpFormRecordScalarFieldEnum)[keyof typeof KpFormRecordScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5011,6 +5101,7 @@ export type GlobalOmitConfig = {
   acknowledgementLetter?: Prisma.AcknowledgementLetterOmit
   casePangkat?: Prisma.CasePangkatOmit
   casePangkatMember?: Prisma.CasePangkatMemberOmit
+  kpFormRecord?: Prisma.KpFormRecordOmit
 }
 
 /* Types for Logging */

@@ -94,7 +94,8 @@ export const ModelName = {
   CaseKpReview: 'CaseKpReview',
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
-  CasePangkatMember: 'CasePangkatMember'
+  CasePangkatMember: 'CasePangkatMember',
+  KpFormRecord: 'KpFormRecord'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1082,6 +1083,21 @@ export const CasePangkatMemberScalarFieldEnum = {
 } as const
 
 export type CasePangkatMemberScalarFieldEnum = (typeof CasePangkatMemberScalarFieldEnum)[keyof typeof CasePangkatMemberScalarFieldEnum]
+
+
+export const KpFormRecordScalarFieldEnum = {
+  id: 'id',
+  walkInReportId: 'walkInReportId',
+  formType: 'formType',
+  caseNo: 'caseNo',
+  data: 'data',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KpFormRecordScalarFieldEnum = (typeof KpFormRecordScalarFieldEnum)[keyof typeof KpFormRecordScalarFieldEnum]
 
 
 export const SortOrder = {

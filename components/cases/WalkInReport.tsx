@@ -8,10 +8,15 @@ import {
 } from 'next/navigation';
 import {
   Box, Typography, Card, CardContent, Grid, Button, TextField, Select, MenuItem, FormControl, InputLabel, Stepper, Step, StepLabel, Chip, Divider, Paper, FormLabel, LinearProgress, Alert,
+  Tabs, Tab, Skeleton,
 } from '@mui/material';
+import dynamic from 'next/dynamic';
 import {
-  RecordVoiceOver, Person, Assignment, Gavel, CheckCircle, ArrowForward, ArrowBack, Refresh, LocationOn, Phone, Print, AutoAwesome, Cake, FolderOpen,
+  RecordVoiceOver, Person, Assignment, Gavel, CheckCircle, ArrowForward, ArrowBack, Refresh, LocationOn, Phone, Print, AutoAwesome, Cake, FolderOpen, Description,
 } from '@mui/icons-material';
+
+// KP Forms (Blotter desk only): loaded when opened, so the VAWC page never downloads them.
+const KpFormsPanel = dynamic(() => import('@/components/kpForms/KpFormsPanel'), { ssr: false, loading: () => <Skeleton variant="rounded" height={320} /> });
 import {
   motion, AnimatePresence,
 } from 'framer-motion';
@@ -294,6 +299,8 @@ export interface WalkInReportProps {
   notice?: string;
   /** The desk's intake form, offered once the case is filed: its name. */
   intakeLabel?: string;
+  /** The Blotter desk's KP Forms (Katarungang Pambarangay) - a tab beside the report. Never on the VAWC desk (RA 9262 sec. 33). */
+  kpForms?: boolean;
 }
 
 export default function WalkInReport({
@@ -303,7 +310,10 @@ export default function WalkInReport({
   subjectLabel = 'Reporter',
   notice,
   intakeLabel = 'Intake Form',
+  kpForms = false,
 }: WalkInReportProps) {
+  const [tab, setTab] = useState<'report' | 'kp'>('report');
+  const [kpCaseId, setKpCaseId] = useState<string | null>(null);
   const STEPS = [`${subjectLabel} Info`, 'Incident Details', 'Classification', 'Review & Submit'];
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(EMPTY);
@@ -398,10 +408,28 @@ export default function WalkInReport({
     setCaseNumber(newCaseNumber());
   };
 
+  const tabs = kpForms ? (
+    <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2.5, borderBottom: '1px solid #e2e8f0', minHeight: 40, '& .MuiTab-root': { minHeight: 40, textTransform: 'none', fontWeight: 700 } }}>
+      <Tab value="report" label="New Report" icon={<RecordVoiceOver sx={{ fontSize: 18 }} />} iconPosition="start" />
+      <Tab value="kp" label="KP Forms" icon={<Description sx={{ fontSize: 18 }} />} iconPosition="start" />
+    </Tabs>
+  ) : null;
+
+  if (kpForms && tab === 'kp') {
+    return (
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', mb: 1.5, letterSpacing: '-0.02em' }}>Walk-in Report</Typography>
+        {tabs}
+        <KpFormsPanel key={kpCaseId ?? 'none'} caseId={kpCaseId} />
+      </Box>
+    );
+  }
+
   if (done) {
     return (
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', mb: 3, letterSpacing: '-0.02em' }}>Walk-in Report</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', mb: tabs ? 1.5 : 3, letterSpacing: '-0.02em' }}>Walk-in Report</Typography>
+        {tabs}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
           <Card>
             <CardContent sx={{ textAlign: 'center', py: 6, px: 4 }}>
@@ -443,6 +471,13 @@ export default function WalkInReport({
                     Open the Case
                   </Button>
                 )}
+                {kpForms && filedId && (
+                  // KP Forms for the report just filed: the forms open on it, prefilled from it.
+                  <Button variant="outlined" startIcon={<Description />} onClick={() => { setKpCaseId(filedId); setTab('kp'); }}
+                    sx={{ borderRadius: 2, borderColor: '#e2e8f0', color: '#475569' }}>
+                    KP Forms
+                  </Button>
+                )}
                 {filedId && (
                   // The case now exists: its intake form is the next step, on this case - never a second case.
                   <Button
@@ -467,10 +502,11 @@ export default function WalkInReport({
 
   return (
     <Box>
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: tabs ? 1.5 : 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: '#0c1e46', letterSpacing: '-0.02em' }}>Walk-in Report</Typography>
         <Typography sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>Record a walk-in {subjectLabel.toLowerCase()} and file the case</Typography>
       </Box>
+      {tabs}
 
       {notice && (
         <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2, fontSize: '0.86rem' }}>
