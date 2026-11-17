@@ -524,6 +524,8 @@ export type CaseWhereInput = {
   serviceReferrals?: Prisma.ServiceReferralListRelationFilter
   hearings?: Prisma.CaseHearingListRelationFilter
   vawcAppointments?: Prisma.VawcAppointmentListRelationFilter
+  vawcBpos?: Prisma.VawcBpoListRelationFilter
+  vawcReferrals?: Prisma.VawcReferralListRelationFilter
   acknowledgement?: Prisma.XOR<Prisma.AcknowledgementLetterNullableScalarRelationFilter, Prisma.AcknowledgementLetterWhereInput> | null
   kpReviews?: Prisma.CaseKpReviewListRelationFilter
   pangkat?: Prisma.XOR<Prisma.CasePangkatNullableScalarRelationFilter, Prisma.CasePangkatWhereInput> | null
@@ -592,6 +594,8 @@ export type CaseOrderByWithRelationInput = {
   serviceReferrals?: Prisma.ServiceReferralOrderByRelationAggregateInput
   hearings?: Prisma.CaseHearingOrderByRelationAggregateInput
   vawcAppointments?: Prisma.VawcAppointmentOrderByRelationAggregateInput
+  vawcBpos?: Prisma.VawcBpoOrderByRelationAggregateInput
+  vawcReferrals?: Prisma.VawcReferralOrderByRelationAggregateInput
   acknowledgement?: Prisma.AcknowledgementLetterOrderByWithRelationInput
   kpReviews?: Prisma.CaseKpReviewOrderByRelationAggregateInput
   pangkat?: Prisma.CasePangkatOrderByWithRelationInput
@@ -664,6 +668,8 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   serviceReferrals?: Prisma.ServiceReferralListRelationFilter
   hearings?: Prisma.CaseHearingListRelationFilter
   vawcAppointments?: Prisma.VawcAppointmentListRelationFilter
+  vawcBpos?: Prisma.VawcBpoListRelationFilter
+  vawcReferrals?: Prisma.VawcReferralListRelationFilter
   acknowledgement?: Prisma.XOR<Prisma.AcknowledgementLetterNullableScalarRelationFilter, Prisma.AcknowledgementLetterWhereInput> | null
   kpReviews?: Prisma.CaseKpReviewListRelationFilter
   pangkat?: Prisma.XOR<Prisma.CasePangkatNullableScalarRelationFilter, Prisma.CasePangkatWhereInput> | null
@@ -826,6 +832,8 @@ export type CaseCreateInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -892,6 +900,8 @@ export type CaseUncheckedCreateInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -958,6 +968,8 @@ export type CaseUpdateInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -1024,6 +1036,8 @@ export type CaseUncheckedUpdateInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -1697,6 +1711,34 @@ export type CaseUpdateOneRequiredWithoutVawcAppointmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutVawcAppointmentsInput, Prisma.CaseUpdateWithoutVawcAppointmentsInput>, Prisma.CaseUncheckedUpdateWithoutVawcAppointmentsInput>
 }
 
+export type CaseCreateNestedOneWithoutVawcBposInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutVawcBposInput, Prisma.CaseUncheckedCreateWithoutVawcBposInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutVawcBposInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutVawcBposNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutVawcBposInput, Prisma.CaseUncheckedCreateWithoutVawcBposInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutVawcBposInput
+  upsert?: Prisma.CaseUpsertWithoutVawcBposInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutVawcBposInput, Prisma.CaseUpdateWithoutVawcBposInput>, Prisma.CaseUncheckedUpdateWithoutVawcBposInput>
+}
+
+export type CaseCreateNestedOneWithoutVawcReferralsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutVawcReferralsInput, Prisma.CaseUncheckedCreateWithoutVawcReferralsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutVawcReferralsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutVawcReferralsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutVawcReferralsInput, Prisma.CaseUncheckedCreateWithoutVawcReferralsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutVawcReferralsInput
+  upsert?: Prisma.CaseUpsertWithoutVawcReferralsInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutVawcReferralsInput, Prisma.CaseUpdateWithoutVawcReferralsInput>, Prisma.CaseUncheckedUpdateWithoutVawcReferralsInput>
+}
+
 export type CaseCreateNestedOneWithoutKpReviewsInput = {
   create?: Prisma.XOR<Prisma.CaseCreateWithoutKpReviewsInput, Prisma.CaseUncheckedCreateWithoutKpReviewsInput>
   connectOrCreate?: Prisma.CaseCreateOrConnectWithoutKpReviewsInput
@@ -1794,6 +1836,8 @@ export type CaseCreateWithoutAssignedToInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -1859,6 +1903,8 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -1998,6 +2044,8 @@ export type CaseCreateWithoutReportAddendaInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -2063,6 +2111,8 @@ export type CaseUncheckedCreateWithoutReportAddendaInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -2144,6 +2194,8 @@ export type CaseUpdateWithoutReportAddendaInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -2209,6 +2261,8 @@ export type CaseUncheckedUpdateWithoutReportAddendaInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -2274,6 +2328,8 @@ export type CaseCreateWithoutClarificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -2339,6 +2395,8 @@ export type CaseUncheckedCreateWithoutClarificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -2420,6 +2478,8 @@ export type CaseUpdateWithoutClarificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -2485,6 +2545,8 @@ export type CaseUncheckedUpdateWithoutClarificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -2550,6 +2612,8 @@ export type CaseCreateWithoutInterviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -2615,6 +2679,8 @@ export type CaseUncheckedCreateWithoutInterviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -2696,6 +2762,8 @@ export type CaseUpdateWithoutInterviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -2761,6 +2829,8 @@ export type CaseUncheckedUpdateWithoutInterviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -2826,6 +2896,8 @@ export type CaseCreateWithoutReportDraftsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -2891,6 +2963,8 @@ export type CaseUncheckedCreateWithoutReportDraftsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -2972,6 +3046,8 @@ export type CaseUpdateWithoutReportDraftsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -3037,6 +3113,8 @@ export type CaseUncheckedUpdateWithoutReportDraftsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -3102,6 +3180,8 @@ export type CaseCreateWithoutVictimSurvivorsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -3167,6 +3247,8 @@ export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -3248,6 +3330,8 @@ export type CaseUpdateWithoutVictimSurvivorsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -3313,6 +3397,8 @@ export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -3377,6 +3463,8 @@ export type CaseCreateWithoutPartiesInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -3442,6 +3530,8 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -3523,6 +3613,8 @@ export type CaseUpdateWithoutPartiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -3588,6 +3680,8 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -3653,6 +3747,8 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -3718,6 +3814,8 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -3799,6 +3897,8 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -3864,6 +3964,8 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -3929,6 +4031,8 @@ export type CaseCreateWithoutReferralsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -3994,6 +4098,8 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -4075,6 +4181,8 @@ export type CaseUpdateWithoutReferralsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -4140,6 +4248,8 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -4205,6 +4315,8 @@ export type CaseCreateWithoutServiceReferralsInput = {
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -4270,6 +4382,8 @@ export type CaseUncheckedCreateWithoutServiceReferralsInput = {
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -4351,6 +4465,8 @@ export type CaseUpdateWithoutServiceReferralsInput = {
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -4416,6 +4532,8 @@ export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -4481,6 +4599,8 @@ export type CaseCreateWithoutAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -4546,6 +4666,8 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -4627,6 +4749,8 @@ export type CaseUpdateWithoutAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -4692,6 +4816,8 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -4757,6 +4883,8 @@ export type CaseCreateWithoutAttachmentsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -4822,6 +4950,8 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -4903,6 +5033,8 @@ export type CaseUpdateWithoutAttachmentsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -4968,6 +5100,8 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -5033,6 +5167,8 @@ export type CaseCreateWithoutResidentInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -5098,6 +5234,8 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -5189,6 +5327,8 @@ export type CaseCreateWithoutActivitiesInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -5254,6 +5394,8 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -5335,6 +5477,8 @@ export type CaseUpdateWithoutActivitiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -5400,6 +5544,8 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -5465,6 +5611,8 @@ export type CaseCreateWithoutNotificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -5530,6 +5678,8 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -5611,6 +5761,8 @@ export type CaseUpdateWithoutNotificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -5676,6 +5828,8 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -5741,6 +5895,8 @@ export type CaseCreateWithoutFollowUpsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -5806,6 +5962,8 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -5887,6 +6045,8 @@ export type CaseUpdateWithoutFollowUpsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -5952,6 +6112,8 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -6017,6 +6179,8 @@ export type CaseCreateWithoutIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -6082,6 +6246,8 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -6163,6 +6329,8 @@ export type CaseUpdateWithoutIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -6228,6 +6396,8 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -6293,6 +6463,8 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -6358,6 +6530,8 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -6439,6 +6613,8 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -6504,6 +6680,8 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -6569,6 +6747,8 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -6634,6 +6814,8 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -6715,6 +6897,8 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -6780,6 +6964,8 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -6845,6 +7031,8 @@ export type CaseCreateWithoutHearingsInput = {
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -6910,6 +7098,8 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -6991,6 +7181,8 @@ export type CaseUpdateWithoutHearingsInput = {
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -7056,6 +7248,8 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -7121,6 +7315,8 @@ export type CaseCreateWithoutVawcAppointmentsInput = {
   referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
@@ -7186,6 +7382,8 @@ export type CaseUncheckedCreateWithoutVawcAppointmentsInput = {
   referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
@@ -7267,6 +7465,8 @@ export type CaseUpdateWithoutVawcAppointmentsInput = {
   referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -7332,6 +7532,576 @@ export type CaseUncheckedUpdateWithoutVawcAppointmentsInput = {
   referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUncheckedUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUncheckedUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutVawcBposInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
+  kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutVawcBposInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeUncheckedCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftUncheckedCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestUncheckedCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutVawcBposInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutVawcBposInput, Prisma.CaseUncheckedCreateWithoutVawcBposInput>
+}
+
+export type CaseUpsertWithoutVawcBposInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutVawcBposInput, Prisma.CaseUncheckedUpdateWithoutVawcBposInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutVawcBposInput, Prisma.CaseUncheckedCreateWithoutVawcBposInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutVawcBposInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutVawcBposInput, Prisma.CaseUncheckedUpdateWithoutVawcBposInput>
+}
+
+export type CaseUpdateWithoutVawcBposInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
+  kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutVawcBposInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUncheckedUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUncheckedUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutVawcReferralsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
+  kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutVawcReferralsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeUncheckedCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftUncheckedCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestUncheckedCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutVawcReferralsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutVawcReferralsInput, Prisma.CaseUncheckedCreateWithoutVawcReferralsInput>
+}
+
+export type CaseUpsertWithoutVawcReferralsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutVawcReferralsInput, Prisma.CaseUncheckedUpdateWithoutVawcReferralsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutVawcReferralsInput, Prisma.CaseUncheckedCreateWithoutVawcReferralsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutVawcReferralsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutVawcReferralsInput, Prisma.CaseUncheckedUpdateWithoutVawcReferralsInput>
+}
+
+export type CaseUpdateWithoutVawcReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
+  kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutVawcReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -7398,6 +8168,8 @@ export type CaseCreateWithoutKpReviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
@@ -7463,6 +8235,8 @@ export type CaseUncheckedCreateWithoutKpReviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
@@ -7544,6 +8318,8 @@ export type CaseUpdateWithoutKpReviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
@@ -7609,6 +8385,8 @@ export type CaseUncheckedUpdateWithoutKpReviewsInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
@@ -7674,6 +8452,8 @@ export type CaseCreateWithoutAcknowledgementInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
@@ -7739,6 +8519,8 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
@@ -7820,6 +8602,8 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
@@ -7885,6 +8669,8 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
@@ -7950,6 +8736,8 @@ export type CaseCreateWithoutPangkatInput = {
   serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
@@ -8015,6 +8803,8 @@ export type CaseUncheckedCreateWithoutPangkatInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
   hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
   kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
@@ -8096,6 +8886,8 @@ export type CaseUpdateWithoutPangkatInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
@@ -8161,6 +8953,8 @@ export type CaseUncheckedUpdateWithoutPangkatInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
@@ -8268,6 +9062,8 @@ export type CaseUpdateWithoutAssignedToInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -8333,6 +9129,8 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -8484,6 +9282,8 @@ export type CaseUpdateWithoutResidentInput = {
   serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
@@ -8549,6 +9349,8 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
   hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
   vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
   acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
   kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
   pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
@@ -8618,6 +9420,8 @@ export type CaseCountOutputType = {
   serviceReferrals: number
   hearings: number
   vawcAppointments: number
+  vawcBpos: number
+  vawcReferrals: number
   kpReviews: number
   victimSurvivors: number
   reportAddenda: number
@@ -8637,6 +9441,8 @@ export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   serviceReferrals?: boolean | CaseCountOutputTypeCountServiceReferralsArgs
   hearings?: boolean | CaseCountOutputTypeCountHearingsArgs
   vawcAppointments?: boolean | CaseCountOutputTypeCountVawcAppointmentsArgs
+  vawcBpos?: boolean | CaseCountOutputTypeCountVawcBposArgs
+  vawcReferrals?: boolean | CaseCountOutputTypeCountVawcReferralsArgs
   kpReviews?: boolean | CaseCountOutputTypeCountKpReviewsArgs
   victimSurvivors?: boolean | CaseCountOutputTypeCountVictimSurvivorsArgs
   reportAddenda?: boolean | CaseCountOutputTypeCountReportAddendaArgs
@@ -8723,6 +9529,20 @@ export type CaseCountOutputTypeCountHearingsArgs<ExtArgs extends runtime.Types.E
  */
 export type CaseCountOutputTypeCountVawcAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.VawcAppointmentWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountVawcBposArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VawcBpoWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountVawcReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VawcReferralWhereInput
 }
 
 /**
@@ -8826,6 +9646,8 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   serviceReferrals?: boolean | Prisma.Case$serviceReferralsArgs<ExtArgs>
   hearings?: boolean | Prisma.Case$hearingsArgs<ExtArgs>
   vawcAppointments?: boolean | Prisma.Case$vawcAppointmentsArgs<ExtArgs>
+  vawcBpos?: boolean | Prisma.Case$vawcBposArgs<ExtArgs>
+  vawcReferrals?: boolean | Prisma.Case$vawcReferralsArgs<ExtArgs>
   acknowledgement?: boolean | Prisma.Case$acknowledgementArgs<ExtArgs>
   kpReviews?: boolean | Prisma.Case$kpReviewsArgs<ExtArgs>
   pangkat?: boolean | Prisma.Case$pangkatArgs<ExtArgs>
@@ -8991,6 +9813,8 @@ export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   serviceReferrals?: boolean | Prisma.Case$serviceReferralsArgs<ExtArgs>
   hearings?: boolean | Prisma.Case$hearingsArgs<ExtArgs>
   vawcAppointments?: boolean | Prisma.Case$vawcAppointmentsArgs<ExtArgs>
+  vawcBpos?: boolean | Prisma.Case$vawcBposArgs<ExtArgs>
+  vawcReferrals?: boolean | Prisma.Case$vawcReferralsArgs<ExtArgs>
   acknowledgement?: boolean | Prisma.Case$acknowledgementArgs<ExtArgs>
   kpReviews?: boolean | Prisma.Case$kpReviewsArgs<ExtArgs>
   pangkat?: boolean | Prisma.Case$pangkatArgs<ExtArgs>
@@ -9038,6 +9862,11 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * VAWC Appointments & Follow-ups (VAWC cases only) - never a KP hearing.
      */
     vawcAppointments: Prisma.$VawcAppointmentPayload<ExtArgs>[]
+    /**
+     * VAWC Case Proceedings (VAWC cases only): BPOs, external court dates, referrals.
+     */
+    vawcBpos: Prisma.$VawcBpoPayload<ExtArgs>[]
+    vawcReferrals: Prisma.$VawcReferralPayload<ExtArgs>[]
     acknowledgement: Prisma.$AcknowledgementLetterPayload<ExtArgs> | null
     kpReviews: Prisma.$CaseKpReviewPayload<ExtArgs>[]
     pangkat: Prisma.$CasePangkatPayload<ExtArgs> | null
@@ -9595,6 +10424,8 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   serviceReferrals<T extends Prisma.Case$serviceReferralsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$serviceReferralsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   hearings<T extends Prisma.Case$hearingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$hearingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vawcAppointments<T extends Prisma.Case$vawcAppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$vawcAppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VawcAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vawcBpos<T extends Prisma.Case$vawcBposArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$vawcBposArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VawcBpoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vawcReferrals<T extends Prisma.Case$vawcReferralsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$vawcReferralsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VawcReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   acknowledgement<T extends Prisma.Case$acknowledgementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$acknowledgementArgs<ExtArgs>>): Prisma.Prisma__AcknowledgementLetterClient<runtime.Types.Result.GetResult<Prisma.$AcknowledgementLetterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   kpReviews<T extends Prisma.Case$kpReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$kpReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseKpReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pangkat<T extends Prisma.Case$pangkatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$pangkatArgs<ExtArgs>>): Prisma.Prisma__CasePangkatClient<runtime.Types.Result.GetResult<Prisma.$CasePangkatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -10425,6 +11256,54 @@ export type Case$vawcAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.VawcAppointmentScalarFieldEnum | Prisma.VawcAppointmentScalarFieldEnum[]
+}
+
+/**
+ * Case.vawcBpos
+ */
+export type Case$vawcBposArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VawcBpo
+   */
+  select?: Prisma.VawcBpoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VawcBpo
+   */
+  omit?: Prisma.VawcBpoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VawcBpoInclude<ExtArgs> | null
+  where?: Prisma.VawcBpoWhereInput
+  orderBy?: Prisma.VawcBpoOrderByWithRelationInput | Prisma.VawcBpoOrderByWithRelationInput[]
+  cursor?: Prisma.VawcBpoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VawcBpoScalarFieldEnum | Prisma.VawcBpoScalarFieldEnum[]
+}
+
+/**
+ * Case.vawcReferrals
+ */
+export type Case$vawcReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VawcReferral
+   */
+  select?: Prisma.VawcReferralSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VawcReferral
+   */
+  omit?: Prisma.VawcReferralOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VawcReferralInclude<ExtArgs> | null
+  where?: Prisma.VawcReferralWhereInput
+  orderBy?: Prisma.VawcReferralOrderByWithRelationInput | Prisma.VawcReferralOrderByWithRelationInput[]
+  cursor?: Prisma.VawcReferralWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VawcReferralScalarFieldEnum | Prisma.VawcReferralScalarFieldEnum[]
 }
 
 /**

@@ -31,6 +31,7 @@ import ReportReviewPanel from '@/components/cases/ReportReviewPanel';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
 import VawcAppointmentsPanel from '@/components/vawcAppointments/VawcAppointmentsPanel';
+import { ProceedingsPanel } from '@/components/vawcAppointments/VawcProceedings';
 import AcknowledgementPanel from '@/components/cases/AcknowledgementPanel';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
@@ -1021,6 +1022,8 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
           {/* VAWC Appointments & Follow-ups - VAWC cases only, never a hearing */}
           {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <VawcAppointmentsPanel caseId={id} />}
+          {/* BPOs, court dates (recorded, never held here) and referrals - VAWC cases only */}
+          {(VAWC_TYPES as readonly string[]).includes(caseData.caseType) && <ProceedingsPanel caseId={id} />}
 
           {/* The letter confirming receipt of the report */}
           <AcknowledgementPanel caseId={id} onChanged={onSaved} />

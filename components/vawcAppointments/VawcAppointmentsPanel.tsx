@@ -5,12 +5,12 @@ import useSWR from 'swr';
 import { Box, Typography, Card, CardContent, Chip, Button, Alert, Skeleton } from '@mui/material';
 import { EventAvailable, Add, OpenInNew } from '@mui/icons-material';
 import { formatHearingWhen } from '@/lib/hearings';
-import { APPOINTMENT_STATUSES } from '@/lib/vawcAppointments';
+import { APPOINTMENT_STATUSES, MODULE_PATH } from '@/lib/vawcAppointments';
 import CreateAppointmentDialog from './CreateAppointmentDialog';
 import AppointmentDetailsDialog from './AppointmentDetailsDialog';
 import { NAVY, VIOLET, APPT_STATUS_COLOR, chipSx, getJson, type AppointmentList } from './appointmentUi';
 
-/** The case's VAWC appointments, on the VAWC case page - never mounted on a blotter case. */
+/** The case's VAWC hearings, on the VAWC case page - never mounted on a blotter case. */
 export default function VawcAppointmentsPanel({ caseId }: { caseId: string }) {
   const { data, error, isLoading, mutate } = useSWR<AppointmentList>(`/api/vawc/appointments?caseId=${encodeURIComponent(caseId)}`, getJson);
   const [create, setCreate] = useState(false);
@@ -21,19 +21,19 @@ export default function VawcAppointmentsPanel({ caseId }: { caseId: string }) {
       <CardContent sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
           <EventAvailable sx={{ fontSize: 17, color: VIOLET }} />
-          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: NAVY }}>Appointments &amp; Follow-ups</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.94rem', color: NAVY }}>Hearings</Typography>
           <Box sx={{ ml: 'auto', display: 'flex', gap: 0.5 }}>
-            <Button size="small" href="/vawc/appointments" endIcon={<OpenInNew sx={{ fontSize: 14 }} />} sx={{ textTransform: 'none', minHeight: 32 }}>All appointments</Button>
+            <Button size="small" href={MODULE_PATH} endIcon={<OpenInNew sx={{ fontSize: 14 }} />} sx={{ textTransform: 'none', minHeight: 32 }}>All hearings</Button>
             {data && (
               <Button size="small" variant="contained" startIcon={<Add sx={{ fontSize: 15 }} />} onClick={() => setCreate(true)} sx={{ textTransform: 'none', minHeight: 32, bgcolor: NAVY }}>
-                Create appointment
+                Create Hearing
               </Button>
             )}
           </Box>
         </Box>
         {isLoading && <Skeleton height={60} />}
         {error && !data && <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.82rem' }}>{error.message}</Alert>}
-        {data && rows.length === 0 && <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>No appointment on this case yet.</Typography>}
+        {data && rows.length === 0 && <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>No hearing on this case yet.</Typography>}
         <Box sx={{ display: 'grid', gap: 1 }}>
           {rows.map(r => (
             <Box key={r.id} component="button" type="button" onClick={() => setOpen(r.id)}

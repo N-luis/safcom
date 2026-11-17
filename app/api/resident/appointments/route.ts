@@ -4,7 +4,7 @@ import { requireResidentAuth, rError } from '@/lib/residentAuth';
 import { logRouteError } from '@/lib/hearingCasesServer';
 import { noStore, residentAppointmentWhere, recordAppointmentEvent } from '@/lib/vawcAppointmentsServer';
 import {
-  APPOINTMENT_TYPES, isOpenAppointment, residentAppointmentMessage, RESIDENT_APPOINTMENT_EVENTS, RESIDENT_APPOINTMENT_INSTRUCTIONS,
+  APPOINTMENT_TYPES, isOpenAppointment, residentAppointmentMessage, RESIDENT_APPOINTMENT_EVENTS, residentInstructionsFor,
   RESCHEDULE_REQUESTS_PER_APPOINTMENT, phDay, type AppointmentType,
 } from '@/lib/vawcAppointments';
 
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
         canAcknowledge: open && notPast && !a.residentAcknowledgedAt,
         canRequest: open && notPast && !pending && a.requests.length < RESCHEDULE_REQUESTS_PER_APPOINTMENT,
         requests: a.requests,
-        instructions: open ? [...RESIDENT_APPOINTMENT_INSTRUCTIONS, ...(a.residentInstructions ? [a.residentInstructions] : [])] : [],
+        instructions: open ? [...residentInstructionsFor(a.type), ...(a.residentInstructions ? [a.residentInstructions] : [])] : [],
         updates: a.events.flatMap(e => { const m = residentAppointmentMessage(e); return m ? [{ id: e.id, message: m, at: e.createdAt }] : []; }),
       };
     });

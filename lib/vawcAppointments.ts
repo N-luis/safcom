@@ -24,10 +24,55 @@ export const APPOINTMENT_TYPES = {
   SAFETY_FOLLOW_UP: { label: 'Safety and support follow-up', resident: 'Follow-up appointment' },
   REFERRAL_COORDINATION: { label: 'Referral coordination', resident: 'Appointment about services' },
   CASE_CONFERENCE: { label: 'Administrative case conference', resident: 'Appointment' },
+  // A date set by a court (TPO / PPO / criminal case), recorded so the desk can
+  // follow it up. SafeComm and the barangay never hold or conduct it.
+  EXTERNAL_COURT_HEARING: { label: 'External court hearing (tracking only)', resident: 'Court date' },
 } as const;
 export type AppointmentType = keyof typeof APPOINTMENT_TYPES;
 export const APPOINTMENT_TYPE_KEYS = Object.keys(APPOINTMENT_TYPES) as [AppointmentType, ...AppointmentType[]];
-export const typeLabel = (t: string) => (t in APPOINTMENT_TYPES ? APPOINTMENT_TYPES[t as AppointmentType].label : 'Appointment');
+export const typeLabel = (t: string) => (t in APPOINTMENT_TYPES ? APPOINTMENT_TYPES[t as AppointmentType].label : 'Hearing');
+
+/** What the VAWC desk's scheduling is called on every screen (the records stay VawcAppointment). */
+export const MODULE_LABEL = 'Hearings';
+export const MODULE_PATH = '/vawc/hearings';
+
+// ── External court hearings: tracked, never held here ────────────────────────
+
+export const COURT_TYPE: AppointmentType = 'EXTERNAL_COURT_HEARING';
+export const isCourtType = (t: string) => t === COURT_TYPE;
+
+export const COURT_MATTERS = {
+  TPO: 'Temporary Protection Order (TPO) application',
+  PPO: 'Permanent Protection Order (PPO) hearing',
+  CRIMINAL_CASE: 'Criminal case under RA 9262',
+  OTHER: 'Other court matter',
+} as const;
+export type CourtMatter = keyof typeof COURT_MATTERS;
+export const COURT_MATTER_KEYS = Object.keys(COURT_MATTERS) as [CourtMatter, ...CourtMatter[]];
+
+/** How the schedule reached the desk: it is recorded only when officially provided. */
+export const COURT_SOURCES = {
+  COURT_NOTICE: 'Notice or order from the court',
+  PROSECUTOR_OR_PAO: 'Prosecutor or Public Attorney\'s Office',
+  PNP_WCPD: 'PNP Women and Children Protection Desk',
+  SWDO: 'Social welfare office',
+  CLIENT_COPY: 'Copy of the court notice shown by the client',
+} as const;
+export type CourtSource = keyof typeof COURT_SOURCES;
+export const COURT_SOURCE_KEYS = Object.keys(COURT_SOURCES) as [CourtSource, ...CourtSource[]];
+
+export const NOT_A_COURT = 'SafeComm records court dates that have been officially provided. Barangay officials cannot create or conduct a court hearing here.';
+
+/** A court record needs its matter and where the date came from; any other type has neither. */
+export function courtRefusal(type: string, court: { courtMatter?: string | null; courtSource?: string | null; courtReference?: string | null }): string | null {
+  if (isCourtType(type)) {
+    if (!court.courtMatter) return 'Choose the court matter.';
+    if (!court.courtSource) return 'Say how the court date was officially provided.';
+    return null;
+  }
+  if (court.courtMatter || court.courtSource || court.courtReference) return 'Court details belong to an external court hearing only.';
+  return null;
+}
 
 /**
  * Who an appointment is for. The respondent is not on the list and cannot be
@@ -75,12 +120,14 @@ export function defaultParticipants(type: AppointmentType, relationship: string 
  * reconciliation, a settlement. Read from the raw request, so the answer
  * says why rather than "invalid value".
  */
-export const NOT_IN_VAWC = 'VAWC appointments never include the respondent and are never mediation, conciliation or reconciliation (RA 9262 sec. 33). The respondent is not notified.';
+export const NOT_IN_VAWC = 'VAWC hearings never include the respondent and are never mediation, conciliation or reconciliation (RA 9262 sec. 33). The respondent is not notified.';
 export function forbiddenRequest(raw: unknown): string | null {
   const r = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
   const list = Array.isArray(r.participants) ? r.participants.map(String) : [];
   if (list.some(p => /RESPONDENT|ACCUSED|PERPETRATOR/i.test(p))) return NOT_IN_VAWC;
-  if (typeof r.type === 'string' && /MEDIAT|CONCILIAT|RECONCIL|SETTLE|COMPROMISE|HEARING|JOINT/i.test(r.type)) return NOT_IN_VAWC;
+  // The one type with "hearing" in its key is the court's, tracked only - checked by exact key.
+  if (typeof r.type === 'string' && !(r.type in APPOINTMENT_TYPES) && /MEDIAT|CONCILIAT|RECONCIL|SETTLE|COMPROMISE|HEARING|JOINT/i.test(r.type)) return NOT_IN_VAWC;
+  if (/conduct|create.?hearing|preside/i.test(String(r.action ?? ''))) return NOT_A_COURT;
   return null;
 }
 
@@ -177,7 +224,7 @@ export function appointmentTimeRefusal(at: Date | null, now = new Date()): strin
 // ── The history ──────────────────────────────────────────────────────────────
 
 export const APPOINTMENT_EVENT_LABELS: Record<string, string> = {
-  created: 'Appointment scheduled',
+  created: 'Hearing scheduled',
   updated: 'Details updated',
   rescheduled: 'New date set',
   cancelled: 'Cancelled',
@@ -212,6 +259,15 @@ const when = (iso: unknown) => {
 export function residentAppointmentMessage(e: { kind: string; after: unknown }): string | null {
   const a = (e.after && typeof e.after === 'object' ? e.after : {}) as Record<string, unknown>;
   const at = when(a.scheduledAt);
+  // A court date is the court's, not the barangay's - said without the word "court", which the preview never shows.
+  if (isCourtType(String(a.type ?? ''))) {
+    switch (e.kind) {
+      case 'created': return at ? `A scheduled date on ${at} has been noted for you. Open My Appointments for the details.` : null;
+      case 'rescheduled': return at ? `A scheduled date noted for you has changed: ${at}. Open My Appointments for the details.` : null;
+      case 'cancelled': return 'A scheduled date noted for you was removed. Open My Appointments for the details.';
+      default: break;
+    }
+  }
   switch (e.kind) {
     case 'created': return at ? `You have an appointment with the barangay on ${at}. Open My Appointments for the details.` : null;
     case 'rescheduled': return at ? `Your appointment with the barangay has a new date: ${at}. Open My Appointments for the details.` : null;
@@ -228,3 +284,11 @@ export const RESIDENT_APPOINTMENT_INSTRUCTIONS = [
   'If it is not safe for you to come, ask for a new date here, or contact the barangay when it is safe.',
   'This appointment is confidential. The person reported is never told about it.',
 ];
+
+/** For a court date: the barangay only keeps track of it. */
+export const RESIDENT_COURT_INSTRUCTIONS = [
+  'This date was set by the court. The barangay does not hold this hearing; it is noted here so the VAWC desk can support you.',
+  'Follow the court notice for where to go and what to bring. You may ask the VAWC desk for help getting there.',
+  'If the court moves the date, tell the VAWC desk so it can be updated here.',
+];
+export const residentInstructionsFor = (type: string) => (isCourtType(type) ? RESIDENT_COURT_INSTRUCTIONS : RESIDENT_APPOINTMENT_INSTRUCTIONS);

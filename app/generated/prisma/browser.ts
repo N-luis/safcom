@@ -300,6 +300,30 @@ export type VawcAppointmentEvent = Prisma.VawcAppointmentEventModel
  */
 export type VawcAppointmentRequest = Prisma.VawcAppointmentRequestModel
 /**
+ * Model VawcBpo
+ * A Barangay Protection Order (RA 9262 sec. 14) on a VAWC case - the
+ * application, the ex parte decision and the service kept as three separate
+ * parts, each recorded once (a mistake is corrected with a reason, in the
+ * history). No hearing is held for it. The effective period (15 days) is
+ * computed from decidedAt (lib/vawcProceedings.ts bpoLastDay). RLS and the
+ * VAWC-only check: prisma/sql/020_vawc_proceedings.sql.
+ */
+export type VawcBpo = Prisma.VawcBpoModel
+/**
+ * Model VawcReferral
+ * A referral of a VAWC case to a service provider (PNP WCPD, social
+ * welfare, health, legal, shelter), with its status and follow-up date. When
+ * an IACVAWC Service Referral Form was issued for it, serviceReferralId links
+ * to that document (ServiceReferral) instead of keeping a second copy.
+ */
+export type VawcReferral = Prisma.VawcReferralModel
+/**
+ * Model VawcProceedingEvent
+ * The history of every BPO, court and referral record - insert-only (the
+ * database refuses any change), and the reminders sent from it.
+ */
+export type VawcProceedingEvent = Prisma.VawcProceedingEventModel
+/**
  * Model CaseKpReview
  * An official's review of whether a case may go to Katarungang Pambarangay
  * proceedings. Kept as history; the latest governs, and only while the case

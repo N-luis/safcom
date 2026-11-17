@@ -52,6 +52,10 @@ export type VawcAppointmentMinAggregateOutputType = {
   internalNotes: string | null
   notifyVia: string | null
   residentInstructions: string | null
+  courtMatter: string | null
+  courtReference: string | null
+  courtSource: string | null
+  submissionKey: string | null
   status: string | null
   statusReason: string | null
   rescheduleCount: number | null
@@ -84,6 +88,10 @@ export type VawcAppointmentMaxAggregateOutputType = {
   internalNotes: string | null
   notifyVia: string | null
   residentInstructions: string | null
+  courtMatter: string | null
+  courtReference: string | null
+  courtSource: string | null
+  submissionKey: string | null
   status: string | null
   statusReason: string | null
   rescheduleCount: number | null
@@ -117,6 +125,10 @@ export type VawcAppointmentCountAggregateOutputType = {
   internalNotes: number
   notifyVia: number
   residentInstructions: number
+  courtMatter: number
+  courtReference: number
+  courtSource: number
+  submissionKey: number
   status: number
   statusReason: number
   rescheduleCount: number
@@ -159,6 +171,10 @@ export type VawcAppointmentMinAggregateInputType = {
   internalNotes?: true
   notifyVia?: true
   residentInstructions?: true
+  courtMatter?: true
+  courtReference?: true
+  courtSource?: true
+  submissionKey?: true
   status?: true
   statusReason?: true
   rescheduleCount?: true
@@ -191,6 +207,10 @@ export type VawcAppointmentMaxAggregateInputType = {
   internalNotes?: true
   notifyVia?: true
   residentInstructions?: true
+  courtMatter?: true
+  courtReference?: true
+  courtSource?: true
+  submissionKey?: true
   status?: true
   statusReason?: true
   rescheduleCount?: true
@@ -224,6 +244,10 @@ export type VawcAppointmentCountAggregateInputType = {
   internalNotes?: true
   notifyVia?: true
   residentInstructions?: true
+  courtMatter?: true
+  courtReference?: true
+  courtSource?: true
+  submissionKey?: true
   status?: true
   statusReason?: true
   rescheduleCount?: true
@@ -344,6 +368,10 @@ export type VawcAppointmentGroupByOutputType = {
   internalNotes: string | null
   notifyVia: string
   residentInstructions: string | null
+  courtMatter: string | null
+  courtReference: string | null
+  courtSource: string | null
+  submissionKey: string | null
   status: string
   statusReason: string | null
   rescheduleCount: number
@@ -400,6 +428,10 @@ export type VawcAppointmentWhereInput = {
   internalNotes?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   notifyVia?: Prisma.StringFilter<"VawcAppointment"> | string
   residentInstructions?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtMatter?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtReference?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtSource?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  submissionKey?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   status?: Prisma.StringFilter<"VawcAppointment"> | string
   statusReason?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   rescheduleCount?: Prisma.IntFilter<"VawcAppointment"> | number
@@ -437,6 +469,10 @@ export type VawcAppointmentOrderByWithRelationInput = {
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   notifyVia?: Prisma.SortOrder
   residentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtMatter?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
@@ -464,6 +500,7 @@ export type VawcAppointmentOrderByWithRelationInput = {
 export type VawcAppointmentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   reference?: string
+  submissionKey?: string
   AND?: Prisma.VawcAppointmentWhereInput | Prisma.VawcAppointmentWhereInput[]
   OR?: Prisma.VawcAppointmentWhereInput[]
   NOT?: Prisma.VawcAppointmentWhereInput | Prisma.VawcAppointmentWhereInput[]
@@ -477,6 +514,9 @@ export type VawcAppointmentWhereUniqueInput = Prisma.AtLeast<{
   internalNotes?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   notifyVia?: Prisma.StringFilter<"VawcAppointment"> | string
   residentInstructions?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtMatter?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtReference?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtSource?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   status?: Prisma.StringFilter<"VawcAppointment"> | string
   statusReason?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   rescheduleCount?: Prisma.IntFilter<"VawcAppointment"> | number
@@ -499,7 +539,7 @@ export type VawcAppointmentWhereUniqueInput = Prisma.AtLeast<{
   assignedOfficer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   events?: Prisma.VawcAppointmentEventListRelationFilter
   requests?: Prisma.VawcAppointmentRequestListRelationFilter
-}, "id" | "reference">
+}, "id" | "reference" | "submissionKey">
 
 export type VawcAppointmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -514,6 +554,10 @@ export type VawcAppointmentOrderByWithAggregationInput = {
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   notifyVia?: Prisma.SortOrder
   residentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtMatter?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  courtSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
@@ -555,6 +599,10 @@ export type VawcAppointmentScalarWhereWithAggregatesInput = {
   internalNotes?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
   notifyVia?: Prisma.StringWithAggregatesFilter<"VawcAppointment"> | string
   residentInstructions?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
+  courtMatter?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
+  courtReference?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
+  courtSource?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
+  submissionKey?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"VawcAppointment"> | string
   statusReason?: Prisma.StringNullableWithAggregatesFilter<"VawcAppointment"> | string | null
   rescheduleCount?: Prisma.IntWithAggregatesFilter<"VawcAppointment"> | number
@@ -586,6 +634,10 @@ export type VawcAppointmentCreateInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -623,6 +675,10 @@ export type VawcAppointmentUncheckedCreateInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -656,6 +712,10 @@ export type VawcAppointmentUpdateInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -693,6 +753,10 @@ export type VawcAppointmentUncheckedUpdateInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -728,6 +792,10 @@ export type VawcAppointmentCreateManyInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -759,6 +827,10 @@ export type VawcAppointmentUpdateManyMutationInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -792,6 +864,10 @@ export type VawcAppointmentUncheckedUpdateManyInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -835,6 +911,10 @@ export type VawcAppointmentCountOrderByAggregateInput = {
   internalNotes?: Prisma.SortOrder
   notifyVia?: Prisma.SortOrder
   residentInstructions?: Prisma.SortOrder
+  courtMatter?: Prisma.SortOrder
+  courtReference?: Prisma.SortOrder
+  courtSource?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
@@ -871,6 +951,10 @@ export type VawcAppointmentMaxOrderByAggregateInput = {
   internalNotes?: Prisma.SortOrder
   notifyVia?: Prisma.SortOrder
   residentInstructions?: Prisma.SortOrder
+  courtMatter?: Prisma.SortOrder
+  courtReference?: Prisma.SortOrder
+  courtSource?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
@@ -903,6 +987,10 @@ export type VawcAppointmentMinOrderByAggregateInput = {
   internalNotes?: Prisma.SortOrder
   notifyVia?: Prisma.SortOrder
   residentInstructions?: Prisma.SortOrder
+  courtMatter?: Prisma.SortOrder
+  courtReference?: Prisma.SortOrder
+  courtSource?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   rescheduleCount?: Prisma.SortOrder
@@ -1064,6 +1152,10 @@ export type VawcAppointmentCreateWithoutAssignedOfficerInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1099,6 +1191,10 @@ export type VawcAppointmentUncheckedCreateWithoutAssignedOfficerInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1163,6 +1259,10 @@ export type VawcAppointmentScalarWhereInput = {
   internalNotes?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   notifyVia?: Prisma.StringFilter<"VawcAppointment"> | string
   residentInstructions?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtMatter?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtReference?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  courtSource?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
+  submissionKey?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   status?: Prisma.StringFilter<"VawcAppointment"> | string
   statusReason?: Prisma.StringNullableFilter<"VawcAppointment"> | string | null
   rescheduleCount?: Prisma.IntFilter<"VawcAppointment"> | number
@@ -1194,6 +1294,10 @@ export type VawcAppointmentCreateWithoutCaseInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1229,6 +1333,10 @@ export type VawcAppointmentUncheckedCreateWithoutCaseInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1288,6 +1396,10 @@ export type VawcAppointmentCreateWithoutEventsInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1324,6 +1436,10 @@ export type VawcAppointmentUncheckedCreateWithoutEventsInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1372,6 +1488,10 @@ export type VawcAppointmentUpdateWithoutEventsInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1408,6 +1528,10 @@ export type VawcAppointmentUncheckedUpdateWithoutEventsInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1440,6 +1564,10 @@ export type VawcAppointmentCreateWithoutRequestsInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1476,6 +1604,10 @@ export type VawcAppointmentUncheckedCreateWithoutRequestsInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1524,6 +1656,10 @@ export type VawcAppointmentUpdateWithoutRequestsInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1560,6 +1696,10 @@ export type VawcAppointmentUncheckedUpdateWithoutRequestsInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1593,6 +1733,10 @@ export type VawcAppointmentCreateManyAssignedOfficerInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1624,6 +1768,10 @@ export type VawcAppointmentUpdateWithoutAssignedOfficerInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1659,6 +1807,10 @@ export type VawcAppointmentUncheckedUpdateWithoutAssignedOfficerInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1693,6 +1845,10 @@ export type VawcAppointmentUncheckedUpdateManyWithoutAssignedOfficerInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1725,6 +1881,10 @@ export type VawcAppointmentCreateManyCaseInput = {
   internalNotes?: string | null
   notifyVia: string
   residentInstructions?: string | null
+  courtMatter?: string | null
+  courtReference?: string | null
+  courtSource?: string | null
+  submissionKey?: string | null
   status?: string
   statusReason?: string | null
   rescheduleCount?: number
@@ -1756,6 +1916,10 @@ export type VawcAppointmentUpdateWithoutCaseInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1791,6 +1955,10 @@ export type VawcAppointmentUncheckedUpdateWithoutCaseInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1825,6 +1993,10 @@ export type VawcAppointmentUncheckedUpdateManyWithoutCaseInput = {
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifyVia?: Prisma.StringFieldUpdateOperationsInput | string
   residentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtMatter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rescheduleCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1898,6 +2070,10 @@ export type VawcAppointmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   internalNotes?: boolean
   notifyVia?: boolean
   residentInstructions?: boolean
+  courtMatter?: boolean
+  courtReference?: boolean
+  courtSource?: boolean
+  submissionKey?: boolean
   status?: boolean
   statusReason?: boolean
   rescheduleCount?: boolean
@@ -1936,6 +2112,10 @@ export type VawcAppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   internalNotes?: boolean
   notifyVia?: boolean
   residentInstructions?: boolean
+  courtMatter?: boolean
+  courtReference?: boolean
+  courtSource?: boolean
+  submissionKey?: boolean
   status?: boolean
   statusReason?: boolean
   rescheduleCount?: boolean
@@ -1971,6 +2151,10 @@ export type VawcAppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   internalNotes?: boolean
   notifyVia?: boolean
   residentInstructions?: boolean
+  courtMatter?: boolean
+  courtReference?: boolean
+  courtSource?: boolean
+  submissionKey?: boolean
   status?: boolean
   statusReason?: boolean
   rescheduleCount?: boolean
@@ -2006,6 +2190,10 @@ export type VawcAppointmentSelectScalar = {
   internalNotes?: boolean
   notifyVia?: boolean
   residentInstructions?: boolean
+  courtMatter?: boolean
+  courtReference?: boolean
+  courtSource?: boolean
+  submissionKey?: boolean
   status?: boolean
   statusReason?: boolean
   rescheduleCount?: boolean
@@ -2026,7 +2214,7 @@ export type VawcAppointmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type VawcAppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "type" | "scheduledAt" | "venue" | "assignedOfficerId" | "participants" | "purpose" | "internalNotes" | "notifyVia" | "residentInstructions" | "status" | "statusReason" | "rescheduleCount" | "attendance" | "outcomeNotes" | "followUpActions" | "referralStatus" | "nextAppointmentAt" | "residentSeenAt" | "residentAcknowledgedAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["vawcAppointment"]>
+export type VawcAppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseId" | "reference" | "type" | "scheduledAt" | "venue" | "assignedOfficerId" | "participants" | "purpose" | "internalNotes" | "notifyVia" | "residentInstructions" | "courtMatter" | "courtReference" | "courtSource" | "submissionKey" | "status" | "statusReason" | "rescheduleCount" | "attendance" | "outcomeNotes" | "followUpActions" | "referralStatus" | "nextAppointmentAt" | "residentSeenAt" | "residentAcknowledgedAt" | "completedAt" | "completedById" | "cancelledAt" | "cancelledById" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["vawcAppointment"]>
 export type VawcAppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   case?: boolean | Prisma.CaseDefaultArgs<ExtArgs>
   assignedOfficer?: boolean | Prisma.VawcAppointment$assignedOfficerArgs<ExtArgs>
@@ -2090,6 +2278,23 @@ export type $VawcAppointmentPayload<ExtArgs extends runtime.Types.Extensions.Int
      * Shown to the resident with the appointment: what to bring, where to go.
      */
     residentInstructions: string | null
+    /**
+     * EXTERNAL_COURT_HEARING only (lib/vawcAppointments.ts COURT_MATTERS): TPO | PPO | CRIMINAL_CASE | OTHER.
+     * The court itself is the venue. SafeComm only tracks a date the court set.
+     */
+    courtMatter: string | null
+    /**
+     * The court's case or docket number, when given.
+     */
+    courtReference: string | null
+    /**
+     * How the court date was officially provided (COURT_SOURCES).
+     */
+    courtSource: string | null
+    /**
+     * One per Create form opened: a second submit of the same form finds the first record.
+     */
+    submissionKey: string | null
     /**
      * SCHEDULED | RESCHEDULED | COMPLETED | NOT_HELD | CANCELLED
      */
@@ -2562,6 +2767,10 @@ export interface VawcAppointmentFieldRefs {
   readonly internalNotes: Prisma.FieldRef<"VawcAppointment", 'String'>
   readonly notifyVia: Prisma.FieldRef<"VawcAppointment", 'String'>
   readonly residentInstructions: Prisma.FieldRef<"VawcAppointment", 'String'>
+  readonly courtMatter: Prisma.FieldRef<"VawcAppointment", 'String'>
+  readonly courtReference: Prisma.FieldRef<"VawcAppointment", 'String'>
+  readonly courtSource: Prisma.FieldRef<"VawcAppointment", 'String'>
+  readonly submissionKey: Prisma.FieldRef<"VawcAppointment", 'String'>
   readonly status: Prisma.FieldRef<"VawcAppointment", 'String'>
   readonly statusReason: Prisma.FieldRef<"VawcAppointment", 'String'>
   readonly rescheduleCount: Prisma.FieldRef<"VawcAppointment", 'Int'>
