@@ -98,15 +98,15 @@ async function main() {
       && !['password', 'clerkId', 'username', 'notes', 'riskLevel'].some(k => k in (res ?? {})));
     ok('no resident ID and no verification state (ID verification was removed)', !['residentNumber', 'emailVerified'].some(k => k in (res ?? {}))
       && !JSON.stringify(p1.body).includes(`${TAG}-${pid}-`) && !/verified/i.test(JSON.stringify(p1.body)));
-    ok('Call Resident: a tel: link to their own number', p1.body.data.telHref === 'tel:+639170000001');
+    ok('no call link is sent: the number is there to copy', !('telHref' in p1.body.data) && !JSON.stringify(p1.body).includes('tel:') && res?.phone === '+639170000001');
     ok('a name is not an id: looking up by name finds nothing', (await view(B.cookie, `Bea ${last}`)).status === 404);
     const p4 = await view(B.cookie, R4.id);
-    ok('"text first" on one of their reports: call allowed, with that advice', p4.body.data.contact.callAllowed && /Text first/.test(p4.body.data.contact.label) && Boolean(p4.body.data.telHref));
-    ok('no number: no call button', (await view(B.cookie, R5.id)).body.data.telHref === null);
+    ok('"text first" on one of their reports: that advice is shown', p4.body.data.contact.callAllowed && /Text first/.test(p4.body.data.contact.label));
+    ok('no number: nothing to copy', (await view(B.cookie, R5.id)).body.data.resident.phone === null);
 
     console.log('\n9-10  Who may see it, and what stays confidential');
     const pb1 = await view(B.cookie, R1.id);
-    ok('"do not call" on any report wins over "calls are fine" on another', pb1.body.data.telHref === null && !pb1.body.data.contact.callAllowed);
+    ok('"do not call" on any report wins over "calls are fine" on another', !pb1.body.data.contact.callAllowed && /Do not call/.test(pb1.body.data.contact.label));
     ok('...and the Blotter official is not told it comes from a VAWC report', !/vawc|domestic|violence|abuse|PROBE-RD-\d+-\d/i.test(JSON.stringify(pb1.body.data.contact))
       && !JSON.stringify(pb1.body).includes(KV.caseNumber) && !/Domestic Violence|caseType|cases/.test(JSON.stringify(pb1.body)));
     ok('the VAWC official gets the same profile - no case in it either', JSON.stringify((await view(V.cookie, R1.id)).body.data.resident) === JSON.stringify(pb1.body.data.resident));

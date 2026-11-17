@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, errorResponse } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
-import { loadActor, logReporterAccess, dialable, type AccessField } from '@/lib/reporterAccess';
+import { loadActor, logReporterAccess, type AccessField } from '@/lib/reporterAccess';
 import { canUseDirectory, strictestPreference, contactAdvice, DIRECTORY_STATUSES } from '@/lib/residentDirectory';
 
 export const dynamic = 'force-dynamic';
@@ -75,9 +75,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
         registeredAt: r.registeredAt,
         updatedAt: r.updatedAt,
       },
+      // How it is safe to reach them, shown beside the number the official may copy. No call link is sent.
       contact: advice,
-      // A link for the official's own phone app - nothing is dialled from here.
-      telHref: phone && advice.callAllowed && dialable(phone).length >= 7 ? `tel:${dialable(phone)}` : null,
     } });
   } catch (e) {
     console.error('[Resident directory view]', e instanceof Error ? e.message : 'failed');

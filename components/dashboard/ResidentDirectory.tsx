@@ -4,17 +4,19 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import {
   Box, Card, CardContent, Typography, TextField, InputAdornment, Button, Skeleton, Alert, Dialog, DialogTitle, DialogContent,
-  DialogActions, IconButton, Divider, Chip, CircularProgress, useMediaQuery, useTheme,
+  DialogActions, IconButton, Divider, Chip, useMediaQuery, useTheme,
 } from '@mui/material';
-import { Search, PeopleAlt, Close, Phone, Lock, PersonSearch } from '@mui/icons-material';
+import { Search, PeopleAlt, Close, Lock, PersonSearch, ContentCopy, Check } from '@mui/icons-material';
+import toast from 'react-hot-toast';
+import { copyText } from '@/lib/clipboard';
 import { displayPhMobile } from '@/lib/phoneNumber';
 
 /**
  * The Resident Directory on the Blotter and VAWC dashboards: registered
  * residents by name (search and pages run on the server, over every
  * resident), and one resident's full profile on request - fetched by their
- * id, logged on the server, with a Call button only when their safe-contact
- * wishes allow it. Nothing about their cases is shown or reachable here.
+ * id, logged on the server, with their number to copy and their safe-contact
+ * wishes beside it. Nothing about their cases is shown or reachable here.
  */
 
 interface ListData { rows: { id: string; name: string }[]; total: number; page: number; pageSize: number; pages: number }
@@ -24,7 +26,6 @@ interface Profile {
     phone: string | null; email: string | null; accountStatus: string | null; registeredAt: string; updatedAt: string;
   };
   contact: { callAllowed: boolean; label: string; guidance: string };
-  telHref: string | null;
 }
 
 const NAVY = '#0c1e46';
@@ -117,6 +118,17 @@ function ResidentProfileDialog({ id, name, onClose }: { id: string; name: string
   const { data, error, isLoading } = useSWR<Profile>(['resident-profile', id], () => getJson<Profile>(`/api/officials/residents/${encodeURIComponent(id)}`, { method: 'POST' }),
     { revalidateOnFocus: false, revalidateIfStale: false, shouldRetryOnError: false, dedupingInterval: 0 });
   const r = data?.resident;
+  const [copied, setCopied] = useState(false);
+  const copyNumber = async () => {
+    if (!r?.phone) return;
+    if (await copyText(r.phone)) {
+      setCopied(true);
+      toast.success('Phone number copied successfully.');
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      toast.error('Could not copy automatically - select the number above and copy it with Ctrl+C or a long press.');
+    }
+  };
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="sm" fullScreen={mobile}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 800, color: NAVY, pr: 6 }}>
@@ -158,16 +170,12 @@ function ResidentProfileDialog({ id, name, onClose }: { id: string; name: string
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 1.5, gap: 1, flexWrap: 'wrap' }}>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>Close</Button>
-        {data?.telHref && (
-          // A link for the official's phone app: nothing is dialled or recorded as a call by SafeComm.
-          <Button component="a" href={data.telHref} variant="contained" startIcon={<Phone />}
-            sx={{ textTransform: 'none', fontWeight: 700, bgcolor: '#0f766e', '&:hover': { bgcolor: '#115e59' }, minHeight: 40 }}>
-            Call Resident
-          </Button>
-        )}
-        {data && !data.telHref && (
-          <Button disabled startIcon={isLoading ? <CircularProgress size={14} /> : <Phone />} sx={{ textTransform: 'none' }}>
-            {data.resident.phone ? 'Calling not advised' : 'No number on file'}
+        {data && (
+          // Copies the number as stored; nothing is dialled. The safe-contact note above still applies.
+          <Button variant="contained" disabled={!data.resident.phone} onClick={copyNumber} aria-live="polite"
+            startIcon={copied ? <Check /> : <ContentCopy />}
+            sx={{ textTransform: 'none', fontWeight: 700, minHeight: 40, bgcolor: copied ? '#15803d' : NAVY, '&:hover': { bgcolor: copied ? '#166534' : '#1a3a6e' } }}>
+            {!data.resident.phone ? 'No number on file' : copied ? 'Copied!' : 'Copy Number'}
           </Button>
         )}
       </DialogActions>
