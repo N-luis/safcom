@@ -98,6 +98,7 @@ async function main() {
       && !['password', 'clerkId', 'username', 'notes', 'riskLevel'].some(k => k in (res ?? {})));
     ok('no resident ID and no verification state (ID verification was removed)', !['residentNumber', 'emailVerified'].some(k => k in (res ?? {}))
       && !JSON.stringify(p1.body).includes(`${TAG}-${pid}-`) && !/verified/i.test(JSON.stringify(p1.body)));
+    ok('no preference given: no contact note at all', p1.body.data.contact === null);
     ok('no call link is sent: the number is there to copy', !('telHref' in p1.body.data) && !JSON.stringify(p1.body).includes('tel:') && res?.phone === '+639170000001');
     ok('a name is not an id: looking up by name finds nothing', (await view(B.cookie, `Bea ${last}`)).status === 404);
     const p4 = await view(B.cookie, R4.id);

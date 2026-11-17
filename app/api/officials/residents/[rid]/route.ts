@@ -56,7 +56,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
     const prefs = await prisma.case.findMany({ where: { residentId: r.id, contactPreference: { not: null } }, select: { contactPreference: true } });
     const phone = text(r.contactNumber);
     const email = text(r.email);
-    const advice = contactAdvice(strictestPreference(prefs.map(p => p.contactPreference)), Boolean(phone));
+    const pref = strictestPreference(prefs.map(p => p.contactPreference));
+    const advice = contactAdvice(pref, Boolean(phone));
 
     const fields: AccessField[] = ['profile', ...(phone ? ['phone' as const] : []), ...(email ? ['email' as const] : [])];
     await log('permitted', 'directory_view', fields, r.id);
@@ -76,7 +77,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rid
         updatedAt: r.updatedAt,
       },
       // How it is safe to reach them, shown beside the number the official may copy. No call link is sent.
-      contact: advice,
+      // Only when they asked for something ("do not call", "text first"); otherwise nothing is shown.
+      contact: phone && (pref === 'no_phone' || pref === 'text_first') ? advice : null,
     } });
   } catch (e) {
     console.error('[Resident directory view]', e instanceof Error ? e.message : 'failed');

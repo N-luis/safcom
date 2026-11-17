@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import {
   Box, Card, CardContent, Typography, TextField, InputAdornment, Button, Skeleton, Alert, Dialog, DialogTitle, DialogContent,
-  DialogActions, IconButton, Divider, Chip, useMediaQuery, useTheme,
+  DialogActions, IconButton, Divider, Chip, Tooltip, useMediaQuery, useTheme,
 } from '@mui/material';
-import { Search, PeopleAlt, Close, Lock, PersonSearch, ContentCopy, Check } from '@mui/icons-material';
+import { Search, PeopleAlt, Close, Lock, PersonSearch, ContentCopy, Check, Visibility } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { copyText } from '@/lib/clipboard';
 import { displayPhMobile } from '@/lib/phoneNumber';
@@ -25,7 +25,7 @@ interface Profile {
     id: string; fullName: string | null; age: number | null; sex: string | null; address: string | null; barangay: string | null;
     phone: string | null; email: string | null; accountStatus: string | null; registeredAt: string; updatedAt: string;
   };
-  contact: { callAllowed: boolean; label: string; guidance: string };
+  contact: { callAllowed: boolean; label: string; guidance: string } | null;
 }
 
 const NAVY = '#0c1e46';
@@ -87,11 +87,12 @@ export default function ResidentDirectory({ accent = '#1d4ed8' }: { accent?: str
             <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: `${accent}14`, color: accent, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.76rem', fontWeight: 700 }}>{initials(r.name)}</Box>
             <Typography sx={{ flex: 1, minWidth: 0, fontSize: '0.9rem', fontWeight: 500, color: NAVY, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</Typography>
-            <Button size="small" variant="outlined" onClick={() => setOpen(r)}
-              sx={{ flexShrink: 0, borderRadius: 1.5, fontSize: '0.8rem', py: 0.25, textTransform: 'none', borderColor: '#e2e8f0', color: '#334155',
-                '&:hover': { borderColor: accent, color: accent } }}>
-              View Full Details
-            </Button>
+            <Tooltip title="View full details">
+              <IconButton size="small" onClick={() => setOpen(r)} aria-label={`View full details of ${r.name}`}
+                sx={{ flexShrink: 0, border: '1px solid #e2e8f0', borderRadius: 1.5, width: 32, height: 32, color: '#64748b', '&:hover': { borderColor: accent, color: accent } }}>
+                <Visibility sx={{ fontSize: 17 }} />
+              </IconButton>
+            </Tooltip>
           </Box>
         ))}
       </Box>
@@ -151,12 +152,15 @@ function ResidentProfileDialog({ id, name, onClose }: { id: string; name: string
             <Section title="Contact">
               <Field k="Contact number" v={r.phone ? displayPhMobile(r.phone) : null} strong />
               <Field k="E-mail" v={r.email} strong />
-              <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: data.contact.callAllowed ? '#f8fafc' : '#fef2f2', border: `1px solid ${data.contact.callAllowed ? '#e2e8f0' : '#fecaca'}` }}>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: data.contact.callAllowed ? '#334155' : '#b91c1c', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  {!data.contact.callAllowed && <Lock sx={{ fontSize: 15 }} />}{data.contact.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{data.contact.guidance}</Typography>
-              </Box>
+              {/* Only a wish they made: "do not call" or "text first". */}
+              {data.contact && (
+                <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: data.contact.callAllowed ? '#fffbeb' : '#fef2f2', border: `1px solid ${data.contact.callAllowed ? '#fde68a' : '#fecaca'}` }}>
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: data.contact.callAllowed ? '#a16207' : '#b91c1c', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Lock sx={{ fontSize: 15 }} />{data.contact.label}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>{data.contact.guidance}</Typography>
+                </Box>
+              )}
             </Section>
             <Divider />
             <Section title="Account">
