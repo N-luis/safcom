@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
+import { residencyOf, notVerifiedBody } from '@/lib/jurisdictionServer';
 import { runIntake, answersSchema, relationshipSchema, turnsSchema, NARRATIVE_MAX } from '@/lib/intakeServer';
 import { runInterview } from '@/lib/aiInterview';
 import { rateLimit, INTAKE_LIMIT } from '@/lib/rateLimit';
@@ -33,6 +34,10 @@ export async function POST(req: NextRequest) {
   const auth = await requireResidentAuth(req);
   if ('status' in auth) return auth;
 
+  // The assisted intake is the first step of a standard report: verified residents only (no AI call otherwise).
+  const residency = await residencyOf(auth.resident.residentId);
+  if (!residency) return rError('Resident not found', 404);
+  if (!residency.verified) return Response.json(notVerifiedBody(residency.status), { status: 403 });
   const limited = rateLimit(`intake:${auth.resident.residentId}`, INTAKE_LIMIT);
   if (!limited.allowed) {
     const res = rError(

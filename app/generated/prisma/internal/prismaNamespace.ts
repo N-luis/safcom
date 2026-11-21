@@ -401,6 +401,9 @@ export const ModelName = {
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
   Resident: 'Resident',
+  ResidencyEvent: 'ResidencyEvent',
+  JurisdictionConfig: 'JurisdictionConfig',
+  JurisdictionReferral: 'JurisdictionReferral',
   EmailVerificationToken: 'EmailVerificationToken',
   Activity: 'Activity',
   Notification: 'Notification',
@@ -444,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1703,6 +1706,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ResidentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ResidentCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResidencyEvent: {
+      payload: Prisma.$ResidencyEventPayload<ExtArgs>
+      fields: Prisma.ResidencyEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResidencyEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResidencyEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ResidencyEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResidencyEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        findMany: {
+          args: Prisma.ResidencyEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>[]
+        }
+        create: {
+          args: Prisma.ResidencyEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        createMany: {
+          args: Prisma.ResidencyEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResidencyEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ResidencyEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        update: {
+          args: Prisma.ResidencyEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResidencyEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResidencyEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResidencyEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResidencyEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResidencyEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ResidencyEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResidencyEvent>
+        }
+        groupBy: {
+          args: Prisma.ResidencyEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResidencyEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResidencyEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResidencyEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    JurisdictionConfig: {
+      payload: Prisma.$JurisdictionConfigPayload<ExtArgs>
+      fields: Prisma.JurisdictionConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JurisdictionConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JurisdictionConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.JurisdictionConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JurisdictionConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        findMany: {
+          args: Prisma.JurisdictionConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>[]
+        }
+        create: {
+          args: Prisma.JurisdictionConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        createMany: {
+          args: Prisma.JurisdictionConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JurisdictionConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.JurisdictionConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        update: {
+          args: Prisma.JurisdictionConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.JurisdictionConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JurisdictionConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JurisdictionConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.JurisdictionConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.JurisdictionConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJurisdictionConfig>
+        }
+        groupBy: {
+          args: Prisma.JurisdictionConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JurisdictionConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionConfigCountAggregateOutputType> | number
+        }
+      }
+    }
+    JurisdictionReferral: {
+      payload: Prisma.$JurisdictionReferralPayload<ExtArgs>
+      fields: Prisma.JurisdictionReferralFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JurisdictionReferralFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JurisdictionReferralFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        findFirst: {
+          args: Prisma.JurisdictionReferralFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JurisdictionReferralFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        findMany: {
+          args: Prisma.JurisdictionReferralFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>[]
+        }
+        create: {
+          args: Prisma.JurisdictionReferralCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        createMany: {
+          args: Prisma.JurisdictionReferralCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JurisdictionReferralCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>[]
+        }
+        delete: {
+          args: Prisma.JurisdictionReferralDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        update: {
+          args: Prisma.JurisdictionReferralUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        deleteMany: {
+          args: Prisma.JurisdictionReferralDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JurisdictionReferralUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JurisdictionReferralUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>[]
+        }
+        upsert: {
+          args: Prisma.JurisdictionReferralUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralPayload>
+        }
+        aggregate: {
+          args: Prisma.JurisdictionReferralAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJurisdictionReferral>
+        }
+        groupBy: {
+          args: Prisma.JurisdictionReferralGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JurisdictionReferralCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralCountAggregateOutputType> | number
         }
       }
     }
@@ -4216,10 +4441,83 @@ export const ResidentScalarFieldEnum = {
   notes: 'notes',
   emailVerified: 'emailVerified',
   registeredAt: 'registeredAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  birthDate: 'birthDate',
+  province: 'province',
+  municipality: 'municipality',
+  street: 'street',
+  houseNumber: 'houseNumber',
+  purok: 'purok',
+  homeLatitude: 'homeLatitude',
+  homeLongitude: 'homeLongitude',
+  homeLocationSource: 'homeLocationSource',
+  addressCheck: 'addressCheck',
+  addressVerificationStatus: 'addressVerificationStatus',
+  residencyStatus: 'residencyStatus',
+  residencySubmittedAt: 'residencySubmittedAt',
+  residencyVerifiedAt: 'residencyVerifiedAt',
+  residencyVerifiedById: 'residencyVerifiedById',
+  residencyNote: 'residencyNote'
 } as const
 
 export type ResidentScalarFieldEnum = (typeof ResidentScalarFieldEnum)[keyof typeof ResidentScalarFieldEnum]
+
+
+export const ResidencyEventScalarFieldEnum = {
+  id: 'id',
+  residentId: 'residentId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type ResidencyEventScalarFieldEnum = (typeof ResidencyEventScalarFieldEnum)[keyof typeof ResidencyEventScalarFieldEnum]
+
+
+export const JurisdictionConfigScalarFieldEnum = {
+  id: 'id',
+  barangay: 'barangay',
+  barangayAliases: 'barangayAliases',
+  municipality: 'municipality',
+  province: 'province',
+  boundary: 'boundary',
+  boundarySource: 'boundarySource',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JurisdictionConfigScalarFieldEnum = (typeof JurisdictionConfigScalarFieldEnum)[keyof typeof JurisdictionConfigScalarFieldEnum]
+
+
+export const JurisdictionReferralScalarFieldEnum = {
+  id: 'id',
+  residentId: 'residentId',
+  kind: 'kind',
+  urgent: 'urgent',
+  reportingRelationship: 'reportingRelationship',
+  province: 'province',
+  municipality: 'municipality',
+  barangay: 'barangay',
+  street: 'street',
+  locationDetails: 'locationDetails',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  summary: 'summary',
+  locationCheck: 'locationCheck',
+  status: 'status',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralScalarFieldEnum = (typeof JurisdictionReferralScalarFieldEnum)[keyof typeof JurisdictionReferralScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {
@@ -5075,6 +5373,9 @@ export type GlobalOmitConfig = {
   caseAttachment?: Prisma.CaseAttachmentOmit
   report?: Prisma.ReportOmit
   resident?: Prisma.ResidentOmit
+  residencyEvent?: Prisma.ResidencyEventOmit
+  jurisdictionConfig?: Prisma.JurisdictionConfigOmit
+  jurisdictionReferral?: Prisma.JurisdictionReferralOmit
   emailVerificationToken?: Prisma.EmailVerificationTokenOmit
   activity?: Prisma.ActivityOmit
   notification?: Prisma.NotificationOmit

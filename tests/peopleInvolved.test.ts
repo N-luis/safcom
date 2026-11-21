@@ -10,7 +10,10 @@ import { NextRequest } from 'next/server';
 import { prisma } from '../lib/prisma';
 import { signToken } from '../lib/auth';
 import { signResidentToken } from '../lib/residentAuth';
-import { POST as filePOST } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as intakeGET, POST as intakePOST } from '../app/api/cases/[id]/official-intake/route';
 import { PUT as recordsPUT } from '../app/api/cases/[id]/records/route';
 import { VAWC_TYPES } from '../lib/vawcTypes';
@@ -42,7 +45,7 @@ async function main() {
     const V = await mkUser('vawc', 'vawc_officer');
     const V2 = await mkUser('vawc2', 'vawc_officer');
     const B = await mkUser('blotter', 'officer');
-    const R = await prisma.resident.create({ data: { residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Reporter', age: 33, gender: 'Female',
+    const R = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Reporter', age: 33, gender: 'Female',
       barangay: 'Ayukit', address: 'fictional address', emailVerified: true } });
     residents.push(R.id);
     const resCookie = `resident_token=${signResidentToken({ residentId: R.id, email: 'x', name: 'Probe', role: 'resident' })}`;

@@ -20,7 +20,10 @@ import { UNSAFE_QUESTION, sameQuestion, runInterview } from '../lib/aiInterview'
 import { runIntake } from '../lib/intakeServer';
 import type { KbDb } from '../lib/knowledgeBase';
 import { POST as intakePOST } from '../app/api/resident/intake/route';
-import { POST as filePOST, GET as myCasesGET } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw, GET as myCasesGET } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as casesGET } from '../app/api/cases/route';
 import { GET as residentGET } from '../app/api/residents/[id]/route';
@@ -124,7 +127,7 @@ async function main() {
   const pw = await bcrypt.hash(`${TAG}-unused`, 4);
   const residents: string[] = []; const users: string[] = []; const caseIds: string[] = [];
   const mkResident = async (key: string) => {
-    const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${key}-${process.pid}`, firstName: 'Mariel', lastName: `Probe${key}`,
+    const r = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${key}-${process.pid}`, firstName: 'Mariel', lastName: `Probe${key}`,
       age: 30, gender: 'Female', barangay: 'Ayukit', address: 'temporary test row', contactNumber: '09170000555', emailVerified: true } });
     residents.push(r.id);
     return { id: r.id, cookie: `resident_token=${signResidentToken({ residentId: r.id, email: 'x', name: 'Probe', role: 'resident' })}` };

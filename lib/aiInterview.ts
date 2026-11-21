@@ -2,6 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { callGroq, redact, quoteIsInText, CATEGORY_NAMES, type ReadDeps } from './aiClassifier';
 import { SLOT_ORDER, type SlotId } from './intake';
+import { jurisdictionPromptBlock } from './aiJurisdiction';
 import {
   INTERVIEW_LIMITS, type InterviewQuestion, type InterviewState, type InterviewTurn, type ReportingRelationship,
 } from './interviewTypes';
@@ -155,7 +156,9 @@ export async function runInterview(input: InterviewInput, deps: ReadDeps = {}): 
     asked.length ? `PREVIOUS QUESTIONS AND ANSWERS\n<<<\n${asked.map(t => turnLine(t, names)).join('\n')}\n>>>` : '',
   ].filter(Boolean).join('\n\n');
 
-  const r = await callGroq({ name: 'interview_round', schema: INTERVIEW_SCHEMA, system: INTERVIEW_PROMPT, user,
+  const r = await callGroq({ name: 'interview_round', schema: INTERVIEW_SCHEMA, system: `${INTERVIEW_PROMPT}
+
+${jurisdictionPromptBlock()}`, user,
     residentId: input.residentId, maxCompletionTokens: 900 }, deps);
   if (r.status !== 'ok' && r.status !== 'cached') return blank(r.status, round - 1, false);
   const parsed = interviewSchema.safeParse(r.data);

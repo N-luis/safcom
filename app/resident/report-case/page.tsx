@@ -38,6 +38,9 @@ import ReportPeopleFields, { EMPTY_PEOPLE, peoplePayload, peopleProblem, type Pe
 import IncidentTimeField from '@/components/forms/IncidentTimeField';
 import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
 import DeskNote, { type ResidentDesk } from '@/components/forms/DeskNote';
+import AddressFields, { emptyAddress, type AddressValue } from '@/components/forms/AddressFields';
+import ReferralForm from '@/components/residency/ReferralForm';
+import { DEFAULT_JURISDICTION, sameName, isJurisdictionBarangay } from '@/lib/jurisdiction';
 
 /**
  * Leaflet reaches for window as it loads, so the picker is never rendered on
@@ -116,6 +119,13 @@ export default function ReportCasePage() {
   // Where SafeComm Assist stands, for the submit step (see IntakeAssistant).
   const [assistState, setAssistState] = useState<AssistState | null>(null);
   const [apiError, setApiError] = useState('');
+  // Where it happened: the province, municipality and barangay (the street is below). SafeComm takes
+  // incidents in its own barangay; elsewhere the resident is referred - the server decides either way.
+  const [area, setArea] = useState<AddressValue>(emptyAddress());
+  const inJurisdiction = sameName(area.province, DEFAULT_JURISDICTION.province) && sameName(area.municipality, DEFAULT_JURISDICTION.municipality)
+    && isJurisdictionBarangay(area.barangay, DEFAULT_JURISDICTION);
+  // Set when the server refused the report as a standard case: the referral form is offered instead.
+  const [refer, setRefer] = useState<null | 'outside' | 'unverified'>(null);
 
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -308,6 +318,11 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           locationLabel: place?.chosen ? place.label ?? undefined : undefined,
           municipality: place?.chosen ? place.municipality ?? undefined : undefined,
           province: place?.chosen ? place.province ?? undefined : undefined,
+          // Checked against the jurisdiction on the server.
+          incidentProvince: area.province.trim(),
+          incidentMunicipality: area.municipality.trim(),
+          incidentBarangay: area.barangay.trim(),
+          incidentLocationDetails: data.location?.trim() || undefined,
           description: `${data.description}${data.location ? `\n\nLandmark: ${data.location}` : ''}`,
           additionalNotes: data.additionalNotes,
           contactPreference: data.contactPreference || undefined,
@@ -325,11 +340,12 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           witnessInfo: data.witnessInfo?.trim() || undefined,
           ...peoplePayload(people, null, data.reportingRelationship as ReportingRelationship),
         }), percent => { if (photoLabel) setUpload({ label: photoLabel, percent }); });
-      const json = res.json as { error?: string; data?: Record<string, unknown> & { caseNumber: string } };
+      const json = res.json as { error?: string; code?: string; data?: Record<string, unknown> & { caseNumber: string } };
       if (cancelled.current) return;
       if (!res.ok || !json.data) {
         setPhase('error');
         setUpload(null);
+        setRefer(json.code === 'OUTSIDE_JURISDICTION' ? 'outside' : json.code === 'RESIDENCY_NOT_VERIFIED' ? 'unverified' : null);
         // Said plainly: which photo, or that the photos together were too large to send.
         setApiError(res.status === 413
           ? 'The photos are too large to send together. Remove one or two and submit again - nothing was filed.'
@@ -444,6 +460,14 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           <Card>
             <CardContent sx={{ p: 3 }}>
               {apiError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{apiError}</Alert>}
+              {refer && (
+                <Box sx={{ mb: 2.5, border: '1px solid #fecaca', borderRadius: 2, p: 2 }}>
+                  <ReferralForm initial={area} initialSummary={lastSubmission.current?.description ?? ''}
+                    reason={refer === 'outside'
+                      ? 'This incident is outside SafeComm\'s jurisdiction, so it was not filed as a case. You can keep it as a referral record for the barangay, and contact the barangay or authority where it happened.'
+                      : 'Your residency is not verified yet, so this was not filed as a case. Keep it as a referral record for the barangay, and complete your residency under Residency.'} />
+                </Box>
+              )}
 
               {desk === 'VAWC' && (
                 <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2, bgcolor: '#f5f3ff', color: '#5b21b6', '& .MuiAlert-icon': { color: '#7c3aed' } }}>
@@ -566,6 +590,18 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     Where did this happen?
                   </Typography>
                   <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
+                    The place of the incident - not your home address.
+                  </Typography>
+                  <Box sx={{ mb: 1.5 }}>
+                    <AddressFields value={area} onChange={setArea} mode="incident" areaOnly disabled={isSubmitting || analysing} idPrefix="incident" />
+                  </Box>
+                  {!inJurisdiction && (area.barangay.trim() && area.municipality.trim()) ? (
+                    <Box sx={{ border: '1px solid #fed7aa', bgcolor: '#fff7ed', borderRadius: 2, p: 2 }}>
+                      <ReferralForm initial={area}
+                        reason={'Ang lokasyong inilagay ninyo ay mukhang nasa labas ng sakop ng SafeComm. Mangyaring makipag-ugnayan sa kinauukulang barangay o awtoridad sa lugar kung saan nangyari ang insidente. (The location appears to be outside SafeComm\'s coverage: contact the barangay or authority where it happened. You may keep it here as a referral record.)'} />
+                    </Box>
+                  ) : (<>
+                  <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
                     Tap your street on the barangay map. If you can show the exact spot, switch to
                     Exact spot &mdash; it helps the barangay get there faster.
                   </Typography>
@@ -604,6 +640,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                       disabled={isSubmitting || analysing}
                     />
                   )}
+                  </>)}
                 </Box>
 
                 <Controller

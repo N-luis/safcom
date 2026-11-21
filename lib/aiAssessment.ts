@@ -6,6 +6,7 @@ import {
   type AiReading, type ReadDeps, type AiStatus,
 } from './aiClassifier';
 import { turnLine } from './aiInterview';
+import { jurisdictionPromptBlock } from './aiJurisdiction';
 import { matrixLevelRows, searchMatrix, type KbDb, type MatrixHit } from './knowledgeBase';
 import { MATRICES, type Framework } from './riskMatrices';
 import type { IntakeAnswer, AiIntakeHints, SlotId } from './intake';
@@ -592,7 +593,9 @@ export async function assessWithSources(input: AssessInput, deps: ReadDeps & { d
     const user = [`REPORTING_RELATIONSHIP: ${RELATIONSHIP_LINE[input.relationship]}`, reportBlock, evidence ? answersBlock : '', turnsBlock,
       `SOURCES\n<<<\n${sourceBlock}\n>>>`].filter(Boolean).join('\n\n');
     const r = await callGroq({ name: evidence ? 'report_assessment_staged' : 'report_assessment', schema: SCHEMA as Record<string, unknown>,
-      system: ASSESS_PROMPT, user, residentId: input.residentId, maxCompletionTokens: 2500 }, deps);
+      system: `${ASSESS_PROMPT}
+
+${jurisdictionPromptBlock()}`, user, residentId: input.residentId, maxCompletionTokens: 2500 }, deps);
     const spent = (evidence?.tokens ?? 0) + r.tokens;
     if (r.status !== 'ok' && r.status !== 'cached') {
       return { ...skipReading(r.status, r.model, spent), assessment: unavailableAssessment(NOTE[r.status]), stages: stagesBefore + 1 };

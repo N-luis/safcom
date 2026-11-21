@@ -24,7 +24,10 @@ import { KP_KEYS } from '../lib/hearings';
 import { PUT as safetyPUT } from '../app/api/cases/[id]/safety/route';
 import { GET as recordsGET } from '../app/api/cases/[id]/records/route';
 import { POST as followUpPOST } from '../app/api/cases/[id]/follow-ups/route';
-import { POST as filePOST } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
@@ -97,7 +100,7 @@ async function main() {
       return { ...u, cookie: `safcom_token=${signToken({ userId: u.id, email: u.email, role })}` };
     };
     const B = await mk('blotter', 'officer'); const V = await mk('vawc', 'vawc_officer'); const S = await mk('sysadmin', 'system_admin');
-    const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Complainant', age: 41, gender: 'Male',
+    const r = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Complainant', age: 41, gender: 'Male',
       barangay: 'Ayukit', address: '12 Sampaguita St', emailVerified: true } });
     residents.push(r.id);
     const resCookie = `resident_token=${signResidentToken({ residentId: r.id, email: 'x', name: 'Probe', role: 'resident' })}`;

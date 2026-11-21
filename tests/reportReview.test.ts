@@ -16,7 +16,10 @@ import { dayKey } from '../lib/aiClassifier';
 import { checkProposals, cleanSummary, buildDraftFields } from '../lib/reportStandardizer';
 import { generateDraft, retryPendingDrafts } from '../lib/reportReviewServer';
 import { needsAttention, requiredKeys } from '../lib/reportTemplates';
-import { POST as filePOST } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as myReportGET, POST as myReportPOST } from '../app/api/resident/cases/[id]/report/route';
 import { GET as reviewGET, POST as reviewPOST } from '../app/api/cases/[id]/report-review/route';
 import { GET as updatesGET } from '../app/api/resident/updates/route';
@@ -128,7 +131,7 @@ async function main() {
       users.push(u.id); return { ...u, cookie: `safcom_token=${signToken({ userId: u.id, email: u.email, role })}` };
     };
     const mkRes = async (k: string, first: string) => {
-      const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${k}-${process.pid}`, firstName: first, lastName: 'Probe', age: 35, gender: 'Female',
+      const r = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${k}-${process.pid}`, firstName: first, lastName: 'Probe', age: 35, gender: 'Female',
         barangay: 'Ayukit', address: 'temporary', contactNumber: '09170000000', emailVerified: true } });
       residents.push(r.id); return { ...r, cookie: `resident_token=${signResidentToken({ residentId: r.id, email: 'x', name: first, role: 'resident' })}` };
     };

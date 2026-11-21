@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon, Groups, FolderOpen, Security,
-  Logout, Gavel, Shield, AssignmentInd,
+  Logout, Gavel, Shield, AssignmentInd, HowToReg,
 } from '@mui/icons-material';
 
 /**
@@ -28,6 +28,7 @@ export const CAPTAIN_NAV = [
   { id: 'blotter', label: 'Blotter Module', icon: Gavel, path: '/blotter-officer' },
   { id: 'vawc', label: 'VAWC Module', icon: Shield, path: '/vawc' },
   { id: 'residents', label: 'Residents', icon: Groups, path: '/residents' },
+  { id: 'residency', label: 'Resident Verification', icon: HowToReg, path: '/dashboard/residency' },
   { id: 'reports', label: 'Reports', icon: FolderOpen, path: '/reports' },
   { id: 'users', label: 'Staff & Users', icon: AssignmentInd, path: '/users' },
 ];

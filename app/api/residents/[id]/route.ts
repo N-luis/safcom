@@ -3,6 +3,17 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { canSeeDirectoryContacts } from '@/lib/reporterAccess';
+import { recordResidencyEvent } from '@/lib/jurisdictionServer';
+
+/**
+ * Who may edit a resident's record here: the captain and the system
+ * administrator. Never the residency status - that is set only by the
+ * residency decision (/api/residency/applications/:id), and a field that
+ * tries is refused.
+ */
+const EDIT_ROLES = ['admin', 'system_admin'];
+const RESIDENCY_FIELDS = ['residencyStatus', 'residencyVerifiedAt', 'residencyVerifiedById', 'residencyNote', 'residencySubmittedAt',
+  'homeLatitude', 'homeLongitude', 'addressCheck', 'addressVerificationStatus'];
 
 const updateSchema = z.object({
   firstName: z.string().optional(),
@@ -78,17 +89,34 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+  if (!EDIT_ROLES.includes(auth.user.role)) return errorResponse('Only the Barangay Captain or the system administrator can edit resident records.', 403);
   const { id } = await params;
 
   try {
     const body = await req.json();
+    const forbidden = body && typeof body === 'object' ? RESIDENCY_FIELDS.filter(f => f in body) : [];
+    if (forbidden.length) return errorResponse(`Residency is decided in Resident Verification, not here: ${forbidden.join(', ')}.`, 403);
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? parsed.error.message, 400);
 
     const existing = await prisma.resident.findUnique({ where: { id } });
     if (!existing) return errorResponse('Resident not found', 404);
 
-    const updated = await prisma.resident.update({ where: { id }, data: parsed.data });
+    // An address changed on a verified resident goes back for verification.
+    const addressChanged = (parsed.data.barangay !== undefined && parsed.data.barangay !== existing.barangay)
+      || (parsed.data.address !== undefined && parsed.data.address !== existing.address);
+    const reverify = addressChanged && existing.residencyStatus === 'VERIFIED';
+    const updated = await prisma.$transaction(async tx => {
+      const u = await tx.resident.update({ where: { id }, data: { ...parsed.data,
+        ...(reverify && { residencyStatus: 'PENDING_VERIFICATION', residencyVerifiedAt: null, residencyVerifiedById: null, residencySubmittedAt: new Date() }) },
+        select: { id: true, residentNumber: true, firstName: true, lastName: true, age: true, gender: true, barangay: true, address: true,
+          contactNumber: true, email: true, status: true, riskLevel: true, notes: true, residencyStatus: true, updatedAt: true } });
+      if (addressChanged) {
+        await recordResidencyEvent(tx, { residentId: id, kind: 'address_changed', actorType: 'official', actorId: auth.user.userId,
+          fromStatus: existing.residencyStatus, toStatus: u.residencyStatus, note: 'Address edited by an official in Resident Management.' });
+      }
+      return u;
+    });
     return successResponse(updated);
   } catch {
     return errorResponse('Server error', 500);

@@ -14,9 +14,11 @@ import {
 } from '@mui/material';
 import {
   Shield, Person, Phone, Home, Badge, ArrowForward,
-  LocationOn, CalendarMonth, CheckCircle,
+  CalendarMonth, CheckCircle,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import AddressFields, { emptyAddress, type AddressValue } from '@/components/forms/AddressFields';
+import { DEFAULT_JURISDICTION } from '@/lib/jurisdiction';
 import toast from 'react-hot-toast';
 
 const ACCENT = '#0a7c6b';
@@ -58,10 +60,6 @@ const schema = z.object({
   contactNumber: z.string()
     .length(11, 'Contact number must be exactly 11 digits')
     .regex(/^09\d{9}$/, 'Enter a valid mobile number starting with 09'),
-  streetAddress: z.string().min(3, 'Enter your house number and street'),
-  barangay: z.string().min(2, 'Enter your barangay'),
-  city: z.string().min(2, 'Enter your city or municipality'),
-  zipCode: z.string().regex(/^\d{4}$/, 'ZIP code must be 4 digits'),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -86,6 +84,10 @@ export default function CompleteProfilePage() {
   const { user, isLoaded } = useUser();
   const [checking, setChecking] = useState(true);
   const [serverError, setServerError] = useState('');
+  // The residential address, part by part, from lists (checked against the jurisdiction on the server).
+  const [addr, setAddr] = useState<AddressValue>(emptyAddress());
+  const [addrErrors, setAddrErrors] = useState<Partial<Record<keyof AddressValue, string>>>({});
+  const [outside, setOutside] = useState<{ text: string; where: string | null } | null>(null);
 
   const { register, handleSubmit, watch, control, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -93,7 +95,6 @@ export default function CompleteProfilePage() {
       firstName: '', lastName: '', birthDate: '',
       gender: '' as (typeof GENDER_OPTIONS)[number],
       username: '', contactNumber: '',
-      streetAddress: '', barangay: '', city: '', zipCode: '',
     },
     mode: 'onChange',
   });
@@ -136,6 +137,13 @@ export default function CompleteProfilePage() {
     setServerError('');
     const email = user?.primaryEmailAddress?.emailAddress;
     if (!email) { setServerError('No verified email found on your account.'); return; }
+    const missing: Partial<Record<keyof AddressValue, string>> = {};
+    if (!addr.province.trim()) missing.province = 'Choose your province';
+    if (!addr.municipality.trim()) missing.municipality = 'Choose your municipality or city';
+    if (!addr.barangay.trim()) missing.barangay = 'Choose your barangay';
+    if (!addr.street.trim()) missing.street = 'Enter your street';
+    setAddrErrors(missing);
+    if (Object.keys(missing).length) { setServerError('Complete your residential address.'); return; }
 
     try {
       const res = await fetch('/api/residents/register', {
@@ -145,23 +153,26 @@ export default function CompleteProfilePage() {
         body: JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
-          age: calculateAge(data.birthDate),
+          birthDate: data.birthDate,
           gender: data.gender,
-          barangay: data.barangay,
-          // Resident.address is a single column, so recompose the parts here.
-          address: [data.streetAddress, data.barangay, `${data.city} ${data.zipCode}`]
-            .map(s => s.trim()).filter(Boolean).join(', '),
+          province: addr.province.trim(), municipality: addr.municipality.trim(), barangay: addr.barangay.trim(),
+          street: addr.street.trim(), houseNumber: (addr.houseNumber ?? '').trim() || undefined, purok: (addr.purok ?? '').trim() || undefined,
           contactNumber: data.contactNumber,
           email,
           username: data.username,
         }),
       });
       const json = await res.json();
+      if (res.status === 422 && json.code === 'OUTSIDE_JURISDICTION') {
+        const d = json.destination ?? {};
+        setOutside({ text: json.error, where: [d.barangay, d.municipality, d.province].filter(Boolean).join(', ') || null });
+        return;
+      }
       if (!res.ok) { setServerError(json.error ?? 'Could not save your profile.'); return; }
 
       await fetch('/api/auth/clerk-session', { method: 'POST', credentials: 'include' });
-      toast.success(`Welcome, ${data.firstName}! Your profile is complete.`);
-      router.replace('/resident');
+      toast.success(`Welcome, ${data.firstName}! Next: mark your home on the map for verification.`);
+      router.replace('/resident/residency');
     } catch {
       setServerError('Network error. Please try again.');
     }
@@ -198,7 +209,7 @@ export default function CompleteProfilePage() {
               Complete your profile
             </Typography>
             <Typography sx={{ fontSize: '0.94rem', color: '#64748b', mt: 0.5 }}>
-              Your barangay needs a few more details before you can file reports and track cases.
+              Your barangay needs a few more details. Signing in with Google does not make an account a resident account: after this, your home is marked on the map and an official verifies your residency.
             </Typography>
             {user?.primaryEmailAddress?.emailAddress && (
               <Typography sx={{ fontSize: '0.86rem', color: '#0a7c6b', mt: 1, fontWeight: 600 }}>
@@ -281,38 +292,22 @@ export default function CompleteProfilePage() {
                 <Typography sx={{ fontWeight: 700, color: '#374151', fontSize: '0.86rem', textTransform: 'uppercase', letterSpacing: 1, mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Home sx={{ fontSize: 15, color: '#14b8a6' }} /> Residential Address
                 </Typography>
+                <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mt: 0.5 }}>
+                  SafeComm is for residents of Barangay {DEFAULT_JURISDICTION.barangay}, {DEFAULT_JURISDICTION.municipality}, {DEFAULT_JURISDICTION.province}.
+                  Choose your address from the lists; next you will mark your home on the map, and an official of the barangay verifies it.
+                </Typography>
               </Grid>
               <Grid size={12}>
-                <TextField label="Street Address *" fullWidth {...register('streetAddress')}
-                  error={!!errors.streetAddress} helperText={errors.streetAddress?.message}
-                  placeholder="House No., Street, Purok / Subdivision"
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><Home sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
-                  sx={tf} />
+                <AddressFields value={addr} onChange={v => { setAddr(v); setOutside(null); }} mode="residence" disabled={isSubmitting} errors={addrErrors} idPrefix="reg" />
               </Grid>
-              {/* All three are free text so a resident can enter whatever
-                  address they actually live at, rather than being held to a
-                  fixed barangay list. */}
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField label="Barangay *" fullWidth {...register('barangay')}
-                  error={!!errors.barangay} helperText={errors.barangay?.message}
-                  placeholder="Biñang 2nd"
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><LocationOn sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
-                  sx={tf} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField label="City / Municipality *" fullWidth {...register('city')}
-                  error={!!errors.city} helperText={errors.city?.message}
-                  placeholder="Bocaue"
-                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><LocationOn sx={{ fontSize: 17, color: '#9ca3af' }} /></InputAdornment> } }}
-                  sx={tf} />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField label="ZIP Code *" fullWidth {...register('zipCode')}
-                  error={!!errors.zipCode} helperText={errors.zipCode?.message ?? '4-digit postal code'}
-                  placeholder="3018" inputMode="numeric"
-                  slotProps={{ htmlInput: { maxLength: 4 } }}
-                  sx={tf} />
-              </Grid>
+              {outside && (
+                <Grid size={12}>
+                  <Alert severity="error" sx={{ borderRadius: 2 }}>
+                    {outside.text}
+                    {outside.where && <Box sx={{ mt: 0.5 }}><b>Your area:</b> {outside.where}</Box>}
+                  </Alert>
+                </Grid>
+              )}
             </Grid>
 
             <Button type="submit" fullWidth variant="contained" disabled={isSubmitting}

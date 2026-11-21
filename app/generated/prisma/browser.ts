@@ -153,6 +153,29 @@ export type Report = Prisma.ReportModel
  */
 export type Resident = Prisma.ResidentModel
 /**
+ * Model ResidencyEvent
+ * Every change to a resident's residency - submitted, approved, rejected,
+ * more information asked, address changed - with who and when. Insert-only:
+ * a trigger (prisma/sql/023_residency.sql) refuses any change to a row.
+ */
+export type ResidencyEvent = Prisma.ResidencyEventModel
+/**
+ * Model JurisdictionConfig
+ * The barangay SafeComm serves (one row, id "default"): its names and, once
+ * an administrator configures it, its official boundary. Without a row the
+ * defaults in lib/jurisdiction.ts apply - and no boundary is guessed.
+ */
+export type JurisdictionConfig = Prisma.JurisdictionConfigModel
+/**
+ * Model JurisdictionReferral
+ * A report that cannot be a standard SafeComm case - the incident is outside
+ * the jurisdiction, the reporter is not a verified resident, or it is an
+ * urgent safety concern from someone who cannot file - kept so it is not
+ * silently lost. Never a case; the Barangay Captain reviews it and, where
+ * appropriate, staff take it in through the Walk-in Report.
+ */
+export type JurisdictionReferral = Prisma.JurisdictionReferralModel
+/**
  * Model EmailVerificationToken
  * 
  */

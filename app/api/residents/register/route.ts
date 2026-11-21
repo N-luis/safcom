@@ -8,17 +8,34 @@ import { issueVerificationToken } from '@/lib/verification';
 import { sendVerificationEmail } from '@/lib/email';
 import { missingRequired, checkDatabase } from '@/lib/configCheck';
 import { GENDER_OPTIONS, GENDER_UNDISCLOSED } from '@/lib/safecommConfig';
+import { checkAgainstJurisdiction, recordResidencyEvent, registrationAddressRefusal } from '@/lib/jurisdictionServer';
+import { addressLine } from '@/lib/jurisdiction';
+
+/** Age in whole years on the Philippine calendar day, from a YYYY-MM-DD birth date. */
+function ageFrom(birthDate: string): number {
+  const [y, m, d] = birthDate.split('-').map(Number);
+  const today = new Date(Date.now() + 8 * 3_600_000);
+  let age = today.getUTCFullYear() - y;
+  if (today.getUTCMonth() + 1 < m || (today.getUTCMonth() + 1 === m && today.getUTCDate() < d)) age -= 1;
+  return age;
+}
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  age: z.coerce.number().int().min(1, 'Age must be at least 1').max(120, 'Invalid age'),
+  /** Required: the age is computed from it, never typed. */
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter your date of birth').refine(v => { const a = ageFrom(v); return a >= 1 && a <= 120; }, 'Enter a valid date of birth'),
   // The same list the form offers, and optional because the form says it is.
   // This accepted only Male, Female and Other, so a resident who picked
   // "Prefer not to say" was told to select a gender they had just selected.
   gender: z.enum(GENDER_OPTIONS).optional().or(z.literal('')),
-  barangay: z.string().min(2, 'Please enter your barangay'),
-  address: z.string().min(5, 'Please enter your full address'),
+  // The residential address, part by part: checked against the jurisdiction on the server.
+  province: z.string().trim().min(2, 'Choose your province').max(80),
+  municipality: z.string().trim().min(2, 'Choose your municipality or city').max(80),
+  barangay: z.string().trim().min(2, 'Choose your barangay').max(80),
+  street: z.string().trim().min(2, 'Enter your street').max(120),
+  houseNumber: z.string().trim().max(40).optional(),
+  purok: z.string().trim().max(80).optional(),
   contactNumber: z.string().regex(/^09\d{9}$/, 'Contact number must be 11 digits starting with 09'),
   email: z.string().email('Please enter a valid email address'),
   username: z.string().regex(/^[a-zA-Z0-9._-]{3,20}$/, 'Username must be 3–20 characters (letters, numbers, . _ -)'),
@@ -58,7 +75,15 @@ export async function POST(req: NextRequest) {
       return errorResponse(parsed.error.issues[0]?.message ?? 'Validation error', 400);
     }
 
-    const { firstName, lastName, age, gender, barangay, address, contactNumber, email, username, password } = parsed.data;
+    const { firstName, lastName, birthDate, gender, province, municipality, barangay, street, houseNumber, purok, contactNumber, email, username, password } = parsed.data;
+    const age = ageFrom(birthDate);
+
+    // Residency is restricted to the jurisdiction. An address elsewhere is not taken in at all - the
+    // person is told where to go instead; a Google sign-in is never proof of residence either way.
+    const refusal = await registrationAddressRefusal({ province, municipality, barangay, street, houseNumber, purok });
+    if (refusal) return Response.json(refusal.body, { status: refusal.status });
+    const check = await checkAgainstJurisdiction({ province, municipality, barangay, street, houseNumber, purok }, 'residence');
+    const address = addressLine({ houseNumber, street, purok, barangay, municipality, province });
 
     const existing = await prisma.resident.findFirst({ where: { email } });
     if (existing) return errorResponse('An account with this email already exists', 409);
@@ -102,12 +127,18 @@ export async function POST(req: NextRequest) {
             gender: gender || GENDER_UNDISCLOSED,
             barangay,
             address,
+            birthDate: new Date(`${birthDate}T00:00:00Z`),
+            province, municipality, street, houseNumber: houseNumber || null, purok: purok || null,
+            addressCheck: JSON.parse(JSON.stringify(check)),
+            addressVerificationStatus: check.status,
+            // Registered, not verified: the location is confirmed next, then an official verifies.
+            residencyStatus: 'INCOMPLETE',
             contactNumber,
             email,
             username,
             clerkId: clerkId ?? null,
             password: hashed,
-            status: 'Active',
+            status: 'Pending',
             riskLevel: 'Low',
             emailVerified: Boolean(clerkId),
           },
@@ -135,6 +166,9 @@ export async function POST(req: NextRequest) {
         throw err;
       }
     }
+
+    await prisma.$transaction(tx => recordResidencyEvent(tx, { residentId: resident.id, kind: 'address_changed', actorType: 'resident', actorId: resident.id,
+      toStatus: 'INCOMPLETE', note: 'Registered. The home location is confirmed next, then an official verifies the residency.', snapshot: { status: check.status, flags: check.flags } }));
 
     await prisma.activity.create({
       data: {

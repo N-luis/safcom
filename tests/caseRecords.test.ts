@@ -18,7 +18,10 @@ import { dayKey } from '../lib/aiClassifier';
 import {
   referralRefusal, safetyIsUrgent, caseNumberLabel, incidentDateSchema, affectedPartySchema, INITIAL_CATEGORIES,
 } from '../lib/caseRecords';
-import { POST as filePOST, GET as myCasesGET } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw, GET as myCasesGET } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as recordsGET, PUT as recordsPUT } from '../app/api/cases/[id]/records/route';
 import { PUT as safetyPUT } from '../app/api/cases/[id]/safety/route';
@@ -98,7 +101,7 @@ async function main() {
 
     // ── People ──
     const mkRes = async (k: string) => {
-      const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${k}-${process.pid}`, firstName: `Probe${k}`, lastName: 'Records',
+      const r = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${k}-${process.pid}`, firstName: `Probe${k}`, lastName: 'Records',
         age: 34, gender: 'Female', barangay: 'Ayukit', address: 'temporary test row', emailVerified: true } });
       residents.push(r.id); return r;
     };

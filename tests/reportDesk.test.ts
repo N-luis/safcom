@@ -19,7 +19,10 @@ import { dayKey } from '../lib/aiClassifier';
 import { recommendDesk, type DeskInput, type DeskRecommendation } from '../lib/reportDesk';
 import { runIntake } from '../lib/intakeServer';
 import { deskFor, retryAwaitingDesk } from '../lib/reportDeskServer';
-import { POST as filePOST } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as caseGET } from '../app/api/cases/[id]/route';
 import { GET as casesGET } from '../app/api/cases/route';
 import { PATCH as classPATCH } from '../app/api/cases/[id]/classification/route';
@@ -152,7 +155,7 @@ async function main() {
   const pw = await bcrypt.hash(`${TAG}-unused`, 4);
   const savedSecret = process.env.CRON_SECRET;
   try {
-    const R = await prisma.resident.create({ data: { residentNumber: `${TAG}-r-${process.pid}`, firstName: 'Probe', lastName: 'Desk',
+    const R = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-r-${process.pid}`, firstName: 'Probe', lastName: 'Desk',
       age: 34, gender: 'Female', barangay: 'Ayukit', address: 'temporary test row', emailVerified: true } });
     residents.push(R.id);
     const resCookie = `resident_token=${signResidentToken({ residentId: R.id, email: 'x', name: 'Probe', role: 'resident' })}`;

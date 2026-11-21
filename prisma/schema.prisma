@@ -674,6 +674,114 @@ model Resident {
   hearingNotices     CaseHearingNotice[]
   verificationTokens EmailVerificationToken[]
   followUps          CaseFollowUp[]
+
+  // ── Residency (lib/jurisdiction.ts) ──
+  /// Date of birth; age is computed from it.
+  birthDate                 DateTime?               @db.Date
+  /// The residential address, part by part (barangay is the column above).
+  province                  String?
+  municipality              String?
+  street                    String?
+  houseNumber               String?
+  purok                     String?
+  /// The confirmed home location. Exact: officials with a need only - never on a public map, an export or analytics.
+  homeLatitude              Float?
+  homeLongitude             Float?
+  /// MAP (tapped or dragged) | SEARCH (an address search result) | DEVICE (device location, then confirmed) | NONE (manual verification)
+  homeLocationSource        String?
+  /// The server's check of the address at the last submission (lib/jurisdiction.ts LocationCheck).
+  addressCheck              Json?
+  /// INSIDE | OUTSIDE | INCOMPLETE | NEEDS_REVIEW, from that check.
+  addressVerificationStatus String?
+  /// INCOMPLETE | PENDING_VERIFICATION | VERIFIED | REJECTED | NEEDS_INFO. Set by the server only:
+  /// a resident submits; only a verifier (the captain) approves, rejects or asks for more.
+  residencyStatus           String                  @default("INCOMPLETE")
+  residencySubmittedAt      DateTime?
+  residencyVerifiedAt       DateTime?
+  residencyVerifiedById     String?
+  /// The verifier's reason (rejection) or request (more information), shown to the resident.
+  residencyNote             String?
+  residencyEvents           ResidencyEvent[]
+  jurisdictionReferrals     JurisdictionReferral[]
+
+  @@index([residencyStatus])
+}
+
+/// Every change to a resident's residency - submitted, approved, rejected,
+/// more information asked, address changed - with who and when. Insert-only:
+/// a trigger (prisma/sql/023_residency.sql) refuses any change to a row.
+model ResidencyEvent {
+  id         String   @id @default(cuid())
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  /// submitted | approved | rejected | info_requested | address_changed | outside_refused | backfilled
+  kind       String
+  /// resident | official | system
+  actorType  String
+  actorId    String?
+  fromStatus String?
+  toStatus   String?
+  /// The reason or request, as written.
+  note       String?
+  /// The address check or the fields changed, as they stood.
+  snapshot   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([residentId, createdAt])
+}
+
+/// The barangay SafeComm serves (one row, id "default"): its names and, once
+/// an administrator configures it, its official boundary. Without a row the
+/// defaults in lib/jurisdiction.ts apply - and no boundary is guessed.
+model JurisdictionConfig {
+  id              String   @id @default("default")
+  barangay        String
+  barangayAliases String[]
+  municipality    String
+  province        String
+  /// GeoJSON Polygon or MultiPolygon, [longitude, latitude]. Null: not configured.
+  boundary        Json?
+  /// Where the boundary came from, as recorded by the administrator.
+  boundarySource  String?
+  updatedById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+/// A report that cannot be a standard SafeComm case - the incident is outside
+/// the jurisdiction, the reporter is not a verified resident, or it is an
+/// urgent safety concern from someone who cannot file - kept so it is not
+/// silently lost. Never a case; the Barangay Captain reviews it and, where
+/// appropriate, staff take it in through the Walk-in Report.
+model JurisdictionReferral {
+  id                    String    @id @default(cuid())
+  residentId            String?
+  resident              Resident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
+  /// OUTSIDE_JURISDICTION | UNVERIFIED_REPORTER | URGENT
+  kind                  String
+  urgent                Boolean   @default(false)
+  /// SELF | ON_BEHALF | ANONYMOUS ... as on the report form
+  reportingRelationship String?
+  province              String?
+  municipality          String?
+  barangay              String?
+  street                String?
+  locationDetails       String?
+  latitude              Float?
+  longitude             Float?
+  /// What happened, in the reporter's words (optional).
+  summary               String?
+  /// The server's check of the incident location.
+  locationCheck         Json?
+  /// NEW | REVIEWED | CLOSED
+  status                String    @default("NEW")
+  reviewNote            String?
+  reviewedById          String?
+  reviewedAt            DateTime?
+  createdAt             DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@index([residentId])
 }
 
 model EmailVerificationToken {

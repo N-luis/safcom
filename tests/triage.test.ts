@@ -19,7 +19,10 @@ import { analyzeIntake, triageStatusFor } from '../lib/intake';
 import { runIntake } from '../lib/intakeServer';
 import { triageOf } from '../lib/triageLabels';
 import type { KbDb } from '../lib/knowledgeBase';
-import { POST as filePOST } from '../app/api/resident/cases/route';
+import { POST as filePOSTRaw } from '../app/api/resident/cases/route';
+import { inBarangay, VERIFIED_RESIDENT } from './residencyFixtures';
+// Verified residency and an incident place are required since residency verification (tests/residencyFixtures.ts).
+const filePOST = inBarangay(filePOSTRaw);
 import { GET as caseGET, PUT as casePUT } from '../app/api/cases/[id]/route';
 import { GET as casesGET } from '../app/api/cases/route';
 import { PATCH as reviewPATCH } from '../app/api/cases/[id]/assessment/route';
@@ -93,7 +96,7 @@ async function main() {
   const residents: string[] = []; const users: string[] = []; const caseIds: string[] = [];
   const pw = await bcrypt.hash(`${TAG}-unused`, 4);
   try {
-    const r = await prisma.resident.create({ data: { residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Triage',
+    const r = await prisma.resident.create({ data: { ...VERIFIED_RESIDENT, residentNumber: `${TAG}-${process.pid}`, firstName: 'Probe', lastName: 'Triage',
       age: 30, gender: 'Female', barangay: 'Ayukit', address: 'temporary test row', emailVerified: true } });
     residents.push(r.id);
     const res = `resident_token=${signResidentToken({ residentId: r.id, email: 'x', name: 'Probe', role: 'resident' })}`;

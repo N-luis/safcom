@@ -71,7 +71,8 @@
     "test:vawchearings": "npx tsx --env-file=.env --conditions=react-server tests/vawcHearings.test.ts",
     "test:residentdirectory": "npx tsx --env-file=.env --conditions=react-server tests/residentDirectory.test.ts",
     "test:kpforms": "npx tsx tests/kpForms.test.tsx",
-    "test:kpforms:api": "npx tsx --env-file=.env --conditions=react-server tests/kpFormsApi.test.ts"
+    "test:kpforms:api": "npx tsx --env-file=.env --conditions=react-server tests/kpFormsApi.test.ts",
+    "test:residency": "npx tsx --env-file=.env --conditions=react-server tests/residency.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

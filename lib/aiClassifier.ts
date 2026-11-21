@@ -41,6 +41,7 @@ import type { AiIntakeHints, IntakeAnswer, SlotId } from './intake';
 
 export const AI_READER_VERSION = 'safecomm-ai-reader/1';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+import { jurisdictionPromptBlock } from './aiJurisdiction';
 
 /** Models on Groq's free plan that support strict structured output. */
 export const FREE_MODELS = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b'] as const;
@@ -682,7 +683,10 @@ export async function readWithAi(input: ReadInput, deps: ReadDeps = {}): Promise
   // read those directly.
   const { userText, sourceText } = reportForAi(input.narrative,
     (input.answers ?? []).filter(a => a.text?.trim()).map(a => ({ label: a.slot, text: a.text! })), input.residentNames ?? []);
-  const r = await callGroq({ name: 'report_reading', schema: RESPONSE_SCHEMA, system: SYSTEM_PROMPT, user: userText, residentId: input.residentId }, deps);
+  // The jurisdiction rules go with every reading (lib/aiJurisdiction.ts) - sent, not trained.
+  const r = await callGroq({ name: 'report_reading', schema: RESPONSE_SCHEMA, system: `${SYSTEM_PROMPT}
+
+${jurisdictionPromptBlock()}`, user: userText, residentId: input.residentId }, deps);
   if (r.status !== 'ok' && r.status !== 'cached') return skipReading(r.status, r.model, r.tokens);
   const checked = checkResponse(r.data, sourceText, r.model);
   if (!checked) return skipReading('error', r.model, r.tokens);

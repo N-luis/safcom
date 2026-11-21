@@ -9,12 +9,13 @@ import {
 } from '@mui/material';
 import {
   Dashboard, Assessment, FolderOpen, Notifications, Person,
-  Shield, Logout, Menu as MenuIcon, Gavel,
+  Shield, Logout, Menu as MenuIcon, Gavel, HomeWork,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import { useClerk } from '@clerk/nextjs';
 import { RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY } from '@/lib/notifications';
+import ResidencyGate from '@/components/residency/ResidencyGate';
 
 const SIDEBAR_W = 230;
 
@@ -27,6 +28,7 @@ const NAV = [
   { id: 'cases', label: 'My Cases', icon: FolderOpen, path: '/resident/my-cases' },
   { id: 'hearings', label: 'My Hearings & Notices', icon: Gavel, path: '/resident/hearings' },
   { id: 'notifications', label: 'Notifications', icon: Notifications, path: '/resident/notifications' },
+  { id: 'residency', label: 'Residency', icon: HomeWork, path: '/resident/residency' },
   { id: 'profile', label: 'Profile', icon: Person, path: '/resident/profile' },
 ];
 
@@ -168,6 +170,8 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [residentName, setResidentName] = useState('');
+  // Read fresh from the server on each page: the portal opens fully only for a verified resident.
+  const [residency, setResidency] = useState<{ verified: boolean; status: string; label: string } | null>(null);
   const [lastSeen, setLastSeen] = useState<number | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -202,9 +206,16 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
         if (!json?.data) return;
         const d = json.data;
         setResidentName(`${d.firstName} ${d.lastName}`);
+        setResidency({ verified: Boolean(d.verifiedResident), status: d.residencyStatus, label: d.residencyStatusLabel });
       })
       .catch(() => router.push('/resident-login'));
-  }, [router]);
+  }, [router, pathname]);
+
+  // Until verified, the dashboard and the report form are the residency gate; cases, hearings,
+  // notifications, residency and profile stay open. The server refuses a standard report regardless.
+  const gated = residency && !residency.verified
+    ? pathname === '/resident' ? 'dashboard' as const : pathname.startsWith('/resident/report-case') ? 'report' as const : null
+    : null;
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f4f7fb' }}>
@@ -253,7 +264,7 @@ export default function ResidentLayout({ children }: { children: ReactNode }) {
           transition={{ duration: 0.22, ease: 'easeOut' }}
           sx={{ flex: 1, overflow: 'auto' }}
         >
-          {children}
+          {gated && residency ? <ResidencyGate status={residency.status} label={residency.label} page={gated} /> : children}
         </Box>
       </Box>
     </Box>

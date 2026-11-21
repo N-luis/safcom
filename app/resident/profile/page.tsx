@@ -21,6 +21,7 @@ interface ResidentProfile {
   age: number; gender: string; barangay: string; address: string;
   contactNumber: string; email: string; riskLevel: string;
   registeredAt: string;
+  addressLine?: string; residencyStatusLabel?: string; verifiedResident?: boolean;
 }
 
 export default function ResidentProfilePage() {
@@ -30,12 +31,13 @@ export default function ResidentProfilePage() {
   const { data: recentData } = useSWR<{ cases: { id: string; caseNumber: string; caseType: string; status: string; filedAt: string }[] }>('/api/resident/cases?limit=5', fetcher);
   const recent = recentData?.cases;
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ contactNumber: '', address: '' });
+  // The contact number only: the residential address is changed under Residency, where it is verified again.
+  const [form, setForm] = useState({ contactNumber: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const startEdit = () => {
-    setForm({ contactNumber: profile?.contactNumber ?? '', address: profile?.address ?? '' });
+    setForm({ contactNumber: profile?.contactNumber ?? '' });
     setEditing(true);
     setError('');
   };
@@ -172,8 +174,9 @@ export default function ResidentProfilePage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 640 }}>
                   <TextField label="Contact Number" value={form.contactNumber}
                     onChange={e => setForm(p => ({ ...p, contactNumber: e.target.value }))} fullWidth size="small" />
-                  <TextField label="Home Address" value={form.address}
-                    onChange={e => setForm(p => ({ ...p, address: e.target.value }))} fullWidth size="small" multiline rows={2} />
+                  <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+                    To change your residential address, go to <a href="/resident/residency" style={{ color: '#0f766e', fontWeight: 700 }}>Residency</a> - a new address is verified again by the barangay.
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1.5 }}>
                     <Button variant="contained" onClick={saveEdit} disabled={saving} startIcon={<Save sx={{ fontSize: 16 }} />}
                       sx={{ bgcolor: '#14b8a6', fontWeight: 600, '&:hover': { bgcolor: '#0d9488' }, flex: 1 }}>
@@ -189,7 +192,7 @@ export default function ResidentProfilePage() {
                 <Grid container spacing={2}>
                   {[
                     { icon: Phone, label: 'Contact Number', value: profile?.contactNumber ?? '—' },
-                    { icon: Home, label: 'Home Address', value: profile?.address ?? '—' },
+                    { icon: Home, label: `Home Address${profile?.residencyStatusLabel ? ` (${profile.residencyStatusLabel})` : ''}`, value: profile?.addressLine ?? profile?.address ?? '—' },
                   ].map(f => (
                     <Grid key={f.label} size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>

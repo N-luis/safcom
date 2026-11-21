@@ -24,6 +24,8 @@ import { draftQuietly } from '@/lib/reportReviewServer';
 import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncidentTime } from '@/lib/incidentTime';
 import { parseCaseSearch, searchSummary } from '@/lib/caseSearch';
 import { caseSearchWhere } from '@/lib/caseSearchServer';
+import { residencyOf, notVerifiedBody, checkAgainstJurisdiction } from '@/lib/jurisdictionServer';
+import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 
 /**
  * Fields only the server sets. A report that carries any of them is refused
@@ -57,6 +59,13 @@ const createSchema = z.object({
   locationLabel: z.string().max(300).optional().nullable(),
   municipality: z.string().max(120).optional().nullable(),
   province: z.string().max(120).optional().nullable(),
+  // Where the incident happened, as the resident chose it - checked against the jurisdiction on the
+  // server (lib/jurisdiction.ts). Required: a report with no incident place cannot be placed in or out.
+  incidentProvince: z.string().trim().max(80).optional(),
+  incidentMunicipality: z.string().trim().max(80).optional(),
+  incidentBarangay: z.string().trim().max(80).optional(),
+  // A landmark or other details, when the street alone does not say where.
+  incidentLocationDetails: z.string().trim().max(300).optional(),
   // Photos arrive as data URLs; the bytes are decoded and stored separately.
   attachments: z.array(z.object({
     name: z.string().min(1).max(200),
@@ -165,6 +174,27 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Validation error', 400);
     if (isFutureIncidentTime(parsed.data.incidentDate, parsed.data.incidentTimeApprox)) return rError(INCIDENT_TIME_FUTURE, 400);
 
+    // Standard reports are for verified residents only - read from the database, never the token.
+    const residency = await residencyOf(auth.resident.residentId);
+    if (!residency) return rError('Resident not found', 404);
+    if (!residency.verified) return Response.json(notVerifiedBody(residency.status), { status: 403 });
+    // And for incidents inside the jurisdiction. The check is the server's, from what was sent:
+    // a client that skips the form's warning gets the same answer.
+    const incidentCheck = await checkAgainstJurisdiction({
+      province: parsed.data.incidentProvince, municipality: parsed.data.incidentMunicipality, barangay: parsed.data.incidentBarangay,
+      street: parsed.data.barangay, details: parsed.data.incidentLocationDetails || parsed.data.locationLabel,
+      latitude: parsed.data.latitude, longitude: parsed.data.longitude,
+    }, 'incident');
+    if (incidentCheck.status === 'INCOMPLETE') {
+      return Response.json({ success: false, code: 'INCIDENT_LOCATION_INCOMPLETE', error: incidentCheck.explanation, missing: incidentCheck.missing }, { status: 400 });
+    }
+    if (incidentCheck.status === 'OUTSIDE') {
+      return Response.json({ success: false, code: 'OUTSIDE_JURISDICTION', error: incidentCheck.explanation, destination: incidentCheck.destination,
+        emergencyContacts: EMERGENCY_CONTACTS, referralAvailable: true }, { status: 422 });
+    }
+    // Inside by the address, but the pin disagrees (or is far away): filed, and an officer checks the place.
+    const locationReview = incidentCheck.status === 'NEEDS_REVIEW';
+
     const resident = await prisma.resident.findUnique({
       where: { id: auth.resident.residentId },
       select: { firstName: true, lastName: true, barangay: true, gender: true },
@@ -200,8 +230,9 @@ export async function POST(req: NextRequest) {
           latitude: parsed.data.latitude as number,
           longitude: parsed.data.longitude as number,
           locationLabel: parsed.data.locationLabel ?? null,
-          municipality: parsed.data.municipality ?? null,
-          province: parsed.data.province ?? null,
+          // The place the resident chose (checked above), before what the map provider called it.
+          municipality: parsed.data.incidentMunicipality || parsed.data.municipality || null,
+          province: parsed.data.incidentProvince || parsed.data.province || null,
         }
       : {};
     const filedAt = new Date();
@@ -371,7 +402,7 @@ export async function POST(req: NextRequest) {
           status: 'Open',
           riskLevel,
           informationCompleteness: ir.informationCompleteness,
-          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || deskUnsettled,
+          requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || deskUnsettled || locationReview,
           triageStatus,
           language: detected.language,
           ...pin,
@@ -416,7 +447,7 @@ export async function POST(req: NextRequest) {
     // Stored with who sent them and each one's fingerprint (lib/evidenceServer).
     await storeResidentPhotos(newCase.id, auth.resident.residentId, photos);
 
-    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || deskUnsettled;
+    const needsHumanReview = evidence.needsHumanReview || classification.needs_human_review || ir.requiresOfficerReview || deskUnsettled || locationReview;
     const reviewReasons = [
       ...evidence.reviewReasons,
       ...(classification.needs_human_review_reason ? [classification.needs_human_review_reason] : []),

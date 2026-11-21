@@ -68,6 +68,9 @@ export const ModelName = {
   CaseAttachment: 'CaseAttachment',
   Report: 'Report',
   Resident: 'Resident',
+  ResidencyEvent: 'ResidencyEvent',
+  JurisdictionConfig: 'JurisdictionConfig',
+  JurisdictionReferral: 'JurisdictionReferral',
   EmailVerificationToken: 'EmailVerificationToken',
   Activity: 'Activity',
   Notification: 'Notification',
@@ -513,10 +516,83 @@ export const ResidentScalarFieldEnum = {
   notes: 'notes',
   emailVerified: 'emailVerified',
   registeredAt: 'registeredAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  birthDate: 'birthDate',
+  province: 'province',
+  municipality: 'municipality',
+  street: 'street',
+  houseNumber: 'houseNumber',
+  purok: 'purok',
+  homeLatitude: 'homeLatitude',
+  homeLongitude: 'homeLongitude',
+  homeLocationSource: 'homeLocationSource',
+  addressCheck: 'addressCheck',
+  addressVerificationStatus: 'addressVerificationStatus',
+  residencyStatus: 'residencyStatus',
+  residencySubmittedAt: 'residencySubmittedAt',
+  residencyVerifiedAt: 'residencyVerifiedAt',
+  residencyVerifiedById: 'residencyVerifiedById',
+  residencyNote: 'residencyNote'
 } as const
 
 export type ResidentScalarFieldEnum = (typeof ResidentScalarFieldEnum)[keyof typeof ResidentScalarFieldEnum]
+
+
+export const ResidencyEventScalarFieldEnum = {
+  id: 'id',
+  residentId: 'residentId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type ResidencyEventScalarFieldEnum = (typeof ResidencyEventScalarFieldEnum)[keyof typeof ResidencyEventScalarFieldEnum]
+
+
+export const JurisdictionConfigScalarFieldEnum = {
+  id: 'id',
+  barangay: 'barangay',
+  barangayAliases: 'barangayAliases',
+  municipality: 'municipality',
+  province: 'province',
+  boundary: 'boundary',
+  boundarySource: 'boundarySource',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JurisdictionConfigScalarFieldEnum = (typeof JurisdictionConfigScalarFieldEnum)[keyof typeof JurisdictionConfigScalarFieldEnum]
+
+
+export const JurisdictionReferralScalarFieldEnum = {
+  id: 'id',
+  residentId: 'residentId',
+  kind: 'kind',
+  urgent: 'urgent',
+  reportingRelationship: 'reportingRelationship',
+  province: 'province',
+  municipality: 'municipality',
+  barangay: 'barangay',
+  street: 'street',
+  locationDetails: 'locationDetails',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  summary: 'summary',
+  locationCheck: 'locationCheck',
+  status: 'status',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralScalarFieldEnum = (typeof JurisdictionReferralScalarFieldEnum)[keyof typeof JurisdictionReferralScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {

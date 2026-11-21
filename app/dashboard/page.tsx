@@ -19,6 +19,7 @@ import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import AnnounceButton from '@/components/announcements/AnnounceButton';
 import CaptainSidebar, { CAPTAIN_SIDEBAR_WIDTH as SIDEBAR_W } from '@/components/layout/CaptainSidebar';
+import ResidencySummaryCard from '@/components/residency/ResidencySummaryCard';
 
 const ACCENT = '#0f766e';
 
@@ -424,6 +425,9 @@ export default function KapitanDashboardPage() {
               sub={`${t?.resolutionRate ?? 0}% resolution rate`} />
           </Grid>
         </Grid>
+
+        {/* Resident Verification: who may file standard reports */}
+        <ResidencySummaryCard />
 
         {/* Module bridges */}
         <Grid container spacing={2} sx={{ mb: 2.5 }}>

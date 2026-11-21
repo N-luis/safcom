@@ -28,10 +28,14 @@ export type AggregateResident = {
 
 export type ResidentAvgAggregateOutputType = {
   age: number | null
+  homeLatitude: number | null
+  homeLongitude: number | null
 }
 
 export type ResidentSumAggregateOutputType = {
   age: number | null
+  homeLatitude: number | null
+  homeLongitude: number | null
 }
 
 export type ResidentMinAggregateOutputType = {
@@ -54,6 +58,21 @@ export type ResidentMinAggregateOutputType = {
   emailVerified: boolean | null
   registeredAt: Date | null
   updatedAt: Date | null
+  birthDate: Date | null
+  province: string | null
+  municipality: string | null
+  street: string | null
+  houseNumber: string | null
+  purok: string | null
+  homeLatitude: number | null
+  homeLongitude: number | null
+  homeLocationSource: string | null
+  addressVerificationStatus: string | null
+  residencyStatus: string | null
+  residencySubmittedAt: Date | null
+  residencyVerifiedAt: Date | null
+  residencyVerifiedById: string | null
+  residencyNote: string | null
 }
 
 export type ResidentMaxAggregateOutputType = {
@@ -76,6 +95,21 @@ export type ResidentMaxAggregateOutputType = {
   emailVerified: boolean | null
   registeredAt: Date | null
   updatedAt: Date | null
+  birthDate: Date | null
+  province: string | null
+  municipality: string | null
+  street: string | null
+  houseNumber: string | null
+  purok: string | null
+  homeLatitude: number | null
+  homeLongitude: number | null
+  homeLocationSource: string | null
+  addressVerificationStatus: string | null
+  residencyStatus: string | null
+  residencySubmittedAt: Date | null
+  residencyVerifiedAt: Date | null
+  residencyVerifiedById: string | null
+  residencyNote: string | null
 }
 
 export type ResidentCountAggregateOutputType = {
@@ -98,16 +132,36 @@ export type ResidentCountAggregateOutputType = {
   emailVerified: number
   registeredAt: number
   updatedAt: number
+  birthDate: number
+  province: number
+  municipality: number
+  street: number
+  houseNumber: number
+  purok: number
+  homeLatitude: number
+  homeLongitude: number
+  homeLocationSource: number
+  addressCheck: number
+  addressVerificationStatus: number
+  residencyStatus: number
+  residencySubmittedAt: number
+  residencyVerifiedAt: number
+  residencyVerifiedById: number
+  residencyNote: number
   _all: number
 }
 
 
 export type ResidentAvgAggregateInputType = {
   age?: true
+  homeLatitude?: true
+  homeLongitude?: true
 }
 
 export type ResidentSumAggregateInputType = {
   age?: true
+  homeLatitude?: true
+  homeLongitude?: true
 }
 
 export type ResidentMinAggregateInputType = {
@@ -130,6 +184,21 @@ export type ResidentMinAggregateInputType = {
   emailVerified?: true
   registeredAt?: true
   updatedAt?: true
+  birthDate?: true
+  province?: true
+  municipality?: true
+  street?: true
+  houseNumber?: true
+  purok?: true
+  homeLatitude?: true
+  homeLongitude?: true
+  homeLocationSource?: true
+  addressVerificationStatus?: true
+  residencyStatus?: true
+  residencySubmittedAt?: true
+  residencyVerifiedAt?: true
+  residencyVerifiedById?: true
+  residencyNote?: true
 }
 
 export type ResidentMaxAggregateInputType = {
@@ -152,6 +221,21 @@ export type ResidentMaxAggregateInputType = {
   emailVerified?: true
   registeredAt?: true
   updatedAt?: true
+  birthDate?: true
+  province?: true
+  municipality?: true
+  street?: true
+  houseNumber?: true
+  purok?: true
+  homeLatitude?: true
+  homeLongitude?: true
+  homeLocationSource?: true
+  addressVerificationStatus?: true
+  residencyStatus?: true
+  residencySubmittedAt?: true
+  residencyVerifiedAt?: true
+  residencyVerifiedById?: true
+  residencyNote?: true
 }
 
 export type ResidentCountAggregateInputType = {
@@ -174,6 +258,22 @@ export type ResidentCountAggregateInputType = {
   emailVerified?: true
   registeredAt?: true
   updatedAt?: true
+  birthDate?: true
+  province?: true
+  municipality?: true
+  street?: true
+  houseNumber?: true
+  purok?: true
+  homeLatitude?: true
+  homeLongitude?: true
+  homeLocationSource?: true
+  addressCheck?: true
+  addressVerificationStatus?: true
+  residencyStatus?: true
+  residencySubmittedAt?: true
+  residencyVerifiedAt?: true
+  residencyVerifiedById?: true
+  residencyNote?: true
   _all?: true
 }
 
@@ -283,6 +383,22 @@ export type ResidentGroupByOutputType = {
   emailVerified: boolean
   registeredAt: Date
   updatedAt: Date
+  birthDate: Date | null
+  province: string | null
+  municipality: string | null
+  street: string | null
+  houseNumber: string | null
+  purok: string | null
+  homeLatitude: number | null
+  homeLongitude: number | null
+  homeLocationSource: string | null
+  addressCheck: runtime.JsonValue | null
+  addressVerificationStatus: string | null
+  residencyStatus: string
+  residencySubmittedAt: Date | null
+  residencyVerifiedAt: Date | null
+  residencyVerifiedById: string | null
+  residencyNote: string | null
   _count: ResidentCountAggregateOutputType | null
   _avg: ResidentAvgAggregateOutputType | null
   _sum: ResidentSumAggregateOutputType | null
@@ -328,10 +444,28 @@ export type ResidentWhereInput = {
   emailVerified?: Prisma.BoolFilter<"Resident"> | boolean
   registeredAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
+  birthDate?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  province?: Prisma.StringNullableFilter<"Resident"> | string | null
+  municipality?: Prisma.StringNullableFilter<"Resident"> | string | null
+  street?: Prisma.StringNullableFilter<"Resident"> | string | null
+  houseNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
+  purok?: Prisma.StringNullableFilter<"Resident"> | string | null
+  homeLatitude?: Prisma.FloatNullableFilter<"Resident"> | number | null
+  homeLongitude?: Prisma.FloatNullableFilter<"Resident"> | number | null
+  homeLocationSource?: Prisma.StringNullableFilter<"Resident"> | string | null
+  addressCheck?: Prisma.JsonNullableFilter<"Resident">
+  addressVerificationStatus?: Prisma.StringNullableFilter<"Resident"> | string | null
+  residencyStatus?: Prisma.StringFilter<"Resident"> | string
+  residencySubmittedAt?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  residencyVerifiedAt?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  residencyVerifiedById?: Prisma.StringNullableFilter<"Resident"> | string | null
+  residencyNote?: Prisma.StringNullableFilter<"Resident"> | string | null
   cases?: Prisma.CaseListRelationFilter
   hearingNotices?: Prisma.CaseHearingNoticeListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
+  residencyEvents?: Prisma.ResidencyEventListRelationFilter
+  jurisdictionReferrals?: Prisma.JurisdictionReferralListRelationFilter
 }
 
 export type ResidentOrderByWithRelationInput = {
@@ -354,10 +488,28 @@ export type ResidentOrderByWithRelationInput = {
   emailVerified?: Prisma.SortOrder
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
+  municipality?: Prisma.SortOrderInput | Prisma.SortOrder
+  street?: Prisma.SortOrderInput | Prisma.SortOrder
+  houseNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  purok?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLocationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressCheck?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressVerificationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyStatus?: Prisma.SortOrder
+  residencySubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyVerifiedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   cases?: Prisma.CaseOrderByRelationAggregateInput
   hearingNotices?: Prisma.CaseHearingNoticeOrderByRelationAggregateInput
   verificationTokens?: Prisma.EmailVerificationTokenOrderByRelationAggregateInput
   followUps?: Prisma.CaseFollowUpOrderByRelationAggregateInput
+  residencyEvents?: Prisma.ResidencyEventOrderByRelationAggregateInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralOrderByRelationAggregateInput
 }
 
 export type ResidentWhereUniqueInput = Prisma.AtLeast<{
@@ -383,10 +535,28 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   emailVerified?: Prisma.BoolFilter<"Resident"> | boolean
   registeredAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
+  birthDate?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  province?: Prisma.StringNullableFilter<"Resident"> | string | null
+  municipality?: Prisma.StringNullableFilter<"Resident"> | string | null
+  street?: Prisma.StringNullableFilter<"Resident"> | string | null
+  houseNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
+  purok?: Prisma.StringNullableFilter<"Resident"> | string | null
+  homeLatitude?: Prisma.FloatNullableFilter<"Resident"> | number | null
+  homeLongitude?: Prisma.FloatNullableFilter<"Resident"> | number | null
+  homeLocationSource?: Prisma.StringNullableFilter<"Resident"> | string | null
+  addressCheck?: Prisma.JsonNullableFilter<"Resident">
+  addressVerificationStatus?: Prisma.StringNullableFilter<"Resident"> | string | null
+  residencyStatus?: Prisma.StringFilter<"Resident"> | string
+  residencySubmittedAt?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  residencyVerifiedAt?: Prisma.DateTimeNullableFilter<"Resident"> | Date | string | null
+  residencyVerifiedById?: Prisma.StringNullableFilter<"Resident"> | string | null
+  residencyNote?: Prisma.StringNullableFilter<"Resident"> | string | null
   cases?: Prisma.CaseListRelationFilter
   hearingNotices?: Prisma.CaseHearingNoticeListRelationFilter
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   followUps?: Prisma.CaseFollowUpListRelationFilter
+  residencyEvents?: Prisma.ResidencyEventListRelationFilter
+  jurisdictionReferrals?: Prisma.JurisdictionReferralListRelationFilter
 }, "id" | "residentNumber" | "username" | "clerkId">
 
 export type ResidentOrderByWithAggregationInput = {
@@ -409,6 +579,22 @@ export type ResidentOrderByWithAggregationInput = {
   emailVerified?: Prisma.SortOrder
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  province?: Prisma.SortOrderInput | Prisma.SortOrder
+  municipality?: Prisma.SortOrderInput | Prisma.SortOrder
+  street?: Prisma.SortOrderInput | Prisma.SortOrder
+  houseNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  purok?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  homeLocationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressCheck?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressVerificationStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyStatus?: Prisma.SortOrder
+  residencySubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyVerifiedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  residencyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ResidentCountOrderByAggregateInput
   _avg?: Prisma.ResidentAvgOrderByAggregateInput
   _max?: Prisma.ResidentMaxOrderByAggregateInput
@@ -439,6 +625,22 @@ export type ResidentScalarWhereWithAggregatesInput = {
   emailVerified?: Prisma.BoolWithAggregatesFilter<"Resident"> | boolean
   registeredAt?: Prisma.DateTimeWithAggregatesFilter<"Resident"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Resident"> | Date | string
+  birthDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Resident"> | Date | string | null
+  province?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  municipality?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  street?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  houseNumber?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  purok?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  homeLatitude?: Prisma.FloatNullableWithAggregatesFilter<"Resident"> | number | null
+  homeLongitude?: Prisma.FloatNullableWithAggregatesFilter<"Resident"> | number | null
+  homeLocationSource?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  addressCheck?: Prisma.JsonNullableWithAggregatesFilter<"Resident">
+  addressVerificationStatus?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  residencyStatus?: Prisma.StringWithAggregatesFilter<"Resident"> | string
+  residencySubmittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Resident"> | Date | string | null
+  residencyVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Resident"> | Date | string | null
+  residencyVerifiedById?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  residencyNote?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
 }
 
 export type ResidentCreateInput = {
@@ -461,10 +663,28 @@ export type ResidentCreateInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateInput = {
@@ -487,10 +707,28 @@ export type ResidentUncheckedCreateInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUpdateInput = {
@@ -513,10 +751,28 @@ export type ResidentUpdateInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateInput = {
@@ -539,10 +795,28 @@ export type ResidentUncheckedUpdateInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateManyInput = {
@@ -565,6 +839,22 @@ export type ResidentCreateManyInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
 }
 
 export type ResidentUpdateManyMutationInput = {
@@ -587,6 +877,22 @@ export type ResidentUpdateManyMutationInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ResidentUncheckedUpdateManyInput = {
@@ -609,6 +915,22 @@ export type ResidentUncheckedUpdateManyInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ResidentNullableScalarRelationFilter = {
@@ -636,10 +958,28 @@ export type ResidentCountOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  houseNumber?: Prisma.SortOrder
+  purok?: Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrder
+  homeLocationSource?: Prisma.SortOrder
+  addressCheck?: Prisma.SortOrder
+  addressVerificationStatus?: Prisma.SortOrder
+  residencyStatus?: Prisma.SortOrder
+  residencySubmittedAt?: Prisma.SortOrder
+  residencyVerifiedAt?: Prisma.SortOrder
+  residencyVerifiedById?: Prisma.SortOrder
+  residencyNote?: Prisma.SortOrder
 }
 
 export type ResidentAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrder
 }
 
 export type ResidentMaxOrderByAggregateInput = {
@@ -662,6 +1002,21 @@ export type ResidentMaxOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  houseNumber?: Prisma.SortOrder
+  purok?: Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrder
+  homeLocationSource?: Prisma.SortOrder
+  addressVerificationStatus?: Prisma.SortOrder
+  residencyStatus?: Prisma.SortOrder
+  residencySubmittedAt?: Prisma.SortOrder
+  residencyVerifiedAt?: Prisma.SortOrder
+  residencyVerifiedById?: Prisma.SortOrder
+  residencyNote?: Prisma.SortOrder
 }
 
 export type ResidentMinOrderByAggregateInput = {
@@ -684,10 +1039,27 @@ export type ResidentMinOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   registeredAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  province?: Prisma.SortOrder
+  municipality?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  houseNumber?: Prisma.SortOrder
+  purok?: Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrder
+  homeLocationSource?: Prisma.SortOrder
+  addressVerificationStatus?: Prisma.SortOrder
+  residencyStatus?: Prisma.SortOrder
+  residencySubmittedAt?: Prisma.SortOrder
+  residencyVerifiedAt?: Prisma.SortOrder
+  residencyVerifiedById?: Prisma.SortOrder
+  residencyNote?: Prisma.SortOrder
 }
 
 export type ResidentSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  homeLatitude?: Prisma.SortOrder
+  homeLongitude?: Prisma.SortOrder
 }
 
 export type ResidentScalarRelationFilter = {
@@ -709,6 +1081,36 @@ export type ResidentUpdateOneWithoutCasesNestedInput = {
   delete?: Prisma.ResidentWhereInput | boolean
   connect?: Prisma.ResidentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutCasesInput, Prisma.ResidentUpdateWithoutCasesInput>, Prisma.ResidentUncheckedUpdateWithoutCasesInput>
+}
+
+export type ResidentCreateNestedOneWithoutResidencyEventsInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutResidencyEventsInput, Prisma.ResidentUncheckedCreateWithoutResidencyEventsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutResidencyEventsInput
+  connect?: Prisma.ResidentWhereUniqueInput
+}
+
+export type ResidentUpdateOneRequiredWithoutResidencyEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutResidencyEventsInput, Prisma.ResidentUncheckedCreateWithoutResidencyEventsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutResidencyEventsInput
+  upsert?: Prisma.ResidentUpsertWithoutResidencyEventsInput
+  connect?: Prisma.ResidentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutResidencyEventsInput, Prisma.ResidentUpdateWithoutResidencyEventsInput>, Prisma.ResidentUncheckedUpdateWithoutResidencyEventsInput>
+}
+
+export type ResidentCreateNestedOneWithoutJurisdictionReferralsInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedCreateWithoutJurisdictionReferralsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutJurisdictionReferralsInput
+  connect?: Prisma.ResidentWhereUniqueInput
+}
+
+export type ResidentUpdateOneWithoutJurisdictionReferralsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResidentCreateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedCreateWithoutJurisdictionReferralsInput>
+  connectOrCreate?: Prisma.ResidentCreateOrConnectWithoutJurisdictionReferralsInput
+  upsert?: Prisma.ResidentUpsertWithoutJurisdictionReferralsInput
+  disconnect?: Prisma.ResidentWhereInput | boolean
+  delete?: Prisma.ResidentWhereInput | boolean
+  connect?: Prisma.ResidentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResidentUpdateToOneWithWhereWithoutJurisdictionReferralsInput, Prisma.ResidentUpdateWithoutJurisdictionReferralsInput>, Prisma.ResidentUncheckedUpdateWithoutJurisdictionReferralsInput>
 }
 
 export type ResidentCreateNestedOneWithoutVerificationTokensInput = {
@@ -777,9 +1179,27 @@ export type ResidentCreateWithoutCasesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutCasesInput = {
@@ -802,9 +1222,27 @@ export type ResidentUncheckedCreateWithoutCasesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutCasesInput = {
@@ -843,9 +1281,27 @@ export type ResidentUpdateWithoutCasesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutCasesInput = {
@@ -868,9 +1324,403 @@ export type ResidentUncheckedUpdateWithoutCasesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentCreateWithoutResidencyEventsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
+  cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
+  hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentUncheckedCreateWithoutResidencyEventsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
+  hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentCreateOrConnectWithoutResidencyEventsInput = {
+  where: Prisma.ResidentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutResidencyEventsInput, Prisma.ResidentUncheckedCreateWithoutResidencyEventsInput>
+}
+
+export type ResidentUpsertWithoutResidencyEventsInput = {
+  update: Prisma.XOR<Prisma.ResidentUpdateWithoutResidencyEventsInput, Prisma.ResidentUncheckedUpdateWithoutResidencyEventsInput>
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutResidencyEventsInput, Prisma.ResidentUncheckedCreateWithoutResidencyEventsInput>
+  where?: Prisma.ResidentWhereInput
+}
+
+export type ResidentUpdateToOneWithWhereWithoutResidencyEventsInput = {
+  where?: Prisma.ResidentWhereInput
+  data: Prisma.XOR<Prisma.ResidentUpdateWithoutResidencyEventsInput, Prisma.ResidentUncheckedUpdateWithoutResidencyEventsInput>
+}
+
+export type ResidentUpdateWithoutResidencyEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
+  hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentUncheckedUpdateWithoutResidencyEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
+  hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentCreateWithoutJurisdictionReferralsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
+  cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
+  hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentUncheckedCreateWithoutJurisdictionReferralsInput = {
+  id?: string
+  residentNumber: string
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  barangay: string
+  address: string
+  contactNumber?: string | null
+  email?: string | null
+  username?: string | null
+  clerkId?: string | null
+  password?: string | null
+  status?: string
+  riskLevel?: string
+  notes?: string | null
+  emailVerified?: boolean
+  registeredAt?: Date | string
+  updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
+  hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+}
+
+export type ResidentCreateOrConnectWithoutJurisdictionReferralsInput = {
+  where: Prisma.ResidentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedCreateWithoutJurisdictionReferralsInput>
+}
+
+export type ResidentUpsertWithoutJurisdictionReferralsInput = {
+  update: Prisma.XOR<Prisma.ResidentUpdateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedUpdateWithoutJurisdictionReferralsInput>
+  create: Prisma.XOR<Prisma.ResidentCreateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedCreateWithoutJurisdictionReferralsInput>
+  where?: Prisma.ResidentWhereInput
+}
+
+export type ResidentUpdateToOneWithWhereWithoutJurisdictionReferralsInput = {
+  where?: Prisma.ResidentWhereInput
+  data: Prisma.XOR<Prisma.ResidentUpdateWithoutJurisdictionReferralsInput, Prisma.ResidentUncheckedUpdateWithoutJurisdictionReferralsInput>
+}
+
+export type ResidentUpdateWithoutJurisdictionReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
+  hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+}
+
+export type ResidentUncheckedUpdateWithoutJurisdictionReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  residentNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.IntFieldUpdateOperationsInput | number
+  gender?: Prisma.StringFieldUpdateOperationsInput | string
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
+  hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateWithoutVerificationTokensInput = {
@@ -893,9 +1743,27 @@ export type ResidentCreateWithoutVerificationTokensInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
@@ -918,9 +1786,27 @@ export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutVerificationTokensInput = {
@@ -959,9 +1845,27 @@ export type ResidentUpdateWithoutVerificationTokensInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
@@ -984,9 +1888,27 @@ export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateWithoutFollowUpsInput = {
@@ -1009,9 +1931,27 @@ export type ResidentCreateWithoutFollowUpsInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutFollowUpsInput = {
@@ -1034,9 +1974,27 @@ export type ResidentUncheckedCreateWithoutFollowUpsInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedCreateNestedManyWithoutRecipientResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutFollowUpsInput = {
@@ -1075,9 +2033,27 @@ export type ResidentUpdateWithoutFollowUpsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutFollowUpsInput = {
@@ -1100,9 +2076,27 @@ export type ResidentUncheckedUpdateWithoutFollowUpsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   hearingNotices?: Prisma.CaseHearingNoticeUncheckedUpdateManyWithoutRecipientResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentCreateWithoutHearingNoticesInput = {
@@ -1125,9 +2119,27 @@ export type ResidentCreateWithoutHearingNoticesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentUncheckedCreateWithoutHearingNoticesInput = {
@@ -1150,9 +2162,27 @@ export type ResidentUncheckedCreateWithoutHearingNoticesInput = {
   emailVerified?: boolean
   registeredAt?: Date | string
   updatedAt?: Date | string
+  birthDate?: Date | string | null
+  province?: string | null
+  municipality?: string | null
+  street?: string | null
+  houseNumber?: string | null
+  purok?: string | null
+  homeLatitude?: number | null
+  homeLongitude?: number | null
+  homeLocationSource?: string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: string | null
+  residencyStatus?: string
+  residencySubmittedAt?: Date | string | null
+  residencyVerifiedAt?: Date | string | null
+  residencyVerifiedById?: string | null
+  residencyNote?: string | null
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutResidentInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutResidentInput
   followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutResidentInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedCreateNestedManyWithoutResidentInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutResidentInput
 }
 
 export type ResidentCreateOrConnectWithoutHearingNoticesInput = {
@@ -1191,9 +2221,27 @@ export type ResidentUpdateWithoutHearingNoticesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutResidentNestedInput
 }
 
 export type ResidentUncheckedUpdateWithoutHearingNoticesInput = {
@@ -1216,9 +2264,27 @@ export type ResidentUncheckedUpdateWithoutHearingNoticesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   registeredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  houseNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purok?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  homeLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  homeLocationSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  addressVerificationStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  residencySubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  residencyVerifiedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residencyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cases?: Prisma.CaseUncheckedUpdateManyWithoutResidentNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutResidentNestedInput
   followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutResidentNestedInput
+  residencyEvents?: Prisma.ResidencyEventUncheckedUpdateManyWithoutResidentNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput
 }
 
 
@@ -1231,6 +2297,8 @@ export type ResidentCountOutputType = {
   hearingNotices: number
   verificationTokens: number
   followUps: number
+  residencyEvents: number
+  jurisdictionReferrals: number
 }
 
 export type ResidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1238,6 +2306,8 @@ export type ResidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   hearingNotices?: boolean | ResidentCountOutputTypeCountHearingNoticesArgs
   verificationTokens?: boolean | ResidentCountOutputTypeCountVerificationTokensArgs
   followUps?: boolean | ResidentCountOutputTypeCountFollowUpsArgs
+  residencyEvents?: boolean | ResidentCountOutputTypeCountResidencyEventsArgs
+  jurisdictionReferrals?: boolean | ResidentCountOutputTypeCountJurisdictionReferralsArgs
 }
 
 /**
@@ -1278,6 +2348,20 @@ export type ResidentCountOutputTypeCountFollowUpsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.CaseFollowUpWhereInput
 }
 
+/**
+ * ResidentCountOutputType without action
+ */
+export type ResidentCountOutputTypeCountResidencyEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResidencyEventWhereInput
+}
+
+/**
+ * ResidentCountOutputType without action
+ */
+export type ResidentCountOutputTypeCountJurisdictionReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.JurisdictionReferralWhereInput
+}
+
 
 export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1299,10 +2383,28 @@ export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   emailVerified?: boolean
   registeredAt?: boolean
   updatedAt?: boolean
+  birthDate?: boolean
+  province?: boolean
+  municipality?: boolean
+  street?: boolean
+  houseNumber?: boolean
+  purok?: boolean
+  homeLatitude?: boolean
+  homeLongitude?: boolean
+  homeLocationSource?: boolean
+  addressCheck?: boolean
+  addressVerificationStatus?: boolean
+  residencyStatus?: boolean
+  residencySubmittedAt?: boolean
+  residencyVerifiedAt?: boolean
+  residencyVerifiedById?: boolean
+  residencyNote?: boolean
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
   hearingNotices?: boolean | Prisma.Resident$hearingNoticesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
   followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
+  residencyEvents?: boolean | Prisma.Resident$residencyEventsArgs<ExtArgs>
+  jurisdictionReferrals?: boolean | Prisma.Resident$jurisdictionReferralsArgs<ExtArgs>
   _count?: boolean | Prisma.ResidentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resident"]>
 
@@ -1326,6 +2428,22 @@ export type ResidentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   emailVerified?: boolean
   registeredAt?: boolean
   updatedAt?: boolean
+  birthDate?: boolean
+  province?: boolean
+  municipality?: boolean
+  street?: boolean
+  houseNumber?: boolean
+  purok?: boolean
+  homeLatitude?: boolean
+  homeLongitude?: boolean
+  homeLocationSource?: boolean
+  addressCheck?: boolean
+  addressVerificationStatus?: boolean
+  residencyStatus?: boolean
+  residencySubmittedAt?: boolean
+  residencyVerifiedAt?: boolean
+  residencyVerifiedById?: boolean
+  residencyNote?: boolean
 }, ExtArgs["result"]["resident"]>
 
 export type ResidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1348,6 +2466,22 @@ export type ResidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   emailVerified?: boolean
   registeredAt?: boolean
   updatedAt?: boolean
+  birthDate?: boolean
+  province?: boolean
+  municipality?: boolean
+  street?: boolean
+  houseNumber?: boolean
+  purok?: boolean
+  homeLatitude?: boolean
+  homeLongitude?: boolean
+  homeLocationSource?: boolean
+  addressCheck?: boolean
+  addressVerificationStatus?: boolean
+  residencyStatus?: boolean
+  residencySubmittedAt?: boolean
+  residencyVerifiedAt?: boolean
+  residencyVerifiedById?: boolean
+  residencyNote?: boolean
 }, ExtArgs["result"]["resident"]>
 
 export type ResidentSelectScalar = {
@@ -1370,14 +2504,32 @@ export type ResidentSelectScalar = {
   emailVerified?: boolean
   registeredAt?: boolean
   updatedAt?: boolean
+  birthDate?: boolean
+  province?: boolean
+  municipality?: boolean
+  street?: boolean
+  houseNumber?: boolean
+  purok?: boolean
+  homeLatitude?: boolean
+  homeLongitude?: boolean
+  homeLocationSource?: boolean
+  addressCheck?: boolean
+  addressVerificationStatus?: boolean
+  residencyStatus?: boolean
+  residencySubmittedAt?: boolean
+  residencyVerifiedAt?: boolean
+  residencyVerifiedById?: boolean
+  residencyNote?: boolean
 }
 
-export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentNumber" | "firstName" | "lastName" | "age" | "gender" | "barangay" | "address" | "contactNumber" | "email" | "username" | "clerkId" | "password" | "status" | "riskLevel" | "notes" | "emailVerified" | "registeredAt" | "updatedAt", ExtArgs["result"]["resident"]>
+export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentNumber" | "firstName" | "lastName" | "age" | "gender" | "barangay" | "address" | "contactNumber" | "email" | "username" | "clerkId" | "password" | "status" | "riskLevel" | "notes" | "emailVerified" | "registeredAt" | "updatedAt" | "birthDate" | "province" | "municipality" | "street" | "houseNumber" | "purok" | "homeLatitude" | "homeLongitude" | "homeLocationSource" | "addressCheck" | "addressVerificationStatus" | "residencyStatus" | "residencySubmittedAt" | "residencyVerifiedAt" | "residencyVerifiedById" | "residencyNote", ExtArgs["result"]["resident"]>
 export type ResidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
   hearingNotices?: boolean | Prisma.Resident$hearingNoticesArgs<ExtArgs>
   verificationTokens?: boolean | Prisma.Resident$verificationTokensArgs<ExtArgs>
   followUps?: boolean | Prisma.Resident$followUpsArgs<ExtArgs>
+  residencyEvents?: boolean | Prisma.Resident$residencyEventsArgs<ExtArgs>
+  jurisdictionReferrals?: boolean | Prisma.Resident$jurisdictionReferralsArgs<ExtArgs>
   _count?: boolean | Prisma.ResidentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResidentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1390,6 +2542,8 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     hearingNotices: Prisma.$CaseHearingNoticePayload<ExtArgs>[]
     verificationTokens: Prisma.$EmailVerificationTokenPayload<ExtArgs>[]
     followUps: Prisma.$CaseFollowUpPayload<ExtArgs>[]
+    residencyEvents: Prisma.$ResidencyEventPayload<ExtArgs>[]
+    jurisdictionReferrals: Prisma.$JurisdictionReferralPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1411,6 +2565,47 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     emailVerified: boolean
     registeredAt: Date
     updatedAt: Date
+    /**
+     * Date of birth; age is computed from it.
+     */
+    birthDate: Date | null
+    /**
+     * The residential address, part by part (barangay is the column above).
+     */
+    province: string | null
+    municipality: string | null
+    street: string | null
+    houseNumber: string | null
+    purok: string | null
+    /**
+     * The confirmed home location. Exact: officials with a need only - never on a public map, an export or analytics.
+     */
+    homeLatitude: number | null
+    homeLongitude: number | null
+    /**
+     * MAP (tapped or dragged) | SEARCH (an address search result) | DEVICE (device location, then confirmed) | NONE (manual verification)
+     */
+    homeLocationSource: string | null
+    /**
+     * The server's check of the address at the last submission (lib/jurisdiction.ts LocationCheck).
+     */
+    addressCheck: runtime.JsonValue | null
+    /**
+     * INSIDE | OUTSIDE | INCOMPLETE | NEEDS_REVIEW, from that check.
+     */
+    addressVerificationStatus: string | null
+    /**
+     * INCOMPLETE | PENDING_VERIFICATION | VERIFIED | REJECTED | NEEDS_INFO. Set by the server only:
+     * a resident submits; only a verifier (the captain) approves, rejects or asks for more.
+     */
+    residencyStatus: string
+    residencySubmittedAt: Date | null
+    residencyVerifiedAt: Date | null
+    residencyVerifiedById: string | null
+    /**
+     * The verifier's reason (rejection) or request (more information), shown to the resident.
+     */
+    residencyNote: string | null
   }, ExtArgs["result"]["resident"]>
   composites: {}
 }
@@ -1809,6 +3004,8 @@ export interface Prisma__ResidentClient<T, Null = never, ExtArgs extends runtime
   hearingNotices<T extends Prisma.Resident$hearingNoticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$hearingNoticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseHearingNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   verificationTokens<T extends Prisma.Resident$verificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$verificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   followUps<T extends Prisma.Resident$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  residencyEvents<T extends Prisma.Resident$residencyEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$residencyEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResidencyEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  jurisdictionReferrals<T extends Prisma.Resident$jurisdictionReferralsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resident$jurisdictionReferralsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JurisdictionReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1857,6 +3054,22 @@ export interface ResidentFieldRefs {
   readonly emailVerified: Prisma.FieldRef<"Resident", 'Boolean'>
   readonly registeredAt: Prisma.FieldRef<"Resident", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Resident", 'DateTime'>
+  readonly birthDate: Prisma.FieldRef<"Resident", 'DateTime'>
+  readonly province: Prisma.FieldRef<"Resident", 'String'>
+  readonly municipality: Prisma.FieldRef<"Resident", 'String'>
+  readonly street: Prisma.FieldRef<"Resident", 'String'>
+  readonly houseNumber: Prisma.FieldRef<"Resident", 'String'>
+  readonly purok: Prisma.FieldRef<"Resident", 'String'>
+  readonly homeLatitude: Prisma.FieldRef<"Resident", 'Float'>
+  readonly homeLongitude: Prisma.FieldRef<"Resident", 'Float'>
+  readonly homeLocationSource: Prisma.FieldRef<"Resident", 'String'>
+  readonly addressCheck: Prisma.FieldRef<"Resident", 'Json'>
+  readonly addressVerificationStatus: Prisma.FieldRef<"Resident", 'String'>
+  readonly residencyStatus: Prisma.FieldRef<"Resident", 'String'>
+  readonly residencySubmittedAt: Prisma.FieldRef<"Resident", 'DateTime'>
+  readonly residencyVerifiedAt: Prisma.FieldRef<"Resident", 'DateTime'>
+  readonly residencyVerifiedById: Prisma.FieldRef<"Resident", 'String'>
+  readonly residencyNote: Prisma.FieldRef<"Resident", 'String'>
 }
     
 
@@ -2343,6 +3556,54 @@ export type Resident$followUpsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.CaseFollowUpScalarFieldEnum | Prisma.CaseFollowUpScalarFieldEnum[]
+}
+
+/**
+ * Resident.residencyEvents
+ */
+export type Resident$residencyEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResidencyEvent
+   */
+  select?: Prisma.ResidencyEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResidencyEvent
+   */
+  omit?: Prisma.ResidencyEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResidencyEventInclude<ExtArgs> | null
+  where?: Prisma.ResidencyEventWhereInput
+  orderBy?: Prisma.ResidencyEventOrderByWithRelationInput | Prisma.ResidencyEventOrderByWithRelationInput[]
+  cursor?: Prisma.ResidencyEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResidencyEventScalarFieldEnum | Prisma.ResidencyEventScalarFieldEnum[]
+}
+
+/**
+ * Resident.jurisdictionReferrals
+ */
+export type Resident$jurisdictionReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JurisdictionReferral
+   */
+  select?: Prisma.JurisdictionReferralSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the JurisdictionReferral
+   */
+  omit?: Prisma.JurisdictionReferralOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.JurisdictionReferralInclude<ExtArgs> | null
+  where?: Prisma.JurisdictionReferralWhereInput
+  orderBy?: Prisma.JurisdictionReferralOrderByWithRelationInput | Prisma.JurisdictionReferralOrderByWithRelationInput[]
+  cursor?: Prisma.JurisdictionReferralWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.JurisdictionReferralScalarFieldEnum | Prisma.JurisdictionReferralScalarFieldEnum[]
 }
 
 /**

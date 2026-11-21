@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import {
   Box, Typography, TextField, Button, IconButton, CircularProgress,
@@ -18,6 +18,7 @@ import {
 import { pointForStreet, expandStreetName } from '@/lib/streetPoints';
 import { nearestRoad } from '@/lib/barangayRoads';
 import { hintForStreet } from '@/lib/streetHints';
+import { pointInBoundary, type BoundaryGeometry } from '@/lib/jurisdiction';
 
 /**
  * Where the incident happened, picked off a street map.
@@ -44,16 +45,24 @@ export interface PickedLocation extends ResolvedLocation {
 const ACCENT = '#14b8a6';
 
 /** Built in code so no icon asset has to resolve through the bundler. */
-const pinIcon = L.divIcon({
+const makePin = (color: string, home = false) => L.divIcon({
   className: '',
   html: `<div style="
     width:28px;height:28px;border-radius:50% 50% 50% 0;
-    background:${ACCENT};border:2.5px solid #fff;
+    background:${color};border:2.5px solid #fff;
     transform:rotate(-45deg);box-shadow:0 3px 10px rgba(12,30,70,.45);
-  "></div>`,
+  ">${home ? '<div style="transform:rotate(45deg);color:#fff;font:700 12px/23px sans-serif;text-align:center">H</div>' : ''}</div>`,
   iconSize: [28, 28],
   iconAnchor: [14, 28],
 });
+const pinIcon = makePin(ACCENT);
+/** The home pin: another colour and an "H", so it is never taken for an incident location. */
+export const HOME_COLOR = '#4338ca';
+const homeIcon = makePin(HOME_COLOR, true);
+
+/** A GeoJSON boundary as Leaflet polygon rings ([lat, lng]). */
+export const boundaryRings = (b: BoundaryGeometry): [number, number][][] =>
+  (b.type === 'Polygon' ? [b.coordinates] : b.coordinates).flatMap(p => p.map(ring => ring.map(([lng, lat]) => [lat, lng] as [number, number])));
 
 /** Click anywhere to drop or move the pin. */
 function ClickCapture({ onPick }: { onPick: (lat: number, lng: number) => void }) {
@@ -70,10 +79,14 @@ function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number 
   return null;
 }
 
-export default function IncidentLocationMap({ value, onChange, disabled, focusStreet }: {
+export default function IncidentLocationMap({ value, onChange, disabled, focusStreet, variant = 'incident', boundary = null }: {
   value: PickedLocation | null;
   onChange: (next: PickedLocation | null) => void;
   disabled?: boolean;
+  /** incident (default) or residence - the home location: its own pin and words, never mixed up with an incident's. */
+  variant?: 'incident' | 'residence';
+  /** The official boundary, when one is configured: drawn, and used for the "outside" warning. */
+  boundary?: BoundaryGeometry | null;
   /**
    * A street chosen in the form's dropdown. The map moves to it and drops a
    * pin, so picking "J.P. Rizal St." shows J.P. Rizal St. rather than leaving
@@ -269,7 +282,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       pos => {
         setResolving(false);
         setView({ lat: pos.coords.latitude, lng: pos.coords.longitude, zoom: 18 });
-        setNotice('Map moved to where you are. Tap the spot where the incident happened.');
+        setNotice(variant === 'residence' ? 'Map moved to where you are. Tap your house exactly - being here does not prove residence; an official verifies it.' : 'Map moved to where you are. Tap the spot where the incident happened.');
       },
       () => {
         setResolving(false);
@@ -286,11 +299,13 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
     setView({ lat: BARANGAY_CENTER.lat, lng: BARANGAY_CENTER.lng, zoom: DEFAULT_ZOOM });
   };
 
+  // With an official boundary, outside is decided by it; without one, only a pin far off is noted.
   const outside = useMemo(
     () => value?.chosen && isValidCoordinate(value.latitude, value.longitude)
-      && !isWithinBarangay(value.latitude, value.longitude),
-    [value],
+      && (boundary ? !pointInBoundary(value.latitude, value.longitude, boundary) : !isWithinBarangay(value.latitude, value.longitude)),
+    [value, boundary],
   );
+  const home = variant === 'residence';
 
   const label = { fontSize: '0.78rem', fontWeight: 700, color: '#64748b' };
 
@@ -373,12 +388,15 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             maxZoom={19}
           />
+          {boundary && boundaryRings(boundary).map((ring, i) => (
+            <Polygon key={i} positions={ring} pathOptions={{ color: '#0f766e', weight: 2, fillOpacity: 0.05, dashArray: '6 4' }} interactive={false} />
+          ))}
           <ClickCapture onPick={pick} />
           <Recenter lat={view.lat} lng={view.lng} zoom={view.zoom} />
           {value?.chosen && (
             <Marker
               position={[value.latitude, value.longitude]}
-              icon={pinIcon}
+              icon={home ? homeIcon : pinIcon}
               draggable={!disabled}
               eventHandlers={{
                 dragend: e => { const p = e.target.getLatLng(); pick(p.lat, p.lng); },
@@ -431,7 +449,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       <Box sx={{ px: { xs: 1.25, sm: 1.5 }, pb: { xs: 1.25, sm: 1.5 } }}>
         {!value?.chosen && !problem && (
           <Typography sx={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-            No location selected yet.
+            {home ? 'No home location selected yet. Search your street, or tap your house on the map.' : 'No location selected yet.'}
           </Typography>
         )}
 
@@ -453,16 +471,21 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
         {value?.chosen && (
           <Box sx={{ mt: 1, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-              <Place sx={{ fontSize: 16, color: ACCENT }} />
+              <Place sx={{ fontSize: 16, color: home ? HOME_COLOR : ACCENT }} />
               <Typography sx={{ ...label, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Selected incident location
+                {home ? 'Selected home location' : 'Selected incident location'}
               </Typography>
               {outside && (
-                <Chip label="Outside the barangay" size="small"
+                <Chip label={boundary ? 'Outside the official boundary' : 'Far from the barangay'} size="small"
                   sx={{ ml: 'auto', height: 20, fontSize: '0.68rem', fontWeight: 700, bgcolor: '#fff7ed', color: '#b45309' }} />
               )}
             </Box>
-            {([
+            {(home ? [
+              // The address itself is the form's; the map only gives the point and the road it is on.
+              ['Road on the map', value.street ?? 'Not identified'],
+              ['Latitude', value.latitude.toFixed(6)],
+              ['Longitude', value.longitude.toFixed(6)],
+            ] : [
               ['Street', value.street ?? 'Not identified — type it below'],
               ['Barangay', value.barangay ?? BARANGAY_OF_RECORD],
               ['Municipality', value.municipality ?? '—'],
@@ -477,7 +500,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
                 </Typography>
               </Box>
             ))}
-            {value.mapArea && value.mapArea !== value.barangay && (
+            {!home && value.mapArea && value.mapArea !== value.barangay && (
               <Typography sx={{ fontSize: '0.76rem', color: '#94a3b8', mt: 0.75, lineHeight: 1.5 }}>
                 Map data labels this area {value.mapArea}. Reports filed here belong to
                 {' '}{value.barangay ?? BARANGAY_OF_RECORD}.
