@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Box, Typography, Card, CardContent, Button, Chip, Collapse } from '@mui/material';
 import { HomeWork, ArrowForward } from '@mui/icons-material';
 import ReferralForm from './ReferralForm';
+import ResidentHotlines from '@/components/dashboard/ResidentHotlines';
 
 const NAVY = '#0c1e46';
 const TEAL = '#0f766e';
@@ -51,6 +52,8 @@ export default function ResidencyGate({ status, label, page }: { status: string;
           </Box>
         </CardContent>
       </Card>
+      {/* The hotlines are on the dashboard whatever the residency. */}
+      {page === 'dashboard' && <ResidentHotlines />}
       <Collapse in={refer} unmountOnExit>
         <Card sx={{ borderRadius: 3, boxShadow: 'none', border: '1px solid #e2e8f0' }}>
           <CardContent>

@@ -13,7 +13,7 @@ import {
   TrendingUp, Add, MoreHoriz, Refresh, Shield, Assessment,
   LocationOn, Update, ArrowForward,
 } from '@mui/icons-material';
-import DonutBreakdown from '@/components/charts/DonutBreakdown';
+import ResidentHotlines from '@/components/dashboard/ResidentHotlines';
 import { motion } from 'framer-motion';
 
 const MotionTableRow = motion(TableRow);
@@ -32,7 +32,7 @@ const STATUS_CHIP: Record<string, string> = {
   Open: '#fff7ed', 'In Progress': '#eff6ff', Resolved: '#f0fdf4', Closed: '#f8fafc',
 };
 
-/** Recent reports shown - enough to fill the card beside the chart and the updates. */
+/** Recent reports shown - enough to fill the card beside the hotlines and the updates. */
 const RECENT_ROWS = 10;
 
 function timeAgo(d: string) {
@@ -83,14 +83,6 @@ export default function ResidentDashboard() {
       })
       .catch(() => {});
   }, []);
-
-  // Case distribution for donut
-  const total = stats?.total ?? 0;
-  const donutData = [
-    { name: 'Resolved', value: stats?.resolved ?? 0, color: '#22c55e', href: '/resident/my-cases?status=Resolved,Closed' },
-    { name: 'Ongoing', value: stats?.ongoing ?? 0, color: '#3b82f6', href: '/resident/my-cases?status=In%20Progress' },
-    { name: 'Pending', value: stats?.pending ?? 0, color: '#f59e0b', href: '/resident/my-cases?status=Open' },
-  ];
 
   const statCards = [
     {
@@ -229,7 +221,7 @@ export default function ResidentDashboard() {
       {/* ── Main content row ── */}
       <Grid container spacing={2.5}>
         {/* Recent Reports */}
-        {/* Beside the chart and updates on a wide screen (xl); full width above them below that, so no column is cut off. */}
+        {/* Beside the hotlines and updates on a wide screen (xl); full width above them below that, so no column is cut off. */}
         <Grid size={{ xs: 12, xl: 7 }}>
           <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ p: 2.5, pb: 1.5 }}>
@@ -341,29 +333,8 @@ export default function ResidentDashboard() {
 
         {/* Right column */}
         <Grid size={{ xs: 12, xl: 5 }} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', xl: '1fr' }, gap: 2.5, alignContent: 'start' }}>
-          {/* Case Distribution */}
-          <Card>
-            <CardContent sx={{ p: 2.5 }}>
-              <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0c1e46', mb: 0.25 }}>Case Distribution</Typography>
-              {statsLoading
-                ? <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2, mt: 1 }} />
-                : total === 0
-                ? (
-                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                      <GridView sx={{ fontSize: 36, color: '#e2e8f0' }} />
-                      <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8', mt: 1 }}>No case data yet</Typography>
-                    </Box>
-                  )
-                : (
-                    // Point at a slice or a row to see its share and count in the middle; a row opens those cases.
-                    <Box sx={{ mt: 1.5 }}>
-                      <DonutBreakdown ariaLabel="Your cases by status" centerLabel="Total" maxSize={200}
-                        slices={donutData.map(d => ({ key: d.name, label: d.name, count: d.value, color: d.color, onSelect: () => router.push(d.href) }))} />
-                    </Box>
-                  )
-              }
-            </CardContent>
-          </Card>
+          {/* Emergency Hotlines: in the place the status chart had, beside the reports on a wide screen. */}
+          <ResidentHotlines />
 
           {/* Latest Updates */}
           <Card>

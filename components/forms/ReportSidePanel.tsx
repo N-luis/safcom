@@ -2,12 +2,11 @@
 
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { TipsAndUpdatesOutlined, Timeline, LockOutlined } from '@mui/icons-material';
-import EmergencyHotlines from '@/components/landing/EmergencyHotlines';
 
 /**
  * Beside the File a Report form on wide screens (below it on narrow ones):
- * the emergency hotlines, what happens after submitting, what helps a report,
- * and how it is kept private. Each line describes what SafeComm actually does.
+ * what happens after submitting, what helps a report, and how it is kept
+ * private. (The emergency hotlines are on the resident's dashboard.) Each line describes what SafeComm actually does.
  */
 
 const NAVY = '#0c1e46';
@@ -38,11 +37,6 @@ function Heading({ icon, children }: { icon: React.ReactNode; children: React.Re
 export default function ReportSidePanel() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, sm: 3 }, position: { lg: 'sticky' }, top: { lg: 24 } }}>
-      {/* The landing page's hotlines, on the navy they were designed for. */}
-      <Box sx={{ bgcolor: NAVY, borderRadius: 3, p: 1, '& [data-testid=emergency-hotlines]': { maxWidth: 'none' } }}>
-        <EmergencyHotlines />
-      </Box>
-
       <Card>
         <CardContent sx={{ p: 2.5 }}>
           <Heading icon={<Timeline sx={{ fontSize: 18 }} />}>What happens after you submit</Heading>

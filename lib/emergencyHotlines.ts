@@ -33,3 +33,31 @@ export const QUICK_HOTLINES = [
   quick('fire', 'Fire', 'Bureau of Fire Protection'),
   quick('rescue', 'Rescue', 'Bocaue Rescue / Ambulance'),
 ];
+
+/**
+ * The tel: link for a number as written above, or null when it is not a
+ * number a phone can dial - so a bad entry shows as text to copy, never as a
+ * broken link. Philippine numbers are written locally (09XX-XXX-XXXX mobile,
+ * (0XX) XXX-XXXX landline): the leading 0 becomes +63, which dials the same
+ * number from any phone. A number already in +63 form is kept. An extension
+ * ("loc. 123", "ext. 123") is dialled after a pause (","). Spaces, dashes,
+ * dots and brackets are dropped; anything else makes it invalid. The short
+ * national emergency codes (911, 112, 117) are dialled as they are.
+ */
+export function telHref(number: string | null | undefined): string | null {
+  const raw = (number ?? '').trim();
+  if (!raw) return null;
+  const ext = /\s*(?:ext\.?|loc\.?|local|x)\s*(\d{1,6})\s*$/i.exec(raw);
+  const main = (ext ? raw.slice(0, ext.index) : raw).replace(/[\s\-.()]/g, '');
+  // The national short emergency codes are dialled as they are.
+  if (!ext && /^(911|112|117)$/.test(main)) return `tel:${main}`;
+  let e164: string | null = null;
+  if (/^\+63\d{9,10}$/.test(main)) e164 = main;
+  else if (/^0\d{9,10}$/.test(main)) e164 = `+63${main.slice(1)}`;
+  else if (/^63\d{9,10}$/.test(main)) e164 = `+${main}`;
+  if (!e164) return null;
+  return `tel:${e164}${ext ? `,${ext[1]}` : ''}`;
+}
+
+/** The kind of help a hotline is, when it is one of the three big ones (Police, Fire, Rescue). */
+export const hotlineKind = (name: string) => QUICK_HOTLINES.find(q => q.name === name)?.label ?? null;
