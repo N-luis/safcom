@@ -23,6 +23,7 @@ import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import { MatchLabelChip } from '@/components/cases/CaseMatchesPanel';
 
 const STATUSES = ['Open', 'In Progress', 'Resolved', 'Closed'];
 const RISK_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
@@ -43,6 +44,8 @@ interface CaseRow {
   id: string; caseNumber: string; residentName: string; caseType: string;
   status: string; riskLevel: string; triageStatus?: string | null; barangay: string; description: string;
   notes?: string; filedAt: string; assignedTo?: { name: string } | null;
+  /** Potential Duplicate, Related Case Found, ... (lib/caseMatching.ts) */
+  matchLabel?: string | null;
 }
 
 function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; onClose: () => void }) {
@@ -97,6 +100,7 @@ function CaseDrawer({ c, open, onClose }: { c: CaseRow | null; open: boolean; on
         <Box sx={{ flex: 1 }}>
           <Typography sx={{ fontWeight: 700, fontSize: '0.98rem' }}>{c.caseNumber}</Typography>
           <Typography variant="caption" color="text.secondary">{c.caseType}</Typography>
+          {c.matchLabel && <Box sx={{ mt: 0.5 }}><MatchLabelChip label={c.matchLabel} /></Box>}
         </Box>
         <Chip
           label={c.riskLevel ?? 'Undetermined'}
@@ -367,7 +371,7 @@ export default function CaseManagementPage() {
               ) : (
                 cases.map((c) => (
                   <TableRow key={c.id} sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f8fafc' }, '& td': { py: 1.25, borderBottom: '1px solid #f8fafc' } }} onClick={() => setDrawerCase(c)}>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>{c.matchLabel && c.matchLabel !== 'NO_MATCH' && <Box sx={{ mt: 0.5 }}><MatchLabelChip label={c.matchLabel} /></Box>}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#1d4ed8', flexShrink: 0 }}>

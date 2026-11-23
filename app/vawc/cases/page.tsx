@@ -22,6 +22,7 @@ import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import { TRIAGE, TRIAGE_VALUES, triageOf } from '@/lib/triageLabels';
 import { useCurrentUser } from '@/hooks/useApi';
 import { canSeeVawc } from '@/lib/caseAccess';
+import { MatchLabelChip } from '@/components/cases/CaseMatchesPanel';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -37,6 +38,7 @@ interface CaseRow {
   status: string; riskLevel: string; triageStatus?: string | null; barangay: string; description: string;
   notes: string | null; filedAt: string; updatedAt: string;
   assignedTo: { name: string } | null;
+  matchLabel?: string | null;
 }
 
 function timeAgo(d: string) {
@@ -90,6 +92,7 @@ function CaseDialog({ c, onClose, onSaved, onOpenFull }: {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Assessment sx={{ color: ACCENT }} />
           Case #{c.caseNumber}
+          <MatchLabelChip label={c.matchLabel} />
           <Chip label={c.status} size="small" sx={{ bgcolor: STATUS_BG[c.status], color: STATUS_COLOR[c.status] ?? '#64748b', fontWeight: 700, fontSize: '0.82rem', ml: 'auto' }} />
         </Box>
       </DialogTitle>
@@ -401,7 +404,7 @@ export default function VawcCasesPage() {
                         onClick={() => setSelected(c)}
                         sx={{ cursor: 'pointer', '& td': { py: 1.3, borderBottom: '1px solid #f8fafc' }, '&:hover': { bgcolor: '#fafbfc' } }}
                       >
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography></TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}><Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0c1e46' }}>#{c.caseNumber}</Typography>{c.matchLabel && c.matchLabel !== 'NO_MATCH' && <Box sx={{ mt: 0.5 }}><MatchLabelChip label={c.matchLabel} /></Box>}</TableCell>
                         <TableCell>
                           <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0c1e46' }}>{c.residentName}</Typography>
                         </TableCell>

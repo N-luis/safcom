@@ -41,6 +41,7 @@ import DeskNote, { type ResidentDesk } from '@/components/forms/DeskNote';
 import AddressFields, { emptyAddress, type AddressValue } from '@/components/forms/AddressFields';
 import ReferralForm from '@/components/residency/ReferralForm';
 import { DEFAULT_JURISDICTION, sameName, isJurisdictionBarangay } from '@/lib/jurisdiction';
+import DuplicateCheckDialog, { runDuplicateCheck, type DuplicateCheckResult } from '@/components/forms/DuplicateCheckDialog';
 
 /**
  * Leaflet reaches for window as it loads, so the picker is never rendered on
@@ -224,6 +225,9 @@ export default function ReportCasePage() {
   const aboutOthers = relationshipValue === 'THIRD_PARTY' || relationshipValue === 'ON_BEHALF';
   // The final look before filing. Skipped by the emergency path.
   const [reviewing, setReviewing] = useState<FormData | null>(null);
+  // The check for a similar report already on file, before filing (never for an urgent report).
+  const [dupCheck, setDupCheck] = useState<{ data: FormData; check: DuplicateCheckResult } | null>(null);
+  const [checking, setChecking] = useState(false);
   const descriptionValue = watch('description') ?? '';
 
   /**
@@ -291,6 +295,23 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
     const id = setTimeout(() => setSlow(true), 30_000);
     return () => clearTimeout(id);
   }, [analysing]);
+
+  /**
+   * Before filing: may this repeat a report already on file? Only asks; the
+   * resident decides. A check that is slow or fails files as usual.
+   */
+  const submitChecked = async (data: FormData) => {
+    setChecking(true);
+    const check = await runDuplicateCheck({
+      description: data.description, incidentDate: data.incidentDate || null, street: data.street,
+      latitude: place?.chosen ? place.latitude : null, longitude: place?.chosen ? place.longitude : null,
+      people: [people.affected.fullName, people.reported.fullName],
+    });
+    setChecking(false);
+    setReviewing(null);
+    if (check && check.result !== 'NO_MATCH') { setDupCheck({ data, check }); return; }
+    onSubmit(data);
+  };
 
   const onSubmit = async (data: FormData) => {
     lastSubmission.current = data;
@@ -841,17 +862,33 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           </Button>
           <Button variant={assistState === 'FOLLOW_UP_REQUIRED' ? 'outlined' : 'contained'} startIcon={<Send />}
             color={assistState === 'URGENT' ? 'error' : 'primary'}
-            onClick={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
+            disabled={checking}
+            onClick={() => {
+              const d = reviewing;
+              if (!d) return;
+              // Someone in danger files at once: no check, no further step.
+              if (assistState === 'URGENT') { setReviewing(null); onSubmit(d); return; }
+              void submitChecked(d);
+            }}
             sx={{
               minHeight: 44, width: { xs: '100%', sm: 'auto' }, fontWeight: 700,
               ...(assistState === 'FOLLOW_UP_REQUIRED'
                 ? { borderColor: '#cbd5e1', color: '#475569' }
                 : assistState === 'URGENT' ? {} : { bgcolor: ACCENT, '&:hover': { bgcolor: '#0d9488' } }),
             }}>
-            {assistState === 'URGENT' ? 'Submit now' : assistState === 'FOLLOW_UP_REQUIRED' ? 'Submit without answering' : 'Submit report'}
+            {checking ? 'Checking…' : assistState === 'URGENT' ? 'Submit now' : assistState === 'FOLLOW_UP_REQUIRED' ? 'Submit without answering' : 'Submit report'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {dupCheck && (
+        <DuplicateCheckDialog
+          check={dupCheck.check}
+          onContinue={() => { const d = dupCheck.data; setDupCheck(null); onSubmit(d); }}
+          onReview={id => { setDupCheck(null); router.push(`/resident/my-cases?case=${encodeURIComponent(id)}`); }}
+          onEdit={() => setDupCheck(null)}
+        />
+      )}
 
       <AnalyzingCard
         phase={phase}

@@ -407,3 +407,26 @@ export type CasePangkatMember = Prisma.CasePangkatMemberModel
  * this form's own, exactly as the official typed them.
  */
 export type KpFormRecord = Prisma.KpFormRecordModel
+/**
+ * Model CaseMatch
+ * A possible duplicate or related case: one pair of cases, found by
+ * SafeComm's duplicate and related case detection (lib/caseMatching.ts) and
+ * decided by an official. Stored apart from both cases, which are never
+ * changed, merged or deleted by it. One record per pair, whichever way round
+ * (pairKey), and only within one desk - a blotter case is never paired with a
+ * VAWC case.
+ */
+export type CaseMatch = Prisma.CaseMatchModel
+/**
+ * Model CaseMatchEvent
+ * Everything that happened to a match: detected, each review decision (who,
+ * when, from what to what, why). Insert-only - a trigger refuses any change.
+ */
+export type CaseMatchEvent = Prisma.CaseMatchEventModel
+/**
+ * Model CaseMatchScan
+ * That a case has been checked for duplicates, so a submission is processed
+ * once (a retry, or two requests at once, finds this row). An official may
+ * run the check again on purpose.
+ */
+export type CaseMatchScan = Prisma.CaseMatchScanModel

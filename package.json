@@ -73,7 +73,8 @@
     "test:residentdirectory": "npx tsx --env-file=.env --conditions=react-server tests/residentDirectory.test.ts",
     "test:kpforms": "npx tsx tests/kpForms.test.tsx",
     "test:kpforms:api": "npx tsx --env-file=.env --conditions=react-server tests/kpFormsApi.test.ts",
-    "test:residency": "npx tsx --env-file=.env --conditions=react-server tests/residency.test.ts"
+    "test:residency": "npx tsx --env-file=.env --conditions=react-server tests/residency.test.ts",
+    "test:casematching": "npx tsx --env-file=.env --conditions=react-server tests/caseMatching.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",

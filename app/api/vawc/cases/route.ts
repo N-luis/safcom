@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, after } from 'next/server';
+import { matchLabels, detectForCase } from '@/lib/caseMatchingServer';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
@@ -96,7 +97,8 @@ export async function GET(req: NextRequest) {
       prisma.case.count({ where }),
     ]);
 
-    return successResponse({ cases, ...paginationMeta(total, page, limit), search: searchSummary(search) });
+    const labels = await matchLabels(cases.map(c => c.id), auth.user.role ?? '').catch(() => new Map<string, string | null>());
+    return successResponse({ cases: cases.map(c => ({ ...c, matchLabel: labels.get(c.id) ?? null })), ...paginationMeta(total, page, limit), search: searchSummary(search) });
   } catch {
     return errorResponse('Server error', 500);
   }
@@ -191,6 +193,11 @@ export async function POST(req: NextRequest) {
         color: '#7c3aed',
       },
     });
+
+    // Duplicate and related case detection, after the response (never delays or fails the filing).
+    try {
+      after(async () => { await detectForCase(newCase.id).catch(e => console.error('[case create] duplicate check failed', e instanceof Error ? e.message : 'failed')); });
+    } catch { /* outside a request */ }
 
     return successResponse({ ...newCase, aiRiskAssessment: aiRisk }, 201);
   } catch {

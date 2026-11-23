@@ -431,7 +431,10 @@ export const ModelName = {
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
   CasePangkatMember: 'CasePangkatMember',
-  KpFormRecord: 'KpFormRecord'
+  KpFormRecord: 'KpFormRecord',
+  CaseMatch: 'CaseMatch',
+  CaseMatchEvent: 'CaseMatchEvent',
+  CaseMatchScan: 'CaseMatchScan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -447,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4003,6 +4006,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CaseMatch: {
+      payload: Prisma.$CaseMatchPayload<ExtArgs>
+      fields: Prisma.CaseMatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseMatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseMatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseMatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseMatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        findMany: {
+          args: Prisma.CaseMatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>[]
+        }
+        create: {
+          args: Prisma.CaseMatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        createMany: {
+          args: Prisma.CaseMatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseMatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseMatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        update: {
+          args: Prisma.CaseMatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseMatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseMatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseMatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseMatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseMatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseMatch>
+        }
+        groupBy: {
+          args: Prisma.CaseMatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseMatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseMatchEvent: {
+      payload: Prisma.$CaseMatchEventPayload<ExtArgs>
+      fields: Prisma.CaseMatchEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseMatchEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseMatchEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseMatchEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseMatchEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        findMany: {
+          args: Prisma.CaseMatchEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>[]
+        }
+        create: {
+          args: Prisma.CaseMatchEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        createMany: {
+          args: Prisma.CaseMatchEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseMatchEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseMatchEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        update: {
+          args: Prisma.CaseMatchEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseMatchEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseMatchEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseMatchEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseMatchEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseMatchEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseMatchEvent>
+        }
+        groupBy: {
+          args: Prisma.CaseMatchEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseMatchEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    CaseMatchScan: {
+      payload: Prisma.$CaseMatchScanPayload<ExtArgs>
+      fields: Prisma.CaseMatchScanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CaseMatchScanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CaseMatchScanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        findFirst: {
+          args: Prisma.CaseMatchScanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CaseMatchScanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        findMany: {
+          args: Prisma.CaseMatchScanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>[]
+        }
+        create: {
+          args: Prisma.CaseMatchScanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        createMany: {
+          args: Prisma.CaseMatchScanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CaseMatchScanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>[]
+        }
+        delete: {
+          args: Prisma.CaseMatchScanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        update: {
+          args: Prisma.CaseMatchScanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        deleteMany: {
+          args: Prisma.CaseMatchScanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CaseMatchScanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CaseMatchScanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>[]
+        }
+        upsert: {
+          args: Prisma.CaseMatchScanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CaseMatchScanPayload>
+        }
+        aggregate: {
+          args: Prisma.CaseMatchScanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCaseMatchScan>
+        }
+        groupBy: {
+          args: Prisma.CaseMatchScanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchScanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CaseMatchScanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CaseMatchScanCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5102,6 +5327,65 @@ export const KpFormRecordScalarFieldEnum = {
 export type KpFormRecordScalarFieldEnum = (typeof KpFormRecordScalarFieldEnum)[keyof typeof KpFormRecordScalarFieldEnum]
 
 
+export const CaseMatchScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  matchedCaseId: 'matchedCaseId',
+  pairKey: 'pairKey',
+  desk: 'desk',
+  classification: 'classification',
+  status: 'status',
+  matchingEstimate: 'matchingEstimate',
+  indicators: 'indicators',
+  ruleIndicators: 'ruleIndicators',
+  evidence: 'evidence',
+  matchingInformation: 'matchingInformation',
+  differences: 'differences',
+  uncertainties: 'uncertainties',
+  explanation: 'explanation',
+  analysis: 'analysis',
+  aiModel: 'aiModel',
+  primaryCaseId: 'primaryCaseId',
+  detectedAt: 'detectedAt',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewReason: 'reviewReason',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseMatchScalarFieldEnum = (typeof CaseMatchScalarFieldEnum)[keyof typeof CaseMatchScalarFieldEnum]
+
+
+export const CaseMatchEventScalarFieldEnum = {
+  id: 'id',
+  matchId: 'matchId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  reason: 'reason',
+  primaryCaseId: 'primaryCaseId',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseMatchEventScalarFieldEnum = (typeof CaseMatchEventScalarFieldEnum)[keyof typeof CaseMatchEventScalarFieldEnum]
+
+
+export const CaseMatchScanScalarFieldEnum = {
+  caseId: 'caseId',
+  status: 'status',
+  candidates: 'candidates',
+  matches: 'matches',
+  aiStatus: 'aiStatus',
+  attempts: 'attempts',
+  scannedAt: 'scannedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseMatchScanScalarFieldEnum = (typeof CaseMatchScanScalarFieldEnum)[keyof typeof CaseMatchScanScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5404,6 +5688,9 @@ export type GlobalOmitConfig = {
   casePangkat?: Prisma.CasePangkatOmit
   casePangkatMember?: Prisma.CasePangkatMemberOmit
   kpFormRecord?: Prisma.KpFormRecordOmit
+  caseMatch?: Prisma.CaseMatchOmit
+  caseMatchEvent?: Prisma.CaseMatchEventOmit
+  caseMatchScan?: Prisma.CaseMatchScanOmit
 }
 
 /* Types for Logging */

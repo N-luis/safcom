@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, after } from 'next/server';
+import { matchLabels, detectForCase } from '@/lib/caseMatchingServer';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse, paginationMeta } from '@/lib/auth';
@@ -110,7 +111,9 @@ export async function GET(req: NextRequest) {
       ]);
     }
 
-    return successResponse({ cases: cases.map(withholdReporter), pagination: paginationMeta(total, page, limit), search: searchSummary(search) });
+    // Potential Duplicate / Related Case Found / ... for Case Monitoring - from the matches this role may see.
+    const labels = await matchLabels(cases.map(c => c.id), auth.user.role ?? '').catch(() => new Map<string, string | null>());
+    return successResponse({ cases: cases.map(withholdReporter).map(c => ({ ...c, matchLabel: labels.get(c.id) ?? null })), pagination: paginationMeta(total, page, limit), search: searchSummary(search) });
   } catch {
     return errorResponse('Server error', 500);
   }
@@ -202,6 +205,11 @@ export async function POST(req: NextRequest) {
         color: '#3b82f6',
       },
     });
+
+    // Duplicate and related case detection, after the response (never delays or fails the filing).
+    try {
+      after(async () => { await detectForCase(newCase.id).catch(e => console.error('[case create] duplicate check failed', e instanceof Error ? e.message : 'failed')); });
+    } catch { /* outside a request */ }
 
     return successResponse({ ...newCase, aiRiskAssessment: aiRisk }, 201);
   } catch {

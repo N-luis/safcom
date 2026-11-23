@@ -98,7 +98,10 @@ export const ModelName = {
   AcknowledgementLetter: 'AcknowledgementLetter',
   CasePangkat: 'CasePangkat',
   CasePangkatMember: 'CasePangkatMember',
-  KpFormRecord: 'KpFormRecord'
+  KpFormRecord: 'KpFormRecord',
+  CaseMatch: 'CaseMatch',
+  CaseMatchEvent: 'CaseMatchEvent',
+  CaseMatchScan: 'CaseMatchScan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1175,6 +1178,65 @@ export const KpFormRecordScalarFieldEnum = {
 } as const
 
 export type KpFormRecordScalarFieldEnum = (typeof KpFormRecordScalarFieldEnum)[keyof typeof KpFormRecordScalarFieldEnum]
+
+
+export const CaseMatchScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  matchedCaseId: 'matchedCaseId',
+  pairKey: 'pairKey',
+  desk: 'desk',
+  classification: 'classification',
+  status: 'status',
+  matchingEstimate: 'matchingEstimate',
+  indicators: 'indicators',
+  ruleIndicators: 'ruleIndicators',
+  evidence: 'evidence',
+  matchingInformation: 'matchingInformation',
+  differences: 'differences',
+  uncertainties: 'uncertainties',
+  explanation: 'explanation',
+  analysis: 'analysis',
+  aiModel: 'aiModel',
+  primaryCaseId: 'primaryCaseId',
+  detectedAt: 'detectedAt',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewReason: 'reviewReason',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseMatchScalarFieldEnum = (typeof CaseMatchScalarFieldEnum)[keyof typeof CaseMatchScalarFieldEnum]
+
+
+export const CaseMatchEventScalarFieldEnum = {
+  id: 'id',
+  matchId: 'matchId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  reason: 'reason',
+  primaryCaseId: 'primaryCaseId',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseMatchEventScalarFieldEnum = (typeof CaseMatchEventScalarFieldEnum)[keyof typeof CaseMatchEventScalarFieldEnum]
+
+
+export const CaseMatchScanScalarFieldEnum = {
+  caseId: 'caseId',
+  status: 'status',
+  candidates: 'candidates',
+  matches: 'matches',
+  aiStatus: 'aiStatus',
+  attempts: 'attempts',
+  scannedAt: 'scannedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseMatchScanScalarFieldEnum = (typeof CaseMatchScanScalarFieldEnum)[keyof typeof CaseMatchScanScalarFieldEnum]
 
 
 export const SortOrder = {

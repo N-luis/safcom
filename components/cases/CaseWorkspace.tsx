@@ -29,6 +29,7 @@ import ReporterInfoPanel from '@/components/cases/ReporterInfoPanel';
 import CaseRecordsPanel from '@/components/cases/CaseRecordsPanel';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
 import HearingsPanel from '@/components/cases/HearingsPanel';
+import CaseMatchesPanel from '@/components/cases/CaseMatchesPanel';
 import { ProceedingsPanel } from '@/components/vawcAppointments/VawcProceedings';
 import { VAWC_TYPES } from '@/lib/vawcTypes';
 import AiAssessmentHistory from '@/components/cases/AiAssessmentHistory';
@@ -1036,6 +1037,9 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
 
           {/* Reporter information: masked until "View Resident Information" - access decided and logged on the server */}
           <ReporterInfoPanel caseId={id} onAssigned={onSaved} />
+
+          {/* Potential duplicate and related cases: suggestions for an official to decide (only matches this official may see) */}
+          <CaseMatchesPanel caseId={id} basePath={basePath} caseFiledAt={caseData.filedAt} />
 
           {/* Report details, the people in it, safety assessment, referrals - officer-only */}
           <CaseRecordsPanel caseId={id} onChanged={onSaved} formPath={`${basePath}/${id}/referrals`} />

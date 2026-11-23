@@ -25,6 +25,7 @@ import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncid
 import { parseCaseSearch, searchSummary } from '@/lib/caseSearch';
 import { caseSearchWhere } from '@/lib/caseSearchServer';
 import { residencyOf, notVerifiedBody, checkAgainstJurisdiction } from '@/lib/jurisdictionServer';
+import { detectForCase } from '@/lib/caseMatchingServer';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
 
 /**
@@ -656,6 +657,14 @@ export async function POST(req: NextRequest) {
     try {
       after(async () => { await draftQuietly(newCase.id, { useAi: true, by: { residentId: auth.resident.residentId }, chargeTo: auth.resident.residentId, reason: 'Organized after filing' }); });
     } catch { /* outside a request (tests): the records-only draft stands; the cron retries */ }
+    // Duplicate and related case detection, after the response: filing never
+    // waits on it, and a failure leaves the report exactly as filed (the
+    // check is recorded as failed and an official can run it again).
+    try {
+      after(async () => {
+        await detectForCase(newCase.id).catch(e => console.error('[Resident case create] duplicate check failed', e instanceof Error ? e.message : 'failed'));
+      });
+    } catch { /* outside a request (tests): the tests run the check themselves */ }
 
     return rSuccess({
       ...newCase,

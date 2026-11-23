@@ -165,6 +165,10 @@ model Case {
   reportDrafts     ReportDraft[]
   clarifications   ClarificationRequest[]
   interviews       CaseInterview[]
+  /// Duplicate and related case detection (lib/caseMatching.ts): the pairs this case is in.
+  matchesAsSubject   CaseMatch[]    @relation("CaseMatchSubject")
+  matchesAsCandidate CaseMatch[]    @relation("CaseMatchCandidate")
+  matchScan          CaseMatchScan?
 
   /// The resident form's key for one submission: a retried submit (a lost
   /// response, a second tap) returns the case already filed instead of
@@ -1683,4 +1687,92 @@ model KpFormRecord {
 
   @@index([walkInReportId, updatedAt])
   @@map("kp_form_records")
+}
+
+/// A possible duplicate or related case: one pair of cases, found by
+/// SafeComm's duplicate and related case detection (lib/caseMatching.ts) and
+/// decided by an official. Stored apart from both cases, which are never
+/// changed, merged or deleted by it. One record per pair, whichever way round
+/// (pairKey), and only within one desk - a blotter case is never paired with a
+/// VAWC case.
+model CaseMatch {
+  id                  String           @id @default(cuid())
+  /// The case that was checked (the newer report).
+  caseId              String
+  case                Case             @relation("CaseMatchSubject", fields: [caseId], references: [id], onDelete: Cascade)
+  /// The existing case it may duplicate or relate to.
+  matchedCaseId       String
+  matchedCase         Case             @relation("CaseMatchCandidate", fields: [matchedCaseId], references: [id], onDelete: Cascade)
+  /// "<smaller id>|<larger id>": one record per pair.
+  pairKey             String           @unique
+  /// BLOTTER | VAWC - both cases are on this desk.
+  desk                String
+  /// POTENTIAL_DUPLICATE | RELATED_CASE
+  classification      String
+  /// PENDING_REVIEW | FURTHER_REVIEW | VERIFIED_DUPLICATE | RELATED | NOT_DUPLICATE
+  status              String           @default("PENDING_REVIEW")
+  /// 0-1: how much the reports have in common by the indicators - an estimate, not a probability.
+  matchingEstimate    Float
+  /// The indicators shown (narrative, incident_date, location, people_involved, circumstances: HIGH | MEDIUM | LOW).
+  indicators          Json
+  /// The indicators the database evidence gave, before any AI reading.
+  ruleIndicators      Json
+  /// The evidence measured (similarities, day gap, distance) - no names, no narrative.
+  evidence            Json
+  matchingInformation String[]
+  differences         String[]
+  uncertainties       String[]
+  explanation         String
+  /// AI (Groq read the pair; validated) | RULES (the AI was off, failed or disagreed with the evidence)
+  analysis            String
+  aiModel             String?
+  /// For a verified duplicate: the case the barangay continues on.
+  primaryCaseId       String?
+  detectedAt          DateTime         @default(now())
+  reviewedById        String?
+  reviewedAt          DateTime?
+  reviewReason        String?
+  updatedAt           DateTime         @updatedAt
+  events              CaseMatchEvent[]
+
+  @@index([caseId])
+  @@index([matchedCaseId])
+  @@index([status])
+}
+
+/// Everything that happened to a match: detected, each review decision (who,
+/// when, from what to what, why). Insert-only - a trigger refuses any change.
+model CaseMatchEvent {
+  id            String    @id @default(cuid())
+  matchId       String
+  match         CaseMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  /// detected | reviewed | redetected
+  kind          String
+  /// official | system
+  actorType     String
+  actorId       String?
+  fromStatus    String?
+  toStatus      String?
+  reason        String?
+  primaryCaseId String?
+  createdAt     DateTime  @default(now())
+
+  @@index([matchId, createdAt])
+}
+
+/// That a case has been checked for duplicates, so a submission is processed
+/// once (a retry, or two requests at once, finds this row). An official may
+/// run the check again on purpose.
+model CaseMatchScan {
+  caseId     String   @id
+  case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  /// RUNNING | DONE | FAILED
+  status     String
+  candidates Int      @default(0)
+  matches    Int      @default(0)
+  /// How the AI step went: ok | off | rate_limited | error ... (lib/aiClassifier.ts statuses), or none (no candidate needed it).
+  aiStatus   String?
+  attempts   Int      @default(1)
+  scannedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

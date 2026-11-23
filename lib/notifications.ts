@@ -11,7 +11,7 @@ export const RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY = 'resident_notifications_last
  */
 export const RESIDENT_ACTIVITY_TYPES = [
   'case_filed', 'case', 'vawc_status_changed', 'category_changed', 'category_confirmed',
-  'assignment', 'follow_up', 'hearing', 'clarification_request',
+  'assignment', 'follow_up', 'hearing', 'clarification_request', 'case_duplicate_confirmed', 'case_duplicate_withdrawn',
 ] as const;
 
 /** An official's follow-up entry, as the notice about it needs it. */
@@ -93,6 +93,15 @@ export function residentNotice(
     // General words only - never what was asked. The questions are in the
     // report details, behind the resident's own login (safer for VAWC too).
     return { message: 'An official reviewing your report needs clarification. Please open your case to review and respond.', entryLabel: 'Additional Information Requested' };
+  }
+
+  if (type === 'case_duplicate_confirmed') {
+    // General words only - never the other report, its reference, who filed it or what it says.
+    return { message: 'An official reviewed your report and found it describes the same incident as another report already on file. Your report is kept on record, and the barangay continues handling the incident on one case. Open your case if you have questions or new information.', entryLabel: 'Report Reviewed as a Duplicate' };
+  }
+
+  if (type === 'case_duplicate_withdrawn') {
+    return { message: 'An official corrected an earlier review: your report is handled as a report of its own, not as a duplicate.', entryLabel: 'Duplicate Review Corrected' };
   }
 
   if (type === 'assignment') {
