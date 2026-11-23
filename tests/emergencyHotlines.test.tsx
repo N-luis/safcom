@@ -1,12 +1,13 @@
 /**
  * The landing page's Emergency Hotlines, as rendered: every number exactly as
- * given, one copy button each, three big buttons, and no click-to-call.
+ * given, each with its own call link (tel:) and its own copy button, three big
+ * cards, and the same look as before.
  * Run with:  npm run test:hotlines      No database. Public numbers only.
  */
 import fs from 'fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import EmergencyHotlines from '../components/landing/EmergencyHotlines';
-import { EMERGENCY_HOTLINES, QUICK_HOTLINES } from '../lib/emergencyHotlines';
+import { EMERGENCY_HOTLINES, QUICK_HOTLINES, telHref } from '../lib/emergencyHotlines';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -35,14 +36,20 @@ ok('the three big buttons are police, fire and rescue, in that order', JSON.stri
 const html = renderToStaticMarkup(<EmergencyHotlines />);
 const quickNumbers = new Set(QUICK.map(q => q[2]));
 const quickNames = new Set(QUICK.map(q => q[1]));
-ok('titled Emergency Hotlines, with the subtitle', html.includes('Emergency Hotlines') && html.includes('Tap a number to copy'));
+ok('titled Emergency Hotlines, with the subtitle saying a tap calls', html.includes('Emergency Hotlines') && html.includes('Tap a number to call · copy icon to copy'));
 ok('every contact name is shown in the list; the big three also on their button', EXPECTED.every(([name]) => count(html, `>${name}<`) === (quickNames.has(name) ? 2 : 1)));
 ok('every number is shown as written; the big three also on their button', numbers.every(n => count(html, `>${n}<`) === (quickNumbers.has(n) ? 2 : 1)), numbers.filter(n => count(html, `>${n}<`) < 1).join());
 ok('one copy button per number, each naming only its own number', EXPECTED.every(([name, list]) => list.every(n => html.includes(`aria-label="Copy ${name} number ${n}"`))));
 ok('the big buttons copy their own number', QUICK.every(([label, name, n]) => html.includes(`aria-label="Copy ${label}, ${name}, number ${n}"`)));
-ok('15 buttons: 3 big, 1 toggle, 11 in the list', count(html, '<button') === 15, String(count(html, '<button')));
+ok('15 buttons: 3 copy on the cards, 1 toggle, 11 copy in the list', count(html, '<button') === 15, String(count(html, '<button')));
 ok('the toggle starts collapsed and says what it controls', html.includes('aria-expanded="false"') && html.includes('aria-controls=') && html.includes('View all hotlines'));
-ok('no click-to-call: no links at all', !/tel:/i.test(html) && !html.includes('<a '));
+const tel = (n: string) => `tel:+63${n.replace(/[\s\-.()]/g, '').slice(1)}`;
+ok('every number is dialable as written (local 09.. and (044) forms become +63)', numbers.every(n => telHref(n) === tel(n)), numbers.filter(n => telHref(n) !== tel(n)).join());
+ok('every list number calls its own number, and only that number', EXPECTED.every(([name, list]) => list.every(n => html.includes(`href="${tel(n)}"`) && html.includes(`aria-label="Call ${name}, ${n}"`))));
+ok('the big cards call their own number', QUICK.every(([label, name, n]) => html.includes(`aria-label="Call ${label}, ${name}, ${n}"`)));
+ok('14 call links: 3 big cards and 11 in the list - and nothing else is a link', count(html, '<a ') === 14 && count(html, 'href="tel:') === 14, String(count(html, '<a ')));
+ok('no button inside a link (each copy button is its own control)', !/<a [^>]*>(?:(?!<\/a>).)*<button/s.test(html));
+ok('nothing says a call was made', !/calling\.\.\.|call made|connected/i.test(html));
 ok('nothing says copied before a click', !html.includes('Copied'));
 
 const page = fs.readFileSync('app/login/page.tsx', 'utf8');

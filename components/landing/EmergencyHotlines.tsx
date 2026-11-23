@@ -4,12 +4,22 @@ import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } f
 import { Box, ButtonBase, Collapse, Typography } from '@mui/material';
 import { Add, ContentCopy, ExpandMore, LocalFireDepartment, LocalPhone, Shield } from '@mui/icons-material';
 import { copyText } from '@/lib/clipboard';
-import { EMERGENCY_HOTLINES, QUICK_HOTLINES, type QuickKind } from '@/lib/emergencyHotlines';
+import { EMERGENCY_HOTLINES, QUICK_HOTLINES, telHref, type QuickKind } from '@/lib/emergencyHotlines';
 
 /**
- * The landing page's Emergency Hotlines: three big buttons for police, fire
- * and rescue, and the full list behind "View all hotlines". Every number is
- * one button that copies that number only. Deliberately not a tel: link.
+ * The landing page's Emergency Hotlines: three big cards for police, fire
+ * and rescue, and the full list behind "View all hotlines".
+ *
+ * Tapping a card or a number calls it: a plain tel: link to that number
+ * only (lib/emergencyHotlines.ts telHref), so the phone opens its dialer
+ * with the number ready and the person starts the call there. SafeComm
+ * never places a call or says one was made. The copy icon beside each
+ * number is its own button and copies that number only. A number that
+ * cannot be dialled gets no link: tapping it copies, as before.
+ *
+ * The link is "stretched" over its card or row (a ::after covering it), and
+ * the copy button sits above that layer - so the look is unchanged and no
+ * button is nested inside a link.
  */
 
 const COPIED_MS = 1500;
@@ -18,7 +28,12 @@ const FAILED_MS = 6000;
 const LINE = 'rgba(255,255,255,0.1)';
 const GREEN = '#4ade80';
 const AMBER = '#fbbf24';
-const focusRing = { '&.Mui-focusVisible': { outline: '2px solid #60a5fa', outlineOffset: 1 } };
+const RING = { outline: '2px solid #60a5fa', outlineOffset: 1 };
+const focusRing = { '&.Mui-focusVisible': RING };
+/** The link (or, for a number that cannot be dialled, the copy button) covers its whole card or row. */
+const stretched = { position: 'static', '&::after': { content: '""', position: 'absolute', inset: 0, borderRadius: 'inherit' } } as const;
+/** Above the stretched layer, so the copy button gets its own taps. */
+const above = { position: 'relative', zIndex: 1 } as const;
 
 const QUICK_STYLE: Record<QuickKind, { icon: ReactNode; color: string }> = {
   police: { icon: <Shield sx={{ fontSize: 20 }} />, color: '#60a5fa' },
@@ -34,9 +49,23 @@ function CopyState({ state }: { state: Result | null }) {
   return <ContentCopy className="copy-icon" sx={{ fontSize: 15, color: '#93c5fd', opacity: 0.75 }} />;
 }
 
+/** Whether this device has a mouse and no touch screen - it may have no calling app. */
+function useDesktop() {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia?.('(pointer: fine) and (hover: hover)');
+    const sync = () => setDesktop(Boolean(mq?.matches));
+    sync();
+    mq?.addEventListener?.('change', sync);
+    return () => mq?.removeEventListener?.('change', sync);
+  }, []);
+  return desktop;
+}
+
 export default function EmergencyHotlines() {
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const desktop = useDesktop();
   const listId = useId();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Only the latest click may report: an earlier one can finish after it.
@@ -44,7 +73,7 @@ export default function EmergencyHotlines() {
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
-  /** `slot` tells the big button and the list row for one number apart. */
+  /** `slot` tells the big card and the list row for one number apart. */
   const copy = async (e: MouseEvent<HTMLElement>, slot: string, name: string, number: string) => {
     const button = e.currentTarget;
     const attempt = ++latest.current;
@@ -54,7 +83,7 @@ export default function EmergencyHotlines() {
     button.focus({ preventScroll: true });
     if (!ok) {
       // Nothing reached the clipboard: select the number so it can be copied by hand.
-      const text = button.querySelector('[data-number]');
+      const text = button.closest('[data-hotline]')?.querySelector('[data-number]');
       const selection = window.getSelection();
       if (text && selection) {
         const range = document.createRange();
@@ -84,19 +113,22 @@ export default function EmergencyHotlines() {
           <Typography id="emergency-hotlines-title" component="h2" sx={{ fontWeight: 700, color: 'white', fontSize: '1.05rem', lineHeight: 1.25 }}>
             Emergency Hotlines
           </Typography>
-          <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.78rem' }}>Tap a number to copy</Typography>
+          <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.78rem' }}>
+            {desktop ? 'Click a number to call · copy icon to copy' : 'Tap a number to call · copy icon to copy'}
+          </Typography>
         </Box>
       </Box>
 
-      {/* The three big buttons: a row, or stacked on a phone. */}
+      {/* The three big cards: a row, or stacked on a phone. */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(3, minmax(0, 1fr))' }, gap: 1 }}>
         {QUICK_HOTLINES.map(q => {
           const style = QUICK_STYLE[q.kind];
           const slot = `quick:${q.number}`;
+          const href = telHref(q.number);
           return (
-            <ButtonBase key={q.kind} type="button" title="Copy Number" aria-label={`Copy ${q.label}, ${q.name}, number ${q.number}`}
-              onClick={e => void copy(e, slot, q.name, q.number)}
+            <Box key={q.kind} data-hotline data-testid={`quick-${q.kind}`}
               sx={{
+                position: 'relative',
                 // A row on a phone; a column above it, labels at the top and the number at the bottom,
                 // so the three line up even when an agency name wraps.
                 display: { xs: 'grid', sm: 'flex' }, flexDirection: 'column', justifyContent: 'flex-start',
@@ -106,7 +138,7 @@ export default function EmergencyHotlines() {
                 transition: 'background 0.15s ease, border-color 0.15s ease',
                 '&:hover': { background: 'rgba(255,255,255,0.11)', borderColor: `${style.color}80` },
                 '&:hover .copy-icon': { opacity: 1 },
-                ...focusRing,
+                '&:has(.stretch.Mui-focusVisible)': RING,
               }}>
               <Box component="span" aria-hidden sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', color: style.color, background: `${style.color}26` }}>
                 {style.icon}
@@ -116,15 +148,32 @@ export default function EmergencyHotlines() {
                 <Box component="span" sx={{ display: 'block', color: 'rgba(255,255,255,0.68)', fontSize: '0.72rem', lineHeight: 1.25 }}>{q.name}</Box>
               </Box>
               <Box component="span" sx={{ display: 'grid', justifyItems: { xs: 'end', sm: 'center' }, rowGap: 0.25, mt: { sm: 'auto' }, pt: { sm: 0.5 } }}>
-                <Box component="span" data-number sx={{ fontWeight: 700, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', userSelect: 'text', fontSize: { xs: '0.92rem', sm: '0.82rem', md: '0.74rem', lg: '0.84rem' } }}>
-                  {q.number}
-                </Box>
+                {href ? (
+                  <ButtonBase component="a" href={href} className="stretch" title={desktop ? "Call - opens your calling app if this computer has one" : "Call"} aria-label={`Call ${q.label}, ${q.name}, ${q.number}`}
+                    disableRipple sx={{ ...stretched, color: 'inherit', font: 'inherit', borderRadius: 2 }}>
+                    <Box component="span" data-number sx={{ fontWeight: 700, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', userSelect: 'text', fontSize: { xs: '0.92rem', sm: '0.82rem', md: '0.74rem', lg: '0.84rem' } }}>
+                      {q.number}
+                    </Box>
+                  </ButtonBase>
+                ) : (
+                  <ButtonBase type="button" className="stretch" title="Copy Number" aria-label={`Copy ${q.label}, ${q.name}, number ${q.number}`}
+                    onClick={e => void copy(e, slot, q.name, q.number)} disableRipple sx={{ ...stretched, color: 'inherit', font: 'inherit', borderRadius: 2 }}>
+                    <Box component="span" data-number sx={{ fontWeight: 700, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', userSelect: 'text', fontSize: { xs: '0.92rem', sm: '0.82rem', md: '0.74rem', lg: '0.84rem' } }}>
+                      {q.number}
+                    </Box>
+                  </ButtonBase>
+                )}
                 {/* A fixed height, so "Copied ✓" does not move the card. */}
-                <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', height: 18, fontSize: '0.72rem', fontWeight: 700 }}>
+                <ButtonBase type="button" title="Copy Number" aria-label={`Copy ${q.label}, ${q.name}, number ${q.number}`}
+                  onClick={e => void copy(e, slot, q.name, q.number)}
+                  sx={{ ...above, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 18, minWidth: 28, px: 0.5, borderRadius: 1,
+                    fontSize: '0.72rem', fontWeight: 700, fontFamily: 'inherit', ...focusRing,
+                    // A bigger tap target than it looks, without moving anything.
+                    '&::before': { content: '""', position: 'absolute', inset: '-8px -6px' } }}>
                   <CopyState state={stateOf(slot)} />
-                </Box>
+                </ButtonBase>
               </Box>
-            </ButtonBase>
+            </Box>
           );
         })}
       </Box>
@@ -156,24 +205,40 @@ export default function EmergencyHotlines() {
               <Box>
                 {h.numbers.map(number => {
                   const slot = `list:${number}`;
+                  const href = telHref(number);
+                  const numberText = (
+                    <Box component="span" data-number sx={{ fontSize: '0.9rem', fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', userSelect: 'text' }}>
+                      {number}
+                    </Box>
+                  );
                   return (
-                    <ButtonBase key={number} type="button" title="Copy Number" aria-label={`Copy ${h.name} number ${number}`}
-                      onClick={e => void copy(e, slot, h.name, number)}
+                    <Box key={number} data-hotline
                       sx={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.5,
-                        width: '100%', minHeight: { xs: 40, sm: 32 }, px: 0.75, borderRadius: 1, color: 'white',
+                        position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.5,
+                        width: '100%', minHeight: { xs: 40, sm: 32 }, px: 0.75, borderRadius: 1, color: 'white', boxSizing: 'border-box',
                         '&:hover': { background: 'rgba(255,255,255,0.08)' },
                         '&:hover .copy-icon': { opacity: 1 },
-                        ...focusRing,
+                        '&:has(.stretch.Mui-focusVisible)': RING,
                       }}>
-                      <Box component="span" data-number sx={{ fontSize: '0.9rem', fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', userSelect: 'text' }}>
-                        {number}
-                      </Box>
+                      {href ? (
+                        <ButtonBase component="a" href={href} className="stretch" title={desktop ? "Call - opens your calling app if this computer has one" : "Call"} aria-label={`Call ${h.name}, ${number}`}
+                          disableRipple sx={{ ...stretched, color: 'inherit', font: 'inherit', borderRadius: 1 }}>
+                          {numberText}
+                        </ButtonBase>
+                      ) : (
+                        <ButtonBase type="button" className="stretch" title="Copy Number" aria-label={`Copy ${h.name} number ${number}`}
+                          onClick={e => void copy(e, slot, h.name, number)} disableRipple sx={{ ...stretched, color: 'inherit', font: 'inherit', borderRadius: 1 }}>
+                          {numberText}
+                        </ButtonBase>
+                      )}
                       {/* A fixed width, so "Copied ✓" does not move the number. */}
-                      <Box component="span" sx={{ display: 'inline-flex', justifyContent: 'flex-end', width: 62, flexShrink: 0, fontSize: '0.72rem', fontWeight: 700 }}>
+                      <ButtonBase type="button" title="Copy Number" aria-label={`Copy ${h.name} number ${number}`}
+                        onClick={e => void copy(e, slot, h.name, number)}
+                        sx={{ ...above, display: 'inline-flex', justifyContent: 'flex-end', width: 62, flexShrink: 0, minHeight: 28, borderRadius: 1,
+                          fontSize: '0.72rem', fontWeight: 700, fontFamily: 'inherit', ...focusRing }}>
                         <CopyState state={stateOf(slot)} />
-                      </Box>
-                    </ButtonBase>
+                      </ButtonBase>
+                    </Box>
                   );
                 })}
               </Box>
