@@ -50,8 +50,11 @@ export type ResidentMinAggregateOutputType = {
   contactNumber: string | null
   email: string | null
   username: string | null
+  supabaseUserId: string | null
   clerkId: string | null
   password: string | null
+  altContactNumber: string | null
+  postalCode: string | null
   status: string | null
   riskLevel: string | null
   notes: string | null
@@ -87,8 +90,11 @@ export type ResidentMaxAggregateOutputType = {
   contactNumber: string | null
   email: string | null
   username: string | null
+  supabaseUserId: string | null
   clerkId: string | null
   password: string | null
+  altContactNumber: string | null
+  postalCode: string | null
   status: string | null
   riskLevel: string | null
   notes: string | null
@@ -124,8 +130,11 @@ export type ResidentCountAggregateOutputType = {
   contactNumber: number
   email: number
   username: number
+  supabaseUserId: number
   clerkId: number
   password: number
+  altContactNumber: number
+  postalCode: number
   status: number
   riskLevel: number
   notes: number
@@ -176,8 +185,11 @@ export type ResidentMinAggregateInputType = {
   contactNumber?: true
   email?: true
   username?: true
+  supabaseUserId?: true
   clerkId?: true
   password?: true
+  altContactNumber?: true
+  postalCode?: true
   status?: true
   riskLevel?: true
   notes?: true
@@ -213,8 +225,11 @@ export type ResidentMaxAggregateInputType = {
   contactNumber?: true
   email?: true
   username?: true
+  supabaseUserId?: true
   clerkId?: true
   password?: true
+  altContactNumber?: true
+  postalCode?: true
   status?: true
   riskLevel?: true
   notes?: true
@@ -250,8 +265,11 @@ export type ResidentCountAggregateInputType = {
   contactNumber?: true
   email?: true
   username?: true
+  supabaseUserId?: true
   clerkId?: true
   password?: true
+  altContactNumber?: true
+  postalCode?: true
   status?: true
   riskLevel?: true
   notes?: true
@@ -375,8 +393,11 @@ export type ResidentGroupByOutputType = {
   contactNumber: string | null
   email: string | null
   username: string | null
+  supabaseUserId: string | null
   clerkId: string | null
   password: string | null
+  altContactNumber: string | null
+  postalCode: string | null
   status: string
   riskLevel: string
   notes: string | null
@@ -436,8 +457,11 @@ export type ResidentWhereInput = {
   contactNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
   email?: Prisma.StringNullableFilter<"Resident"> | string | null
   username?: Prisma.StringNullableFilter<"Resident"> | string | null
+  supabaseUserId?: Prisma.UuidNullableFilter<"Resident"> | string | null
   clerkId?: Prisma.StringNullableFilter<"Resident"> | string | null
   password?: Prisma.StringNullableFilter<"Resident"> | string | null
+  altContactNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
+  postalCode?: Prisma.StringNullableFilter<"Resident"> | string | null
   status?: Prisma.StringFilter<"Resident"> | string
   riskLevel?: Prisma.StringFilter<"Resident"> | string
   notes?: Prisma.StringNullableFilter<"Resident"> | string | null
@@ -480,8 +504,11 @@ export type ResidentOrderByWithRelationInput = {
   contactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkId?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
+  altContactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -516,6 +543,7 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   residentNumber?: string
   username?: string
+  supabaseUserId?: string
   clerkId?: string
   AND?: Prisma.ResidentWhereInput | Prisma.ResidentWhereInput[]
   OR?: Prisma.ResidentWhereInput[]
@@ -529,6 +557,8 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   contactNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
   email?: Prisma.StringNullableFilter<"Resident"> | string | null
   password?: Prisma.StringNullableFilter<"Resident"> | string | null
+  altContactNumber?: Prisma.StringNullableFilter<"Resident"> | string | null
+  postalCode?: Prisma.StringNullableFilter<"Resident"> | string | null
   status?: Prisma.StringFilter<"Resident"> | string
   riskLevel?: Prisma.StringFilter<"Resident"> | string
   notes?: Prisma.StringNullableFilter<"Resident"> | string | null
@@ -557,7 +587,7 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   followUps?: Prisma.CaseFollowUpListRelationFilter
   residencyEvents?: Prisma.ResidencyEventListRelationFilter
   jurisdictionReferrals?: Prisma.JurisdictionReferralListRelationFilter
-}, "id" | "residentNumber" | "username" | "clerkId">
+}, "id" | "residentNumber" | "username" | "supabaseUserId" | "clerkId">
 
 export type ResidentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -571,8 +601,11 @@ export type ResidentOrderByWithAggregationInput = {
   contactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkId?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
+  altContactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -617,8 +650,11 @@ export type ResidentScalarWhereWithAggregatesInput = {
   contactNumber?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
   username?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  supabaseUserId?: Prisma.UuidNullableWithAggregatesFilter<"Resident"> | string | null
   clerkId?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
   password?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  altContactNumber?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
+  postalCode?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Resident"> | string
   riskLevel?: Prisma.StringWithAggregatesFilter<"Resident"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
@@ -655,8 +691,11 @@ export type ResidentCreateInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -699,8 +738,11 @@ export type ResidentUncheckedCreateInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -743,8 +785,11 @@ export type ResidentUpdateInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -787,8 +832,11 @@ export type ResidentUncheckedUpdateInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -831,8 +879,11 @@ export type ResidentCreateManyInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -869,8 +920,11 @@ export type ResidentUpdateManyMutationInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -907,8 +961,11 @@ export type ResidentUncheckedUpdateManyInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -950,8 +1007,11 @@ export type ResidentCountOrderByAggregateInput = {
   contactNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
   clerkId?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  altContactNumber?: Prisma.SortOrder
+  postalCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -994,8 +1054,11 @@ export type ResidentMaxOrderByAggregateInput = {
   contactNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
   clerkId?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  altContactNumber?: Prisma.SortOrder
+  postalCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1031,8 +1094,11 @@ export type ResidentMinOrderByAggregateInput = {
   contactNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
   clerkId?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  altContactNumber?: Prisma.SortOrder
+  postalCode?: Prisma.SortOrder
   status?: Prisma.SortOrder
   riskLevel?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1171,8 +1237,11 @@ export type ResidentCreateWithoutCasesInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1214,8 +1283,11 @@ export type ResidentUncheckedCreateWithoutCasesInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1273,8 +1345,11 @@ export type ResidentUpdateWithoutCasesInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1316,8 +1391,11 @@ export type ResidentUncheckedUpdateWithoutCasesInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1359,8 +1437,11 @@ export type ResidentCreateWithoutResidencyEventsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1402,8 +1483,11 @@ export type ResidentUncheckedCreateWithoutResidencyEventsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1461,8 +1545,11 @@ export type ResidentUpdateWithoutResidencyEventsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1504,8 +1591,11 @@ export type ResidentUncheckedUpdateWithoutResidencyEventsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1547,8 +1637,11 @@ export type ResidentCreateWithoutJurisdictionReferralsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1590,8 +1683,11 @@ export type ResidentUncheckedCreateWithoutJurisdictionReferralsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1649,8 +1745,11 @@ export type ResidentUpdateWithoutJurisdictionReferralsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1692,8 +1791,11 @@ export type ResidentUncheckedUpdateWithoutJurisdictionReferralsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1735,8 +1837,11 @@ export type ResidentCreateWithoutVerificationTokensInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1778,8 +1883,11 @@ export type ResidentUncheckedCreateWithoutVerificationTokensInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1837,8 +1945,11 @@ export type ResidentUpdateWithoutVerificationTokensInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1880,8 +1991,11 @@ export type ResidentUncheckedUpdateWithoutVerificationTokensInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1923,8 +2037,11 @@ export type ResidentCreateWithoutFollowUpsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -1966,8 +2083,11 @@ export type ResidentUncheckedCreateWithoutFollowUpsInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -2025,8 +2145,11 @@ export type ResidentUpdateWithoutFollowUpsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2068,8 +2191,11 @@ export type ResidentUncheckedUpdateWithoutFollowUpsInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2111,8 +2237,11 @@ export type ResidentCreateWithoutHearingNoticesInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -2154,8 +2283,11 @@ export type ResidentUncheckedCreateWithoutHearingNoticesInput = {
   contactNumber?: string | null
   email?: string | null
   username?: string | null
+  supabaseUserId?: string | null
   clerkId?: string | null
   password?: string | null
+  altContactNumber?: string | null
+  postalCode?: string | null
   status?: string
   riskLevel?: string
   notes?: string | null
@@ -2213,8 +2345,11 @@ export type ResidentUpdateWithoutHearingNoticesInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2256,8 +2391,11 @@ export type ResidentUncheckedUpdateWithoutHearingNoticesInput = {
   contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  altContactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2375,8 +2513,11 @@ export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   contactNumber?: boolean
   email?: boolean
   username?: boolean
+  supabaseUserId?: boolean
   clerkId?: boolean
   password?: boolean
+  altContactNumber?: boolean
+  postalCode?: boolean
   status?: boolean
   riskLevel?: boolean
   notes?: boolean
@@ -2420,8 +2561,11 @@ export type ResidentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   contactNumber?: boolean
   email?: boolean
   username?: boolean
+  supabaseUserId?: boolean
   clerkId?: boolean
   password?: boolean
+  altContactNumber?: boolean
+  postalCode?: boolean
   status?: boolean
   riskLevel?: boolean
   notes?: boolean
@@ -2458,8 +2602,11 @@ export type ResidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   contactNumber?: boolean
   email?: boolean
   username?: boolean
+  supabaseUserId?: boolean
   clerkId?: boolean
   password?: boolean
+  altContactNumber?: boolean
+  postalCode?: boolean
   status?: boolean
   riskLevel?: boolean
   notes?: boolean
@@ -2496,8 +2643,11 @@ export type ResidentSelectScalar = {
   contactNumber?: boolean
   email?: boolean
   username?: boolean
+  supabaseUserId?: boolean
   clerkId?: boolean
   password?: boolean
+  altContactNumber?: boolean
+  postalCode?: boolean
   status?: boolean
   riskLevel?: boolean
   notes?: boolean
@@ -2522,7 +2672,7 @@ export type ResidentSelectScalar = {
   residencyNote?: boolean
 }
 
-export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentNumber" | "firstName" | "lastName" | "age" | "gender" | "barangay" | "address" | "contactNumber" | "email" | "username" | "clerkId" | "password" | "status" | "riskLevel" | "notes" | "emailVerified" | "registeredAt" | "updatedAt" | "birthDate" | "province" | "municipality" | "street" | "houseNumber" | "purok" | "homeLatitude" | "homeLongitude" | "homeLocationSource" | "addressCheck" | "addressVerificationStatus" | "residencyStatus" | "residencySubmittedAt" | "residencyVerifiedAt" | "residencyVerifiedById" | "residencyNote", ExtArgs["result"]["resident"]>
+export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentNumber" | "firstName" | "lastName" | "age" | "gender" | "barangay" | "address" | "contactNumber" | "email" | "username" | "supabaseUserId" | "clerkId" | "password" | "altContactNumber" | "postalCode" | "status" | "riskLevel" | "notes" | "emailVerified" | "registeredAt" | "updatedAt" | "birthDate" | "province" | "municipality" | "street" | "houseNumber" | "purok" | "homeLatitude" | "homeLongitude" | "homeLocationSource" | "addressCheck" | "addressVerificationStatus" | "residencyStatus" | "residencySubmittedAt" | "residencyVerifiedAt" | "residencyVerifiedById" | "residencyNote", ExtArgs["result"]["resident"]>
 export type ResidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cases?: boolean | Prisma.Resident$casesArgs<ExtArgs>
   hearingNotices?: boolean | Prisma.Resident$hearingNoticesArgs<ExtArgs>
@@ -2557,8 +2707,30 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     contactNumber: string | null
     email: string | null
     username: string | null
+    /**
+     * The resident's sign-in: their Supabase Auth user (auth.users.id). Supabase Auth owns the
+     * password and the email confirmation; this row holds the barangay profile. Foreign key to
+     * auth.users in prisma/sql/025 (ON DELETE SET NULL - the profile and its cases are kept).
+     */
+    supabaseUserId: string | null
+    /**
+     * Retired (Clerk was removed - see prisma/sql/025). Kept, never read for sign-in: the record of
+     * which Clerk account a profile belonged to, until the migration is confirmed and it is cleared.
+     */
     clerkId: string | null
+    /**
+     * Retired: the old SafeComm password hash (bcrypt). Never read for sign-in since Supabase Auth;
+     * kept until the migration is confirmed, then cleared.
+     */
     password: string | null
+    /**
+     * Optional second number the resident gave.
+     */
+    altContactNumber: string | null
+    /**
+     * Optional: the postal code of the residential address (Bocaue: 3018).
+     */
+    postalCode: string | null
     status: string
     riskLevel: string
     notes: string | null
@@ -3046,8 +3218,11 @@ export interface ResidentFieldRefs {
   readonly contactNumber: Prisma.FieldRef<"Resident", 'String'>
   readonly email: Prisma.FieldRef<"Resident", 'String'>
   readonly username: Prisma.FieldRef<"Resident", 'String'>
+  readonly supabaseUserId: Prisma.FieldRef<"Resident", 'String'>
   readonly clerkId: Prisma.FieldRef<"Resident", 'String'>
   readonly password: Prisma.FieldRef<"Resident", 'String'>
+  readonly altContactNumber: Prisma.FieldRef<"Resident", 'String'>
+  readonly postalCode: Prisma.FieldRef<"Resident", 'String'>
   readonly status: Prisma.FieldRef<"Resident", 'String'>
   readonly riskLevel: Prisma.FieldRef<"Resident", 'String'>
   readonly notes: Prisma.FieldRef<"Resident", 'String'>

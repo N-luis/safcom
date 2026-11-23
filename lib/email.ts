@@ -1,30 +1,46 @@
 import nodemailer from 'nodemailer';
-import { TOKEN_TTL_MINUTES } from './verification';
 
-const EMAIL_FROM = process.env.EMAIL_FROM ?? 'SafeComm <no-reply@safcom.gov.ph>';
-const EMAIL_SERVER = process.env.EMAIL_SERVER;
-const EMAIL_PORT = Number(process.env.EMAIL_PORT ?? 587);
-const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+/**
+ * SafeComm's mailer (SMTP). Sends the sign-in emails Supabase Auth's links are
+ * carried in - confirm the email, reset the password, set up a password for an
+ * account from before - and the residency notices.
+ *
+ * The settings are read when a message is sent, not when the module loads.
+ * A link is never written to the log, whatever happens: it signs someone in.
+ */
+function settings() {
+  return {
+    from: process.env.EMAIL_FROM ?? 'SafeComm <no-reply@safcom.gov.ph>',
+    host: process.env.EMAIL_SERVER,
+    port: Number(process.env.EMAIL_PORT ?? 587),
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD,
+  };
+}
 
 export function isEmailConfigured(): boolean {
-  return Boolean(EMAIL_SERVER && EMAIL_USERNAME && EMAIL_PASSWORD);
+  const s = settings();
+  return Boolean(s.host && s.user && s.pass);
 }
 
-function transport() {
-  return nodemailer.createTransport({
-    host: EMAIL_SERVER,
-    port: EMAIL_PORT,
-    secure: EMAIL_PORT === 465,
-    auth: { user: EMAIL_USERNAME, pass: EMAIL_PASSWORD },
-  });
+export type SendReason = 'sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
+
+export interface SendResult {
+  ok: boolean;
+  reason: SendReason;
+  /** Safe to show a user; never contains credentials or a link. */
+  detail?: string;
 }
 
-export function verificationUrl(rawToken: string, origin: string): string {
-  return `${origin.replace(/\/$/, '')}/verify-email?token=${encodeURIComponent(rawToken)}`;
-}
+interface Message { to: string; subject: string; html: string; text: string }
 
-function template(name: string, url: string): string {
+/** Tests only: receive each message instead of sending it (no SMTP, nothing leaves the machine). */
+let sink: ((m: Message) => void) | null = null;
+export function setMailSinkForTests(fn: ((m: Message) => void) | null) { sink = fn; }
+
+const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+
+function template(name: string, paragraphs: string[], button: { label: string; url: string } | null, footnote: string): string {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f7fb;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
@@ -36,25 +52,18 @@ function template(name: string, url: string): string {
           <div style="font-size:11px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:2px;margin-top:4px;">Community Safety Platform</div>
         </td></tr>
         <tr><td style="padding:32px 28px;">
-          <p style="margin:0 0 14px;font-size:16px;color:#0f172a;">Hello <strong>${name}</strong>,</p>
-          <p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#475569;">
-            Thank you for creating your SafeComm account. Please verify your email address by clicking the button below.
-          </p>
-          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 22px;">
+          <p style="margin:0 0 14px;font-size:16px;color:#0f172a;">Hello <strong>${esc(name)}</strong>,</p>
+          ${paragraphs.map(p => `<p style="margin:0 0 16px;font-size:14px;line-height:1.65;color:#475569;">${esc(p)}</p>`).join('\n          ')}
+          ${button ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px auto 22px;">
             <tr><td align="center" style="border-radius:10px;background:linear-gradient(135deg,#0a7c6b,#14b8a6);">
-              <a href="${url}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">Verify Email</a>
+              <a href="${esc(button.url)}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">${esc(button.label)}</a>
             </td></tr>
           </table>
-          <p style="margin:0 0 14px;font-size:13px;line-height:1.6;color:#64748b;">
-            This verification link will expire after ${TOKEN_TTL_MINUTES} minutes.
-          </p>
           <p style="margin:0 0 18px;font-size:12px;line-height:1.6;color:#94a3b8;">
             If the button doesn't work, copy and paste this link into your browser:<br>
-            <span style="color:#0a7c6b;word-break:break-all;">${url}</span>
-          </p>
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;">
-            If you did not create this account, you can safely ignore this email.
-          </p>
+            <span style="color:#0a7c6b;word-break:break-all;">${esc(button.url)}</span>
+          </p>` : ''}
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;">${esc(footnote)}</p>
         </td></tr>
         <tr><td style="padding:18px 28px;border-top:1px solid #eef2f7;">
           <p style="margin:0;font-size:13px;color:#475569;">Regards,<br><strong>SafeComm</strong></p>
@@ -66,55 +75,67 @@ function template(name: string, url: string): string {
 </body></html>`;
 }
 
-export type SendReason = 'sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
-
-export interface SendResult {
-  ok: boolean;
-  reason: SendReason;
-  /** Safe to show a user; never contains credentials. */
-  detail?: string;
-}
-
-/**
- * Never throws — a mail outage must not roll back a successful registration.
- * Returns a reason so the UI can explain *why* rather than guessing.
- */
-export async function sendVerificationEmail(
-  to: string, name: string, rawToken: string, origin: string,
-): Promise<SendResult> {
-  const url = verificationUrl(rawToken, origin);
-
+/** Never throws: a mail outage must not undo what was saved. Says why it did not send. */
+async function deliver(m: Message): Promise<SendResult> {
+  if (sink) { sink(m); return { ok: true, reason: 'sent' }; }
   if (!isEmailConfigured()) {
-    // Dev fallback: without SMTP credentials the flow stays testable.
-    console.warn(`[email] SMTP not configured — verification link for ${to}:\n  ${url}`);
-    return { ok: false, reason: 'not_configured' };
+    console.warn('[email] SMTP is not configured - a sign-in email was not sent.');
+    return { ok: false, reason: 'not_configured', detail: 'Email is not set up on this server yet.' };
   }
-
+  const s = settings();
   try {
-    await transport().sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject: 'Verify your SafeComm account',
-      html: template(name, url),
-      text: `Hello ${name},\n\nThank you for creating your SafeComm account.\n\nVerify your email address: ${url}\n\nThis link expires after ${TOKEN_TTL_MINUTES} minutes.\n\nIf you did not create this account, you can safely ignore this email.\n\nRegards,\nSafeComm`,
-    });
+    await nodemailer.createTransport({ host: s.host, port: s.port, secure: s.port === 465, auth: { user: s.user, pass: s.pass } })
+      .sendMail({ from: s.from, to: m.to, subject: m.subject, html: m.html, text: m.text });
     return { ok: true, reason: 'sent' };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-
-    // Resend's sandbox sender (onboarding@resend.dev) refuses every recipient
-    // except the account owner until a domain is verified. Detect it so the UI
-    // can say so plainly instead of blaming configuration.
+    // Resend's test sender delivers only to the account owner until a domain is verified.
     if (/only send testing emails to your own email address|verify a domain/i.test(msg)) {
-      console.error(`[email] Sandbox sender blocked recipient ${to}. Verify a domain to email anyone. Link: ${url}`);
-      return {
-        ok: false,
-        reason: 'sandbox_recipient_blocked',
-        detail: 'The email provider is still in test mode and can only deliver to the account owner’s address.',
-      };
+      console.error('[email] The email provider is in test mode and refused the recipient.');
+      return { ok: false, reason: 'sandbox_recipient_blocked', detail: 'The email provider is still in test mode and can only deliver to the account owner’s address.' };
     }
-
-    console.error('[email] Failed to send verification email:', msg);
-    return { ok: false, reason: 'send_failed' };
+    console.error('[email] Send failed:', msg.replace(/https?:\/\/\S+/g, '[link]'));
+    return { ok: false, reason: 'send_failed', detail: 'The email could not be sent right now.' };
   }
+}
+
+export type AuthMailKind = 'confirm' | 'reset' | 'setup';
+
+const AUTH_MAIL: Record<AuthMailKind, { subject: string; paragraphs: string[]; button: string; footnote: string }> = {
+  confirm: {
+    subject: 'Confirm your SafeComm account',
+    paragraphs: ['Thank you for registering with SafeComm. Confirm your email address with the button below.',
+      'After that, an authorised official of Barangay Biñang 2nd verifies your residency before you can file reports in the portal.'],
+    button: 'Confirm my email',
+    footnote: 'If you did not register, you can safely ignore this email.',
+  },
+  reset: {
+    subject: 'Reset your SafeComm password',
+    paragraphs: ['Someone asked to reset the password of your SafeComm account. Choose a new password with the button below.'],
+    button: 'Choose a new password',
+    footnote: 'If you did not ask for this, ignore this email - your password stays as it is.',
+  },
+  setup: {
+    subject: 'Set up your SafeComm sign-in',
+    paragraphs: ['SafeComm has a new sign-in. Your resident profile and your reports are kept - choose a password with the button below to sign in again.'],
+    button: 'Set my password',
+    footnote: 'If you did not ask for this, you can safely ignore this email.',
+  },
+};
+
+/** A Supabase Auth link (on SafeComm's own site), in SafeComm's words. */
+export function sendAuthEmail(kind: AuthMailKind, to: string, name: string, url: string): Promise<SendResult> {
+  const t = AUTH_MAIL[kind];
+  return deliver({
+    to, subject: t.subject, html: template(name, t.paragraphs, { label: t.button, url }, `This link expires after one hour. ${t.footnote}`),
+    text: `Hello ${name},\n\n${t.paragraphs.join('\n\n')}\n\n${t.button}: ${url}\n\nThis link expires after one hour. ${t.footnote}\n\nRegards,\nSafeComm`,
+  });
+}
+
+/** A notice with no secret in it (the residency decisions), with a link to the portal. */
+export function sendNoticeEmail(to: string, name: string, subject: string, paragraphs: string[], link: { label: string; url: string } | null): Promise<SendResult> {
+  return deliver({
+    to, subject, html: template(name, paragraphs, link, 'This is an automatic message from SafeComm.'),
+    text: `Hello ${name},\n\n${paragraphs.join('\n\n')}${link ? `\n\n${link.label}: ${link.url}` : ''}\n\nRegards,\nSafeComm`,
+  });
 }

@@ -9,7 +9,7 @@ import {
   Box, Button, Typography, Container, Grid,
   Chip, IconButton,
   Dialog, DialogContent, TextField, InputAdornment, CircularProgress,
-  Alert, useMediaQuery, useTheme, Tabs, Tab, Collapse, Divider,
+  Alert, useMediaQuery, useTheme, Tabs, Tab, Divider,
 } from '@mui/material';
 import {
   Shield, ArrowForward,
@@ -19,7 +19,6 @@ import {
   Person, AdminPanelSettings, Badge as BadgeIcon, Security,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 import ResendVerification from '@/components/auth/ResendVerification';
 import EmergencyHotlines from '@/components/landing/EmergencyHotlines';
@@ -57,15 +56,12 @@ function roleHome(role: string): string {
   return '/dashboard';
 }
 
-// ─── Resident sign-in (Clerk) ────────────────────────────────────────────────
-// Residents authenticate with Clerk. /complete-profile is the landing point:
-// it exchanges the Clerk session for the app's resident_token and forwards to
-// the portal, or collects the barangay profile if this is their first sign-in.
+// ─── Resident sign-in (Supabase Auth, checked on the server) ─────────────────
+// Email and password, checked by Supabase Auth through /api/auth/resident-login,
+// which then sets SafeComm's own resident session cookie. Signing in says
+// nothing about the residency: the portal shows where verification stands.
 function ResidentPanel({ onClose }: { onClose: () => void }) {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useAuth();
-  const [legacyOpen, setLegacyOpen] = useState(false);
-
   const go = (path: string) => { onClose(); router.push(path); };
 
   return (
@@ -77,33 +73,22 @@ function ResidentPanel({ onClose }: { onClose: () => void }) {
       }}>
         <VerifiedUser sx={{ fontSize: 18, color: '#2dd4bf', mt: '1px', flexShrink: 0 }} />
         <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-          Resident accounts are secured by <strong style={{ color: '#5eead4' }}>Clerk</strong>, which
-          verifies your email address before you can file a report.
+          Sign in with the email and password of your resident account. Filing reports opens once an official
+          of Barangay Biñang 2nd verifies your residency.
         </Typography>
       </Box>
 
-      <Button
-        variant="contained" size="large" fullWidth
-        disabled={!isLoaded}
-        onClick={() => go(isSignedIn ? '/complete-profile' : '/sign-in')}
-        endIcon={isLoaded ? <ArrowForward /> : undefined}
-        sx={{
-          py: 1.4, fontWeight: 700,
-          background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
-          boxShadow: '0 6px 20px rgba(20,184,166,0.35)',
-          '&:hover': { background: 'linear-gradient(135deg, #0d9488, #0f766e)' },
-        }}
-      >
-        {!isLoaded
-          ? <CircularProgress size={22} color="inherit" />
-          : isSignedIn ? 'Continue to My Portal' : 'Sign In as Resident'}
-      </Button>
+      <ResidentForm />
 
-      {isLoaded && isSignedIn && (
-        <Typography sx={{ mt: 1.25, textAlign: 'center', fontSize: '0.82rem', color: '#5eead4' }}>
-          You&apos;re already signed in with Clerk.
+      <Box sx={{ mt: 1.5, textAlign: 'center' }}>
+        <Button size="small" onClick={() => go('/reset-password')} data-testid="forgot-password"
+          sx={{ fontSize: '0.84rem', color: '#5eead4', textTransform: 'none' }}>
+          Forgot password or set up
+        </Button>
+        <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, px: 1 }}>
+          Had an account before the new sign-in? Use this to choose a password - your profile and reports are kept.
         </Typography>
-      )}
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, my: 2.5 }}>
         <Divider sx={{ flex: 1, borderColor: 'rgba(255,255,255,0.12)' }} />
@@ -112,7 +97,7 @@ function ResidentPanel({ onClose }: { onClose: () => void }) {
       </Box>
 
       <Button
-        variant="outlined" fullWidth onClick={() => go('/sign-up')}
+        variant="outlined" fullWidth onClick={() => go('/register')}
         sx={{
           py: 1.1, fontWeight: 600, borderColor: 'rgba(255,255,255,0.25)', color: 'white',
           '&:hover': { borderColor: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)' },
@@ -120,38 +105,22 @@ function ResidentPanel({ onClose }: { onClose: () => void }) {
       >
         Create a Resident Account
       </Button>
-
-      {/* Accounts created before the Clerk migration still hold a local password. */}
-      <Box sx={{ mt: 2.5, textAlign: 'center' }}>
-        <Button
-          size="small" onClick={() => setLegacyOpen(o => !o)}
-          sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', textTransform: 'none', '&:hover': { color: 'rgba(255,255,255,0.75)' } }}
-        >
-          {legacyOpen ? 'Hide password sign-in' : 'Registered before? Use your password'}
-        </Button>
-      </Box>
-      <Collapse in={legacyOpen} unmountOnExit>
-        <Box sx={{ mt: 1.5, pt: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <LegacyResidentForm />
-        </Box>
-      </Collapse>
     </Box>
   );
 }
 
-// Password sign-in for residents who registered before Clerk. Kept here rather
-// than on the staff form so the two account types never share a code path.
-function LegacyResidentForm() {
+function ResidentForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [hint, setHint] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginForm) => {
-    setError(''); setUnverifiedEmail('');
+    setError(''); setHint(''); setUnverifiedEmail('');
     try {
       const res = await fetch('/api/auth/resident-login', {
         method: 'POST',
@@ -166,24 +135,30 @@ function LegacyResidentForm() {
       }
       if (json.code === 'EMAIL_NOT_VERIFIED') { setUnverifiedEmail(data.email); return; }
       setError(json.error || 'Invalid email or password');
+      if (json.hint) setHint(json.hint);
     } catch {
       setError('Network error. Please try again.');
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }}>
-      {error && <Alert severity="error" sx={{ borderRadius: 2, fontSize: '0.9rem' }}>{error}</Alert>}
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }} data-testid="resident-signin">
+      {error && (
+        <Alert severity="error" sx={{ borderRadius: 2, fontSize: '0.9rem' }}>
+          {error}
+          {hint && <Typography sx={{ fontSize: '0.82rem', mt: 0.5 }}>{hint}</Typography>}
+        </Alert>
+      )}
       {unverifiedEmail && (
         <Alert severity="warning" sx={{ borderRadius: 2, fontSize: '0.9rem' }}>
           <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, mb: 0.5 }}>
-            Verify your email before signing in.
+            Confirm your email before signing in - open the link we sent you.
           </Typography>
           <ResendVerification email={unverifiedEmail} size="small" />
         </Alert>
       )}
       <TextField
-        label="Email or Username" type="text" size="small" {...register('email')}
+        label="Email" type="text" size="small" {...register('email')}
         error={!!errors.email} helperText={errors.email?.message}
         fullWidth autoComplete="username" sx={darkField}
       />
@@ -195,7 +170,7 @@ function LegacyResidentForm() {
           input: {
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(p => !p)} edge="end" size="small" sx={{ color: 'rgba(255,255,255,0.4)' }}>
+                <IconButton onClick={() => setShowPassword(p => !p)} edge="end" size="small" aria-label={showPassword ? 'Hide password' : 'Show password'} sx={{ color: 'rgba(255,255,255,0.4)' }}>
                   {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                 </IconButton>
               </InputAdornment>
@@ -204,19 +179,25 @@ function LegacyResidentForm() {
         }}
       />
       <Button
-        type="submit" variant="outlined" fullWidth disabled={isSubmitting}
-        sx={{ py: 1, fontWeight: 600, borderColor: 'rgba(255,255,255,0.25)', color: 'white', '&:hover': { borderColor: 'rgba(255,255,255,0.5)' } }}
+        type="submit" variant="contained" size="large" fullWidth disabled={isSubmitting}
+        endIcon={isSubmitting ? undefined : <ArrowForward />}
+        sx={{
+          py: 1.3, fontWeight: 700,
+          background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+          boxShadow: '0 6px 20px rgba(20,184,166,0.35)',
+          '&:hover': { background: 'linear-gradient(135deg, #0d9488, #0f766e)' },
+        }}
       >
-        {isSubmitting ? <CircularProgress size={20} color="inherit" /> : 'Sign In with Password'}
+        {isSubmitting ? <CircularProgress size={22} color="inherit" /> : 'Sign In as Resident'}
       </Button>
     </Box>
   );
 }
 
-// ─── Official sign-in (no Clerk) ─────────────────────────────────────────────
+// ─── Official sign-in ─────────────────────────────────────────────
 // VAWC, Blotter, Barangay Captain and System Admin accounts are issued by the
-// administrator and authenticate against safcom_token only — Clerk is never
-// involved, so this form talks to /api/auth/login and nothing else.
+// administrator and authenticate against safcom_token only - separate from the
+// residents' Supabase sign-in - so this form talks to /api/auth/login and nothing else.
 function OfficialPanel() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -254,8 +235,8 @@ function OfficialPanel() {
       }}>
         <Lock sx={{ fontSize: 18, color: '#60a5fa', mt: '1px', flexShrink: 0 }} />
         <Typography sx={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-          Use the credentials issued by your System Admin. Official accounts
-          don&apos;t use Clerk.
+          Use the credentials issued by your System Admin. Official accounts are
+          separate from resident accounts.
         </Typography>
       </Box>
 

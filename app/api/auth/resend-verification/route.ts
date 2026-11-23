@@ -1,66 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { rSuccess, rError } from '@/lib/residentAuth';
-import { issueVerificationToken, checkResendRateLimit, RESEND_COOLDOWN_SECONDS } from '@/lib/verification';
-import { sendVerificationEmail } from '@/lib/email';
+import { rateLimit } from '@/lib/rateLimit';
+import { sendAuthEmail } from '@/lib/email';
+import { supabaseAuthMissing, confirmLinkFor, authLink } from '@/lib/supabaseAuth';
 
-const schema = z.object({ email: z.string().email() });
+export const dynamic = 'force-dynamic';
 
-// Same body for every outcome so this endpoint can't be used to discover
-// which email addresses are registered.
-const NEUTRAL = {
-  status: 'sent' as const,
-  message: 'If that email is registered and unverified, a new verification link has been sent.',
-};
+/**
+ * A new confirmation link for an unconfirmed registration. Always the same
+ * answer, whether or not the email has an account, so it cannot be used to
+ * find out who is registered.
+ */
+const schema = z.object({ email: z.string().trim().toLowerCase().email('Enter a valid email address').max(254) }).strict();
+const SAME = 'If this email has an account that is not confirmed yet, a new confirmation link is on its way. Check your inbox and spam folder.';
 
 export async function POST(req: NextRequest) {
+  const missing = supabaseAuthMissing();
+  if (missing) return rError(`Resident sign-in is not configured on this server yet (${missing.join(', ')} missing).`, 503);
+  const parsed = schema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Enter your email', 400);
+  const email = parsed.data.email;
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
+  if (!rateLimit(`resend:${email}`, { max: 3, windowMs: 3_600_000 }).allowed || !rateLimit(`resend-ip:${ip}`, { max: 10, windowMs: 3_600_000 }).allowed) {
+    return rError('Too many requests - wait a while before asking again.', 429);
+  }
   try {
-    const parsed = schema.safeParse(await req.json());
-    if (!parsed.success) return rError('Enter a valid email address', 400);
-
-    const { email } = parsed.data;
-    const resident = await prisma.resident.findFirst({
-      where: { email },
-      select: { id: true, email: true, firstName: true, lastName: true, emailVerified: true },
-    });
-
-    if (!resident || !resident.email || resident.emailVerified) {
-      return rSuccess(NEUTRAL);
+    const link = await confirmLinkFor(email);
+    if (link) {
+      const r = await prisma.resident.findFirst({ where: { supabaseUserId: link.userId }, select: { firstName: true, lastName: true } });
+      await sendAuthEmail('confirm', email, r ? `${r.firstName} ${r.lastName}` : 'resident', authLink(req.nextUrl.origin, 'signup', link.tokenHash).replace('type=signup', 'type=magiclink'));
     }
-
-    const limit = await checkResendRateLimit(resident.id);
-    if (!limit.ok) {
-      // retryAfterSeconds lets the client run an accurate countdown instead of
-      // parsing the message text.
-      const retryAfter = limit.reason === 'cooldown' ? limit.retryAfterSeconds : 0;
-      return NextResponse.json(
-        {
-          success: false,
-          error: limit.reason === 'cooldown'
-            ? `Please wait ${retryAfter}s before requesting another email.`
-            : 'Too many verification emails requested today. Please try again tomorrow.',
-          code: limit.reason === 'cooldown' ? 'COOLDOWN' : 'DAILY_LIMIT',
-          retryAfterSeconds: retryAfter,
-        },
-        { status: 429, headers: retryAfter ? { 'Retry-After': String(retryAfter) } : undefined },
-      );
-    }
-
-    const raw = await issueVerificationToken(resident.id);
-    const send = await sendVerificationEmail(
-      resident.email, `${resident.firstName} ${resident.lastName}`, raw, req.nextUrl.origin,
-    );
-
-    return rSuccess({
-      ...NEUTRAL,
-      delivered: send.ok,
-      reason: send.reason,
-      detail: send.detail,
-      cooldownSeconds: RESEND_COOLDOWN_SECONDS,
-    });
+    return rSuccess({ message: SAME });
   } catch (err) {
-    console.error('[Resend Verification]', err);
-    return rError('Server error', 500);
+    console.error('[Resend confirmation]', err instanceof Error ? err.message : 'failed');
+    return rSuccess({ message: SAME });
   }
 }

@@ -104,8 +104,7 @@ export const RESIDENCE_SELECT = {
  * The residential address on the registration form, checked before any
  * record is made: outside the jurisdiction it is refused with where to go
  * instead (nothing is stored); incomplete, it says what is missing. Used by
- * /api/residents/register, and tested on its own (that route also needs a
- * Clerk session).
+ * /api/residents/register, and tested on its own.
  */
 export async function registrationAddressRefusal(a: LocationInput): Promise<{ status: number; body: Record<string, unknown> } | null> {
   const check = await checkAgainstJurisdiction(a, 'residence');

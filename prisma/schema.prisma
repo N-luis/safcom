@@ -664,10 +664,20 @@ model Resident {
   contactNumber      String?
   email              String?
   username           String?                  @unique
-  // Links this resident to their Clerk account. Clerk owns the credentials and
-  // email verification; this row holds the barangay profile data.
+  /// The resident's sign-in: their Supabase Auth user (auth.users.id). Supabase Auth owns the
+  /// password and the email confirmation; this row holds the barangay profile. Foreign key to
+  /// auth.users in prisma/sql/025 (ON DELETE SET NULL - the profile and its cases are kept).
+  supabaseUserId     String?                  @unique @db.Uuid
+  /// Retired (Clerk was removed - see prisma/sql/025). Kept, never read for sign-in: the record of
+  /// which Clerk account a profile belonged to, until the migration is confirmed and it is cleared.
   clerkId            String?                  @unique
+  /// Retired: the old SafeComm password hash (bcrypt). Never read for sign-in since Supabase Auth;
+  /// kept until the migration is confirmed, then cleared.
   password           String?
+  /// Optional second number the resident gave.
+  altContactNumber   String?
+  /// Optional: the postal code of the residential address (Bocaue: 3018).
+  postalCode         String?
   status             String                   @default("Active")
   riskLevel          String                   @default("Low")
   notes              String?

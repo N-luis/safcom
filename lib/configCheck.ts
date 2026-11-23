@@ -21,10 +21,14 @@ export function checkEnv(): VarStatus[] {
       purpose: 'Postgres connection — every sign-in and query needs it' },
     { name: 'JWT_SECRET', configured: has('JWT_SECRET'), required: true,
       purpose: 'Signs staff and resident session cookies' },
-    { name: 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', configured: has('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'), required: false,
-      purpose: 'Resident sign-up / sign-in (inlined at build time)' },
-    { name: 'CLERK_SECRET_KEY', configured: has('CLERK_SECRET_KEY'), required: false,
-      purpose: 'Resident session verification on the server' },
+    { name: 'NEXT_PUBLIC_SUPABASE_URL', configured: has('NEXT_PUBLIC_SUPABASE_URL'), required: false,
+      purpose: 'Resident sign-in (Supabase Auth) - the project address' },
+    { name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', configured: has('NEXT_PUBLIC_SUPABASE_ANON_KEY') || has('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'), required: false,
+      purpose: 'Resident sign-in (Supabase Auth) - checks a password, used on the server only' },
+    { name: 'SUPABASE_SERVICE_ROLE_KEY', configured: has('SUPABASE_SERVICE_ROLE_KEY') || has('SUPABASE_SECRET_KEY'), required: false,
+      purpose: 'Resident registration, email confirmation and password links (server only - never NEXT_PUBLIC)' },
+    { name: 'EMAIL_SERVER', configured: has('EMAIL_SERVER') && has('EMAIL_USERNAME') && has('EMAIL_PASSWORD'), required: false,
+      purpose: 'Sends the confirmation and password emails (with EMAIL_USERNAME and EMAIL_PASSWORD)' },
   ];
 }
 

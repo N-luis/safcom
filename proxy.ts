@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clerkMiddleware } from '@clerk/nextjs/server';
 
 const PUBLIC_PATHS = [
   '/login', '/register',
   '/api/auth/login', '/api/residents/register',
-  '/api/auth/check-email',
+  // Not public any more: /api/auth/check-email told anyone whether an email was registered (unused since one-step registration).
   '/resident-login', '/api/auth/resident-login',
   '/vawc-login',
+  // Resident sign-in (Supabase Auth, on the server): confirm the email, reset or set up a password.
   '/verify-email', '/api/auth/verify-email', '/api/auth/resend-verification',
-  // Clerk handles resident identity + verification emails.
-  '/sign-in', '/sign-up', '/__clerk', '/api/auth/clerk-session', '/complete-profile',
+  '/reset-password', '/api/auth/resident-password',
+  // Registration's own address search and the jurisdiction (public, rate-limited; no account yet).
+  '/api/registration/',
+  // Old Clerk addresses, kept as redirects so links in old emails still land somewhere.
+  '/sign-in', '/sign-up', '/complete-profile',
   // Deployment diagnostics - must be reachable before anyone can sign in.
   '/api/health',
 ];
@@ -80,12 +83,8 @@ function homeFor(role: string | undefined): string {
   }
 }
 
-/**
- * The routing and role gating. Clerk marks nothing protected by itself — the
- * staff checks below are unchanged and remain the only thing guarding the
- * officer modules, so this logic is identical with or without Clerk.
- */
-async function route(req: NextRequest) {
+/** The routing and role gating: residents by resident_token, staff by safcom_token and their role. */
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) return NextResponse.next();
@@ -117,25 +116,6 @@ async function route(req: NextRequest) {
 
   return NextResponse.next();
 }
-
-/**
- * Clerk is wrapped around the routing above so `auth()` works server-side for
- * the resident flow — but only when its keys are actually configured.
- *
- * clerkMiddleware() throws "Missing secretKey" when they aren't, and because
- * this middleware matches every path that turned a missing env var into a
- * site-wide blank "Internal Server Error". Staff sign-in doesn't depend on
- * Clerk at all, so when the keys are absent we run the same routing without it:
- * the Blotter, VAWC, Captain and System Admin modules keep working and only the
- * resident Clerk pages are unavailable.
- */
-const clerkConfigured = Boolean(
-  process.env.CLERK_SECRET_KEY && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-);
-
-export const proxy = clerkConfigured
-  ? clerkMiddleware(async (_auth, req: NextRequest) => route(req))
-  : (req: NextRequest) => route(req);
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],

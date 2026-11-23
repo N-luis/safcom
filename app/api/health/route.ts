@@ -30,9 +30,8 @@ export async function GET() {
           : `Database unreachable: ${db.reason}`,
       database: db,
       env: env.map(({ name, configured, required, purpose }) => ({ name, configured, required, purpose })),
-      residentSignInAvailable:
-        env.find(v => v.name === 'CLERK_SECRET_KEY')?.configured === true &&
-        env.find(v => v.name === 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY')?.configured === true,
+      residentSignInAvailable: ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY']
+        .every(n => env.find(v => v.name === n)?.configured === true),
       hint: ok
         ? undefined
         : 'Set these in Vercel → Settings → Environments → Production → Environment Variables, then redeploy with the build cache turned off.',

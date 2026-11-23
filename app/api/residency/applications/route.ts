@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
           id: true, residentNumber: true, firstName: true, lastName: true, registeredAt: true, residencySubmittedAt: true, residencyVerifiedAt: true,
           residencyStatus: true, residencyNote: true, province: true, municipality: true, barangay: true, street: true, houseNumber: true, purok: true,
           address: true, addressVerificationStatus: true, addressCheck: true, homeLocationSource: true, emailVerified: true,
+          email: true, contactNumber: true, altContactNumber: true, postalCode: true,
         },
       }),
     ]);
@@ -58,7 +59,9 @@ export async function GET(req: NextRequest) {
           id: r.id, residentNumber: r.residentNumber, name: `${r.firstName} ${r.lastName}`, registeredAt: r.registeredAt,
           submittedAt: r.residencySubmittedAt, verifiedAt: r.residencyVerifiedAt, status: r.residencyStatus,
           statusLabel: RESIDENCY_STATUSES[r.residencyStatus as ResidencyStatus] ?? r.residencyStatus, note: r.residencyNote,
-          address: addressLine(r) || r.address, addressStatus: r.addressVerificationStatus, emailVerified: r.emailVerified,
+          address: [addressLine(r) || r.address, r.postalCode].filter(Boolean).join(' '), addressStatus: r.addressVerificationStatus, emailVerified: r.emailVerified,
+          // The captain only (RESIDENCY_VERIFIER_ROLES): to reach the person about their application.
+          email: r.email, contactNumber: r.contactNumber, altContactNumber: r.altContactNumber,
           located: r.homeLocationSource !== null && r.homeLocationSource !== 'NONE',
           flags: check.flags ?? [], boundary: check.boundary ?? null, selection: check.selection ?? null,
         };

@@ -20,7 +20,7 @@ const TEAL = '#0f766e';
 export default function ResidencyGate({ status, label, page }: { status: string; label: string; page: 'dashboard' | 'report' }) {
   const [refer, setRefer] = useState(page === 'report');
   const next = status === 'PENDING_VERIFICATION'
-    ? 'Your residency is waiting for an official of the barangay to verify it.'
+    ? 'Your residency is currently awaiting verification by an authorized barangay official.'
     : status === 'REJECTED' ? 'Your residency was not approved. See the reason, correct your details and submit again.'
       : status === 'NEEDS_INFO' ? 'The barangay asked for more information about your residency.'
         : 'Complete your residential address and your home location, then submit them for verification.';

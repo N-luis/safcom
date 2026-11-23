@@ -31,6 +31,7 @@ const STATUS_COLOR: Record<string, string> = { VERIFIED: '#15803d', PENDING_VERI
 const chip = (c: string) => ({ height: 22, fontSize: '0.72rem', fontWeight: 700, bgcolor: `${c}14`, color: c, border: `1px solid ${c}33` });
 
 interface Row { id: string; residentNumber: string; name: string; submittedAt: string | null; registeredAt: string; status: string; statusLabel: string; note: string | null;
+  email: string | null; contactNumber: string | null; altContactNumber: string | null;
   address: string; addressStatus: string | null; located: boolean; flags: LocationFlag[]; emailVerified: boolean }
 interface ListData { counts: Record<ResidencyStatus, number>; total: number; status: string; rows: Row[] }
 
@@ -94,21 +95,25 @@ export default function ResidentVerification() {
                   {data && !data.rows.length && <Typography sx={{ color: '#64748b', py: 4, textAlign: 'center' }}>No one here.</Typography>}
                   {data && data.rows.length > 0 && (
                     <TableContainer sx={{ overflowX: 'auto' }}>
-                      <Table size="small" sx={{ minWidth: 860 }}>
+                      <Table size="small" sx={{ minWidth: 1020 }}>
                         <TableHead><TableRow sx={{ '& th': { fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' } }}>
-                          <TableCell>Resident</TableCell><TableCell>Residential address</TableCell><TableCell>Check</TableCell><TableCell>Submitted</TableCell><TableCell align="right" />
+                          <TableCell>Resident</TableCell><TableCell>Contact</TableCell><TableCell>Residential address</TableCell><TableCell>Check</TableCell><TableCell>Registered / submitted</TableCell><TableCell align="right" />
                         </TableRow></TableHead>
                         <TableBody>
                           {data.rows.map(r => (
                             <TableRow key={r.id} hover sx={{ '& td': { fontSize: '0.82rem', verticalAlign: 'top' } }}>
-                              <TableCell><b>{r.name}</b><Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.residentNumber}</Typography></TableCell>
+                              <TableCell><b>{r.name}</b><Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.residentNumber}</Typography>
+                                <Chip size="small" label={r.statusLabel} sx={{ mt: 0.5, height: 20, fontSize: '0.68rem' }} /></TableCell>
+                              <TableCell sx={{ wordBreak: 'break-word', maxWidth: 220 }}>{r.email ?? <span style={{ color: '#94a3b8' }}>No email</span>}
+                                <Typography sx={{ fontSize: '0.72rem', color: r.emailVerified ? '#15803d' : '#b45309' }}>{r.emailVerified ? 'Email confirmed' : 'Email not confirmed yet'}</Typography>
+                                {r.contactNumber && <Typography sx={{ fontSize: '0.78rem' }}>{r.contactNumber}{r.altContactNumber ? ` / ${r.altContactNumber}` : ''}</Typography>}</TableCell>
                               <TableCell>{r.address || <span style={{ color: '#b45309' }}>Not given</span>}
                                 <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.located ? 'Home located on the map' : 'No map location (manual verification)'}</Typography></TableCell>
                               <TableCell>
                                 {r.addressStatus && <Chip size="small" label={r.addressStatus.replace('_', ' ').toLowerCase()} sx={chip(r.addressStatus === 'INSIDE' ? '#15803d' : r.addressStatus === 'OUTSIDE' ? '#b91c1c' : '#b45309')} />}
                                 {r.flags.filter(f => f !== 'BOUNDARY_NOT_CONFIGURED').map(f => <Typography key={f} sx={{ fontSize: '0.72rem', color: '#b45309' }}>{LOCATION_FLAGS[f]}</Typography>)}
                               </TableCell>
-                              <TableCell sx={{ whiteSpace: 'nowrap' }}>{when(r.submittedAt)}</TableCell>
+                              <TableCell sx={{ whiteSpace: 'nowrap' }}>{when(r.registeredAt)}<Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>Submitted {when(r.submittedAt)}</Typography></TableCell>
                               <TableCell align="right"><Button size="small" variant={r.status === 'PENDING_VERIFICATION' ? 'contained' : 'outlined'} onClick={() => setOpen(r.id)}
                                 sx={{ textTransform: 'none', ...(r.status === 'PENDING_VERIFICATION' && { bgcolor: NAVY }) }}>{r.status === 'PENDING_VERIFICATION' ? 'Review' : 'View'}</Button></TableCell>
                             </TableRow>

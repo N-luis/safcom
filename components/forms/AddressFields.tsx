@@ -31,11 +31,13 @@ const OTHER = '__other__';
  * mode residence: house number and purok/subdivision too. mode incident: a
  * landmark or details field, since an incident may be on no street.
  */
-export default function AddressFields({ value, onChange, mode, disabled, errors = {}, idPrefix = 'addr', areaOnly = false }: {
+export default function AddressFields({ value, onChange, mode, disabled, errors = {}, idPrefix = 'addr', areaOnly = false, houseRequired = false }: {
   value: AddressValue; onChange: (next: AddressValue) => void; mode: 'residence' | 'incident';
   disabled?: boolean; errors?: Partial<Record<keyof AddressValue, string>>; idPrefix?: string;
   /** Only the province, municipality and barangay (the form has its own street fields). */
   areaOnly?: boolean;
+  /** The house or building number is required (registration). */
+  houseRequired?: boolean;
 }) {
   const set = (k: keyof AddressValue, v: string) => {
     const next = { ...value, [k]: v };
@@ -109,7 +111,9 @@ export default function AddressFields({ value, onChange, mode, disabled, errors 
       />}
       {areaOnly ? null : mode === 'residence' ? (
         <>
-          <TextField size="small" label="House / building no. (optional)" disabled={disabled} value={value.houseNumber ?? ''} onChange={e => set('houseNumber', e.target.value)}
+          <TextField size="small" id={`${idPrefix}-house`} label={houseRequired ? 'House / building no. *' : 'House / building no. (optional)'} disabled={disabled}
+            value={value.houseNumber ?? ''} onChange={e => set('houseNumber', e.target.value)}
+            error={Boolean(errors.houseNumber)} helperText={errors.houseNumber}
             slotProps={{ htmlInput: { maxLength: 40 } }} />
           <TextField size="small" label="Purok / subdivision (optional)" disabled={disabled} value={value.purok ?? ''} onChange={e => set('purok', e.target.value)}
             slotProps={{ htmlInput: { maxLength: 80 } }} sx={{ gridColumn: { sm: '1 / -1' } }} />

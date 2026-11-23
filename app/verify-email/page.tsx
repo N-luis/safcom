@@ -1,173 +1,94 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Box, Button, Typography, CircularProgress, TextField, Divider,
-} from '@mui/material';
-import {
-  CheckCircle, ErrorOutlined, ScheduleOutlined, Shield, ArrowForward,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
-import ResendVerification from '@/components/auth/ResendVerification';
+import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material';
+import { CheckCircle } from '@mui/icons-material';
+import AuthShell, { authPrimaryButton } from '@/components/auth/AuthShell';
 
-type State = 'loading' | 'success' | 'already_verified' | 'expired' | 'invalid' | 'missing';
+/**
+ * Where the confirmation email's link lands: /verify-email?token_hash=...&type=signup
+ * (or type=magiclink, for a resent link). Supabase Auth confirms the email on
+ * the server and the resident is signed in. The residency still waits for an
+ * official - this page says so.
+ */
+type State = 'loading' | 'confirmed' | 'error' | 'missing' | 'old';
 
-const ACCENT = '#0a7c6b';
-
-function VerifyEmailInner() {
+function VerifyEmail() {
   const router = useRouter();
   const params = useSearchParams();
-  const token = params.get('token');
-
-  // Derived at first render — setting this inside the effect would cause a
-  // cascading re-render before the first paint.
-  const [state, setState] = useState<State>(token ? 'loading' : 'missing');
-  const [email, setEmail] = useState('');
+  const tokenHash = params.get('token_hash');
+  const type = params.get('type') === 'magiclink' ? 'magiclink' : 'signup';
+  const old = !tokenHash && Boolean(params.get('token'));
+  const [state, setState] = useState<State>(tokenHash ? 'loading' : old ? 'old' : 'missing');
+  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const ran = useRef(false);
 
   useEffect(() => {
-    if (!token) return;
-    let cancelled = false;
-
+    // Once only: a token can be used one time, and React may run an effect twice in development.
+    if (!tokenHash || ran.current) return;
+    ran.current = true;
     (async () => {
       try {
         const res = await fetch('/api/auth/verify-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          body: JSON.stringify({ token_hash: tokenHash, type }),
         });
-        const json = await res.json();
-        if (cancelled) return;
-
-        if (res.ok && json.success) {
-          setState(json.data?.status === 'already_verified' ? 'already_verified' : 'success');
-        } else if (res.status === 410) {
-          setState('expired');
-        } else {
-          setState('invalid');
-        }
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && json.success) { setName(json.data.name ?? ''); setState('confirmed'); return; }
+        setError(json.error ?? 'This link could not be used.');
+        setState('error');
       } catch {
-        if (!cancelled) setState('invalid');
+        setError('Network error. Open the link again.');
+        setState('error');
       }
     })();
-
-    return () => { cancelled = true; };
-  }, [token]);
-
-  const copy: Record<Exclude<State, 'loading'>, { icon: typeof CheckCircle; color: string; title: string; body: string; resend: boolean }> = {
-    success: {
-      icon: CheckCircle, color: '#22c55e', title: 'Email Verified!',
-      body: 'Your SafeComm email address has been successfully verified. You can now log in to your account.',
-      resend: false,
-    },
-    already_verified: {
-      icon: CheckCircle, color: '#22c55e', title: 'Already Verified',
-      body: 'This email address has already been verified. You can log in to your account.',
-      resend: false,
-    },
-    expired: {
-      icon: ScheduleOutlined, color: '#f97316', title: 'Verification Link Expired',
-      body: 'This verification link has expired. Request a new one below.',
-      resend: true,
-    },
-    invalid: {
-      icon: ErrorOutlined, color: '#ef4444', title: 'Invalid Verification Link',
-      body: 'This verification link is invalid or has already been used. Request a new one below.',
-      resend: true,
-    },
-    missing: {
-      icon: ErrorOutlined, color: '#ef4444', title: 'Missing Verification Link',
-      body: 'No verification token was found in this link. Request a new one below.',
-      resend: true,
-    },
-  };
+  }, [tokenHash, type]);
 
   return (
-    <Box sx={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      px: 2, py: 6, background: 'linear-gradient(135deg, #071739 0%, #0c2461 60%, #1a3a6b 100%)',
-    }}>
-      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-        style={{ width: '100%', maxWidth: 480 }}>
-        <Box sx={{ bgcolor: 'white', borderRadius: 4, p: { xs: 3, sm: 4.5 }, boxShadow: '0 30px 70px rgba(0,0,0,0.4)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.25, mb: 3 }}>
-            <Box sx={{
-              width: 34, height: 34, borderRadius: '9px',
-              background: `linear-gradient(135deg, ${ACCENT}, #14b8a6)`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Shield sx={{ fontSize: 18, color: 'white' }} />
+    <AuthShell title={state === 'confirmed' ? 'Email confirmed' : 'Confirm your email'}>
+      <Box role="status" aria-live="polite" sx={{ display: 'grid', gap: 2 }}>
+        {state === 'loading' && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'rgba(255,255,255,0.75)' }}><CircularProgress size={20} sx={{ color: '#2dd4bf' }} /> Confirming your email…</Box>}
+        {state === 'confirmed' && (
+          <>
+            <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start' }}>
+              <CheckCircle sx={{ color: '#34d399', mt: '2px' }} />
+              <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                Thank you{name ? `, ${name}` : ''}. Your email is confirmed and you are signed in.
+              </Typography>
             </Box>
-            <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: '#0c1e46' }}>SafeComm</Typography>
-          </Box>
-
-          {state === 'loading' ? (
-            <Box sx={{ textAlign: 'center', py: 5 }}>
-              <CircularProgress sx={{ color: ACCENT, mb: 2 }} />
-              <Typography sx={{ fontSize: '0.98rem', color: '#64748b' }}>Verifying your email…</Typography>
-            </Box>
-          ) : (() => {
-            const c = copy[state];
-            const Icon = c.icon;
-            return (
-              <>
-                <Box sx={{ textAlign: 'center' }}>
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.12, type: 'spring', damping: 14 }}>
-                    <Box sx={{
-                      width: 76, height: 76, borderRadius: '50%', mx: 'auto', mb: 2.5,
-                      bgcolor: `${c.color}14`, border: `2px solid ${c.color}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon sx={{ fontSize: 40, color: c.color }} />
-                    </Box>
-                  </motion.div>
-                  <Typography sx={{ fontWeight: 800, fontSize: '1.4rem', color: '#0c1e46', mb: 1 }}>{c.title}</Typography>
-                  <Typography sx={{ fontSize: '0.94rem', color: '#64748b', lineHeight: 1.7, mb: 3 }}>{c.body}</Typography>
-                </Box>
-
-                {!c.resend && (
-                  <Button fullWidth variant="contained" endIcon={<ArrowForward />}
-                    onClick={() => router.push('/resident-login')}
-                    sx={{ py: 1.4, borderRadius: 2.5, fontWeight: 700, textTransform: 'none',
-                      background: `linear-gradient(135deg, ${ACCENT}, #14b8a6)`,
-                      '&:hover': { background: 'linear-gradient(135deg, #065f50, #0d9488)' } }}>
-                    Go to Login
-                  </Button>
-                )}
-
-                {c.resend && (
-                  <>
-                    <Divider sx={{ mb: 2.5 }} />
-                    <TextField
-                      fullWidth size="small" type="email" label="Your email address"
-                      value={email} onChange={e => setEmail(e.target.value)}
-                      placeholder="you@example.com" sx={{ mb: 1.75 }}
-                      slotProps={{ input: { sx: { borderRadius: 2 } } }}
-                    />
-                    <ResendVerification email={email.trim()} disabled={!email.trim()} variant="contained" />
-                    <Button fullWidth onClick={() => router.push('/resident-login')}
-                      sx={{ mt: 1, textTransform: 'none', color: '#64748b', fontSize: '0.9rem' }}>
-                      Back to login
-                    </Button>
-                  </>
-                )}
-              </>
-            );
-          })()}
-        </Box>
-      </motion.div>
-    </Box>
+            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem', lineHeight: 1.6 }}>
+              Your residency is currently awaiting verification by an authorized barangay official. You can follow it on your dashboard.
+            </Typography>
+            <Button variant="contained" size="large" onClick={() => router.push('/resident')} sx={authPrimaryButton}>Go to my dashboard</Button>
+          </>
+        )}
+        {state === 'error' && (
+          <>
+            <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem' }}>Already confirmed? Sign in. Otherwise sign in once to get a new link sent.</Typography>
+            <Button variant="contained" onClick={() => router.push('/resident-login')} sx={authPrimaryButton}>Go to sign in</Button>
+          </>
+        )}
+        {state === 'old' && (
+          <>
+            <Alert severity="info" sx={{ borderRadius: 2 }}>This link is from SafeComm&apos;s old sign-in and no longer works.</Alert>
+            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.88rem' }}>Choose a password for the new sign-in - your profile and reports are kept.</Typography>
+            <Button variant="contained" onClick={() => router.push('/reset-password')} sx={authPrimaryButton}>Set up my password</Button>
+          </>
+        )}
+        {state === 'missing' && (
+          <>
+            <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.92rem' }}>Open the link in the email we sent you. No link? Sign in and we will offer to send a new one.</Typography>
+            <Button variant="contained" onClick={() => router.push('/resident-login')} sx={authPrimaryButton}>Go to sign in</Button>
+          </>
+        )}
+      </Box>
+    </AuthShell>
   );
 }
 
 export default function VerifyEmailPage() {
-  return (
-    <Suspense fallback={
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #071739 0%, #0c2461 60%, #1a3a6b 100%)' }}>
-        <CircularProgress sx={{ color: '#14b8a6' }} />
-      </Box>
-    }>
-      <VerifyEmailInner />
-    </Suspense>
-  );
+  return <Suspense fallback={null}><VerifyEmail /></Suspense>;
 }

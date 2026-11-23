@@ -102,8 +102,8 @@ async function main() {
 
     // 1. A Google sign-in is never a resident account by itself.
     console.log('\n1-2. Registration: complete details required');
-    // The registration route also needs a Clerk session, which does not load in-process: its address check
-    // (registrationAddressRefusal, called by the route before any record is made) is tested here.
+    // The address check the registration route runs before any record is made (registrationAddressRefusal);
+    // the whole registration, with Supabase Auth, is tested in tests/residentAuth.test.ts.
     const r1 = await registrationAddressRefusal({ province: 'Bulacan', municipality: 'Bocaue', barangay: 'Biñang 2nd' });
     ok('1. a profile without the full residential address is refused before any record is made', r1?.status === 400 && (r1.body.missing as string[]).includes('Street'));
     ok('1. a complete address in the barangay is not refused at registration', (await registrationAddressRefusal(HOME)) === null);

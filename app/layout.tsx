@@ -1,4 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
@@ -33,7 +32,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider>
           {/*
           * Emotion must share one cache between server and client, otherwise the
           * <style data-emotion> tags MUI emits during SSR don't match on hydration.
@@ -50,7 +48,6 @@ export default function RootLayout({
             />
           </AppThemeProvider>
           </AppRouterCacheProvider>
-        </ClerkProvider>
       </body>
     </html>
   );

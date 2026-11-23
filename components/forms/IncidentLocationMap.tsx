@@ -79,7 +79,7 @@ function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number 
   return null;
 }
 
-export default function IncidentLocationMap({ value, onChange, disabled, focusStreet, variant = 'incident', boundary = null }: {
+export default function IncidentLocationMap({ value, onChange, disabled, focusStreet, variant = 'incident', boundary = null, geoBase = '/api/resident/geo' }: {
   value: PickedLocation | null;
   onChange: (next: PickedLocation | null) => void;
   disabled?: boolean;
@@ -93,6 +93,8 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
    * the resident to find it.
    */
   focusStreet?: string;
+  /** Where the address search and lookup are asked: the resident's (default), or registration's public, rate-limited one. */
+  geoBase?: string;
 }) {
   const [resolving, setResolving] = useState(false);
   const [notice, setNotice] = useState<string>('');
@@ -122,7 +124,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
     setProblem(''); setNotice(''); setResolving(true);
 
     try {
-      const res = await fetch(`/api/resident/geo/reverse?lat=${base.latitude}&lng=${base.longitude}`, {
+      const res = await fetch(`${geoBase}/reverse?lat=${base.latitude}&lng=${base.longitude}`, {
         credentials: 'include',
       });
       if (id !== requestId.current) return;
@@ -162,7 +164,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
     } finally {
       if (id === requestId.current) setResolving(false);
     }
-  }, [disabled, onChange]);
+  }, [disabled, onChange, geoBase]);
 
   /**
    * A street was chosen in the form, so the map goes there.
@@ -209,7 +211,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       setResolving(true);
       try {
         const q = `${expandStreetName(street)}, Bocaue, Bulacan`;
-        const res = await fetch(`/api/resident/geo/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+        const res = await fetch(`${geoBase}/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
         const json = await res.json().catch(() => null);
         const first = json?.data?.results?.[0];
         if (cancelled) return;
@@ -241,7 +243,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       // here lets the next run do the work.
       if (!started) lastFocused.current = '';
     };
-  }, [focusStreet]);
+  }, [focusStreet, geoBase]);
 
   /**
    * Search runs on a pause in typing, not on every keystroke, which is also
@@ -257,7 +259,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       if (q.length < 3) { setResults([]); setSearching(false); return; }
       setSearching(true);
       try {
-        const res = await fetch(`/api/resident/geo/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+        const res = await fetch(`${geoBase}/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
         const json = await res.json().catch(() => null);
         setResults(json?.data?.results ?? []);
       } catch {
@@ -267,7 +269,7 @@ export default function IncidentLocationMap({ value, onChange, disabled, focusSt
       }
     }, 450);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [query, geoBase]);
 
   const useMyLocation = () => {
     setProblem(''); setNotice('');

@@ -13,7 +13,8 @@ function ok(label: string, cond: boolean, extra = '') {
 const read = (f: string) => fs.readFileSync(f, 'utf8');
 
 const profile = read('app/resident/profile/page.tsx');
-ok('profile: no Government ID card, upload or verification status', !/Government ID|idDocument|upload\/id|Verification Status|under review|\bPending\b/.test(profile));
+// ("Pending" alone is allowed: it is the My Reports count of pending reports, not an ID status.)
+ok('profile: no Government ID card, upload or verification status', !/Government ID|idDocument|upload\/id|Verification Status|under review|ID (is )?pending|pending ID/i.test(profile));
 const layout = read('app/resident/layout.tsx');
 ok('sidebar: says Resident, not an account status', />?\s*Resident\s*\n/.test(layout) && !/residentStatus|Verified Resident/.test(layout));
 
@@ -28,7 +29,10 @@ ok('server: approving or rejecting an ID no longer exists', !/approve|reject|Rej
 ok('server: marking an email verified still works, admins only', verify.includes('emailVerified: true') && verify.includes("role !== 'system_admin'"));
 
 const register = read('app/api/residents/register/route.ts');
-ok('server: a new resident is Active straight away, no ID field', register.includes("status: 'Active'") && !/idDocument|status: 'Pending'/.test(register));
+// Since residency verification (5642c6e) a new account waits for the captain to verify the RESIDENCY
+// (address and map) - never an ID: the registration takes no ID field and no upload.
+ok('server: registration asks for no ID - no ID field, no upload, nothing waits on an ID', !/idDocument|validId|governmentId|upload/i.test(register)
+  && register.includes("residencyStatus: 'PENDING_VERIFICATION'"));
 const me = read('app/api/auth/resident-me/route.ts');
 ok('server: a resident can no longer submit an ID or be set back to Pending', !/idDocument|'Pending'/.test(me));
 ok('server: a resident can still update their contact number and address', me.includes('contactNumber') && me.includes('address'));

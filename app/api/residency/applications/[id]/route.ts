@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { sendNoticeEmail } from '@/lib/email';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, errorResponse } from '@/lib/auth';
@@ -84,6 +85,12 @@ const OUTCOME = {
   request_info: { to: 'NEEDS_INFO', kind: 'info_requested', account: 'Pending', activity: 'residency_info_requested', word: 'returned for more information' },
 } as const;
 
+const DECISION_MAIL = {
+  approve: { subject: 'Your SafeComm residency is verified', text: 'An authorized official of Barangay Biñang 2nd verified your residency. You can now file reports in the SafeComm Resident Portal.' },
+  reject: { subject: 'Your SafeComm residency was not approved', text: 'An authorized official of Barangay Biñang 2nd did not approve your residency. You can correct your details and submit them again from your residency page.' },
+  request_info: { subject: 'SafeComm needs more information about your residency', text: 'An authorized official of Barangay Biñang 2nd needs more information before verifying your residency. Update your details from your residency page.' },
+} as const;
+
 /**
  * The verifier's decision on a pending application: approve (the resident is
  * Verified and the portal opens), reject with a reason, or ask for more
@@ -100,7 +107,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? 'Check the decision', 400);
   const d = parsed.data;
   try {
-    const r = await prisma.resident.findUnique({ where: { id }, select: { residencyStatus: true, updatedAt: true, residentNumber: true, firstName: true, lastName: true } });
+    const r = await prisma.resident.findUnique({ where: { id }, select: { residencyStatus: true, updatedAt: true, residentNumber: true, firstName: true, lastName: true, email: true } });
     if (!r) return errorResponse('Resident not found', 404);
     if (!(DECIDE_FROM as string[]).includes(r.residencyStatus)) {
       return errorResponse(`This application is ${RESIDENCY_STATUSES[r.residencyStatus as ResidencyStatus]?.toLowerCase() ?? r.residencyStatus} - only a pending application can be decided.`, 409);
@@ -121,7 +128,12 @@ export async function POST(req: NextRequest, { params }: Params) {
       return true;
     });
     if (!ok) return errorResponse('This application changed while you were reviewing it. Reload to see it.', 409);
-    return noStore({ success: true, data: { status: o.to } });
+    // The resident is told by email too (it is also on their dashboard and residency page). Never undoes the decision.
+    const emailed = r.email ? await sendNoticeEmail(r.email, `${r.firstName} ${r.lastName}`, DECISION_MAIL[d.action].subject,
+      [DECISION_MAIL[d.action].text, ...(note && d.action !== 'approve' ? [`${d.action === 'reject' ? 'Reason' : 'What is needed'}: ${note}`] : [])],
+      { label: d.action === 'approve' ? 'Open SafeComm' : 'Open my residency', url: `${req.nextUrl.origin}/resident${d.action === 'approve' ? '' : '/residency'}` })
+      .catch(() => ({ ok: false })) : { ok: false };
+    return noStore({ success: true, data: { status: o.to, residentEmailed: emailed.ok } });
   } catch (e) {
     logRouteError('POST /api/residency/applications/[id]', e);
     return errorResponse('The decision could not be saved right now.', 503);

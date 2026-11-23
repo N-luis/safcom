@@ -48,7 +48,7 @@ ok('every number is dialable as written (local 09.. and (044) forms become +63)'
 ok('every list number calls its own number, and only that number', EXPECTED.every(([name, list]) => list.every(n => html.includes(`href="${tel(n)}"`) && html.includes(`aria-label="Call ${name}, ${n}"`))));
 ok('the big cards call their own number', QUICK.every(([label, name, n]) => html.includes(`aria-label="Call ${label}, ${name}, ${n}"`)));
 ok('14 call links: 3 big cards and 11 in the list - and nothing else is a link', count(html, '<a ') === 14 && count(html, 'href="tel:') === 14, String(count(html, '<a ')));
-ok('no button inside a link (each copy button is its own control)', !/<a [^>]*>(?:(?!<\/a>).)*<button/s.test(html));
+ok('no button inside a link (each copy button is its own control)', !/<a [^>]*>(?:(?!<\/a>)[\s\S])*<button/.test(html));
 ok('nothing says a call was made', !/calling\.\.\.|call made|connected/i.test(html));
 ok('nothing says copied before a click', !html.includes('Copied'));
 

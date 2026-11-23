@@ -13,7 +13,6 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
-import { useClerk } from '@clerk/nextjs';
 import { RESIDENT_NOTIFICATIONS_LAST_SEEN_KEY } from '@/lib/notifications';
 import ResidencyGate from '@/components/residency/ResidencyGate';
 
@@ -41,7 +40,6 @@ interface SidebarProps {
 function SidebarContent({ onClose, residentName, unreadCount }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useClerk();
 
   const isActive = (path: string, exact?: boolean) =>
     exact ? pathname === path : pathname === path || pathname.startsWith(path + '/');
@@ -49,15 +47,9 @@ function SidebarContent({ onClose, residentName, unreadCount }: SidebarProps) {
   const go = (path: string) => { router.push(path); onClose(); };
 
   const logout = async () => {
-    // Clear the app's own resident_token first.
-    await fetch('/api/auth/resident-logout', { method: 'POST', credentials: 'include' });
-    // Clerk owns resident identity now, so end that session too — otherwise the
-    // next person on this device is silently signed back in.
-    try {
-      await signOut({ redirectUrl: '/login' });
-    } catch {
-      /* no Clerk session to end — the cookie above was the only one */
-    }
+    // The resident's session is SafeComm's own httpOnly cookie (no Supabase session is
+    // kept in the browser), so clearing it signs them out completely.
+    await fetch('/api/auth/resident-logout', { method: 'POST', credentials: 'include' }).catch(() => undefined);
     router.replace('/login');
   };
 

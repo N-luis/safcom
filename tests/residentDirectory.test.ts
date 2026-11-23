@@ -95,7 +95,7 @@ async function main() {
     ok('the full profile: address, number, e-mail, registration date', res?.address === 'Bea fictional address' && res.phone === '+639170000001'
       && res.email === `bea.${pid}@example.invalid` && Boolean(res.registeredAt) && res.accountStatus === 'Active');
     ok('never a password, sign-in id, username, internal note or risk flag', !/PROBE-HASH|probe_clerk|probe_rd_|PROBE-INTERNAL/.test(JSON.stringify(p1.body))
-      && !['password', 'clerkId', 'username', 'notes', 'riskLevel'].some(k => k in (res ?? {})));
+      && !['password', 'clerkId', 'supabaseUserId', 'username', 'notes', 'riskLevel'].some(k => k in (res ?? {})));
     ok('no resident ID and no verification state (ID verification was removed)', !['residentNumber', 'emailVerified'].some(k => k in (res ?? {}))
       && !JSON.stringify(p1.body).includes(`${TAG}-${pid}-`) && !/verified/i.test(JSON.stringify(p1.body)));
     ok('no preference given: no contact note at all', p1.body.data.contact === null);

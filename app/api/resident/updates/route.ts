@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     // Activities for those cases + active alerts (barangay-wide or targeted at this resident's barangay).
     // Hearing updates are read from the proceedings the resident is a party
     // to instead - so a respondent hears about theirs too, on a case they did not file.
-    const [activities, alerts, hearingEvents, appointmentEvents] = await Promise.all([
+    const [activities, alerts, hearingEvents, appointmentEvents, residencyEvents] = await Promise.all([
       caseIds.length > 0
         ? prisma.activity.findMany({
             where: { caseId: { in: caseIds }, type: { in: RESIDENT_ACTIVITY_TYPES.filter(t => t !== 'hearing') } },
@@ -78,6 +78,12 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
         take: limit,
         select: { id: true, kind: true, after: true, createdAt: true, appointmentId: true },
+      }),
+      // The official's decisions on this resident's own residency (never anyone else's).
+      prisma.residencyEvent.findMany({
+        where: { residentId: auth.resident.residentId, kind: { in: ['approved', 'rejected', 'info_requested'] } },
+        orderBy: { createdAt: 'desc' }, take: 5,
+        select: { id: true, kind: true, note: true, createdAt: true },
       }),
     ]);
     // An appointment notice opens the hearing it became (Appointments were merged into hearings).
@@ -129,7 +135,19 @@ export async function GET(req: NextRequest) {
       }] : [];
     });
 
+    const residencyUpdates = residencyEvents.map(e => ({
+      id: e.id, source: 'case' as const, title: 'Residency update',
+      message: e.kind === 'approved' ? 'Your residency is verified. You can now file reports in the Resident Portal.'
+        : e.kind === 'rejected' ? `Your residency was not approved.${e.note ? ` Reason: ${e.note}` : ''} You can correct your details and submit again.`
+          : `The barangay needs more information about your residency.${e.note ? ` ${e.note}` : ''}`,
+      entryLabel: e.kind === 'approved' ? 'Residency Verified' : e.kind === 'rejected' ? 'Residency Not Approved' : 'Additional Information Requested',
+      color: e.kind === 'approved' ? '#15803d' : e.kind === 'rejected' ? '#b91c1c' : '#b45309', createdAt: e.createdAt,
+      caseType: undefined, caseId: null, caseNumber: null, caseStatus: null, caseRiskLevel: null, level: null as string | null, requestId: null,
+      href: '/resident/residency',
+    }));
+
     const updates = [
+      ...residencyUpdates,
       ...appointmentUpdates,
       ...[...caseUpdates, ...hearingUpdates].map(a => ({
         id: a.id,

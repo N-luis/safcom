@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         id: true, residentNumber: true, firstName: true, lastName: true,
         age: true, gender: true, barangay: true, address: true,
         contactNumber: true, email: true, username: true, emailVerified: true,
-        clerkId: true, status: true, riskLevel: true,
+        supabaseUserId: true, clerkId: true, status: true, riskLevel: true,
         notes: true, registeredAt: true, updatedAt: true,
         // Anonymous reports are not listed under the resident who filed them.
         cases: {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       prisma.case.count({ where: { residentId: id, reporterIdentityWithheld: false, status: { in: ['Resolved', 'Closed'] } } }),
     ]);
 
-    const { clerkId, ...rest } = resident;
+    const { supabaseUserId, clerkId, ...rest } = resident;
     // As in the list: contact details for the captain and system admin only.
     const contacts = await canSeeDirectoryContacts(auth.user.userId);
     return successResponse({
@@ -77,9 +77,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       ...(!contacts && { contactNumber: null, email: null, contactRestricted: true }),
       openCases,
       resolvedCases,
-      // Clerk owns credentials for accounts created since the migration; older
-      // ones still carry a local hash. Report which, never the id or the hash.
-      signInMethod: clerkId ? 'clerk' : localPasswords > 0 ? 'password' : 'none',
+      // Supabase Auth owns the sign-in. An account from before (Clerk, or the old
+      // SafeComm password - neither carried over) has none until the resident sets
+      // a password with "Forgot password or set up". Which, never an id or a hash.
+      signInMethod: supabaseUserId ? 'supabase' : clerkId || localPasswords > 0 ? 'needs_setup' : 'none',
     });
   } catch {
     return errorResponse('Server error', 500);

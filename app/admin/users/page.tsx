@@ -45,7 +45,7 @@ interface ResidentDetail extends Resident {
   updatedAt: string;
   openCases: number;
   resolvedCases: number;
-  signInMethod: 'clerk' | 'password' | 'none';
+  signInMethod: 'supabase' | 'needs_setup' | 'none';
   cases: ResidentCase[];
   _count: { cases: number };
 }
@@ -59,9 +59,9 @@ const RISK_COLOR: Record<string, string> = {
 };
 
 const SIGN_IN_METHOD: Record<string, { label: string; detail: string }> = {
-  clerk:    { label: 'Clerk',           detail: 'Identity and email verification handled by Clerk' },
-  password: { label: 'Password',        detail: 'Legacy account with a local password' },
-  none:     { label: 'No credentials',  detail: 'Created by staff — this resident cannot sign in yet' },
+  supabase:    { label: 'Email and password', detail: 'Signs in with Supabase Auth (email confirmed by link)' },
+  needs_setup: { label: 'Needs password set-up', detail: 'Account from before the new sign-in - the resident sets a password with "Forgot password or set up"' },
+  none:        { label: 'No credentials', detail: 'Created by staff — this resident cannot sign in yet' },
 };
 
 const fullDate = (iso: string) =>
