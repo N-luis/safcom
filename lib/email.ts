@@ -8,13 +8,29 @@ import nodemailer from 'nodemailer';
  * The settings are read when a message is sent, not when the module loads.
  * A link is never written to the log, whatever happens: it signs someone in.
  */
-function settings() {
+/** A value as pasted into a hosting dashboard: surrounding spaces, line breaks and quotes removed. */
+const clean = (v: string | undefined) => (v ?? '').trim().replace(/^(['"])(.*)\1$/s, '$2').trim();
+
+/**
+ * The SMTP settings, forgiving of how they were pasted: "https://smtp.gmail.com:465/" is read as the
+ * host smtp.gmail.com (and port 465 when EMAIL_PORT is not set), and a Gmail app password shown as
+ * "abcd efgh ijkl mnop" is used without its spaces (an app password has none).
+ */
+export function settings() {
+  let host = clean(process.env.EMAIL_SERVER).replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '');
+  let portFromHost: number | null = null;
+  const m = /^(.*):(\d{2,5})$/.exec(host);
+  if (m) { host = m[1]; portFromHost = Number(m[2]); }
+  const portText = clean(process.env.EMAIL_PORT);
+  const port = portText ? Number(portText) : portFromHost ?? 587;
+  const gmail = /(^|\.)gmail\.com$|googlemail\.com$/i.test(host);
+  const pass = clean(process.env.EMAIL_PASSWORD);
   return {
-    from: process.env.EMAIL_FROM ?? 'SafeComm <no-reply@safcom.gov.ph>',
-    host: process.env.EMAIL_SERVER,
-    port: Number(process.env.EMAIL_PORT ?? 587),
-    user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASSWORD,
+    from: clean(process.env.EMAIL_FROM) || 'SafeComm <no-reply@safcom.gov.ph>',
+    host: host.toLowerCase(),
+    port: Number.isFinite(port) ? port : 587,
+    user: clean(process.env.EMAIL_USERNAME),
+    pass: gmail ? pass.replace(/\s+/g, '') : pass,
   };
 }
 
