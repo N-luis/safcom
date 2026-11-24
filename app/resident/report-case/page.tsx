@@ -78,10 +78,12 @@ const ACCENT = '#14b8a6';
  */
 const DESCRIPTION_MAX = 8000;
 
-// Who a resident can report for. "Without identifying myself" (ANONYMOUS) is
-// no longer offered on this form; anonymous reports already filed keep their
-// protections (lib/interviewTypes.ts still knows the value).
-const RESIDENT_RELATIONSHIPS = REPORTING_RELATIONSHIPS.filter(r => r !== 'ANONYMOUS');
+// Who a resident can report for: "It involves me" or "It involves someone
+// else". Neither "Without identifying myself" (ANONYMOUS) nor "On behalf of
+// someone" (ON_BEHALF) is offered on this form any more; reports already filed
+// with them keep their labels and protections (lib/interviewTypes.ts still
+// knows both values).
+const RESIDENT_RELATIONSHIPS = REPORTING_RELATIONSHIPS.filter(r => r !== 'ANONYMOUS' && r !== 'ON_BEHALF');
 
 // No case type is asked for. SafeComm reads what the resident wrote and the
 // classification matrix (lib/classificationSchema.ts) decides the category on
@@ -249,7 +251,8 @@ export default function ReportCasePage() {
         if (d.description && !getValues('description')) setValue('description', d.description);
         if (Array.isArray(d.answers)) setIntakeAnswers(d.answers);
         if (Array.isArray(d.turns)) setIntakeTurns(d.turns);
-        if (d.relationship && !getValues('reportingRelationship')) setValue('reportingRelationship', d.relationship);
+        // A draft saved before an option was removed restores as nothing chosen, not a hidden option.
+        if (d.relationship && (RESIDENT_RELATIONSHIPS as readonly string[]).includes(d.relationship) && !getValues('reportingRelationship')) setValue('reportingRelationship', d.relationship);
       } catch { /* private mode or a malformed draft: start clean */ }
     }, 0);
     return () => clearTimeout(t);
@@ -554,7 +557,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     control={control}
                     render={({ field }) => (
                       <RadioGroup aria-labelledby="relationship-label" value={field.value} onChange={e => field.onChange(e.target.value)}
-                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 0.75 }}>
+                        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: `repeat(${RESIDENT_RELATIONSHIPS.length}, minmax(0, 1fr))` }, gap: 0.75 }}>
                         {RESIDENT_RELATIONSHIPS.map(r => (
                           <FormControlLabel key={r} value={r} disabled={isSubmitting || analysing}
                             control={<Radio size="small" sx={{ '&.Mui-checked': { color: ACCENT } }} />}
