@@ -4,7 +4,7 @@
  * No network, no email sent: settings are read from process.env, set here per case.
  */
 import { NextRequest } from 'next/server';
-import { settings, emailSettingsReport } from '../lib/email';
+import { settings, emailSettingsReport, emailLoginStatus, isEmailConfigured } from '../lib/email';
 import { GET as confirmGET } from '../app/auth/confirm/route';
 
 let pass = 0; const fails: string[] = [];
@@ -74,6 +74,10 @@ withEnv({ EMAIL_SERVER: SAMEVAL, EMAIL_PORT: SAMEVAL, EMAIL_USERNAME: SAMEVAL, E
 const same = emailSettingsReport();
 ok('one value pasted into all five: said first, with its format (a token), never the value', same.allTheSame && /same value/.test(same.problems[0])
   && /looks like a token \(JWT\)/.test(same.holds.EMAIL_SERVER) && !JSON.stringify(same).includes('eyJ'), JSON.stringify(same.holds.EMAIL_SERVER));
+ok('a key of another service in the mail settings: never configured as a mail login (nothing is sent)', !isEmailConfigured());
+const loginWithKey = emailLoginStatus();
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_PASSWORD: SAMEVAL });
+const loginWithKeyAsPassword = emailLoginStatus();
 withEnv({ EMAIL_SERVER: 'EMAIL_SERVER=smtp.gmail.com\nEMAIL_PORT=465', EMAIL_PORT: 're_AbCdEfGh1234567890', EMAIL_USERNAME: 'smtps://u:p@smtp.gmail.com:465' });
 const fmt = emailSettingsReport().holds;
 ok('the whole settings block, a Resend key, a URL: each recognised by its format', /NAME=value lines of the email settings/.test(fmt.EMAIL_SERVER)
@@ -107,5 +111,10 @@ u = at(`?token_hash=${T}&type=whatever`);
 ok('an unknown type -> Sign In', u.pathname === '/resident-login' && u.search === '');
 
 for (const k of KEYS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
-console.log(`\n${pass} passed, ${fails.length} failed`);
-if (fails.length) { fails.forEach(x => console.log('  FAILED: ' + x)); process.exitCode = 1; }
+Promise.all([loginWithKey, loginWithKeyAsPassword]).then(([a, b]) => {
+  // Both answered before any connection is tried (the checks above ran with these settings).
+  ok('the mail login check refuses to try it: "settings_hold_another_key" (no connection made)', a === 'settings_hold_another_key', a);
+  ok('the same, when only the password holds it', b === 'settings_hold_another_key', b);
+  console.log(`\n${pass} passed, ${fails.length} failed`);
+  if (fails.length) { fails.forEach(x => console.log('  FAILED: ' + x)); process.exitCode = 1; }
+});

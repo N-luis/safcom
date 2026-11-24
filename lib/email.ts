@@ -163,9 +163,18 @@ export function emailSettingsReport() {
   };
 }
 
+/**
+ * Whether a setting holds another service's key or token (a Supabase key, a Groq key, a database
+ * address...) instead of mail settings. Such a value is never sent to a mail server as a login.
+ */
+const FOREIGN_SECRET = /^eyJ[\w-]+\.[\w-]+\.[\w-]+$|^sb_(secret|publishable)_|^gsk_|^postgres(ql)?:\/\//i;
+export function emailSettingsHoldForeignSecret(): boolean {
+  return (['EMAIL_SERVER', 'EMAIL_USERNAME', 'EMAIL_PASSWORD'] as const).some(k => FOREIGN_SECRET.test(clean(process.env[k])));
+}
+
 export function isEmailConfigured(): boolean {
   const s = settings();
-  return Boolean(s.host && s.user && s.pass);
+  return Boolean(s.host && s.user && s.pass) && !emailSettingsHoldForeignSecret();
 }
 
 /**
@@ -190,6 +199,7 @@ export const EMAIL_NOT_DELIVERABLE = 'SafeComm cannot send emails to residents y
  */
 let loginCheck: { at: number; result: string } | null = null;
 export async function emailLoginStatus(): Promise<string> {
+  if (emailSettingsHoldForeignSecret()) return 'settings_hold_another_key';
   if (!isEmailConfigured()) return 'not_configured';
   if (loginCheck && Date.now() - loginCheck.at < 5 * 60_000) return loginCheck.result;
   const s = settings();

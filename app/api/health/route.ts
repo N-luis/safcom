@@ -18,6 +18,7 @@ function emailAdvice(login: string) {
   const r = emailSettingsReport();
   const problems = [...r.problems];
   if (login.startsWith('server_name_not_found')) problems.unshift('The server in EMAIL_SERVER does not exist on the internet - check its spelling (Gmail: smtp.gmail.com)');
+  if (login === 'settings_hold_another_key') problems.unshift('An EMAIL_* setting holds a key or token of another service (for example a Supabase key) - it is never sent to a mail server; replace it with the mail setting');
   if (login.startsWith('login_rejected')) problems.unshift('The mail server refused EMAIL_USERNAME / EMAIL_PASSWORD - for Gmail: the full Gmail address and a Google app password from that same account');
   return { ...r, problems };
 }
