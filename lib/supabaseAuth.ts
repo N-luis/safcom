@@ -83,9 +83,10 @@ function mapAuthError(e: { message?: string; code?: string; status?: number } | 
     return new AuthError('An account with this email already exists. Sign in, or reset your password.', 'EMAIL_TAKEN', 409);
   }
   if (code === 'weak_password' || /password/i.test(msg) && /weak|short|characters/i.test(msg)) return new AuthError(PASSWORD_RULE, 'WEAK_PASSWORD', 400);
-  if (code === 'email_address_invalid' || /invalid.*email|email.*invalid/i.test(msg)) return new AuthError('Enter a valid email address.', 'INVALID_EMAIL', 400);
+  // A used or old link first: Supabase says "Email link is invalid or has expired", which also mentions "email".
+  if (code === 'otp_expired' || /expired|link is invalid|invalid.*(token|otp|link)|token.*(invalid|expired)/i.test(msg)) return new AuthError('This link has expired or was already used. Ask for a new one.', 'LINK_EXPIRED', 400);
+  if (code === 'email_address_invalid' || /invalid.*email address|email address.*invalid|unable to validate email/i.test(msg)) return new AuthError('Enter a valid email address.', 'INVALID_EMAIL', 400);
   if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' || e?.status === 429) return new AuthError('Too many attempts - wait a minute and try again.', 'RATE_LIMITED', 429);
-  if (code === 'otp_expired' || /expired|invalid.*(token|otp)|token.*(invalid|expired)/i.test(msg)) return new AuthError('This link has expired or was already used. Ask for a new one.', 'LINK_EXPIRED', 400);
   return new AuthError('The sign-in service could not complete this right now. Try again in a moment.', 'AUTH_SERVICE', 503);
 }
 

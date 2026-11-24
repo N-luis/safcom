@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
   if (authMissing) return errorResponse(`Resident registration is not configured on this server yet (${authMissing.join(', ')} missing).`, 503);
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
-  if (!rateLimit(`register:${ip}`, { max: 10, windowMs: 3_600_000 }).allowed) return errorResponse('Too many registrations from this connection - try again later.', 429);
+  if (!rateLimit(`register:${ip}`, { max: 20, windowMs: 3_600_000 }).allowed) return errorResponse('Too many registrations from this connection - try again later.', 429);
 
   const body = await req.json().catch(() => null);
   const forbidden = body && typeof body === 'object' ? SERVER_ONLY.filter(f => f in body) : [];

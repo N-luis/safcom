@@ -63,6 +63,8 @@ const lastLink = (to: string) => {
 const C = { lat: 14.7947352, lng: 120.9345743 };
 const square = (d: number) => ({ type: 'Polygon' as const, coordinates: [[[C.lng - d, C.lat - d], [C.lng + d, C.lat - d], [C.lng + d, C.lat + d], [C.lng - d, C.lat + d], [C.lng - d, C.lat - d]]] });
 const HOME = { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Biñang 2nd', street: 'Ortega Compound', houseNumber: '12' };
+/** The incident place for a referral record (it takes no house number). */
+const PLACE = { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Biñang 2nd', street: 'Ortega Compound' };
 const PW = 'Probe-pass-2026';
 let n = 0;
 const emailOf = (k: string) => `probe.rauth.${k}.${process.pid}.${++n}@example.com`;
@@ -99,7 +101,8 @@ async function main() {
     const CAP = await mk('captain', 'admin');
     const BLO = await mk('blotter', 'officer');
     const VAW = await mk('vawc', 'vawc_officer');
-    const register = (body: Body, ip?: string) => registerPOST(req('/api/residents/register', '', 'POST', body, ip)).then(json);
+    let regIp = 0;
+    const register = (body: Body, ip?: string) => registerPOST(req('/api/residents/register', '', 'POST', body, ip ?? `10.20.${process.pid % 250}.${++regIp}`)).then(json);
     const login = (email: string, password: string) => loginPOST(req('/api/auth/resident-login', '', 'POST', { email, password }, `10.1.${n}.${n}`)).then(json);
     const decide = (id: string, cookie: string, body: Body) => decidePOST(req(`/api/residency/applications/${id}`, cookie, 'POST', body), { params: Promise.resolve({ id }) }).then(json);
 
@@ -170,7 +173,7 @@ async function main() {
     const f11 = await json(await filePOST(req('/api/resident/cases', A, 'POST', { description: NOISE, barangay: 'Ortega Compound', reportingRelationship: 'SELF',
       incidentProvince: 'Bulacan', incidentMunicipality: 'Bocaue', incidentBarangay: 'Biñang 2nd', incidentLocationDetails: 'Fictional' })));
     ok('11. a standard report while pending: refused (403 RESIDENCY_NOT_VERIFIED), nothing filed', f11.status === 403 && f11.body.code === 'RESIDENCY_NOT_VERIFIED');
-    const u11 = await json(await referralPOST(req('/api/resident/referrals', A, 'POST', { urgent: true, summary: 'Fictional: urgent help needed', ...HOME })));
+    const u11 = await json(await referralPOST(req('/api/resident/referrals', A, 'POST', { urgent: true, summary: 'Fictional: urgent help needed', ...PLACE })));
     ok('11. an urgent report is never blocked by the pending residency (saved for the barangay at once)', u11.status === 201 && u11.body.data.kind === 'URGENT', `${u11.status} ${JSON.stringify(u11.body).slice(0, 120)}`);
 
     // ── 16. Other officers cannot verify ──
@@ -238,7 +241,7 @@ async function main() {
     const B = cookieOf(v5.cookie);
     const g8 = await json(await residencyGET(req('/api/resident/residency', B)));
     ok('8. a rejected resident can still sign in and sees the reason', v5.status === 200 && g8.body.data.residency.status === 'REJECTED' && /pin is outside/.test(g8.body.data.residency.note ?? ''));
-    const t14 = await json(await referralPOST(req('/api/resident/referrals', B, 'POST', { reportingRelationship: 'THIRD_PARTY', summary: 'Fictional: a neighbour in Biñang 2nd may be hurt', ...HOME })));
+    const t14 = await json(await referralPOST(req('/api/resident/referrals', B, 'POST', { reportingRelationship: 'THIRD_PARTY', summary: 'Fictional: a neighbour in Biñang 2nd may be hurt', ...PLACE })));
     const t14row = t14.body.data?.id ? await prisma.jurisdictionReferral.findUnique({ where: { id: t14.body.data.id } }) : null;
     ok('14. a non-verified reporter telling about someone else: kept for staff review, the reporter not taken for the person affected', t14.status === 201
       && t14.body.data.kind === 'UNVERIFIED_REPORTER' && t14row?.reportingRelationship === 'THIRD_PARTY');
