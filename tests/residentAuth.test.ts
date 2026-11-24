@@ -304,6 +304,11 @@ async function main() {
     const setLink = lastLink(E18);
     ok('18. "Forgot password or set up": the same answer for an account and for nobody; the Clerk account gets a set-up link', ask.status === 200 && nobody.status === 200
       && ask.body.data.message === nobody.body.data.message && setLink?.type === 'invite' && setLink.path === '/reset-password' && /Set up/i.test(setLink.subject));
+    // A test sender (onboarding@resend.dev) delivers to nobody but the provider account's owner: everyone is told - the same way.
+    const testSender = /@resend\.dev\b/i.test(process.env.EMAIL_FROM ?? '');
+    ok('18. when residents cannot receive email (a test sender), everyone asking is told so - the same for an account and for nobody',
+      ask.body.data.deliveryWarning === nobody.body.data.deliveryWarning && Boolean(ask.body.data.deliveryWarning) === (testSender || !process.env.EMAIL_SERVER),
+      `testSender=${testSender} warning=${ask.body.data.deliveryWarning ?? 'none'}`);
     const weak18 = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: setLink!.tokenHash, type: 'invite', password: 'abc', confirmPassword: 'abc' })));
     const set18 = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: setLink!.tokenHash, type: 'invite', password: PW, confirmPassword: PW })));
     const old18 = await prisma.resident.findUnique({ where: { id: old.id } });

@@ -27,6 +27,8 @@ export function checkEnv(): VarStatus[] {
       purpose: 'Resident sign-in (Supabase Auth) - checks a password, used on the server only' },
     { name: 'SUPABASE_SERVICE_ROLE_KEY', configured: has('SUPABASE_SERVICE_ROLE_KEY') || has('SUPABASE_SECRET_KEY'), required: false,
       purpose: 'Resident registration, email confirmation and password links (server only - never NEXT_PUBLIC)' },
+    { name: 'EMAIL_FROM', configured: has('EMAIL_FROM') && !/@resend\.dev\b/i.test(process.env.EMAIL_FROM ?? ''), required: false,
+      purpose: 'A sender residents can receive from - not a test sender such as onboarding@resend.dev, which only delivers to the provider account owner' },
     { name: 'EMAIL_SERVER', configured: has('EMAIL_SERVER') && has('EMAIL_USERNAME') && has('EMAIL_PASSWORD'), required: false,
       purpose: 'Sends the confirmation and password emails (with EMAIL_USERNAME and EMAIL_PASSWORD)' },
   ];

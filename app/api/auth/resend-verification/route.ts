@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { rSuccess, rError } from '@/lib/residentAuth';
 import { rateLimit } from '@/lib/rateLimit';
-import { sendAuthEmail } from '@/lib/email';
+import { sendAuthEmail, emailDeliverable, EMAIL_NOT_DELIVERABLE } from '@/lib/email';
 import { supabaseAuthMissing, confirmLinkFor, authLink } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
       const r = await prisma.resident.findFirst({ where: { supabaseUserId: link.userId }, select: { firstName: true, lastName: true } });
       await sendAuthEmail('confirm', email, r ? `${r.firstName} ${r.lastName}` : 'resident', authLink(req.nextUrl.origin, 'signup', link.tokenHash).replace('type=signup', 'type=magiclink'));
     }
-    return rSuccess({ message: SAME });
+    return rSuccess({ message: SAME, ...(!emailDeliverable() && { deliveryWarning: EMAIL_NOT_DELIVERABLE }) });
   } catch (err) {
     console.error('[Resend confirmation]', err instanceof Error ? err.message : 'failed');
-    return rSuccess({ message: SAME });
+    return rSuccess({ message: SAME, ...(!emailDeliverable() && { deliveryWarning: EMAIL_NOT_DELIVERABLE }) });
   }
 }

@@ -23,7 +23,22 @@ export function isEmailConfigured(): boolean {
   return Boolean(s.host && s.user && s.pass);
 }
 
-export type SendReason = 'sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
+/**
+ * Whether the sender is a provider's test sender, which only delivers to the
+ * provider account's owner (Resend: onboarding@resend.dev). Residents then
+ * receive nothing - said on /api/health and to everyone who asks for a link.
+ */
+export function isEmailTestSender(): boolean {
+  return /@resend\.dev\b/i.test(settings().from);
+}
+
+/** Whether residents can actually receive SafeComm's emails (set up, and not a test sender). */
+export const emailDeliverable = () => isEmailConfigured() && !isEmailTestSender();
+
+/** Said to everyone who asks for an emailed link while delivery is not set up - never per account. */
+export const EMAIL_NOT_DELIVERABLE = 'SafeComm cannot send emails to residents yet. Please contact the barangay office for help with your account.';
+
+export type SendReason ='sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
 
 export interface SendResult {
   ok: boolean;

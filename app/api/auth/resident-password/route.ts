@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { signResidentToken, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
 import { rateLimit } from '@/lib/rateLimit';
-import { sendAuthEmail } from '@/lib/email';
+import { sendAuthEmail, emailDeliverable, EMAIL_NOT_DELIVERABLE } from '@/lib/email';
 import { supabaseAuthMissing, recoveryLinkFor, verifyLink, setUserPassword, residentForUser, authLink, passwordProblem, AuthError } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[Password link]', err instanceof Error ? err.message : 'failed');
   }
-  return rSuccess({ message: SAME });
+  return rSuccess({ message: SAME, ...(!emailDeliverable() && { deliveryWarning: EMAIL_NOT_DELIVERABLE }) });
 }
 
 export async function PUT(req: NextRequest) {

@@ -57,20 +57,13 @@ export default function ResendVerification({
       const json = await res.json();
 
       if (res.ok) {
-        const { delivered, reason } = json.data ?? {};
-        setNotice(
-          delivered
-            ? { type: 'success', text: `Verification email sent to ${email}. Check your inbox and spam folder.` }
-            : {
-                type: 'warning',
-                text: reason === 'sandbox_recipient_blocked'
-                  ? 'The mail provider is still in test mode and can only deliver to the administrator’s own address. Ask your barangay administrator to verify your account manually.'
-                  : reason === 'not_configured'
-                    ? 'Email delivery isn’t set up on the server yet — contact your barangay administrator.'
-                    : 'The email could not be delivered right now. Please try again or contact your barangay administrator.',
-              },
-        );
-        startCooldown(Number(json.data?.cooldownSeconds ?? 60));
+        // The same answer for every address (it never says whether an account exists); a warning
+        // when the server cannot email residents at all.
+        const { message, deliveryWarning } = json.data ?? {};
+        setNotice(deliveryWarning
+          ? { type: 'warning', text: String(deliveryWarning) }
+          : { type: 'success', text: String(message ?? 'If this email has an account that is not confirmed yet, a new link is on its way. Check your inbox and spam folder.') });
+        startCooldown(60);
       } else if (res.status === 429) {
         setNotice({ type: 'error', text: json.error ?? 'Please wait before requesting another email.' });
         if (json.retryAfterSeconds > 0) startCooldown(Number(json.retryAfterSeconds));

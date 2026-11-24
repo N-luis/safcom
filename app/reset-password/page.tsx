@@ -25,7 +25,10 @@ function AskForLink() {
     try {
       const res = await fetch('/api/auth/resident-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
       const json = await res.json().catch(() => ({}));
-      if (res.ok && json.success) setDone(json.data.message); else setError(json.error ?? 'Try again in a moment.');
+      if (res.ok && json.success) {
+        // Email to residents not set up on the server: said plainly (the same for every address).
+        if (json.data.deliveryWarning) setError(json.data.deliveryWarning); else setDone(json.data.message);
+      } else setError(json.error ?? 'Try again in a moment.');
     } catch { setError('Network error. Please try again.'); } finally { setBusy(false); }
   };
   return (
