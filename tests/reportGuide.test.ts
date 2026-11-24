@@ -80,6 +80,12 @@ async function main() {
       && guideIntent('Blotter ba o VAWC ang concern ko?') === 'blotter_or_vawc' && guideIntent(DANGER) === 'urgent');
     ok('"paano mag report" is a how-to question, with or without the hyphen or a space', ['paano mag report', 'Paano mag-report?', 'pano po mag report', 'paano ba magfile ng report', 'paano i-report', 'How do I file a report?', 'how to report']
       .every(t => guideIntent(t) === 'how_to_report'));
+    ok('a question about another barangay gets the referral answer - SafeComm checks the place, the AI never decides it',
+      ['Nangyari po sa ibang barangay, puwede ko bang i-report?', 'It happened in another town', 'paano kung labas ng barangay?'].every(t => guideIntent(t) === 'outside_jurisdiction')
+      && /referral, not a case/.test(FALLBACK_ANSWERS.outside_jurisdiction.en)
+      && workflowFacts().some(f => /never the AI/.test(f) && /not the reporter's home/.test(f))
+      && workflowFacts().some(f => /No other barangay or agency has accepted a referral unless/.test(f))
+      && !workflowFacts().some(f => /on behalf of someone, or anonymously/.test(f)));
 
     console.log('\n1. How to file');
     fake.guide = aiGuide({ reply: 'Describe what happened in your own words, choose where it happened, then press Submit Report.' });

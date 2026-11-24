@@ -10,7 +10,7 @@ import {
 import {
   Dashboard, FolderOpen, Psychology,
   Notifications, Search, RecordVoiceOver, Menu as MenuIcon,
-  Logout, MonitorHeart, Message, ArrowBack, Category, Campaign, Gavel,
+  Logout, MonitorHeart, Message, ArrowBack, Category, Campaign, Gavel, ForwardToInbox,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
@@ -28,6 +28,7 @@ const NAV_ITEMS = [
   // Same place and look as the Blotter desk's Hearings; VAWC records only (no KP mediation). The
   // calendar and old /vawc/appointments links are reached from, or redirect to, this one entry.
   { id: 'hearings', label: 'Hearings', icon: Gavel, path: '/vawc/hearings' },
+  { id: 'referrals', label: 'Referrals', icon: ForwardToInbox, path: '/vawc/referrals' },
   { id: 'ai', label: 'Analytics', icon: Psychology, path: '/vawc/ai-risk' },
   { id: 'announcements', label: 'Announcements', icon: Campaign, path: '/vawc/announcements' },
   { id: 'messages', label: 'Messages', icon: Message, path: '/vawc/messages' },

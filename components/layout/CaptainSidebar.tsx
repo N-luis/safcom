@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon, Groups, FolderOpen, Security,
-  Logout, Gavel, Shield, AssignmentInd, HowToReg,
+  Logout, Gavel, Shield, AssignmentInd, HowToReg, ForwardToInbox,
 } from '@mui/icons-material';
 
 /**
@@ -29,6 +29,7 @@ export const CAPTAIN_NAV = [
   { id: 'vawc', label: 'VAWC Module', icon: Shield, path: '/vawc' },
   { id: 'residents', label: 'Residents', icon: Groups, path: '/residents' },
   { id: 'residency', label: 'Resident Verification', icon: HowToReg, path: '/dashboard/residency' },
+  { id: 'referrals', label: 'Referrals', icon: ForwardToInbox, path: '/dashboard/referrals' },
   { id: 'reports', label: 'Reports', icon: FolderOpen, path: '/reports' },
   { id: 'users', label: 'Staff & Users', icon: AssignmentInd, path: '/users' },
 ];

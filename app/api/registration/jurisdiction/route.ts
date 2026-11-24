@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const cfg = await loadJurisdiction();
-    return rSuccess({ barangay: cfg.barangay, municipality: cfg.municipality, province: cfg.province, boundary: cfg.boundary ?? null, boundaryConfigured: Boolean(cfg.boundary) });
+    return rSuccess({ barangay: cfg.barangay, barangayAliases: cfg.barangayAliases, municipality: cfg.municipality, province: cfg.province,
+      boundary: cfg.boundary ?? null, boundaryConfigured: Boolean(cfg.boundary) });
   } catch {
     return rError('The jurisdiction could not be loaded right now.', 503);
   }

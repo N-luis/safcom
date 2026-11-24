@@ -118,7 +118,7 @@ async function main() {
     const s3 = await put(Gmail.cookie, { ...HOME, latitude: C.lat, longitude: C.lng, locationSource: 'MAP', submit: true });
     const g3 = await getRes(Gmail.cookie);
     ok('3. an address in the barangay goes to an official: Pending Verification (never approved by itself)', s3.status === 201 && g3.residency.status === 'PENDING_VERIFICATION'
-      && g3.location.latitude === Math.round(C.lat * 1e6) / 1e6 && g3.check.flags.includes('BOUNDARY_NOT_CONFIGURED'));
+      && g3.location.latitude === Math.round(C.lat * 1e6) / 1e6 && (g3.check.boundary === 'INSIDE' || g3.check.flags.includes('BOUNDARY_NOT_CONFIGURED')));
     const Out = await mkRes('Outsider');
     const s4 = await put(Out.cookie, { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'Fictional St', submit: true });
     ok('4. another barangay: refused with where to go instead; not submitted', s4.status === 422 && s4.body.code === 'OUTSIDE_JURISDICTION' && s4.body.destination.barangay === 'Taal'
@@ -161,8 +161,8 @@ async function main() {
     if (f10.body.data?.id) caseIds.push(f10.body.data.id);
     ok('10. a verified resident, incident inside: filed as usual', f10.status === 201, `${f10.status} ${f10.body.error ?? ''}`);
     const f11 = await file(Gmail.cookie, { description: NOISE, barangay: 'Fictional St', incidentProvince: 'Bulacan', incidentMunicipality: 'Marilao', incidentBarangay: 'Lambakin' });
-    ok('11. a verified resident, incident outside: not a case; where to go; a referral may be saved', f11.status === 422 && f11.body.code === 'OUTSIDE_JURISDICTION'
-      && f11.body.destination.municipality === 'Marilao' && f11.body.referralAvailable === true && Array.isArray(f11.body.emergencyContacts));
+    ok('11. a verified resident, incident outside: not a case - saved as a referral automatically, with where to go (028)', f11.status === 201 && f11.body.data.outcome === 'REFERRAL'
+      && f11.body.data.referral.destination.municipality === 'Marilao' && !f11.body.data.caseNumber && Array.isArray(f11.body.data.emergencyContacts));
     const ref11 = await json(await refPOST(req('/api/resident/referrals', Gmail.cookie, 'POST', { province: 'Bulacan', municipality: 'Marilao', barangay: 'Lambakin', street: 'Fictional St', summary: 'Fictional summary' })));
     ok('11. ...saved as an outside-jurisdiction referral record (not a case)', ref11.status === 201 && ref11.body.data.kind === 'OUTSIDE_JURISDICTION');
     const f12 = await file(Out.cookie, { description: NOISE, barangay: 'Ortega Compound', ...INCIDENT });
@@ -176,16 +176,16 @@ async function main() {
     ok('13. on behalf of another person: filed; reporter, person affected and person reported kept apart', f13.status === 201
       && parties13.some(p => p.role === 'AFFECTED' && p.fullName === 'Fictional Lola') && parties13.some(p => p.role === 'REPORTED' && p.fullName === 'Fictional Neighbour'), `${f13.status} ${f13.body.error ?? ''}`);
     const ref14 = await json(await refPOST(req('/api/resident/referrals', Out.cookie, 'POST', { urgent: true, province: HOME.province, municipality: HOME.municipality, barangay: HOME.barangay, street: HOME.street, summary: 'Fictional: may sinasaktan ngayon' })));
-    const capNote = await prisma.notification.findFirst({ where: { userId: CAP.id, title: 'Urgent referral received' }, orderBy: { createdAt: 'desc' } });
+    const capNote = await prisma.notification.findFirst({ where: { userId: CAP.id, title: { startsWith: 'Urgent referral' } }, orderBy: { createdAt: 'desc' } });
     ok('14. an urgent concern is never discarded: kept as an urgent referral, the emergency numbers returned, the captain told', ref14.status === 201 && ref14.body.data.kind === 'URGENT'
       && ref14.body.data.emergencyContacts.length > 0 && Boolean(capNote) && !/sinasaktan/.test(capNote?.message ?? ''));
     const sr = await json(await staffRefGET(req('/api/residency/referrals?status=ALL', CAP.cookie)));
     ok('the captain reviews referral records (urgent first); the desks may not', sr.status === 200 && sr.body.data.rows[0].urgent === true
       && (await json(await staffRefGET(req('/api/residency/referrals', BLO.cookie)))).status === 403);
-    ok('...and marks one reviewed', (await json(await staffRefPATCH(req('/api/residency/referrals', CAP.cookie, 'PATCH', { id: ref14.body.data.id, status: 'REVIEWED', note: 'Fictional: called the resident' })))).status === 200);
+    ok('...and marks one reviewed', (await json(await staffRefPATCH(req('/api/residency/referrals', CAP.cookie, 'PATCH', { id: ref14.body.data.id, action: 'status', status: 'READY_FOR_REFERRAL', note: 'Fictional: called the resident' })))).status === 200);
     ok('a resident sees their own referral records, without the review notes', (await json(await myRefGET(req('/api/resident/referrals', Out.cookie)))).body.data.every((x: Body) => !('reviewNote' in x)));
     ok('16. direct API: no incident place - refused as incomplete', (await file(Gmail.cookie, { description: NOISE, barangay: 'Ortega Compound' })).body.code === 'INCIDENT_LOCATION_INCOMPLETE');
-    ok('16. direct API: a barangay street but another barangay named - refused as outside', (await file(Gmail.cookie, { description: NOISE, barangay: 'Ortega Compound', ...INCIDENT, incidentBarangay: 'Taal' })).body.code === 'OUTSIDE_JURISDICTION');
+    ok('16. direct API: a barangay street but another barangay named - a referral, never a case', (await file(Gmail.cookie, { description: NOISE, barangay: 'Ortega Compound', ...INCIDENT, incidentBarangay: 'Taal' })).body.data?.outcome === 'REFERRAL');
     ok('16. direct API: "verified" fields in a residency request are refused', (await put(Out.cookie, { ...HOME, residencyStatus: 'VERIFIED' })).status === 403);
     const el = await json(await eligPOST(req('/api/resident/eligibility', Gmail.cookie, 'POST', { incident: { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'X' } })));
     ok('the eligibility answer for the form: the structured fields, from the server', el.status === 200 && el.body.data.incident_location_status === 'OUTSIDE' && el.body.data.referral_required === true

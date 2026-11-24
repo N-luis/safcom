@@ -40,11 +40,13 @@ export function workflowFacts(): string[] {
   const groups = Object.values(STATUS_GROUPS).map(g => `"${g.label}" (${g.statuses.join(', ')}): ${g.hint.toLowerCase()}`).join('; ');
   const hotlines = EMERGENCY_HOTLINES.map(h => `${h.name}: ${h.numbers.join(' / ')}`).join('; ');
   return [
-    'Filing: the resident describes what happened in their own words on File a Report, says where it happened (it must be in Barangay Biñang 2nd, Bocaue, Bulacan), and may add the date, the time, the people involved, witnesses and photos. Only the description and the place are required.',
-    'Only residents whose residency an official verified can file a standard report. Unverified residents and incidents outside the barangay can be saved as a referral record for the barangay; urgent ones are marked urgent.',
+    'Filing: the resident describes what happened in their own words on File a Report, says where it happened (the province, municipality and barangay, the street, and a map pin if they can), and may add the date, the time, the people involved, witnesses and photos. Only the description and the place are required.',
+    'Only residents whose residency an official verified can file a standard report. An unverified resident can save a referral record for the barangay; urgent ones are marked urgent.',
+    "Jurisdiction: SafeComm handles incidents in Barangay Biñang 2nd, Bocaue, Bulacan. SafeComm itself (its location check against the barangay's official boundary and street list - never the AI) decides from the incident place, not the reporter's home: inside, the report is filed as a SafeComm case; outside (another barangay, town or province), the same form is submitted as a referral, not a case, keeping everything entered, with a referral reference number; if the place cannot be confirmed (for example a street not on the barangay's list, or a map pin that does not match the barangay chosen), an official verifies the location first. The resident does not choose any of this.",
+    'Referrals: the barangay reviews a referral to direct it to the responsible jurisdiction and posts updates in My Cases. No other barangay or agency has accepted a referral unless the barangay records their acknowledgment. Never name a receiving office or say which barangay a place belongs to - the resident can say which barangay they think it is, and SafeComm checks.',
     'Unknown details: the date, the time, names and evidence are optional. "I don\'t know", "not sure" and "I prefer not to answer" are all acceptable. A report is never refused for missing evidence.',
     'A past incident can be reported; give the approximate date if known.',
-    'Who the report is for: the reporter (the person filing), the person affected, and the person reported are separate. The resident chooses: for myself, for someone else (third party), on behalf of someone, or anonymously. The reporter is never assumed to be the person affected.',
+    'Who the report is for: the reporter (the person filing), the person affected, and the person reported are separate. The resident chooses: it involves me, or it involves someone else. The reporter is never assumed to be the person affected.',
     'SafeComm Assist reads the report and may ask a few follow-up questions; every one can be skipped.',
     'SafeComm recommends a desk - the Blotter desk, or the confidential VAWC desk - the resident does not have to choose a category. The recommendation is not a final decision: a barangay official decides the desk and the category.',
     'VAWC: reports that may involve violence against a woman or her child (RA 9262), for example by a husband, partner or ex-partner, go to the confidential VAWC desk, seen only by the officers assigned to it. VAWC matters are never mediated or conciliated (no Katarungang Pambarangay). Other disputes and incidents (noise, theft, threats between neighbours, property damage, etc.) go to the Blotter desk.',
@@ -58,10 +60,11 @@ export function workflowFacts(): string[] {
 
 // ── Intents and answers when the AI is unavailable ──────────────────────────
 
-export type GuideIntent = 'how_to_report' | 'category' | 'what_info' | 'no_date' | 'no_evidence' | 'after_submit' | 'past_incident' | 'on_behalf' | 'blotter_or_vawc' | 'urgent' | 'other';
+export type GuideIntent = 'how_to_report' | 'category' | 'what_info' | 'no_date' | 'no_evidence' | 'after_submit' | 'past_incident' | 'on_behalf' | 'outside_jurisdiction' | 'blotter_or_vawc' | 'urgent' | 'other';
 
 const INTENT_RULES: [GuideIntent, RegExp][] = [
   ['blotter_or_vawc', /\bvawc\b|blotter (o|or|ba)|blotter\?/i],
+  ['outside_jurisdiction', /ibang (barangay|bayan|munisipyo|lugar|probinsya)|labas ng (barangay|sakop|bi[ñn]ang)|outside (the |of )?(barangay|jurisdiction|bi[ñn]ang)|(other|another|different) (barangay|town|municipality|city|province)|\breferral\b|hindi (sakop|taga)/i],
   ['no_date', /\b(date|petsa|when|kailan|araw)\b.*\b(don'?t|not|hindi|di)\b|\b(don'?t|not|hindi|di)\b.*\b(date|petsa|kailan|eksaktong)\b|exact date|eksaktong petsa/i],
   ['no_evidence', /evidence|ebidensya|proof|patunay|litrato|picture|photo|document/i],
   ['after_submit', /after (i )?submit|pagkatapos|what happens|ano ang mangyayari|susunod|status|follow up|i-?follow/i],
@@ -113,8 +116,12 @@ export const FALLBACK_ANSWERS: Record<GuideIntent, Record<GuideLang, string>> = 
     tl: 'Oo, puwede mong i-report ang nangyari dati. Ilagay ang tinatayang petsa kung alam mo, at sabihin kung naulit ito.',
   },
   on_behalf: {
-    en: 'Choose who the report is for at the top of the form: yourself, someone else, on behalf of someone, or anonymously. You are the reporter; the person affected and the person reported are recorded separately - fill in only what you know.',
-    tl: 'Piliin sa itaas ng form kung para kanino ang report: para sa sarili, para sa iba, sa ngalan ng iba, o anonymous. Ikaw ang nag-uulat; hiwalay na itatala ang taong naapektuhan at ang inirereklamo - ilagay lang ang alam mo.',
+    en: 'Choose who the report is for at the top of the form: it involves you, or it involves someone else. You are the reporter; the person affected and the person reported are recorded separately - fill in only what you know.',
+    tl: 'Piliin sa itaas ng form kung para kanino ang report: tungkol sa iyo, o tungkol sa ibang tao. Ikaw ang nag-uulat; hiwalay na itatala ang taong naapektuhan at ang inirereklamo - ilagay lang ang alam mo.',
+  },
+  outside_jurisdiction: {
+    en: 'Fill in the same form and say where it happened. If the place is outside Barangay Biñang 2nd, SafeComm submits it as a referral, not a case - nothing you entered is lost - and the barangay directs it to the right jurisdiction. If the place cannot be confirmed, an official checks it first. If anyone is in danger now, call the emergency hotlines.',
+    tl: 'Gamitin ang parehong form at sabihin kung saan nangyari. Kung nasa labas ng Barangay Biñang 2nd ang lugar, isusumite ito ng SafeComm bilang referral, hindi case - walang mawawala sa inilagay mo - at ididirekta ito ng barangay sa tamang hurisdiksyon. Kung hindi makumpirma ang lugar, susuriin muna ito ng opisyal. Kung may nasa panganib ngayon, tumawag sa emergency hotlines.',
   },
   blotter_or_vawc: {
     en: 'The VAWC desk handles violence or abuse against a woman or her child, for example by a husband, partner or ex-partner - it is confidential. Other incidents go to the Blotter desk. Describe what happened and SafeComm recommends one; an official decides.',

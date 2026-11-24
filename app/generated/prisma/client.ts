@@ -200,6 +200,16 @@ export type JurisdictionConfig = Prisma.JurisdictionConfigModel
  */
 export type JurisdictionReferral = Prisma.JurisdictionReferralModel
 /**
+ * Model JurisdictionReferralEvent
+ * A referral's history: every status change, note, location re-check and decision. Insert-only (a trigger refuses changes).
+ */
+export type JurisdictionReferralEvent = Prisma.JurisdictionReferralEventModel
+/**
+ * Model JurisdictionReferralAttachment
+ * The photos a referral came with, kept as received (the same fingerprinting as case evidence).
+ */
+export type JurisdictionReferralAttachment = Prisma.JurisdictionReferralAttachmentModel
+/**
  * Model EmailVerificationToken
  * 
  */

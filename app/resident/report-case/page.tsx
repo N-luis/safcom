@@ -13,7 +13,7 @@ import {
   RadioGroup, Radio, FormControlLabel, FormHelperText,
 } from '@mui/material';
 import {
-  CheckCircle, Send, ArrowBack,
+  CheckCircle, Send, ArrowBack, ForwardToInbox, WhereToVote,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -40,7 +40,8 @@ import { INCIDENT_TIME_FUTURE, INCIDENT_TIME_HINT, isFutureIncidentTime, isIncid
 import DeskNote, { type ResidentDesk } from '@/components/forms/DeskNote';
 import AddressFields, { emptyAddress, type AddressValue } from '@/components/forms/AddressFields';
 import ReferralForm from '@/components/residency/ReferralForm';
-import { DEFAULT_JURISDICTION, sameName, isJurisdictionBarangay } from '@/lib/jurisdiction';
+import { REFERRAL_STATUS_FOR_RESIDENT, type ReferralStatus } from '@/lib/jurisdiction';
+import { useIncidentCheck, JurisdictionNotice, ReferralReview } from '@/components/forms/IncidentJurisdiction';
 import DuplicateCheckDialog, { runDuplicateCheck, type DuplicateCheckResult } from '@/components/forms/DuplicateCheckDialog';
 import ReportGuide from '@/components/forms/ReportGuide';
 import NarrativeOrganizer from '@/components/forms/NarrativeOrganizer';
@@ -129,10 +130,10 @@ export default function ReportCasePage() {
   // Where it happened: the province, municipality and barangay (the street is below). SafeComm takes
   // incidents in its own barangay; elsewhere the resident is referred - the server decides either way.
   const [area, setArea] = useState<AddressValue>(emptyAddress());
-  const inJurisdiction = sameName(area.province, DEFAULT_JURISDICTION.province) && sameName(area.municipality, DEFAULT_JURISDICTION.municipality)
-    && isJurisdictionBarangay(area.barangay, DEFAULT_JURISDICTION);
-  // Set when the server refused the report as a standard case: the referral form is offered instead.
-  const [refer, setRefer] = useState<null | 'outside' | 'unverified'>(null);
+  // Set when the server refused the report because the account is not a verified resident: the short referral form is offered.
+  const [refer, setRefer] = useState<null | 'unverified'>(null);
+  // Set when the server saved the submission as a referral, or held it for location verification.
+  const [referralDone, setReferralDone] = useState<ReferralDone | null>(null);
 
   const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -208,6 +209,19 @@ export default function ReportCasePage() {
   // Only a street the resident picked themselves moves the map.
   const streetValue = watch('street');
   const focusStreet = streetValue && streetValue !== streetFromMap.current ? streetValue : undefined;
+
+  // The incident place, checked as it changes - province, municipality, barangay, street (list or
+  // map), the exact-spot pin - against the configured jurisdiction and boundary: inside, a case;
+  // outside, the referral form; uncertain, an official verifies the place. The server decides again.
+  const landmarkValue = watch('location') ?? '';
+  const { check: placeCheck, outcome: placeOutcome, namedElsewhere, usePin } = useIncidentCheck({
+    province: area.province, municipality: area.municipality, barangay: area.barangay, street: streetValue, details: landmarkValue,
+    latitude: place?.chosen ? place.latitude : null, longitude: place?.chosen ? place.longitude : null,
+  });
+  const referralMode = placeOutcome === 'REFERRAL';
+  const verifyMode = placeOutcome === 'LOCATION_VERIFICATION';
+  const sendPin = Boolean(place?.chosen) && usePin;
+  const placeLine = [streetValue, landmarkValue, area.barangay, area.municipality, area.province].map(v => (v ?? '').trim()).filter(Boolean).join(', ');
   const [intakeResult, setIntakeResult] = useState<IntakeResult | null>(null);
   // Which desk the assistant's reading points to, once there is one.
   const desk = intakeResult?.route ?? null;
@@ -359,11 +373,11 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           barangay: data.street,
           // Only sent once a pin is actually down. Nothing about the
           // resident's own position is recorded unless they placed it.
-          latitude: place?.chosen ? place.latitude : undefined,
-          longitude: place?.chosen ? place.longitude : undefined,
-          locationLabel: place?.chosen ? place.label ?? undefined : undefined,
-          municipality: place?.chosen ? place.municipality ?? undefined : undefined,
-          province: place?.chosen ? place.province ?? undefined : undefined,
+          latitude: sendPin && place ? place.latitude : undefined,
+          longitude: sendPin && place ? place.longitude : undefined,
+          locationLabel: sendPin && place ? place.label ?? undefined : undefined,
+          municipality: sendPin && place ? place.municipality ?? undefined : undefined,
+          province: sendPin && place ? place.province ?? undefined : undefined,
           // Checked against the jurisdiction on the server.
           incidentProvince: area.province.trim(),
           incidentMunicipality: area.municipality.trim(),
@@ -390,10 +404,22 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         }), percent => { if (photoLabel) setUpload({ label: photoLabel, percent }); });
       const json = res.json as { error?: string; code?: string; data?: Record<string, unknown> & { caseNumber: string } };
       if (cancelled.current) return;
+      // Saved as a referral (outside) or held for an official to verify the place: not a case.
+      const outcome = (json.data as { outcome?: string } | undefined)?.outcome;
+      if (res.ok && (outcome === 'REFERRAL' || outcome === 'LOCATION_VERIFICATION')) {
+        setUpload(null);
+        setPhase('idle'); setStage(0);
+        setSubmissionKey(newSubmissionKey());
+        setAssist(null); setOrganizer({ offered: false, decided: false });
+        try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* nothing to clear */ }
+        setReferralDone(json.data as unknown as ReferralDone);
+        toast.success(outcome === 'REFERRAL' ? 'Referral submitted' : 'Submitted for location verification');
+        return;
+      }
       if (!res.ok || !json.data) {
         setPhase('error');
         setUpload(null);
-        setRefer(json.code === 'OUTSIDE_JURISDICTION' ? 'outside' : json.code === 'RESIDENCY_NOT_VERIFIED' ? 'unverified' : null);
+        setRefer(json.code === 'RESIDENCY_NOT_VERIFIED' ? 'unverified' : null);
         // Said plainly: which photo, or that the photos together were too large to send.
         setApiError(res.status === 413
           ? 'The photos are too large to send together. Remove one or two and submit again - nothing was filed.'
@@ -428,6 +454,11 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         : 'Network error. Please try again.');
     }
   };
+
+  if (referralDone) {
+    return <ReferralConfirmation done={referralDone} onCases={() => router.push('/resident/my-cases')}
+      onAnother={() => { setReferralDone(null); setPhase('idle'); setStage(0); }} />;
+  }
 
   if (submitted) {
     const assessment = submitted.assessment;
@@ -519,9 +550,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               {refer && (
                 <Box sx={{ mb: 2.5, border: '1px solid #fecaca', borderRadius: 2, p: 2 }}>
                   <ReferralForm initial={area} initialSummary={lastSubmission.current?.description ?? ''}
-                    reason={refer === 'outside'
-                      ? 'This incident is outside SafeComm\'s jurisdiction, so it was not filed as a case. You can keep it as a referral record for the barangay, and contact the barangay or authority where it happened.'
-                      : 'Your residency is not verified yet, so this was not filed as a case. Keep it as a referral record for the barangay, and complete your residency under Residency.'} />
+                    reason={'Your residency is not verified yet, so this was not filed as a case. Keep it as a referral record for the barangay, and complete your residency under Residency.'} />
                 </Box>
               )}
 
@@ -669,12 +698,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   <Box sx={{ mb: 1.5 }}>
                     <AddressFields value={area} onChange={setArea} mode="incident" areaOnly disabled={isSubmitting || analysing} idPrefix="incident" />
                   </Box>
-                  {!inJurisdiction && (area.barangay.trim() && area.municipality.trim()) ? (
-                    <Box sx={{ border: '1px solid #fed7aa', bgcolor: '#fff7ed', borderRadius: 2, p: 2 }}>
-                      <ReferralForm initial={area}
-                        reason={'Ang lokasyong inilagay ninyo ay mukhang nasa labas ng sakop ng SafeComm. Mangyaring makipag-ugnayan sa kinauukulang barangay o awtoridad sa lugar kung saan nangyari ang insidente. (The location appears to be outside SafeComm\'s coverage: contact the barangay or authority where it happened. You may keep it here as a referral record.)'} />
-                    </Box>
-                  ) : (<>
+                  {namedElsewhere ? null : (<>
                   <Typography sx={{ fontSize: '0.82rem', color: '#64748b', mb: 1 }}>
                     Tap your street on the barangay map. If you can show the exact spot, switch to
                     Exact spot &mdash; it helps the barangay get there faster.
@@ -715,6 +739,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     />
                   )}
                   </>)}
+                  <Box sx={{ mt: 1.25 }}><JurisdictionNotice check={placeCheck} outcome={placeOutcome} namedElsewhere={namedElsewhere} /></Box>
                 </Box>
 
                 <Controller
@@ -824,7 +849,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     startIcon={isSubmitting || analysing ? <CircularProgress size={18} color="inherit" /> : <Send />}
                     sx={{ bgcolor: ACCENT, fontWeight: 700, minHeight: 48, '&:hover': { bgcolor: '#0d9488' }, boxShadow: '0 4px 14px rgba(20,184,166,0.35)', flex: 1 }}
                   >
-                    {isSubmitting || analysing ? 'Submitting…' : 'Submit Report'}
+                    {isSubmitting || analysing ? 'Submitting…' : referralMode ? 'Review Referral' : verifyMode ? 'Review and Submit for Location Check' : 'Submit Report'}
                   </Button>
                   <Button variant="outlined" size="large" onClick={() => router.push('/resident')}
                     sx={{ borderColor: '#e2e8f0', color: '#64748b', minHeight: 48 }}>
@@ -850,13 +875,14 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
         <DialogTitle id="review-title" sx={{ fontWeight: 800, color: '#0c1e46', pb: 0.5 }}>
           Before you submit
           <Typography component="span" sx={{ display: 'block', fontSize: '0.82rem', fontWeight: 400, color: '#64748b', mt: 0.25 }}>
-            SafeComm Assist is reading your report. Answer what you can &mdash; you can submit at any time.
+            {referralMode ? 'Check the referral details, then submit. Nothing you entered is lost.' : <>SafeComm Assist is reading your report. Answer what you can &mdash; you can submit at any time.</>}
           </Typography>
         </DialogTitle>
         <DialogContent dividers sx={{ px: { xs: 1.5, sm: 3 } }}>
           {reviewing && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <IntakeAssistant
+              <ReferralReview check={placeCheck} outcome={placeOutcome} locationLine={placeLine} />
+              {!referralMode && <IntakeAssistant
                 autoStart
                 narrative={reviewing.description}
                 selectedCategory=''
@@ -871,7 +897,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 disabled={isSubmitting || analysing}
                 // Danger: file what there is now, with no further steps.
                 onSubmitNow={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
-              />
+              />}
               {/* Before submitting: only the steps that apply to this draft. */}
               <ReportSteps lang={lang} testid="before-submit-steps" title={lang === 'tl' ? 'Bago mag-submit' : 'Before you submit'}
                 steps={beforeSubmitSteps({
@@ -883,7 +909,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 })} />
               <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                 {([
-                  ['Desk', 'Recommended by SafeComm AI from what you wrote'],
+                  referralMode ? ['Handled as', 'Referral - the barangay directs it to the responsible jurisdiction'] : ['Desk', 'Recommended by SafeComm AI from what you wrote'],
                   ['Reporting for', RELATIONSHIP_LABEL[(reviewing.reportingRelationship || 'SELF') as ReportingRelationship].en],
                   ['Street', reviewing.street],
                   ['When', [reviewing.incidentDate ? new Date(`${reviewing.incidentDate}T00:00:00+08:00`).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' }) : 'Date not sure',
@@ -907,7 +933,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
             again for itself. */}
         <Box sx={{ px: 3, pt: 1.25 }} role="status" aria-live="polite">
           <Typography sx={{ fontSize: '0.8rem', color: assistState === 'URGENT' ? '#b91c1c' : '#475569', lineHeight: 1.5 }}>
-            {assistState === 'URGENT'
+            {referralMode
+              ? 'Check the referral details above. When you submit, SafeComm checks the location again and saves this as a referral with everything you entered. No other office has accepted it until they confirm it.'
+              : assistState === 'URGENT'
               ? 'If someone may be in danger, submit now - you do not need to answer any more questions.'
               : assistState === 'FOLLOW_UP_REQUIRED'
                 ? 'A few more details would help the barangay understand what happened and respond the right way. Answer what you can and skip the rest. If you submit now, your report is saved as needing follow-up, and an officer may ask you for the missing details.'
@@ -929,7 +957,8 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
               const d = reviewing;
               if (!d) return;
               // Someone in danger files at once: no check, no further step.
-              if (assistState === 'URGENT') { setReviewing(null); onSubmit(d); return; }
+              // A referral is not a case: no duplicate-case check before it.
+              if (assistState === 'URGENT' || referralMode) { setReviewing(null); onSubmit(d); return; }
               void submitChecked(d);
             }}
             sx={{
@@ -938,7 +967,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 ? { borderColor: '#cbd5e1', color: '#475569' }
                 : assistState === 'URGENT' ? {} : { bgcolor: ACCENT, '&:hover': { bgcolor: '#0d9488' } }),
             }}>
-            {checking ? 'Checking…' : assistState === 'URGENT' ? 'Submit now' : assistState === 'FOLLOW_UP_REQUIRED' ? 'Submit without answering' : 'Submit report'}
+            {checking ? 'Checking…' : referralMode ? 'Submit referral' : assistState === 'URGENT' ? 'Submit now' : verifyMode ? 'Submit for location check' : assistState === 'FOLLOW_UP_REQUIRED' ? 'Submit without answering' : 'Submit report'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -984,6 +1013,67 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           setStage(0);
         }}
       />
+    </Box>
+  );
+}
+
+/** What the server answered when it saved the submission as a referral, or held it for location verification. */
+interface ReferralDone {
+  outcome: 'REFERRAL' | 'LOCATION_VERIFICATION';
+  referral: { id: string; referenceNumber: string | null; status: string; statusLabel: string; reason: string | null; location: string; validationResult: string | null };
+  explanation: string;
+  guidance: string[];
+  emergencyContacts: { label: string; number: string }[];
+}
+
+/** The referral confirmation: the reference number, what it means, and where to go - never that another office accepted it. */
+function ReferralConfirmation({ done, onCases, onAnother }: { done: ReferralDone; onCases: () => void; onAnother: () => void }) {
+  const referral = done.outcome === 'REFERRAL';
+  const r = done.referral;
+  return (
+    <Box sx={{ p: { xs: 1.5, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', width: '100%' }}>
+      <Card data-testid="referral-confirmation" sx={{ width: '100%', maxWidth: 680 }}>
+        <CardContent sx={{ p: { xs: 2.25, sm: 3.5 }, display: 'grid', gap: 2 }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: referral ? '#fff7ed' : '#fffbeb', mx: 'auto', mb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {referral ? <ForwardToInbox sx={{ fontSize: 34, color: '#c2410c' }} /> : <WhereToVote sx={{ fontSize: 34, color: '#b45309' }} />}
+            </Box>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#0c1e46' }}>{referral ? 'Referral Submitted' : 'Submitted for Location Verification'}</Typography>
+            <Typography sx={{ color: '#64748b', fontSize: '0.9rem', mt: 0.5, lineHeight: 1.6 }}>
+              {referral
+                ? 'The incident is outside the barangay\'s jurisdiction, so it was saved as a referral - not an ordinary SafeComm case. The barangay reviews it to direct your concern to the right jurisdiction.'
+                : 'SafeComm could not confirm the location, so an official will verify where it happened. Inside the barangay it becomes a SafeComm case; outside, a referral.'}
+            </Typography>
+          </Box>
+          <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, textAlign: 'center' }}>
+            <Typography sx={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>Referral reference number</Typography>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.45rem', color: '#c2410c', letterSpacing: '0.05em', fontVariantNumeric: 'tabular-nums' }}>{r.referenceNumber ?? 'Saved'}</Typography>
+            <Typography sx={{ fontSize: '0.82rem', color: '#475569', mt: 0.5 }}>
+              Status: <b>{r.statusLabel}</b> - {REFERRAL_STATUS_FOR_RESIDENT[r.status as ReferralStatus] ?? ''}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'grid', gap: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}><b>Incident location:</b> {r.location || 'Not given'}</Typography>
+            {r.reason && <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}><b>{referral ? 'Reason for referral' : 'Why it is checked'}:</b> {r.reason}</Typography>}
+          </Box>
+          <Box component="ul" sx={{ m: 0, pl: 2.25, display: 'grid', gap: 0.5 }}>
+            {done.guidance.map((g, i) => <Typography component="li" key={i} sx={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5 }}>{g}</Typography>)}
+          </Box>
+          {done.emergencyContacts.length > 0 && (
+            <Box sx={{ border: '1px solid #fecaca', bgcolor: '#fef2f2', borderRadius: 2, p: 1.5 }}>
+              <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: '#b91c1c', mb: 0.5 }}>If anyone is in danger now - SafeComm is not an emergency response service</Typography>
+              {done.emergencyContacts.map(c => (
+                <Typography key={c.number} sx={{ fontSize: '0.82rem', color: '#7f1d1d' }}>{c.label}: <a href={`tel:${c.number.replace(/[^\d+]/g, '')}`} style={{ color: 'inherit', fontWeight: 700 }}>{c.number}</a></Typography>
+              ))}
+            </Box>
+          )}
+          <Typography sx={{ fontSize: '0.78rem', color: '#64748b' }}>Follow it under My Cases - Referrals. The barangay will post updates there.</Typography>
+          <Box sx={{ display: 'flex', gap: 1.25, justifyContent: 'center', flexDirection: { xs: 'column', sm: 'row' } }}>
+            <Button variant="outlined" onClick={onCases} sx={{ borderColor: ACCENT, color: ACCENT, fontWeight: 600, minHeight: 44 }}>View My Cases</Button>
+            <Button variant="contained" onClick={onAnother} sx={{ bgcolor: ACCENT, fontWeight: 600, minHeight: 44, '&:hover': { bgcolor: '#0d9488' } }}>File Another</Button>
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

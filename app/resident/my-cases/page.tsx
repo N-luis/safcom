@@ -22,6 +22,7 @@ const MotionTableRow = motion(TableRow);
 import useSWR from 'swr';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import EvidenceGallery from '@/components/cases/EvidenceGallery';
+import MyReferrals from '@/components/referrals/MyReferrals';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -200,6 +201,9 @@ function MyCasesPage() {
           New Report
         </Button>
       </Box>
+
+      {/* Referrals (outside the jurisdiction, or a location being verified) - not cases, so apart from them. */}
+      <MyReferrals />
 
       {/* Status summary chips */}
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2.5 }}>

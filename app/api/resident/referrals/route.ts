@@ -6,7 +6,8 @@ import { noStore } from '@/lib/caseRecordsServer';
 import { rateLimit } from '@/lib/rateLimit';
 import { residencyOf, checkAgainstJurisdiction, RESIDENCY_VERIFIER_ROLES } from '@/lib/jurisdictionServer';
 import { EMERGENCY_CONTACTS } from '@/lib/safecommConfig';
-import { REFERRAL_KINDS, REFERRAL_STATUSES, type ReferralKind, type ReferralStatus } from '@/lib/jurisdiction';
+import { REFERRAL_KINDS, referralReason, validationSummary, type ReferralKind } from '@/lib/jurisdiction';
+import { residentReferrals, nextReferenceNumber, residentGuidance } from '@/lib/incidentReferralServer';
 import { roundCoord } from '@/lib/geo';
 import { logRouteError } from '@/lib/hearingCasesServer';
 
@@ -41,9 +42,8 @@ const schema = z.object({
 export async function GET(req: NextRequest) {
   const auth = await requireResidentAuth(req);
   if ('status' in auth) return auth;
-  const rows = await prisma.jurisdictionReferral.findMany({ where: { residentId: auth.resident.residentId }, orderBy: { createdAt: 'desc' }, take: 20,
-    select: { id: true, kind: true, urgent: true, status: true, barangay: true, municipality: true, createdAt: true } });
-  return noStore({ success: true, data: rows.map(r => ({ ...r, kindLabel: REFERRAL_KINDS[r.kind as ReferralKind], statusLabel: REFERRAL_STATUSES[r.status as ReferralStatus] })) });
+  // Status, reason and the updates an official chose to share - never internal notes or anyone else's details.
+  return noStore({ success: true, data: await residentReferrals(auth.resident.residentId) });
 }
 
 export async function POST(req: NextRequest) {
@@ -66,31 +66,35 @@ export async function POST(req: NextRequest) {
     if (!kind) {
       return noStore({ success: false, code: 'FILE_A_REPORT', error: 'Your account is verified and this location is within SafeComm\'s jurisdiction - file it as a report instead (File a Report).' }, 409);
     }
+    const status = 'PENDING_REVIEW';
     const row = await prisma.$transaction(async tx => {
+      const referenceNumber = await nextReferenceNumber(tx);
       const r = await tx.jurisdictionReferral.create({ data: {
-        residentId: me, kind, urgent: Boolean(d.urgent), reportingRelationship: d.reportingRelationship || null,
+        referenceNumber, residentId: me, kind, urgent: Boolean(d.urgent), status, source: 'REFERRAL_FORM', reportingRelationship: d.reportingRelationship || null,
         province: d.province || null, municipality: d.municipality || null, barangay: d.barangay || null, street: d.street || null,
         locationDetails: d.locationDetails || null, latitude: pin?.latitude ?? null, longitude: pin?.longitude ?? null,
         summary: d.summary || null, locationCheck: JSON.parse(JSON.stringify(check)),
+        validationResult: validationSummary(check),
+        reason: kind === 'OUTSIDE_JURISDICTION' ? referralReason(check) : REFERRAL_KINDS[kind],
+        recommendedDestination: check.destination ? JSON.parse(JSON.stringify(check.destination)) : undefined,
+        // Without the report itself there is nothing to read for a VAWC concern: kept to the captain and the VAWC desk.
+        confidential: true,
       } });
-      // The captain is told a referral is waiting - not what it says.
-      const verifiers = await tx.user.findMany({ where: { active: true, role: { in: RESIDENCY_VERIFIER_ROLES } }, select: { id: true } });
-      for (const v of verifiers) {
+      await tx.jurisdictionReferralEvent.create({ data: { referralId: r.id, kind: 'created', actorType: 'resident', actorId: me, toStatus: status,
+        note: `Saved from the referral form (${REFERRAL_KINDS[kind]}).`, residentMessage: 'Received. The barangay will review it.', snapshot: JSON.parse(JSON.stringify({ check })) } });
+      // The captain and the VAWC desk are told a referral is waiting - not what it says.
+      const reviewers = await tx.user.findMany({ where: { active: true, role: { in: [...RESIDENCY_VERIFIER_ROLES, 'vawc_officer', 'vawc', 'vawc_lead'] } }, select: { id: true } });
+      for (const v of reviewers) {
         await tx.notification.create({ data: { userId: v.id, type: d.urgent ? 'warning' : 'info',
-          title: d.urgent ? 'Urgent referral received' : 'Referral received',
-          message: `${REFERRAL_KINDS[kind]}. Open Resident Verification - Referrals to review it.` } });
+          title: d.urgent ? `Urgent referral ${referenceNumber}` : `Referral ${referenceNumber} received`,
+          message: `${REFERRAL_KINDS[kind]}. Open Referrals to review it.` } });
       }
       return r;
     });
-    const where = check.destination ? [check.destination.barangay, check.destination.municipality, check.destination.province].filter(Boolean).join(', ') : null;
     return noStore({ success: true, data: {
-      id: row.id, kind, kindLabel: REFERRAL_KINDS[kind],
-      guidance: [
-        ...(d.urgent ? ['Kung may agarang panganib, tumawag kaagad sa mga numero sa ibaba. (If anyone is in immediate danger, call the numbers below now.)'] : []),
-        where && kind === 'OUTSIDE_JURISDICTION'
-          ? `Makipag-ugnayan sa barangay o awtoridad ng ${where}. (Contact the barangay or local authority of ${where}.)`
-          : 'Ang barangay ang susuri sa record na ito; hindi pa ito isang SafeComm case. (The barangay reviews this record; it is not a SafeComm case.)',
-      ],
+      id: row.id, referenceNumber: row.referenceNumber, kind, kindLabel: REFERRAL_KINDS[kind],
+      guidance: kind === 'OUTSIDE_JURISDICTION' ? residentGuidance(kind, check, Boolean(d.urgent))
+        : [...(d.urgent ? residentGuidance('URGENT', null, true) : []), 'Ang barangay ang susuri sa record na ito; hindi pa ito isang SafeComm case. (The barangay reviews this record; it is not a SafeComm case.)'],
       emergencyContacts: EMERGENCY_CONTACTS,
     } }, 201);
   } catch (e) {

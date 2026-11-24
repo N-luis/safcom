@@ -71,6 +71,8 @@ export const ModelName = {
   ResidencyEvent: 'ResidencyEvent',
   JurisdictionConfig: 'JurisdictionConfig',
   JurisdictionReferral: 'JurisdictionReferral',
+  JurisdictionReferralEvent: 'JurisdictionReferralEvent',
+  JurisdictionReferralAttachment: 'JurisdictionReferralAttachment',
   EmailVerificationToken: 'EmailVerificationToken',
   Activity: 'Activity',
   Notification: 'Notification',
@@ -580,9 +582,12 @@ export type JurisdictionConfigScalarFieldEnum = (typeof JurisdictionConfigScalar
 
 export const JurisdictionReferralScalarFieldEnum = {
   id: 'id',
+  referenceNumber: 'referenceNumber',
   residentId: 'residentId',
   kind: 'kind',
   urgent: 'urgent',
+  source: 'source',
+  submissionKey: 'submissionKey',
   reportingRelationship: 'reportingRelationship',
   province: 'province',
   municipality: 'municipality',
@@ -592,15 +597,63 @@ export const JurisdictionReferralScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   summary: 'summary',
+  residentOriginalNarrative: 'residentOriginalNarrative',
+  narrativeAssist: 'narrativeAssist',
+  incidentDate: 'incidentDate',
+  incidentTimeApprox: 'incidentTimeApprox',
+  reportPayload: 'reportPayload',
   locationCheck: 'locationCheck',
+  validationResult: 'validationResult',
+  reason: 'reason',
+  recommendedDestination: 'recommendedDestination',
+  recommendedDesk: 'recommendedDesk',
+  confidential: 'confidential',
   status: 'status',
+  receivingOffice: 'receivingOffice',
+  assignedToId: 'assignedToId',
+  forwardedAt: 'forwardedAt',
+  acknowledgedAt: 'acknowledgedAt',
+  caseId: 'caseId',
   reviewNote: 'reviewNote',
   reviewedById: 'reviewedById',
   reviewedAt: 'reviewedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type JurisdictionReferralScalarFieldEnum = (typeof JurisdictionReferralScalarFieldEnum)[keyof typeof JurisdictionReferralScalarFieldEnum]
+
+
+export const JurisdictionReferralEventScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  residentMessage: 'residentMessage',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralEventScalarFieldEnum = (typeof JurisdictionReferralEventScalarFieldEnum)[keyof typeof JurisdictionReferralEventScalarFieldEnum]
+
+
+export const JurisdictionReferralAttachmentScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  filename: 'filename',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  sha256: 'sha256',
+  uploadedByResidentId: 'uploadedByResidentId',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralAttachmentScalarFieldEnum = (typeof JurisdictionReferralAttachmentScalarFieldEnum)[keyof typeof JurisdictionReferralAttachmentScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {

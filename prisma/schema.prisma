@@ -181,6 +181,8 @@ model Case {
   /// response, a second tap) returns the case already filed instead of
   /// filing it - and its photos - twice.
   submissionKey String?
+  /// Referral records that an official confirmed inside and filed as this case.
+  jurisdictionReferrals JurisdictionReferral[]
   @@unique([residentId, submissionKey])
   @@index([progressState])
   /// Case search (lib/caseSearch.ts): the incident date, and partial, case-insensitive
@@ -776,12 +778,18 @@ model JurisdictionConfig {
 /// appropriate, staff take it in through the Walk-in Report.
 model JurisdictionReferral {
   id                    String    @id @default(cuid())
+  /// REF-<year>-<number>: what the resident and officials quote. Unique.
+  referenceNumber       String?   @unique
   residentId            String?
   resident              Resident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
-  /// OUTSIDE_JURISDICTION | UNVERIFIED_REPORTER | URGENT
+  /// OUTSIDE_JURISDICTION | LOCATION_VERIFICATION | UNVERIFIED_REPORTER | URGENT - decided on the server, never sent by a client
   kind                  String
   urgent                Boolean   @default(false)
-  /// SELF | ON_BEHALF | ANONYMOUS ... as on the report form
+  /// REFERRAL_FORM (the short referral form) | REPORT_FORM (File a Report, re-routed by the server's location check)
+  source                String    @default("REFERRAL_FORM")
+  /// The form's key for one submission, so a retry never saves the referral twice.
+  submissionKey         String?
+  /// SELF | THIRD_PARTY | ON_BEHALF | ANONYMOUS ... as on the report form
   reportingRelationship String?
   province              String?
   municipality          String?
@@ -792,17 +800,87 @@ model JurisdictionReferral {
   longitude             Float?
   /// What happened, in the reporter's words (optional).
   summary               String?
-  /// The server's check of the incident location.
+  /// The resident's own words when they used the organized description (never written by the AI), and how it was used.
+  residentOriginalNarrative String?
+  narrativeAssist       String?
+  incidentDate          DateTime?
+  incidentTimeApprox    String?
+  /// Everything else the report form collected (people, answers, interview, witnesses, notes, contact preference) -
+  /// kept so nothing has to be asked again, and so a location confirmed inside can be filed as the case it would have been.
+  reportPayload         Json?
+  /// The server's check of the incident location (lib/jurisdiction.ts LocationCheck).
   locationCheck         Json?
-  /// NEW | REVIEWED | CLOSED
-  status                String    @default("NEW")
+  /// The validation result in one line, and the reason for the referral - both written by the server.
+  validationResult      String?
+  reason                String?
+  /// The jurisdiction the reporter named, when it is another one (not a verified receiving office).
+  recommendedDestination Json?
+  /// SafeComm's rules' desk reading: VAWC referrals are confidential (the captain and the VAWC desk only).
+  recommendedDesk       String?
+  confidential          Boolean   @default(false)
+  /// PENDING_REVIEW | FOR_VERIFICATION | READY_FOR_REFERRAL | REFERRED | ACKNOWLEDGED | FOLLOW_UP_REQUIRED | CLOSED
+  status                String    @default("PENDING_REVIEW")
+  /// The receiving office or jurisdiction, recorded by an official once verified.
+  receivingOffice       String?
+  assignedToId          String?
+  forwardedAt           DateTime?
+  /// Set only when an official records the receiving office's acknowledgment.
+  acknowledgedAt        DateTime?
+  /// Set when an official confirmed the location inside and it was filed as a case.
+  caseId                String?
+  case                  Case?     @relation(fields: [caseId], references: [id], onDelete: SetNull)
   reviewNote            String?
   reviewedById          String?
   reviewedAt            DateTime?
   createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+  events                JurisdictionReferralEvent[]
+  attachments           JurisdictionReferralAttachment[]
 
+  @@unique([residentId, submissionKey])
   @@index([status, createdAt])
   @@index([residentId])
+  @@index([confidential, status])
+}
+
+/// A referral's history: every status change, note, location re-check and decision. Insert-only (a trigger refuses changes).
+model JurisdictionReferralEvent {
+  id                String               @id @default(cuid())
+  referralId        String
+  referral          JurisdictionReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  /// created | status | note | assigned | receiving_office | forwarded | acknowledged | location_rechecked | confirmed_outside | filed_as_case
+  kind              String
+  /// resident | official | system
+  actorType         String
+  actorId           String?
+  fromStatus        String?
+  toStatus          String?
+  /// Internal - officials only.
+  note              String?
+  /// Shown to the resident on My Cases. Only what an official chose to tell them.
+  residentMessage   String?
+  /// The location check before and after, the fields changed, as they stood.
+  snapshot          Json?
+  createdAt         DateTime             @default(now())
+
+  @@index([referralId, createdAt])
+}
+
+/// The photos a referral came with, kept as received (the same fingerprinting as case evidence).
+model JurisdictionReferralAttachment {
+  id                   String               @id @default(cuid())
+  referralId           String
+  referral             JurisdictionReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  filename             String
+  mimeType             String
+  size                 Int
+  data                 Bytes
+  sha256               String
+  uploadedByResidentId String?
+  createdAt            DateTime             @default(now())
+
+  @@unique([referralId, sha256])
+  @@index([referralId])
 }
 
 model EmailVerificationToken {

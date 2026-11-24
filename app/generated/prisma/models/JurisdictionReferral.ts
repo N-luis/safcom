@@ -42,9 +42,12 @@ export type JurisdictionReferralSumAggregateOutputType = {
 
 export type JurisdictionReferralMinAggregateOutputType = {
   id: string | null
+  referenceNumber: string | null
   residentId: string | null
   kind: string | null
   urgent: boolean | null
+  source: string | null
+  submissionKey: string | null
   reportingRelationship: string | null
   province: string | null
   municipality: string | null
@@ -54,18 +57,35 @@ export type JurisdictionReferralMinAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   summary: string | null
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
+  incidentDate: Date | null
+  incidentTimeApprox: string | null
+  validationResult: string | null
+  reason: string | null
+  recommendedDesk: string | null
+  confidential: boolean | null
   status: string | null
+  receivingOffice: string | null
+  assignedToId: string | null
+  forwardedAt: Date | null
+  acknowledgedAt: Date | null
+  caseId: string | null
   reviewNote: string | null
   reviewedById: string | null
   reviewedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type JurisdictionReferralMaxAggregateOutputType = {
   id: string | null
+  referenceNumber: string | null
   residentId: string | null
   kind: string | null
   urgent: boolean | null
+  source: string | null
+  submissionKey: string | null
   reportingRelationship: string | null
   province: string | null
   municipality: string | null
@@ -75,18 +95,35 @@ export type JurisdictionReferralMaxAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   summary: string | null
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
+  incidentDate: Date | null
+  incidentTimeApprox: string | null
+  validationResult: string | null
+  reason: string | null
+  recommendedDesk: string | null
+  confidential: boolean | null
   status: string | null
+  receivingOffice: string | null
+  assignedToId: string | null
+  forwardedAt: Date | null
+  acknowledgedAt: Date | null
+  caseId: string | null
   reviewNote: string | null
   reviewedById: string | null
   reviewedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type JurisdictionReferralCountAggregateOutputType = {
   id: number
+  referenceNumber: number
   residentId: number
   kind: number
   urgent: number
+  source: number
+  submissionKey: number
   reportingRelationship: number
   province: number
   municipality: number
@@ -96,12 +133,28 @@ export type JurisdictionReferralCountAggregateOutputType = {
   latitude: number
   longitude: number
   summary: number
+  residentOriginalNarrative: number
+  narrativeAssist: number
+  incidentDate: number
+  incidentTimeApprox: number
+  reportPayload: number
   locationCheck: number
+  validationResult: number
+  reason: number
+  recommendedDestination: number
+  recommendedDesk: number
+  confidential: number
   status: number
+  receivingOffice: number
+  assignedToId: number
+  forwardedAt: number
+  acknowledgedAt: number
+  caseId: number
   reviewNote: number
   reviewedById: number
   reviewedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -118,9 +171,12 @@ export type JurisdictionReferralSumAggregateInputType = {
 
 export type JurisdictionReferralMinAggregateInputType = {
   id?: true
+  referenceNumber?: true
   residentId?: true
   kind?: true
   urgent?: true
+  source?: true
+  submissionKey?: true
   reportingRelationship?: true
   province?: true
   municipality?: true
@@ -130,18 +186,35 @@ export type JurisdictionReferralMinAggregateInputType = {
   latitude?: true
   longitude?: true
   summary?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
+  incidentDate?: true
+  incidentTimeApprox?: true
+  validationResult?: true
+  reason?: true
+  recommendedDesk?: true
+  confidential?: true
   status?: true
+  receivingOffice?: true
+  assignedToId?: true
+  forwardedAt?: true
+  acknowledgedAt?: true
+  caseId?: true
   reviewNote?: true
   reviewedById?: true
   reviewedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type JurisdictionReferralMaxAggregateInputType = {
   id?: true
+  referenceNumber?: true
   residentId?: true
   kind?: true
   urgent?: true
+  source?: true
+  submissionKey?: true
   reportingRelationship?: true
   province?: true
   municipality?: true
@@ -151,18 +224,35 @@ export type JurisdictionReferralMaxAggregateInputType = {
   latitude?: true
   longitude?: true
   summary?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
+  incidentDate?: true
+  incidentTimeApprox?: true
+  validationResult?: true
+  reason?: true
+  recommendedDesk?: true
+  confidential?: true
   status?: true
+  receivingOffice?: true
+  assignedToId?: true
+  forwardedAt?: true
+  acknowledgedAt?: true
+  caseId?: true
   reviewNote?: true
   reviewedById?: true
   reviewedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type JurisdictionReferralCountAggregateInputType = {
   id?: true
+  referenceNumber?: true
   residentId?: true
   kind?: true
   urgent?: true
+  source?: true
+  submissionKey?: true
   reportingRelationship?: true
   province?: true
   municipality?: true
@@ -172,12 +262,28 @@ export type JurisdictionReferralCountAggregateInputType = {
   latitude?: true
   longitude?: true
   summary?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
+  incidentDate?: true
+  incidentTimeApprox?: true
+  reportPayload?: true
   locationCheck?: true
+  validationResult?: true
+  reason?: true
+  recommendedDestination?: true
+  recommendedDesk?: true
+  confidential?: true
   status?: true
+  receivingOffice?: true
+  assignedToId?: true
+  forwardedAt?: true
+  acknowledgedAt?: true
+  caseId?: true
   reviewNote?: true
   reviewedById?: true
   reviewedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -269,9 +375,12 @@ export type JurisdictionReferralGroupByArgs<ExtArgs extends runtime.Types.Extens
 
 export type JurisdictionReferralGroupByOutputType = {
   id: string
+  referenceNumber: string | null
   residentId: string | null
   kind: string
   urgent: boolean
+  source: string
+  submissionKey: string | null
   reportingRelationship: string | null
   province: string | null
   municipality: string | null
@@ -281,12 +390,28 @@ export type JurisdictionReferralGroupByOutputType = {
   latitude: number | null
   longitude: number | null
   summary: string | null
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
+  incidentDate: Date | null
+  incidentTimeApprox: string | null
+  reportPayload: runtime.JsonValue | null
   locationCheck: runtime.JsonValue | null
+  validationResult: string | null
+  reason: string | null
+  recommendedDestination: runtime.JsonValue | null
+  recommendedDesk: string | null
+  confidential: boolean
   status: string
+  receivingOffice: string | null
+  assignedToId: string | null
+  forwardedAt: Date | null
+  acknowledgedAt: Date | null
+  caseId: string | null
   reviewNote: string | null
   reviewedById: string | null
   reviewedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: JurisdictionReferralCountAggregateOutputType | null
   _avg: JurisdictionReferralAvgAggregateOutputType | null
   _sum: JurisdictionReferralSumAggregateOutputType | null
@@ -314,9 +439,12 @@ export type JurisdictionReferralWhereInput = {
   OR?: Prisma.JurisdictionReferralWhereInput[]
   NOT?: Prisma.JurisdictionReferralWhereInput | Prisma.JurisdictionReferralWhereInput[]
   id?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  referenceNumber?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   residentId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   kind?: Prisma.StringFilter<"JurisdictionReferral"> | string
   urgent?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
+  source?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  submissionKey?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reportingRelationship?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   province?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
@@ -326,20 +454,42 @@ export type JurisdictionReferralWhereInput = {
   latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   summary?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  incidentDate?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  incidentTimeApprox?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reportPayload?: Prisma.JsonNullableFilter<"JurisdictionReferral">
   locationCheck?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  validationResult?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reason?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  recommendedDestination?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  recommendedDesk?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  confidential?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
   status?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  receivingOffice?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  assignedToId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  forwardedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  caseId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewNote?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewedById?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
+  case?: Prisma.XOR<Prisma.CaseNullableScalarRelationFilter, Prisma.CaseWhereInput> | null
+  events?: Prisma.JurisdictionReferralEventListRelationFilter
+  attachments?: Prisma.JurisdictionReferralAttachmentListRelationFilter
 }
 
 export type JurisdictionReferralOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  referenceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   kind?: Prisma.SortOrder
   urgent?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   reportingRelationship?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrderInput | Prisma.SortOrder
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -349,23 +499,46 @@ export type JurisdictionReferralOrderByWithRelationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrderInput | Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentTimeApprox?: Prisma.SortOrderInput | Prisma.SortOrder
+  reportPayload?: Prisma.SortOrderInput | Prisma.SortOrder
   locationCheck?: Prisma.SortOrderInput | Prisma.SortOrder
+  validationResult?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  recommendedDestination?: Prisma.SortOrderInput | Prisma.SortOrder
+  recommendedDesk?: Prisma.SortOrderInput | Prisma.SortOrder
+  confidential?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  receivingOffice?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
+  forwardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  caseId?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   resident?: Prisma.ResidentOrderByWithRelationInput
+  case?: Prisma.CaseOrderByWithRelationInput
+  events?: Prisma.JurisdictionReferralEventOrderByRelationAggregateInput
+  attachments?: Prisma.JurisdictionReferralAttachmentOrderByRelationAggregateInput
 }
 
 export type JurisdictionReferralWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  referenceNumber?: string
+  residentId_submissionKey?: Prisma.JurisdictionReferralResidentIdSubmissionKeyCompoundUniqueInput
   AND?: Prisma.JurisdictionReferralWhereInput | Prisma.JurisdictionReferralWhereInput[]
   OR?: Prisma.JurisdictionReferralWhereInput[]
   NOT?: Prisma.JurisdictionReferralWhereInput | Prisma.JurisdictionReferralWhereInput[]
   residentId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   kind?: Prisma.StringFilter<"JurisdictionReferral"> | string
   urgent?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
+  source?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  submissionKey?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reportingRelationship?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   province?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
@@ -375,20 +548,42 @@ export type JurisdictionReferralWhereUniqueInput = Prisma.AtLeast<{
   latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   summary?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  incidentDate?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  incidentTimeApprox?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reportPayload?: Prisma.JsonNullableFilter<"JurisdictionReferral">
   locationCheck?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  validationResult?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reason?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  recommendedDestination?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  recommendedDesk?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  confidential?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
   status?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  receivingOffice?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  assignedToId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  forwardedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  caseId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewNote?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewedById?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
   resident?: Prisma.XOR<Prisma.ResidentNullableScalarRelationFilter, Prisma.ResidentWhereInput> | null
-}, "id">
+  case?: Prisma.XOR<Prisma.CaseNullableScalarRelationFilter, Prisma.CaseWhereInput> | null
+  events?: Prisma.JurisdictionReferralEventListRelationFilter
+  attachments?: Prisma.JurisdictionReferralAttachmentListRelationFilter
+}, "id" | "referenceNumber" | "residentId_submissionKey">
 
 export type JurisdictionReferralOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  referenceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   kind?: Prisma.SortOrder
   urgent?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   reportingRelationship?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrderInput | Prisma.SortOrder
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -398,12 +593,28 @@ export type JurisdictionReferralOrderByWithAggregationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrderInput | Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentTimeApprox?: Prisma.SortOrderInput | Prisma.SortOrder
+  reportPayload?: Prisma.SortOrderInput | Prisma.SortOrder
   locationCheck?: Prisma.SortOrderInput | Prisma.SortOrder
+  validationResult?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  recommendedDestination?: Prisma.SortOrderInput | Prisma.SortOrder
+  recommendedDesk?: Prisma.SortOrderInput | Prisma.SortOrder
+  confidential?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  receivingOffice?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
+  forwardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  caseId?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.JurisdictionReferralCountOrderByAggregateInput
   _avg?: Prisma.JurisdictionReferralAvgOrderByAggregateInput
   _max?: Prisma.JurisdictionReferralMaxOrderByAggregateInput
@@ -416,9 +627,12 @@ export type JurisdictionReferralScalarWhereWithAggregatesInput = {
   OR?: Prisma.JurisdictionReferralScalarWhereWithAggregatesInput[]
   NOT?: Prisma.JurisdictionReferralScalarWhereWithAggregatesInput | Prisma.JurisdictionReferralScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"JurisdictionReferral"> | string
+  referenceNumber?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   residentId?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   kind?: Prisma.StringWithAggregatesFilter<"JurisdictionReferral"> | string
   urgent?: Prisma.BoolWithAggregatesFilter<"JurisdictionReferral"> | boolean
+  source?: Prisma.StringWithAggregatesFilter<"JurisdictionReferral"> | string
+  submissionKey?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   reportingRelationship?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   province?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   municipality?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
@@ -428,18 +642,37 @@ export type JurisdictionReferralScalarWhereWithAggregatesInput = {
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"JurisdictionReferral"> | number | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  residentOriginalNarrative?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  narrativeAssist?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  incidentDate?: Prisma.DateTimeNullableWithAggregatesFilter<"JurisdictionReferral"> | Date | string | null
+  incidentTimeApprox?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  reportPayload?: Prisma.JsonNullableWithAggregatesFilter<"JurisdictionReferral">
   locationCheck?: Prisma.JsonNullableWithAggregatesFilter<"JurisdictionReferral">
+  validationResult?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  reason?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  recommendedDestination?: Prisma.JsonNullableWithAggregatesFilter<"JurisdictionReferral">
+  recommendedDesk?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  confidential?: Prisma.BoolWithAggregatesFilter<"JurisdictionReferral"> | boolean
   status?: Prisma.StringWithAggregatesFilter<"JurisdictionReferral"> | string
+  receivingOffice?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  assignedToId?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  forwardedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"JurisdictionReferral"> | Date | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"JurisdictionReferral"> | Date | string | null
+  caseId?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   reviewNote?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   reviewedById?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"JurisdictionReferral"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"JurisdictionReferral"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"JurisdictionReferral"> | Date | string
 }
 
 export type JurisdictionReferralCreateInput = {
   id?: string
+  referenceNumber?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -449,20 +682,41 @@ export type JurisdictionReferralCreateInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   resident?: Prisma.ResidentCreateNestedOneWithoutJurisdictionReferralsInput
+  case?: Prisma.CaseCreateNestedOneWithoutJurisdictionReferralsInput
+  events?: Prisma.JurisdictionReferralEventCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentCreateNestedManyWithoutReferralInput
 }
 
 export type JurisdictionReferralUncheckedCreateInput = {
   id?: string
+  referenceNumber?: string | null
   residentId?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -472,18 +726,39 @@ export type JurisdictionReferralUncheckedCreateInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedCreateNestedManyWithoutReferralInput
 }
 
 export type JurisdictionReferralUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -493,20 +768,41 @@ export type JurisdictionReferralUpdateInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resident?: Prisma.ResidentUpdateOneWithoutJurisdictionReferralsNestedInput
+  case?: Prisma.CaseUpdateOneWithoutJurisdictionReferralsNestedInput
+  events?: Prisma.JurisdictionReferralEventUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUpdateManyWithoutReferralNestedInput
 }
 
 export type JurisdictionReferralUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -516,19 +812,40 @@ export type JurisdictionReferralUncheckedUpdateInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedUpdateManyWithoutReferralNestedInput
 }
 
 export type JurisdictionReferralCreateManyInput = {
   id?: string
+  referenceNumber?: string | null
   residentId?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -538,18 +855,37 @@ export type JurisdictionReferralCreateManyInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type JurisdictionReferralUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,19 +895,37 @@ export type JurisdictionReferralUpdateManyMutationInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type JurisdictionReferralUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -581,12 +935,28 @@ export type JurisdictionReferralUncheckedUpdateManyInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type JurisdictionReferralListRelationFilter = {
@@ -599,11 +969,19 @@ export type JurisdictionReferralOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type JurisdictionReferralResidentIdSubmissionKeyCompoundUniqueInput = {
+  residentId: string
+  submissionKey: string
+}
+
 export type JurisdictionReferralCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  referenceNumber?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   urgent?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   reportingRelationship?: Prisma.SortOrder
   province?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
@@ -613,12 +991,28 @@ export type JurisdictionReferralCountOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
+  incidentDate?: Prisma.SortOrder
+  incidentTimeApprox?: Prisma.SortOrder
+  reportPayload?: Prisma.SortOrder
   locationCheck?: Prisma.SortOrder
+  validationResult?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
+  recommendedDestination?: Prisma.SortOrder
+  recommendedDesk?: Prisma.SortOrder
+  confidential?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  receivingOffice?: Prisma.SortOrder
+  assignedToId?: Prisma.SortOrder
+  forwardedAt?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  caseId?: Prisma.SortOrder
   reviewNote?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type JurisdictionReferralAvgOrderByAggregateInput = {
@@ -628,9 +1022,12 @@ export type JurisdictionReferralAvgOrderByAggregateInput = {
 
 export type JurisdictionReferralMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  referenceNumber?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   urgent?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   reportingRelationship?: Prisma.SortOrder
   province?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
@@ -640,18 +1037,35 @@ export type JurisdictionReferralMaxOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
+  incidentDate?: Prisma.SortOrder
+  incidentTimeApprox?: Prisma.SortOrder
+  validationResult?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
+  recommendedDesk?: Prisma.SortOrder
+  confidential?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  receivingOffice?: Prisma.SortOrder
+  assignedToId?: Prisma.SortOrder
+  forwardedAt?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  caseId?: Prisma.SortOrder
   reviewNote?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type JurisdictionReferralMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  referenceNumber?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   urgent?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  submissionKey?: Prisma.SortOrder
   reportingRelationship?: Prisma.SortOrder
   province?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
@@ -661,16 +1075,77 @@ export type JurisdictionReferralMinOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
+  incidentDate?: Prisma.SortOrder
+  incidentTimeApprox?: Prisma.SortOrder
+  validationResult?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
+  recommendedDesk?: Prisma.SortOrder
+  confidential?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  receivingOffice?: Prisma.SortOrder
+  assignedToId?: Prisma.SortOrder
+  forwardedAt?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  caseId?: Prisma.SortOrder
   reviewNote?: Prisma.SortOrder
   reviewedById?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type JurisdictionReferralSumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+}
+
+export type JurisdictionReferralScalarRelationFilter = {
+  is?: Prisma.JurisdictionReferralWhereInput
+  isNot?: Prisma.JurisdictionReferralWhereInput
+}
+
+export type JurisdictionReferralCreateNestedManyWithoutCaseInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput> | Prisma.JurisdictionReferralCreateWithoutCaseInput[] | Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput | Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput[]
+  createMany?: Prisma.JurisdictionReferralCreateManyCaseInputEnvelope
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+}
+
+export type JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput> | Prisma.JurisdictionReferralCreateWithoutCaseInput[] | Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput | Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput[]
+  createMany?: Prisma.JurisdictionReferralCreateManyCaseInputEnvelope
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+}
+
+export type JurisdictionReferralUpdateManyWithoutCaseNestedInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput> | Prisma.JurisdictionReferralCreateWithoutCaseInput[] | Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput | Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput[]
+  upsert?: Prisma.JurisdictionReferralUpsertWithWhereUniqueWithoutCaseInput | Prisma.JurisdictionReferralUpsertWithWhereUniqueWithoutCaseInput[]
+  createMany?: Prisma.JurisdictionReferralCreateManyCaseInputEnvelope
+  set?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  disconnect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  delete?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  update?: Prisma.JurisdictionReferralUpdateWithWhereUniqueWithoutCaseInput | Prisma.JurisdictionReferralUpdateWithWhereUniqueWithoutCaseInput[]
+  updateMany?: Prisma.JurisdictionReferralUpdateManyWithWhereWithoutCaseInput | Prisma.JurisdictionReferralUpdateManyWithWhereWithoutCaseInput[]
+  deleteMany?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
+}
+
+export type JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput> | Prisma.JurisdictionReferralCreateWithoutCaseInput[] | Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput | Prisma.JurisdictionReferralCreateOrConnectWithoutCaseInput[]
+  upsert?: Prisma.JurisdictionReferralUpsertWithWhereUniqueWithoutCaseInput | Prisma.JurisdictionReferralUpsertWithWhereUniqueWithoutCaseInput[]
+  createMany?: Prisma.JurisdictionReferralCreateManyCaseInputEnvelope
+  set?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  disconnect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  delete?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput | Prisma.JurisdictionReferralWhereUniqueInput[]
+  update?: Prisma.JurisdictionReferralUpdateWithWhereUniqueWithoutCaseInput | Prisma.JurisdictionReferralUpdateWithWhereUniqueWithoutCaseInput[]
+  updateMany?: Prisma.JurisdictionReferralUpdateManyWithWhereWithoutCaseInput | Prisma.JurisdictionReferralUpdateManyWithWhereWithoutCaseInput[]
+  deleteMany?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
 }
 
 export type JurisdictionReferralCreateNestedManyWithoutResidentInput = {
@@ -715,10 +1190,41 @@ export type JurisdictionReferralUncheckedUpdateManyWithoutResidentNestedInput = 
   deleteMany?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
 }
 
-export type JurisdictionReferralCreateWithoutResidentInput = {
+export type JurisdictionReferralCreateNestedOneWithoutEventsInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutEventsInput
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput
+}
+
+export type JurisdictionReferralUpdateOneRequiredWithoutEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutEventsInput
+  upsert?: Prisma.JurisdictionReferralUpsertWithoutEventsInput
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.JurisdictionReferralUpdateToOneWithWhereWithoutEventsInput, Prisma.JurisdictionReferralUpdateWithoutEventsInput>, Prisma.JurisdictionReferralUncheckedUpdateWithoutEventsInput>
+}
+
+export type JurisdictionReferralCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput
+}
+
+export type JurisdictionReferralUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.JurisdictionReferralCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.JurisdictionReferralUpsertWithoutAttachmentsInput
+  connect?: Prisma.JurisdictionReferralWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.JurisdictionReferralUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.JurisdictionReferralUpdateWithoutAttachmentsInput>, Prisma.JurisdictionReferralUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type JurisdictionReferralCreateWithoutCaseInput = {
   id?: string
+  referenceNumber?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -728,18 +1234,193 @@ export type JurisdictionReferralCreateWithoutResidentInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  resident?: Prisma.ResidentCreateNestedOneWithoutJurisdictionReferralsInput
+  events?: Prisma.JurisdictionReferralEventCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralUncheckedCreateWithoutCaseInput = {
+  id?: string
+  referenceNumber?: string | null
+  residentId?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralCreateOrConnectWithoutCaseInput = {
+  where: Prisma.JurisdictionReferralWhereUniqueInput
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput>
+}
+
+export type JurisdictionReferralCreateManyCaseInputEnvelope = {
+  data: Prisma.JurisdictionReferralCreateManyCaseInput | Prisma.JurisdictionReferralCreateManyCaseInput[]
+  skipDuplicates?: boolean
+}
+
+export type JurisdictionReferralUpsertWithWhereUniqueWithoutCaseInput = {
+  where: Prisma.JurisdictionReferralWhereUniqueInput
+  update: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutCaseInput>
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedCreateWithoutCaseInput>
+}
+
+export type JurisdictionReferralUpdateWithWhereUniqueWithoutCaseInput = {
+  where: Prisma.JurisdictionReferralWhereUniqueInput
+  data: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutCaseInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutCaseInput>
+}
+
+export type JurisdictionReferralUpdateManyWithWhereWithoutCaseInput = {
+  where: Prisma.JurisdictionReferralScalarWhereInput
+  data: Prisma.XOR<Prisma.JurisdictionReferralUpdateManyMutationInput, Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseInput>
+}
+
+export type JurisdictionReferralScalarWhereInput = {
+  AND?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
+  OR?: Prisma.JurisdictionReferralScalarWhereInput[]
+  NOT?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
+  id?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  referenceNumber?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  residentId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  kind?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  urgent?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
+  source?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  submissionKey?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reportingRelationship?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  province?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  barangay?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  street?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  locationDetails?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
+  summary?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  incidentDate?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  incidentTimeApprox?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reportPayload?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  locationCheck?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  validationResult?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reason?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  recommendedDestination?: Prisma.JsonNullableFilter<"JurisdictionReferral">
+  recommendedDesk?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  confidential?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
+  status?: Prisma.StringFilter<"JurisdictionReferral"> | string
+  receivingOffice?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  assignedToId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  forwardedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  caseId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reviewNote?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reviewedById?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
+}
+
+export type JurisdictionReferralCreateWithoutResidentInput = {
+  id?: string
+  referenceNumber?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  case?: Prisma.CaseCreateNestedOneWithoutJurisdictionReferralsInput
+  events?: Prisma.JurisdictionReferralEventCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentCreateNestedManyWithoutReferralInput
 }
 
 export type JurisdictionReferralUncheckedCreateWithoutResidentInput = {
   id?: string
+  referenceNumber?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -749,12 +1430,30 @@ export type JurisdictionReferralUncheckedCreateWithoutResidentInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedCreateNestedManyWithoutReferralInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedCreateNestedManyWithoutReferralInput
 }
 
 export type JurisdictionReferralCreateOrConnectWithoutResidentInput = {
@@ -783,35 +1482,13 @@ export type JurisdictionReferralUpdateManyWithWhereWithoutResidentInput = {
   data: Prisma.XOR<Prisma.JurisdictionReferralUpdateManyMutationInput, Prisma.JurisdictionReferralUncheckedUpdateManyWithoutResidentInput>
 }
 
-export type JurisdictionReferralScalarWhereInput = {
-  AND?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
-  OR?: Prisma.JurisdictionReferralScalarWhereInput[]
-  NOT?: Prisma.JurisdictionReferralScalarWhereInput | Prisma.JurisdictionReferralScalarWhereInput[]
-  id?: Prisma.StringFilter<"JurisdictionReferral"> | string
-  residentId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  kind?: Prisma.StringFilter<"JurisdictionReferral"> | string
-  urgent?: Prisma.BoolFilter<"JurisdictionReferral"> | boolean
-  reportingRelationship?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  province?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  barangay?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  street?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  locationDetails?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
-  longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
-  summary?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  locationCheck?: Prisma.JsonNullableFilter<"JurisdictionReferral">
-  status?: Prisma.StringFilter<"JurisdictionReferral"> | string
-  reviewNote?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  reviewedById?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
-  reviewedAt?: Prisma.DateTimeNullableFilter<"JurisdictionReferral"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"JurisdictionReferral"> | Date | string
-}
-
-export type JurisdictionReferralCreateManyResidentInput = {
+export type JurisdictionReferralCreateWithoutEventsInput = {
   id?: string
+  referenceNumber?: string | null
   kind: string
   urgent?: boolean
+  source?: string
+  submissionKey?: string | null
   reportingRelationship?: string | null
   province?: string | null
   municipality?: string | null
@@ -821,18 +1498,569 @@ export type JurisdictionReferralCreateManyResidentInput = {
   latitude?: number | null
   longitude?: number | null
   summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
   status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
   reviewNote?: string | null
   reviewedById?: string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  resident?: Prisma.ResidentCreateNestedOneWithoutJurisdictionReferralsInput
+  case?: Prisma.CaseCreateNestedOneWithoutJurisdictionReferralsInput
+  attachments?: Prisma.JurisdictionReferralAttachmentCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralUncheckedCreateWithoutEventsInput = {
+  id?: string
+  referenceNumber?: string | null
+  residentId?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralCreateOrConnectWithoutEventsInput = {
+  where: Prisma.JurisdictionReferralWhereUniqueInput
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutEventsInput>
+}
+
+export type JurisdictionReferralUpsertWithoutEventsInput = {
+  update: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutEventsInput>
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutEventsInput>
+  where?: Prisma.JurisdictionReferralWhereInput
+}
+
+export type JurisdictionReferralUpdateToOneWithWhereWithoutEventsInput = {
+  where?: Prisma.JurisdictionReferralWhereInput
+  data: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutEventsInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutEventsInput>
+}
+
+export type JurisdictionReferralUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resident?: Prisma.ResidentUpdateOneWithoutJurisdictionReferralsNestedInput
+  case?: Prisma.CaseUpdateOneWithoutJurisdictionReferralsNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralUncheckedUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralCreateWithoutAttachmentsInput = {
+  id?: string
+  referenceNumber?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resident?: Prisma.ResidentCreateNestedOneWithoutJurisdictionReferralsInput
+  case?: Prisma.CaseCreateNestedOneWithoutJurisdictionReferralsInput
+  events?: Prisma.JurisdictionReferralEventCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralUncheckedCreateWithoutAttachmentsInput = {
+  id?: string
+  referenceNumber?: string | null
+  residentId?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedCreateNestedManyWithoutReferralInput
+}
+
+export type JurisdictionReferralCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.JurisdictionReferralWhereUniqueInput
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type JurisdictionReferralUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.JurisdictionReferralCreateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.JurisdictionReferralWhereInput
+}
+
+export type JurisdictionReferralUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.JurisdictionReferralWhereInput
+  data: Prisma.XOR<Prisma.JurisdictionReferralUpdateWithoutAttachmentsInput, Prisma.JurisdictionReferralUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type JurisdictionReferralUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resident?: Prisma.ResidentUpdateOneWithoutJurisdictionReferralsNestedInput
+  case?: Prisma.CaseUpdateOneWithoutJurisdictionReferralsNestedInput
+  events?: Prisma.JurisdictionReferralEventUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralCreateManyCaseInput = {
+  id?: string
+  referenceNumber?: string | null
+  residentId?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type JurisdictionReferralUpdateWithoutCaseInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resident?: Prisma.ResidentUpdateOneWithoutJurisdictionReferralsNestedInput
+  events?: Prisma.JurisdictionReferralEventUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralUncheckedUpdateWithoutCaseInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedUpdateManyWithoutReferralNestedInput
+}
+
+export type JurisdictionReferralUncheckedUpdateManyWithoutCaseInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type JurisdictionReferralCreateManyResidentInput = {
+  id?: string
+  referenceNumber?: string | null
+  kind: string
+  urgent?: boolean
+  source?: string
+  submissionKey?: string | null
+  reportingRelationship?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  street?: string | null
+  locationDetails?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  summary?: string | null
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: string | null
+  reason?: string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: string | null
+  confidential?: boolean
+  status?: string
+  receivingOffice?: string | null
+  assignedToId?: string | null
+  forwardedAt?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  caseId?: string | null
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type JurisdictionReferralUpdateWithoutResidentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -842,18 +2070,39 @@ export type JurisdictionReferralUpdateWithoutResidentInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  case?: Prisma.CaseUpdateOneWithoutJurisdictionReferralsNestedInput
+  events?: Prisma.JurisdictionReferralEventUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUpdateManyWithoutReferralNestedInput
 }
 
 export type JurisdictionReferralUncheckedUpdateWithoutResidentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -863,18 +2112,39 @@ export type JurisdictionReferralUncheckedUpdateWithoutResidentInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.JurisdictionReferralEventUncheckedUpdateManyWithoutReferralNestedInput
+  attachments?: Prisma.JurisdictionReferralAttachmentUncheckedUpdateManyWithoutReferralNestedInput
 }
 
 export type JurisdictionReferralUncheckedUpdateManyWithoutResidentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   urgent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -884,21 +2154,78 @@ export type JurisdictionReferralUncheckedUpdateManyWithoutResidentInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   locationCheck?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResult?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recommendedDestination?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  recommendedDesk?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidential?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forwardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type JurisdictionReferralCountOutputType
+ */
+
+export type JurisdictionReferralCountOutputType = {
+  events: number
+  attachments: number
+}
+
+export type JurisdictionReferralCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  events?: boolean | JurisdictionReferralCountOutputTypeCountEventsArgs
+  attachments?: boolean | JurisdictionReferralCountOutputTypeCountAttachmentsArgs
+}
+
+/**
+ * JurisdictionReferralCountOutputType without action
+ */
+export type JurisdictionReferralCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JurisdictionReferralCountOutputType
+   */
+  select?: Prisma.JurisdictionReferralCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * JurisdictionReferralCountOutputType without action
+ */
+export type JurisdictionReferralCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.JurisdictionReferralEventWhereInput
+}
+
+/**
+ * JurisdictionReferralCountOutputType without action
+ */
+export type JurisdictionReferralCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.JurisdictionReferralAttachmentWhereInput
+}
 
 
 export type JurisdictionReferralSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  referenceNumber?: boolean
   residentId?: boolean
   kind?: boolean
   urgent?: boolean
+  source?: boolean
+  submissionKey?: boolean
   reportingRelationship?: boolean
   province?: boolean
   municipality?: boolean
@@ -908,20 +2235,43 @@ export type JurisdictionReferralSelect<ExtArgs extends runtime.Types.Extensions.
   latitude?: boolean
   longitude?: boolean
   summary?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
+  incidentDate?: boolean
+  incidentTimeApprox?: boolean
+  reportPayload?: boolean
   locationCheck?: boolean
+  validationResult?: boolean
+  reason?: boolean
+  recommendedDestination?: boolean
+  recommendedDesk?: boolean
+  confidential?: boolean
   status?: boolean
+  receivingOffice?: boolean
+  assignedToId?: boolean
+  forwardedAt?: boolean
+  acknowledgedAt?: boolean
+  caseId?: boolean
   reviewNote?: boolean
   reviewedById?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
+  events?: boolean | Prisma.JurisdictionReferral$eventsArgs<ExtArgs>
+  attachments?: boolean | Prisma.JurisdictionReferral$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.JurisdictionReferralCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["jurisdictionReferral"]>
 
 export type JurisdictionReferralSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  referenceNumber?: boolean
   residentId?: boolean
   kind?: boolean
   urgent?: boolean
+  source?: boolean
+  submissionKey?: boolean
   reportingRelationship?: boolean
   province?: boolean
   municipality?: boolean
@@ -931,20 +2281,40 @@ export type JurisdictionReferralSelectCreateManyAndReturn<ExtArgs extends runtim
   latitude?: boolean
   longitude?: boolean
   summary?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
+  incidentDate?: boolean
+  incidentTimeApprox?: boolean
+  reportPayload?: boolean
   locationCheck?: boolean
+  validationResult?: boolean
+  reason?: boolean
+  recommendedDestination?: boolean
+  recommendedDesk?: boolean
+  confidential?: boolean
   status?: boolean
+  receivingOffice?: boolean
+  assignedToId?: boolean
+  forwardedAt?: boolean
+  acknowledgedAt?: boolean
+  caseId?: boolean
   reviewNote?: boolean
   reviewedById?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
 }, ExtArgs["result"]["jurisdictionReferral"]>
 
 export type JurisdictionReferralSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  referenceNumber?: boolean
   residentId?: boolean
   kind?: boolean
   urgent?: boolean
+  source?: boolean
+  submissionKey?: boolean
   reportingRelationship?: boolean
   province?: boolean
   municipality?: boolean
@@ -954,20 +2324,40 @@ export type JurisdictionReferralSelectUpdateManyAndReturn<ExtArgs extends runtim
   latitude?: boolean
   longitude?: boolean
   summary?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
+  incidentDate?: boolean
+  incidentTimeApprox?: boolean
+  reportPayload?: boolean
   locationCheck?: boolean
+  validationResult?: boolean
+  reason?: boolean
+  recommendedDestination?: boolean
+  recommendedDesk?: boolean
+  confidential?: boolean
   status?: boolean
+  receivingOffice?: boolean
+  assignedToId?: boolean
+  forwardedAt?: boolean
+  acknowledgedAt?: boolean
+  caseId?: boolean
   reviewNote?: boolean
   reviewedById?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
 }, ExtArgs["result"]["jurisdictionReferral"]>
 
 export type JurisdictionReferralSelectScalar = {
   id?: boolean
+  referenceNumber?: boolean
   residentId?: boolean
   kind?: boolean
   urgent?: boolean
+  source?: boolean
+  submissionKey?: boolean
   reportingRelationship?: boolean
   province?: boolean
   municipality?: boolean
@@ -977,40 +2367,77 @@ export type JurisdictionReferralSelectScalar = {
   latitude?: boolean
   longitude?: boolean
   summary?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
+  incidentDate?: boolean
+  incidentTimeApprox?: boolean
+  reportPayload?: boolean
   locationCheck?: boolean
+  validationResult?: boolean
+  reason?: boolean
+  recommendedDestination?: boolean
+  recommendedDesk?: boolean
+  confidential?: boolean
   status?: boolean
+  receivingOffice?: boolean
+  assignedToId?: boolean
+  forwardedAt?: boolean
+  acknowledgedAt?: boolean
+  caseId?: boolean
   reviewNote?: boolean
   reviewedById?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type JurisdictionReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "residentId" | "kind" | "urgent" | "reportingRelationship" | "province" | "municipality" | "barangay" | "street" | "locationDetails" | "latitude" | "longitude" | "summary" | "locationCheck" | "status" | "reviewNote" | "reviewedById" | "reviewedAt" | "createdAt", ExtArgs["result"]["jurisdictionReferral"]>
+export type JurisdictionReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "referenceNumber" | "residentId" | "kind" | "urgent" | "source" | "submissionKey" | "reportingRelationship" | "province" | "municipality" | "barangay" | "street" | "locationDetails" | "latitude" | "longitude" | "summary" | "residentOriginalNarrative" | "narrativeAssist" | "incidentDate" | "incidentTimeApprox" | "reportPayload" | "locationCheck" | "validationResult" | "reason" | "recommendedDestination" | "recommendedDesk" | "confidential" | "status" | "receivingOffice" | "assignedToId" | "forwardedAt" | "acknowledgedAt" | "caseId" | "reviewNote" | "reviewedById" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["jurisdictionReferral"]>
 export type JurisdictionReferralInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
+  events?: boolean | Prisma.JurisdictionReferral$eventsArgs<ExtArgs>
+  attachments?: boolean | Prisma.JurisdictionReferral$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.JurisdictionReferralCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type JurisdictionReferralIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
 }
 export type JurisdictionReferralIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
+  case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
 }
 
 export type $JurisdictionReferralPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "JurisdictionReferral"
   objects: {
     resident: Prisma.$ResidentPayload<ExtArgs> | null
+    case: Prisma.$CasePayload<ExtArgs> | null
+    events: Prisma.$JurisdictionReferralEventPayload<ExtArgs>[]
+    attachments: Prisma.$JurisdictionReferralAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    /**
+     * REF-<year>-<number>: what the resident and officials quote. Unique.
+     */
+    referenceNumber: string | null
     residentId: string | null
     /**
-     * OUTSIDE_JURISDICTION | UNVERIFIED_REPORTER | URGENT
+     * OUTSIDE_JURISDICTION | LOCATION_VERIFICATION | UNVERIFIED_REPORTER | URGENT - decided on the server, never sent by a client
      */
     kind: string
     urgent: boolean
     /**
-     * SELF | ON_BEHALF | ANONYMOUS ... as on the report form
+     * REFERRAL_FORM (the short referral form) | REPORT_FORM (File a Report, re-routed by the server's location check)
+     */
+    source: string
+    /**
+     * The form's key for one submission, so a retry never saves the referral twice.
+     */
+    submissionKey: string | null
+    /**
+     * SELF | THIRD_PARTY | ON_BEHALF | ANONYMOUS ... as on the report form
      */
     reportingRelationship: string | null
     province: string | null
@@ -1025,17 +2452,58 @@ export type $JurisdictionReferralPayload<ExtArgs extends runtime.Types.Extension
      */
     summary: string | null
     /**
-     * The server's check of the incident location.
+     * The resident's own words when they used the organized description (never written by the AI), and how it was used.
+     */
+    residentOriginalNarrative: string | null
+    narrativeAssist: string | null
+    incidentDate: Date | null
+    incidentTimeApprox: string | null
+    /**
+     * Everything else the report form collected (people, answers, interview, witnesses, notes, contact preference) -
+     * kept so nothing has to be asked again, and so a location confirmed inside can be filed as the case it would have been.
+     */
+    reportPayload: runtime.JsonValue | null
+    /**
+     * The server's check of the incident location (lib/jurisdiction.ts LocationCheck).
      */
     locationCheck: runtime.JsonValue | null
     /**
-     * NEW | REVIEWED | CLOSED
+     * The validation result in one line, and the reason for the referral - both written by the server.
+     */
+    validationResult: string | null
+    reason: string | null
+    /**
+     * The jurisdiction the reporter named, when it is another one (not a verified receiving office).
+     */
+    recommendedDestination: runtime.JsonValue | null
+    /**
+     * SafeComm's rules' desk reading: VAWC referrals are confidential (the captain and the VAWC desk only).
+     */
+    recommendedDesk: string | null
+    confidential: boolean
+    /**
+     * PENDING_REVIEW | FOR_VERIFICATION | READY_FOR_REFERRAL | REFERRED | ACKNOWLEDGED | FOLLOW_UP_REQUIRED | CLOSED
      */
     status: string
+    /**
+     * The receiving office or jurisdiction, recorded by an official once verified.
+     */
+    receivingOffice: string | null
+    assignedToId: string | null
+    forwardedAt: Date | null
+    /**
+     * Set only when an official records the receiving office's acknowledgment.
+     */
+    acknowledgedAt: Date | null
+    /**
+     * Set when an official confirmed the location inside and it was filed as a case.
+     */
+    caseId: string | null
     reviewNote: string | null
     reviewedById: string | null
     reviewedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["jurisdictionReferral"]>
   composites: {}
 }
@@ -1431,6 +2899,9 @@ readonly fields: JurisdictionReferralFieldRefs;
 export interface Prisma__JurisdictionReferralClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   resident<T extends Prisma.JurisdictionReferral$residentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JurisdictionReferral$residentArgs<ExtArgs>>): Prisma.Prisma__ResidentClient<runtime.Types.Result.GetResult<Prisma.$ResidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  case<T extends Prisma.JurisdictionReferral$caseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JurisdictionReferral$caseArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  events<T extends Prisma.JurisdictionReferral$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JurisdictionReferral$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JurisdictionReferralEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.JurisdictionReferral$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JurisdictionReferral$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JurisdictionReferralAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1461,9 +2932,12 @@ export interface Prisma__JurisdictionReferralClient<T, Null = never, ExtArgs ext
  */
 export interface JurisdictionReferralFieldRefs {
   readonly id: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly referenceNumber: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly residentId: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly kind: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly urgent: Prisma.FieldRef<"JurisdictionReferral", 'Boolean'>
+  readonly source: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly submissionKey: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly reportingRelationship: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly province: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly municipality: Prisma.FieldRef<"JurisdictionReferral", 'String'>
@@ -1473,12 +2947,28 @@ export interface JurisdictionReferralFieldRefs {
   readonly latitude: Prisma.FieldRef<"JurisdictionReferral", 'Float'>
   readonly longitude: Prisma.FieldRef<"JurisdictionReferral", 'Float'>
   readonly summary: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly residentOriginalNarrative: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly narrativeAssist: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly incidentDate: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
+  readonly incidentTimeApprox: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly reportPayload: Prisma.FieldRef<"JurisdictionReferral", 'Json'>
   readonly locationCheck: Prisma.FieldRef<"JurisdictionReferral", 'Json'>
+  readonly validationResult: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly reason: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly recommendedDestination: Prisma.FieldRef<"JurisdictionReferral", 'Json'>
+  readonly recommendedDesk: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly confidential: Prisma.FieldRef<"JurisdictionReferral", 'Boolean'>
   readonly status: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly receivingOffice: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly assignedToId: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly forwardedAt: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
+  readonly acknowledgedAt: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
+  readonly caseId: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly reviewNote: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly reviewedById: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly reviewedAt: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"JurisdictionReferral", 'DateTime'>
 }
     
 
@@ -1896,6 +3386,73 @@ export type JurisdictionReferral$residentArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.ResidentInclude<ExtArgs> | null
   where?: Prisma.ResidentWhereInput
+}
+
+/**
+ * JurisdictionReferral.case
+ */
+export type JurisdictionReferral$caseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Case
+   */
+  select?: Prisma.CaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Case
+   */
+  omit?: Prisma.CaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseInclude<ExtArgs> | null
+  where?: Prisma.CaseWhereInput
+}
+
+/**
+ * JurisdictionReferral.events
+ */
+export type JurisdictionReferral$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JurisdictionReferralEvent
+   */
+  select?: Prisma.JurisdictionReferralEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the JurisdictionReferralEvent
+   */
+  omit?: Prisma.JurisdictionReferralEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.JurisdictionReferralEventInclude<ExtArgs> | null
+  where?: Prisma.JurisdictionReferralEventWhereInput
+  orderBy?: Prisma.JurisdictionReferralEventOrderByWithRelationInput | Prisma.JurisdictionReferralEventOrderByWithRelationInput[]
+  cursor?: Prisma.JurisdictionReferralEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.JurisdictionReferralEventScalarFieldEnum | Prisma.JurisdictionReferralEventScalarFieldEnum[]
+}
+
+/**
+ * JurisdictionReferral.attachments
+ */
+export type JurisdictionReferral$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JurisdictionReferralAttachment
+   */
+  select?: Prisma.JurisdictionReferralAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the JurisdictionReferralAttachment
+   */
+  omit?: Prisma.JurisdictionReferralAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.JurisdictionReferralAttachmentInclude<ExtArgs> | null
+  where?: Prisma.JurisdictionReferralAttachmentWhereInput
+  orderBy?: Prisma.JurisdictionReferralAttachmentOrderByWithRelationInput | Prisma.JurisdictionReferralAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.JurisdictionReferralAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.JurisdictionReferralAttachmentScalarFieldEnum | Prisma.JurisdictionReferralAttachmentScalarFieldEnum[]
 }
 
 /**

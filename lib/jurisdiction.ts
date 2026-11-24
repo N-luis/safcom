@@ -220,6 +220,7 @@ export const LOCATION_FLAGS = {
   PIN_INSIDE_OTHER_ADDRESS: 'The map pin is inside the barangay, but the address names another place.',
   PIN_FAR_AWAY: 'The map pin is far from the barangay.',
   STREET_NOT_ON_RECORD: 'The street is not on the barangay\'s street list.',
+  LOCATION_UNVERIFIED: 'Neither a map pin inside the official boundary nor a street on the barangay\'s own list places the incident - a person must verify the location.',
 } as const;
 export type LocationFlag = keyof typeof LOCATION_FLAGS;
 
@@ -249,9 +250,9 @@ export const MESSAGES = {
   residenceOutside: (j: string) => `Ang SafeComm ay para lamang sa mga residente ng ${j}. Ang address na inilagay ninyo ay nasa labas ng sakop na ito, kaya hindi ito maaaprubahan bilang SafeComm resident account. Mangyaring makipag-ugnayan sa inyong sariling barangay. (SafeComm registration is limited to verified residents of ${j}. The address you entered is outside this area, so it cannot be approved as a SafeComm resident account. Please contact your own barangay.)`,
   residenceReview: 'Maaaring isumite ang inyong address para sa beripikasyon. Susuriin ito ng isang awtorisadong opisyal ng barangay bago ma-activate ang inyong account. (Your address can be submitted for verification. An authorised barangay official reviews it before your account is activated.)',
   incidentIncomplete: 'Hindi pa kumpleto ang lokasyon ng insidente. Pakilagay ang barangay at ang street o palatandaan ng lugar. (The incident location is incomplete. Please give the barangay and the street or a landmark.)',
-  incidentOutside: 'Ang lokasyong inilagay ninyo ay mukhang nasa labas ng sakop ng SafeComm. Dahil ang system na ito ay nakalaan para sa mga insidenteng nasa itinalagang barangay, mangyaring makipag-ugnayan sa kinauukulang barangay o awtoridad sa lugar kung saan nangyari ang insidente. (The location you entered appears to be outside SafeComm\'s coverage. Please contact the barangay or authority where the incident happened.)',
+  incidentOutside: 'Ang lokasyong inilagay ninyo ay nasa labas ng sakop ng SafeComm, kaya ito ay isusumite bilang referral at hindi bilang karaniwang SafeComm case. Susuriin ito ng barangay at ididirekta sa kinauukulang barangay o awtoridad; makipag-ugnayan din sa kanila kung kailangan. (The location is outside SafeComm\'s coverage, so this is submitted as a referral, not an ordinary SafeComm case. The barangay reviews it to direct the concern to the right jurisdiction; you may also contact the barangay or authority where it happened.)',
   incidentInside: 'Na-verify ang inyong resident account at ang lokasyon ng insidente ay nasa sakop ng SafeComm. Maaari na kayong magpatuloy sa kasalukuyang reporting process. (Your resident account is verified and the incident location is within SafeComm\'s coverage. You may continue with your report.)',
-  incidentReview: 'Ang lokasyon ay nasa barangay ayon sa address, ngunit susuriin pa ito ng opisyal. (The address places the incident in the barangay; an official will still check the location.)',
+  incidentReview: 'Hindi pa ma-verify kung nasa loob o labas ng barangay ang lokasyon, kaya ito ay ipapasa para sa beripikasyon ng lokasyon. Isang opisyal ang magpapasya kung ito ay SafeComm case o referral. (The location cannot be confirmed as inside or outside the barangay, so it goes to location verification. An official decides whether it becomes a SafeComm case or a referral.)',
 };
 
 /**
@@ -285,6 +286,14 @@ export function checkLocation(input: LocationInput, cfg: JurisdictionConfig, kin
   if (selection !== 'MATCH' && selection !== 'INCOMPLETE' && boundary === 'INSIDE') flags.push('PIN_INSIDE_OTHER_ADDRESS');
   if (pin && boundary === 'NOT_CONFIGURED' && centre && farFromCentre(input.latitude as number, input.longitude as number, centre)) flags.push('PIN_FAR_AWAY');
   if (street && !street.known && kind === 'residence') flags.push('STREET_NOT_ON_RECORD');
+  // An incident named in the barangay is placed by geography first - the pin against the official
+  // boundary - and only without a usable pin by the barangay's own street list (the streets on its
+  // hazard map). A typed street that is not on that list, or a landmark alone, places nothing.
+  const pinDecides = boundary === 'INSIDE' || boundary === 'OUTSIDE';
+  if (kind === 'incident' && selection === 'MATCH' && !pinDecides && !flags.includes('PIN_FAR_AWAY') && !street?.known) {
+    if (street && !street.known) flags.push('STREET_NOT_ON_RECORD');
+    flags.push('LOCATION_UNVERIFIED');
+  }
 
   const destination = selection === 'OTHER_BARANGAY' || selection === 'OTHER_MUNICIPALITY' || selection === 'OTHER_PROVINCE'
     ? { barangay: input.barangay?.trim() || null, municipality: input.municipality?.trim() || null, province: input.province?.trim() || null } : null;
@@ -294,9 +303,12 @@ export function checkLocation(input: LocationInput, cfg: JurisdictionConfig, kin
   // Another place named, and the pin does not say otherwise: outside. The pin inside with another
   // place named is a contradiction for a person to settle - never an approval.
   else if (selection !== 'MATCH') status = flags.includes('PIN_INSIDE_OTHER_ADDRESS') ? 'NEEDS_REVIEW' : 'OUTSIDE';
+  // An incident whose pin is inside the official boundary is inside, whatever the street is called.
+  else if (kind === 'incident' && boundary === 'INSIDE') status = 'INSIDE';
   else if (flags.some(f => f !== 'STREET_NOT_ON_RECORD' && f !== 'NO_PIN' && f !== 'BOUNDARY_NOT_CONFIGURED') || flags.includes('STREET_NOT_ON_RECORD')) status = 'NEEDS_REVIEW';
   else if (boundary === 'INSIDE') status = 'INSIDE';
-  // Inside by the address, but the pin could not be checked against a boundary.
+  // Inside by the address: a residence still goes to a verifier; an incident on one of the
+  // barangay's own streets is inside (LOCATION_UNVERIFIED above has already caught the rest).
   else status = kind === 'residence' ? 'NEEDS_REVIEW' : 'INSIDE';
 
   const explanation = kind === 'residence'
@@ -398,10 +410,65 @@ export function eligibilityAnswer(residency: ResidencyStatus, home: LocationChec
 
 export const REFERRAL_KINDS = {
   OUTSIDE_JURISDICTION: 'Incident outside SafeComm\'s jurisdiction',
+  LOCATION_VERIFICATION: 'Incident location needs verification',
   UNVERIFIED_REPORTER: 'Reporter not (yet) a verified resident',
   URGENT: 'Urgent safety concern',
 } as const;
 export type ReferralKind = keyof typeof REFERRAL_KINDS;
 export const REFERRAL_KIND_KEYS = Object.keys(REFERRAL_KINDS) as [ReferralKind, ...ReferralKind[]];
-export const REFERRAL_STATUSES = { NEW: 'New', REVIEWED: 'Reviewed', CLOSED: 'Closed' } as const;
+
+/**
+ * Where a referral record stands. "Acknowledged" means the receiving office's
+ * acknowledgment was actually recorded by an official - never assumed from
+ * the record having been forwarded.
+ */
+export const REFERRAL_STATUSES = {
+  PENDING_REVIEW: 'Pending Review',
+  FOR_VERIFICATION: 'For Verification',
+  READY_FOR_REFERRAL: 'Ready for Referral',
+  REFERRED: 'Referred',
+  ACKNOWLEDGED: 'Acknowledged by Receiving Office',
+  FOLLOW_UP_REQUIRED: 'Follow-up Required',
+  CLOSED: 'Closed',
+} as const;
 export type ReferralStatus = keyof typeof REFERRAL_STATUSES;
+export const REFERRAL_STATUS_KEYS = Object.keys(REFERRAL_STATUSES) as [ReferralStatus, ...ReferralStatus[]];
+
+/** What the resident is told each status means - general, and never that another office accepted anything it has not acknowledged. */
+export const REFERRAL_STATUS_FOR_RESIDENT: Record<ReferralStatus, string> = {
+  PENDING_REVIEW: 'The barangay has received your referral and will review it.',
+  FOR_VERIFICATION: 'An official is checking where the incident happened before deciding how it is handled.',
+  READY_FOR_REFERRAL: 'The barangay has reviewed it and is preparing to refer it to the responsible office.',
+  REFERRED: 'The barangay has sent it to the responsible office. That office has not confirmed receipt yet.',
+  ACKNOWLEDGED: 'The responsible office has acknowledged receiving the referral.',
+  FOLLOW_UP_REQUIRED: 'The barangay needs to follow up on this referral.',
+  CLOSED: 'This referral record is closed.',
+};
+
+/** What a location check means for a resident's report: a case, a referral, or a person to verify the place first. */
+export type IncidentOutcome = 'CASE' | 'REFERRAL' | 'LOCATION_VERIFICATION' | 'INCOMPLETE';
+export function incidentOutcome(check: Pick<LocationCheck, 'status'>): IncidentOutcome {
+  return check.status === 'INSIDE' ? 'CASE' : check.status === 'OUTSIDE' ? 'REFERRAL' : check.status === 'NEEDS_REVIEW' ? 'LOCATION_VERIFICATION' : 'INCOMPLETE';
+}
+
+/** The referral reason, written from the server's check - never from the resident or the AI. */
+export function referralReason(check: LocationCheck): string {
+  const j = `Barangay ${check.jurisdiction.barangay}, ${check.jurisdiction.municipality}, ${check.jurisdiction.province}`;
+  if (check.status === 'OUTSIDE') {
+    const why = check.selection === 'OTHER_PROVINCE' ? 'the province given is not ' + check.jurisdiction.province
+      : check.selection === 'OTHER_MUNICIPALITY' ? 'the municipality given is not ' + check.jurisdiction.municipality
+        : 'the barangay given is not ' + check.jurisdiction.barangay;
+    return `Incident location is outside the authorized jurisdiction of ${j} (${why}).`;
+  }
+  const flags = check.flags.filter(f => f !== 'BOUNDARY_NOT_CONFIGURED' && f !== 'NO_PIN').map(f => LOCATION_FLAGS[f]);
+  return `The incident location could not be verified as inside or outside ${j}${flags.length ? `: ${flags.join(' ')}` : '.'}`;
+}
+
+/** The validation result in one line, for the referral record and the review screen. */
+export function validationSummary(check: LocationCheck): string {
+  const sel = { MATCH: 'address names the barangay', OTHER_BARANGAY: 'address names another barangay', OTHER_MUNICIPALITY: 'address names another municipality',
+    OTHER_PROVINCE: 'address names another province', INCOMPLETE: 'address incomplete' }[check.selection];
+  const pin = { INSIDE: 'map pin inside the official boundary', OUTSIDE: 'map pin outside the official boundary', NOT_CONFIGURED: 'map pin not checked (no official boundary configured)', NO_PIN: 'no map pin' }[check.boundary];
+  const street = check.street ? (check.street.known ? `street on the barangay's list (${check.street.match})` : 'street not on the barangay\'s list') : null;
+  return [sel, pin, street].filter(Boolean).join('; ');
+}

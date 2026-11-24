@@ -554,6 +554,7 @@ export type CaseWhereInput = {
   matchesAsSubject?: Prisma.CaseMatchListRelationFilter
   matchesAsCandidate?: Prisma.CaseMatchListRelationFilter
   matchScan?: Prisma.XOR<Prisma.CaseMatchScanNullableScalarRelationFilter, Prisma.CaseMatchScanWhereInput> | null
+  jurisdictionReferrals?: Prisma.JurisdictionReferralListRelationFilter
 }
 
 export type CaseOrderByWithRelationInput = {
@@ -630,6 +631,7 @@ export type CaseOrderByWithRelationInput = {
   matchesAsSubject?: Prisma.CaseMatchOrderByRelationAggregateInput
   matchesAsCandidate?: Prisma.CaseMatchOrderByRelationAggregateInput
   matchScan?: Prisma.CaseMatchScanOrderByWithRelationInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralOrderByRelationAggregateInput
 }
 
 export type CaseWhereUniqueInput = Prisma.AtLeast<{
@@ -710,6 +712,7 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   matchesAsSubject?: Prisma.CaseMatchListRelationFilter
   matchesAsCandidate?: Prisma.CaseMatchListRelationFilter
   matchScan?: Prisma.XOR<Prisma.CaseMatchScanNullableScalarRelationFilter, Prisma.CaseMatchScanWhereInput> | null
+  jurisdictionReferrals?: Prisma.JurisdictionReferralListRelationFilter
 }, "id" | "caseNumber" | "residentId_submissionKey">
 
 export type CaseOrderByWithAggregationInput = {
@@ -884,6 +887,7 @@ export type CaseCreateInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateInput = {
@@ -958,6 +962,7 @@ export type CaseUncheckedCreateInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUpdateInput = {
@@ -1032,6 +1037,7 @@ export type CaseUpdateInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateInput = {
@@ -1106,6 +1112,7 @@ export type CaseUncheckedUpdateInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyInput = {
@@ -1667,6 +1674,22 @@ export type CaseUncheckedUpdateManyWithoutResidentNestedInput = {
   deleteMany?: Prisma.CaseScalarWhereInput | Prisma.CaseScalarWhereInput[]
 }
 
+export type CaseCreateNestedOneWithoutJurisdictionReferralsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedCreateWithoutJurisdictionReferralsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutJurisdictionReferralsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneWithoutJurisdictionReferralsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedCreateWithoutJurisdictionReferralsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutJurisdictionReferralsInput
+  upsert?: Prisma.CaseUpsertWithoutJurisdictionReferralsInput
+  disconnect?: Prisma.CaseWhereInput | boolean
+  delete?: Prisma.CaseWhereInput | boolean
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutJurisdictionReferralsInput, Prisma.CaseUpdateWithoutJurisdictionReferralsInput>, Prisma.CaseUncheckedUpdateWithoutJurisdictionReferralsInput>
+}
+
 export type CaseCreateNestedOneWithoutActivitiesInput = {
   create?: Prisma.XOR<Prisma.CaseCreateWithoutActivitiesInput, Prisma.CaseUncheckedCreateWithoutActivitiesInput>
   connectOrCreate?: Prisma.CaseCreateOrConnectWithoutActivitiesInput
@@ -1980,6 +2003,7 @@ export type CaseCreateWithoutAssignedToInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssignedToInput = {
@@ -2053,6 +2077,7 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssignedToInput = {
@@ -2201,6 +2226,7 @@ export type CaseCreateWithoutReportAddendaInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutReportAddendaInput = {
@@ -2274,6 +2300,7 @@ export type CaseUncheckedCreateWithoutReportAddendaInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutReportAddendaInput = {
@@ -2363,6 +2390,7 @@ export type CaseUpdateWithoutReportAddendaInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutReportAddendaInput = {
@@ -2436,6 +2464,7 @@ export type CaseUncheckedUpdateWithoutReportAddendaInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutClarificationsInput = {
@@ -2509,6 +2538,7 @@ export type CaseCreateWithoutClarificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutClarificationsInput = {
@@ -2582,6 +2612,7 @@ export type CaseUncheckedCreateWithoutClarificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutClarificationsInput = {
@@ -2671,6 +2702,7 @@ export type CaseUpdateWithoutClarificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutClarificationsInput = {
@@ -2744,6 +2776,7 @@ export type CaseUncheckedUpdateWithoutClarificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutInterviewsInput = {
@@ -2817,6 +2850,7 @@ export type CaseCreateWithoutInterviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutInterviewsInput = {
@@ -2890,6 +2924,7 @@ export type CaseUncheckedCreateWithoutInterviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutInterviewsInput = {
@@ -2979,6 +3014,7 @@ export type CaseUpdateWithoutInterviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutInterviewsInput = {
@@ -3052,6 +3088,7 @@ export type CaseUncheckedUpdateWithoutInterviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutReportDraftsInput = {
@@ -3125,6 +3162,7 @@ export type CaseCreateWithoutReportDraftsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutReportDraftsInput = {
@@ -3198,6 +3236,7 @@ export type CaseUncheckedCreateWithoutReportDraftsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutReportDraftsInput = {
@@ -3287,6 +3326,7 @@ export type CaseUpdateWithoutReportDraftsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutReportDraftsInput = {
@@ -3360,6 +3400,7 @@ export type CaseUncheckedUpdateWithoutReportDraftsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutVictimSurvivorsInput = {
@@ -3433,6 +3474,7 @@ export type CaseCreateWithoutVictimSurvivorsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
@@ -3506,6 +3548,7 @@ export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutVictimSurvivorsInput = {
@@ -3595,6 +3638,7 @@ export type CaseUpdateWithoutVictimSurvivorsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
@@ -3668,6 +3712,7 @@ export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutPartiesInput = {
@@ -3741,6 +3786,7 @@ export type CaseCreateWithoutPartiesInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutPartiesInput = {
@@ -3814,6 +3860,7 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutPartiesInput = {
@@ -3903,6 +3950,7 @@ export type CaseUpdateWithoutPartiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutPartiesInput = {
@@ -3976,6 +4024,7 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutSafetyAssessmentInput = {
@@ -4049,6 +4098,7 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
@@ -4122,6 +4172,7 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutSafetyAssessmentInput = {
@@ -4211,6 +4262,7 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
@@ -4284,6 +4336,7 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutReferralsInput = {
@@ -4357,6 +4410,7 @@ export type CaseCreateWithoutReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutReferralsInput = {
@@ -4430,6 +4484,7 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutReferralsInput = {
@@ -4519,6 +4574,7 @@ export type CaseUpdateWithoutReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutReferralsInput = {
@@ -4592,6 +4648,7 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutServiceReferralsInput = {
@@ -4665,6 +4722,7 @@ export type CaseCreateWithoutServiceReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutServiceReferralsInput = {
@@ -4738,6 +4796,7 @@ export type CaseUncheckedCreateWithoutServiceReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutServiceReferralsInput = {
@@ -4827,6 +4886,7 @@ export type CaseUpdateWithoutServiceReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
@@ -4900,6 +4960,7 @@ export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAssessmentInput = {
@@ -4973,6 +5034,7 @@ export type CaseCreateWithoutAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssessmentInput = {
@@ -5046,6 +5108,7 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssessmentInput = {
@@ -5135,6 +5198,7 @@ export type CaseUpdateWithoutAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssessmentInput = {
@@ -5208,6 +5272,7 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAttachmentsInput = {
@@ -5281,6 +5346,7 @@ export type CaseCreateWithoutAttachmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAttachmentsInput = {
@@ -5354,6 +5420,7 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAttachmentsInput = {
@@ -5443,6 +5510,7 @@ export type CaseUpdateWithoutAttachmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAttachmentsInput = {
@@ -5516,6 +5584,7 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutResidentInput = {
@@ -5589,6 +5658,7 @@ export type CaseCreateWithoutResidentInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutResidentInput = {
@@ -5662,6 +5732,7 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutResidentInput = {
@@ -5688,6 +5759,318 @@ export type CaseUpdateWithWhereUniqueWithoutResidentInput = {
 export type CaseUpdateManyWithWhereWithoutResidentInput = {
   where: Prisma.CaseScalarWhereInput
   data: Prisma.XOR<Prisma.CaseUpdateManyMutationInput, Prisma.CaseUncheckedUpdateManyWithoutResidentInput>
+}
+
+export type CaseCreateWithoutJurisdictionReferralsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedCasesInput
+  resident?: Prisma.ResidentCreateNestedOneWithoutCasesInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterCreateNestedOneWithoutCaseInput
+  kpFormRecords?: Prisma.KpFormRecordCreateNestedManyWithoutWalkInReportInput
+  kpReviews?: Prisma.CaseKpReviewCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
+  matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
+  matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
+  matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutJurisdictionReferralsInput = {
+  id?: string
+  caseNumber: string
+  residentName: string
+  caseType: string
+  status?: string
+  riskLevel?: string | null
+  barangay: string
+  description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
+  notes?: string | null
+  language?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  locationLabel?: string | null
+  municipality?: string | null
+  province?: string | null
+  assignedToId?: string | null
+  residentId?: string | null
+  filedAt?: Date | string
+  resolvedAt?: Date | string | null
+  updatedAt?: Date | string
+  informationCompleteness?: string | null
+  requiresOfficerReview?: boolean
+  triageStatus?: string | null
+  progressState?: string
+  lastResidentUpdateAt?: Date | string | null
+  lastOfficerActionAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  contactPreference?: string | null
+  contactSafetyNote?: string | null
+  reportingRelationship?: string | null
+  affectedPersonNote?: string | null
+  reporterIdentityWithheld?: boolean
+  reportPath?: string | null
+  reportingChannel?: string | null
+  incidentDate?: Date | string | null
+  incidentTimeApprox?: string | null
+  resolutionType?: string | null
+  resolutionSummary?: string | null
+  resolvedById?: string | null
+  witnessInfo?: string | null
+  submissionKey?: string | null
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCaseInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCaseInput
+  followUps?: Prisma.CaseFollowUpUncheckedCreateNestedManyWithoutCaseInput
+  attachments?: Prisma.CaseAttachmentUncheckedCreateNestedManyWithoutCaseInput
+  assessment?: Prisma.CaseAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  intake?: Prisma.CaseIntakeUncheckedCreateNestedOneWithoutCaseInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedCreateNestedOneWithoutCaseInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedCreateNestedManyWithoutCaseInput
+  parties?: Prisma.CasePartyUncheckedCreateNestedManyWithoutCaseInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  referrals?: Prisma.CaseReferralUncheckedCreateNestedManyWithoutCaseInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedCreateNestedManyWithoutCaseInput
+  hearings?: Prisma.CaseHearingUncheckedCreateNestedManyWithoutCaseInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedCreateNestedManyWithoutCaseInput
+  vawcBpos?: Prisma.VawcBpoUncheckedCreateNestedManyWithoutCaseInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedCreateNestedManyWithoutCaseInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedCreateNestedOneWithoutCaseInput
+  kpFormRecords?: Prisma.KpFormRecordUncheckedCreateNestedManyWithoutWalkInReportInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedCreateNestedManyWithoutCaseInput
+  pangkat?: Prisma.CasePangkatUncheckedCreateNestedOneWithoutCaseInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedCreateNestedManyWithoutCaseInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedCreateNestedManyWithoutCaseInput
+  reportDrafts?: Prisma.ReportDraftUncheckedCreateNestedManyWithoutCaseInput
+  clarifications?: Prisma.ClarificationRequestUncheckedCreateNestedManyWithoutCaseInput
+  interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
+  matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
+  matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
+  matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutJurisdictionReferralsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedCreateWithoutJurisdictionReferralsInput>
+}
+
+export type CaseUpsertWithoutJurisdictionReferralsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedUpdateWithoutJurisdictionReferralsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedCreateWithoutJurisdictionReferralsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutJurisdictionReferralsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutJurisdictionReferralsInput, Prisma.CaseUncheckedUpdateWithoutJurisdictionReferralsInput>
+}
+
+export type CaseUpdateWithoutJurisdictionReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedCasesNestedInput
+  resident?: Prisma.ResidentUpdateOneWithoutCasesNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUpdateOneWithoutCaseNestedInput
+  kpFormRecords?: Prisma.KpFormRecordUpdateManyWithoutWalkInReportNestedInput
+  kpReviews?: Prisma.CaseKpReviewUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
+  matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
+  matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
+  matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutJurisdictionReferralsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  caseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  residentName?: Prisma.StringFieldUpdateOperationsInput | string
+  caseType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  informationCompleteness?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOfficerReview?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  triageStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progressState?: Prisma.StringFieldUpdateOperationsInput | string
+  lastResidentUpdateAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastOfficerActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contactPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactSafetyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affectedPersonNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reporterIdentityWithheld?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reportPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportingChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  incidentTimeApprox?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  witnessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutCaseNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCaseNestedInput
+  followUps?: Prisma.CaseFollowUpUncheckedUpdateManyWithoutCaseNestedInput
+  attachments?: Prisma.CaseAttachmentUncheckedUpdateManyWithoutCaseNestedInput
+  assessment?: Prisma.CaseAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  intake?: Prisma.CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  officialIntake?: Prisma.OfficialIntakeUncheckedUpdateOneWithoutCaseNestedInput
+  assessmentHistory?: Prisma.AssessmentHistoryUncheckedUpdateManyWithoutCaseNestedInput
+  parties?: Prisma.CasePartyUncheckedUpdateManyWithoutCaseNestedInput
+  safetyAssessment?: Prisma.CaseSafetyAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+  referrals?: Prisma.CaseReferralUncheckedUpdateManyWithoutCaseNestedInput
+  serviceReferrals?: Prisma.ServiceReferralUncheckedUpdateManyWithoutCaseNestedInput
+  hearings?: Prisma.CaseHearingUncheckedUpdateManyWithoutCaseNestedInput
+  vawcAppointments?: Prisma.VawcAppointmentUncheckedUpdateManyWithoutCaseNestedInput
+  vawcBpos?: Prisma.VawcBpoUncheckedUpdateManyWithoutCaseNestedInput
+  vawcReferrals?: Prisma.VawcReferralUncheckedUpdateManyWithoutCaseNestedInput
+  acknowledgement?: Prisma.AcknowledgementLetterUncheckedUpdateOneWithoutCaseNestedInput
+  kpFormRecords?: Prisma.KpFormRecordUncheckedUpdateManyWithoutWalkInReportNestedInput
+  kpReviews?: Prisma.CaseKpReviewUncheckedUpdateManyWithoutCaseNestedInput
+  pangkat?: Prisma.CasePangkatUncheckedUpdateOneWithoutCaseNestedInput
+  victimSurvivors?: Prisma.CaseVictimSurvivorUncheckedUpdateManyWithoutCaseNestedInput
+  reportAddenda?: Prisma.ReportAddendumUncheckedUpdateManyWithoutCaseNestedInput
+  reportDrafts?: Prisma.ReportDraftUncheckedUpdateManyWithoutCaseNestedInput
+  clarifications?: Prisma.ClarificationRequestUncheckedUpdateManyWithoutCaseNestedInput
+  interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
+  matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
+  matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
+  matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutActivitiesInput = {
@@ -5761,6 +6144,7 @@ export type CaseCreateWithoutActivitiesInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutActivitiesInput = {
@@ -5834,6 +6218,7 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutActivitiesInput = {
@@ -5923,6 +6308,7 @@ export type CaseUpdateWithoutActivitiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutActivitiesInput = {
@@ -5996,6 +6382,7 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutNotificationsInput = {
@@ -6069,6 +6456,7 @@ export type CaseCreateWithoutNotificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutNotificationsInput = {
@@ -6142,6 +6530,7 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutNotificationsInput = {
@@ -6231,6 +6620,7 @@ export type CaseUpdateWithoutNotificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutNotificationsInput = {
@@ -6304,6 +6694,7 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutFollowUpsInput = {
@@ -6377,6 +6768,7 @@ export type CaseCreateWithoutFollowUpsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutFollowUpsInput = {
@@ -6450,6 +6842,7 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutFollowUpsInput = {
@@ -6539,6 +6932,7 @@ export type CaseUpdateWithoutFollowUpsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutFollowUpsInput = {
@@ -6612,6 +7006,7 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutIntakeInput = {
@@ -6685,6 +7080,7 @@ export type CaseCreateWithoutIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutIntakeInput = {
@@ -6758,6 +7154,7 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutIntakeInput = {
@@ -6847,6 +7244,7 @@ export type CaseUpdateWithoutIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutIntakeInput = {
@@ -6920,6 +7318,7 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAssessmentHistoryInput = {
@@ -6993,6 +7392,7 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
@@ -7066,6 +7466,7 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAssessmentHistoryInput = {
@@ -7155,6 +7556,7 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
@@ -7228,6 +7630,7 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutOfficialIntakeInput = {
@@ -7301,6 +7704,7 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
@@ -7374,6 +7778,7 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutOfficialIntakeInput = {
@@ -7463,6 +7868,7 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
@@ -7536,6 +7942,7 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutHearingsInput = {
@@ -7609,6 +8016,7 @@ export type CaseCreateWithoutHearingsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutHearingsInput = {
@@ -7682,6 +8090,7 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutHearingsInput = {
@@ -7771,6 +8180,7 @@ export type CaseUpdateWithoutHearingsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutHearingsInput = {
@@ -7844,6 +8254,7 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutVawcAppointmentsInput = {
@@ -7917,6 +8328,7 @@ export type CaseCreateWithoutVawcAppointmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutVawcAppointmentsInput = {
@@ -7990,6 +8402,7 @@ export type CaseUncheckedCreateWithoutVawcAppointmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutVawcAppointmentsInput = {
@@ -8079,6 +8492,7 @@ export type CaseUpdateWithoutVawcAppointmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutVawcAppointmentsInput = {
@@ -8152,6 +8566,7 @@ export type CaseUncheckedUpdateWithoutVawcAppointmentsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutVawcBposInput = {
@@ -8225,6 +8640,7 @@ export type CaseCreateWithoutVawcBposInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutVawcBposInput = {
@@ -8298,6 +8714,7 @@ export type CaseUncheckedCreateWithoutVawcBposInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutVawcBposInput = {
@@ -8387,6 +8804,7 @@ export type CaseUpdateWithoutVawcBposInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutVawcBposInput = {
@@ -8460,6 +8878,7 @@ export type CaseUncheckedUpdateWithoutVawcBposInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutVawcReferralsInput = {
@@ -8533,6 +8952,7 @@ export type CaseCreateWithoutVawcReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutVawcReferralsInput = {
@@ -8606,6 +9026,7 @@ export type CaseUncheckedCreateWithoutVawcReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutVawcReferralsInput = {
@@ -8695,6 +9116,7 @@ export type CaseUpdateWithoutVawcReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutVawcReferralsInput = {
@@ -8768,6 +9190,7 @@ export type CaseUncheckedUpdateWithoutVawcReferralsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutKpReviewsInput = {
@@ -8841,6 +9264,7 @@ export type CaseCreateWithoutKpReviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutKpReviewsInput = {
@@ -8914,6 +9338,7 @@ export type CaseUncheckedCreateWithoutKpReviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutKpReviewsInput = {
@@ -9003,6 +9428,7 @@ export type CaseUpdateWithoutKpReviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutKpReviewsInput = {
@@ -9076,6 +9502,7 @@ export type CaseUncheckedUpdateWithoutKpReviewsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutAcknowledgementInput = {
@@ -9149,6 +9576,7 @@ export type CaseCreateWithoutAcknowledgementInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutAcknowledgementInput = {
@@ -9222,6 +9650,7 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutAcknowledgementInput = {
@@ -9311,6 +9740,7 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
@@ -9384,6 +9814,7 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutPangkatInput = {
@@ -9457,6 +9888,7 @@ export type CaseCreateWithoutPangkatInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutPangkatInput = {
@@ -9530,6 +9962,7 @@ export type CaseUncheckedCreateWithoutPangkatInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutPangkatInput = {
@@ -9619,6 +10052,7 @@ export type CaseUpdateWithoutPangkatInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutPangkatInput = {
@@ -9692,6 +10126,7 @@ export type CaseUncheckedUpdateWithoutPangkatInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutKpFormRecordsInput = {
@@ -9765,6 +10200,7 @@ export type CaseCreateWithoutKpFormRecordsInput = {
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutKpFormRecordsInput = {
@@ -9838,6 +10274,7 @@ export type CaseUncheckedCreateWithoutKpFormRecordsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutKpFormRecordsInput = {
@@ -9927,6 +10364,7 @@ export type CaseUpdateWithoutKpFormRecordsInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutKpFormRecordsInput = {
@@ -10000,6 +10438,7 @@ export type CaseUncheckedUpdateWithoutKpFormRecordsInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutMatchesAsSubjectInput = {
@@ -10073,6 +10512,7 @@ export type CaseCreateWithoutMatchesAsSubjectInput = {
   interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutMatchesAsSubjectInput = {
@@ -10146,6 +10586,7 @@ export type CaseUncheckedCreateWithoutMatchesAsSubjectInput = {
   interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutMatchesAsSubjectInput = {
@@ -10224,6 +10665,7 @@ export type CaseCreateWithoutMatchesAsCandidateInput = {
   interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchScan?: Prisma.CaseMatchScanCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutMatchesAsCandidateInput = {
@@ -10297,6 +10739,7 @@ export type CaseUncheckedCreateWithoutMatchesAsCandidateInput = {
   interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchScan?: Prisma.CaseMatchScanUncheckedCreateNestedOneWithoutCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutMatchesAsCandidateInput = {
@@ -10386,6 +10829,7 @@ export type CaseUpdateWithoutMatchesAsSubjectInput = {
   interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutMatchesAsSubjectInput = {
@@ -10459,6 +10903,7 @@ export type CaseUncheckedUpdateWithoutMatchesAsSubjectInput = {
   interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUpsertWithoutMatchesAsCandidateInput = {
@@ -10543,6 +10988,7 @@ export type CaseUpdateWithoutMatchesAsCandidateInput = {
   interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutMatchesAsCandidateInput = {
@@ -10616,6 +11062,7 @@ export type CaseUncheckedUpdateWithoutMatchesAsCandidateInput = {
   interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateWithoutMatchScanInput = {
@@ -10689,6 +11136,7 @@ export type CaseCreateWithoutMatchScanInput = {
   interviews?: Prisma.CaseInterviewCreateNestedManyWithoutCaseInput
   matchesAsSubject?: Prisma.CaseMatchCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchCreateNestedManyWithoutMatchedCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutMatchScanInput = {
@@ -10762,6 +11210,7 @@ export type CaseUncheckedCreateWithoutMatchScanInput = {
   interviews?: Prisma.CaseInterviewUncheckedCreateNestedManyWithoutCaseInput
   matchesAsSubject?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutCaseInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedCreateNestedManyWithoutMatchedCaseInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutMatchScanInput = {
@@ -10851,6 +11300,7 @@ export type CaseUpdateWithoutMatchScanInput = {
   interviews?: Prisma.CaseInterviewUpdateManyWithoutCaseNestedInput
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutMatchScanInput = {
@@ -10924,6 +11374,7 @@ export type CaseUncheckedUpdateWithoutMatchScanInput = {
   interviews?: Prisma.CaseInterviewUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyAssignedToInput = {
@@ -11042,6 +11493,7 @@ export type CaseUpdateWithoutAssignedToInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutAssignedToInput = {
@@ -11115,6 +11567,7 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
@@ -11278,6 +11731,7 @@ export type CaseUpdateWithoutResidentInput = {
   matchesAsSubject?: Prisma.CaseMatchUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutResidentInput = {
@@ -11351,6 +11805,7 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   matchesAsSubject?: Prisma.CaseMatchUncheckedUpdateManyWithoutCaseNestedInput
   matchesAsCandidate?: Prisma.CaseMatchUncheckedUpdateManyWithoutMatchedCaseNestedInput
   matchScan?: Prisma.CaseMatchScanUncheckedUpdateOneWithoutCaseNestedInput
+  jurisdictionReferrals?: Prisma.JurisdictionReferralUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateManyWithoutResidentInput = {
@@ -11425,6 +11880,7 @@ export type CaseCountOutputType = {
   interviews: number
   matchesAsSubject: number
   matchesAsCandidate: number
+  jurisdictionReferrals: number
 }
 
 export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -11449,6 +11905,7 @@ export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   interviews?: boolean | CaseCountOutputTypeCountInterviewsArgs
   matchesAsSubject?: boolean | CaseCountOutputTypeCountMatchesAsSubjectArgs
   matchesAsCandidate?: boolean | CaseCountOutputTypeCountMatchesAsCandidateArgs
+  jurisdictionReferrals?: boolean | CaseCountOutputTypeCountJurisdictionReferralsArgs
 }
 
 /**
@@ -11608,6 +12065,13 @@ export type CaseCountOutputTypeCountMatchesAsCandidateArgs<ExtArgs extends runti
   where?: Prisma.CaseMatchWhereInput
 }
 
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountJurisdictionReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.JurisdictionReferralWhereInput
+}
+
 
 export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -11683,6 +12147,7 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   matchesAsSubject?: boolean | Prisma.Case$matchesAsSubjectArgs<ExtArgs>
   matchesAsCandidate?: boolean | Prisma.Case$matchesAsCandidateArgs<ExtArgs>
   matchScan?: boolean | Prisma.Case$matchScanArgs<ExtArgs>
+  jurisdictionReferrals?: boolean | Prisma.Case$jurisdictionReferralsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
 
@@ -11860,6 +12325,7 @@ export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   matchesAsSubject?: boolean | Prisma.Case$matchesAsSubjectArgs<ExtArgs>
   matchesAsCandidate?: boolean | Prisma.Case$matchesAsCandidateArgs<ExtArgs>
   matchScan?: boolean | Prisma.Case$matchScanArgs<ExtArgs>
+  jurisdictionReferrals?: boolean | Prisma.Case$jurisdictionReferralsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -11922,6 +12388,10 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     matchesAsSubject: Prisma.$CaseMatchPayload<ExtArgs>[]
     matchesAsCandidate: Prisma.$CaseMatchPayload<ExtArgs>[]
     matchScan: Prisma.$CaseMatchScanPayload<ExtArgs> | null
+    /**
+     * Referral records that an official confirmed inside and filed as this case.
+     */
+    jurisdictionReferrals: Prisma.$JurisdictionReferralPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -12496,6 +12966,7 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   matchesAsSubject<T extends Prisma.Case$matchesAsSubjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$matchesAsSubjectArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   matchesAsCandidate<T extends Prisma.Case$matchesAsCandidateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$matchesAsCandidateArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   matchScan<T extends Prisma.Case$matchScanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$matchScanArgs<ExtArgs>>): Prisma.Prisma__CaseMatchScanClient<runtime.Types.Result.GetResult<Prisma.$CaseMatchScanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  jurisdictionReferrals<T extends Prisma.Case$jurisdictionReferralsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$jurisdictionReferralsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JurisdictionReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13641,6 +14112,30 @@ export type Case$matchScanArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.CaseMatchScanInclude<ExtArgs> | null
   where?: Prisma.CaseMatchScanWhereInput
+}
+
+/**
+ * Case.jurisdictionReferrals
+ */
+export type Case$jurisdictionReferralsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JurisdictionReferral
+   */
+  select?: Prisma.JurisdictionReferralSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the JurisdictionReferral
+   */
+  omit?: Prisma.JurisdictionReferralOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.JurisdictionReferralInclude<ExtArgs> | null
+  where?: Prisma.JurisdictionReferralWhereInput
+  orderBy?: Prisma.JurisdictionReferralOrderByWithRelationInput | Prisma.JurisdictionReferralOrderByWithRelationInput[]
+  cursor?: Prisma.JurisdictionReferralWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.JurisdictionReferralScalarFieldEnum | Prisma.JurisdictionReferralScalarFieldEnum[]
 }
 
 /**

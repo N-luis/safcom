@@ -60,9 +60,13 @@ export const STREET_POINTS: Partial<Record<BarangayStreet, StreetPoint>> = {
     lat: 14.797899, lng: 120.931853,
     source: 'Violeta Avenue, Violeta Metroville, Biñang 1st, Bocaue, Bulacan',
   },
+  // Re-verified 2026-11-25: the earlier point (14.790123, 120.932042) was the
+  // highway's stretch in Bunlo, outside the barangay's configured boundary, so
+  // choosing this street put the pin in another barangay. This one is on the
+  // highway at grade, by the Barangay Hall, inside the boundary.
   'MacArthur Highway': {
-    lat: 14.790123, lng: 120.932042,
-    source: 'MacArthur Highway, Azicate Homes, Bunlo, Bocaue, Bulacan',
+    lat: 14.795457, lng: 120.930225,
+    source: 'MacArthur Highway, Biñang 1st, Bocaue, Bulacan, Central Luzon, 3018',
   },
 };
 

@@ -404,6 +404,8 @@ export const ModelName = {
   ResidencyEvent: 'ResidencyEvent',
   JurisdictionConfig: 'JurisdictionConfig',
   JurisdictionReferral: 'JurisdictionReferral',
+  JurisdictionReferralEvent: 'JurisdictionReferralEvent',
+  JurisdictionReferralAttachment: 'JurisdictionReferralAttachment',
   EmailVerificationToken: 'EmailVerificationToken',
   Activity: 'Activity',
   Notification: 'Notification',
@@ -450,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "jurisdictionReferralEvent" | "jurisdictionReferralAttachment" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1931,6 +1933,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.JurisdictionReferralCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralCountAggregateOutputType> | number
+        }
+      }
+    }
+    JurisdictionReferralEvent: {
+      payload: Prisma.$JurisdictionReferralEventPayload<ExtArgs>
+      fields: Prisma.JurisdictionReferralEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JurisdictionReferralEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JurisdictionReferralEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        findFirst: {
+          args: Prisma.JurisdictionReferralEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JurisdictionReferralEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        findMany: {
+          args: Prisma.JurisdictionReferralEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>[]
+        }
+        create: {
+          args: Prisma.JurisdictionReferralEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        createMany: {
+          args: Prisma.JurisdictionReferralEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JurisdictionReferralEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>[]
+        }
+        delete: {
+          args: Prisma.JurisdictionReferralEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        update: {
+          args: Prisma.JurisdictionReferralEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.JurisdictionReferralEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JurisdictionReferralEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JurisdictionReferralEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.JurisdictionReferralEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralEventPayload>
+        }
+        aggregate: {
+          args: Prisma.JurisdictionReferralEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJurisdictionReferralEvent>
+        }
+        groupBy: {
+          args: Prisma.JurisdictionReferralEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JurisdictionReferralEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    JurisdictionReferralAttachment: {
+      payload: Prisma.$JurisdictionReferralAttachmentPayload<ExtArgs>
+      fields: Prisma.JurisdictionReferralAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JurisdictionReferralAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JurisdictionReferralAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.JurisdictionReferralAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JurisdictionReferralAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.JurisdictionReferralAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.JurisdictionReferralAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.JurisdictionReferralAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JurisdictionReferralAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.JurisdictionReferralAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        update: {
+          args: Prisma.JurisdictionReferralAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.JurisdictionReferralAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JurisdictionReferralAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JurisdictionReferralAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.JurisdictionReferralAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JurisdictionReferralAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.JurisdictionReferralAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJurisdictionReferralAttachment>
+        }
+        groupBy: {
+          args: Prisma.JurisdictionReferralAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JurisdictionReferralAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JurisdictionReferralAttachmentCountAggregateOutputType> | number
         }
       }
     }
@@ -4727,9 +4877,12 @@ export type JurisdictionConfigScalarFieldEnum = (typeof JurisdictionConfigScalar
 
 export const JurisdictionReferralScalarFieldEnum = {
   id: 'id',
+  referenceNumber: 'referenceNumber',
   residentId: 'residentId',
   kind: 'kind',
   urgent: 'urgent',
+  source: 'source',
+  submissionKey: 'submissionKey',
   reportingRelationship: 'reportingRelationship',
   province: 'province',
   municipality: 'municipality',
@@ -4739,15 +4892,63 @@ export const JurisdictionReferralScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   summary: 'summary',
+  residentOriginalNarrative: 'residentOriginalNarrative',
+  narrativeAssist: 'narrativeAssist',
+  incidentDate: 'incidentDate',
+  incidentTimeApprox: 'incidentTimeApprox',
+  reportPayload: 'reportPayload',
   locationCheck: 'locationCheck',
+  validationResult: 'validationResult',
+  reason: 'reason',
+  recommendedDestination: 'recommendedDestination',
+  recommendedDesk: 'recommendedDesk',
+  confidential: 'confidential',
   status: 'status',
+  receivingOffice: 'receivingOffice',
+  assignedToId: 'assignedToId',
+  forwardedAt: 'forwardedAt',
+  acknowledgedAt: 'acknowledgedAt',
+  caseId: 'caseId',
   reviewNote: 'reviewNote',
   reviewedById: 'reviewedById',
   reviewedAt: 'reviewedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type JurisdictionReferralScalarFieldEnum = (typeof JurisdictionReferralScalarFieldEnum)[keyof typeof JurisdictionReferralScalarFieldEnum]
+
+
+export const JurisdictionReferralEventScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  kind: 'kind',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  residentMessage: 'residentMessage',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralEventScalarFieldEnum = (typeof JurisdictionReferralEventScalarFieldEnum)[keyof typeof JurisdictionReferralEventScalarFieldEnum]
+
+
+export const JurisdictionReferralAttachmentScalarFieldEnum = {
+  id: 'id',
+  referralId: 'referralId',
+  filename: 'filename',
+  mimeType: 'mimeType',
+  size: 'size',
+  data: 'data',
+  sha256: 'sha256',
+  uploadedByResidentId: 'uploadedByResidentId',
+  createdAt: 'createdAt'
+} as const
+
+export type JurisdictionReferralAttachmentScalarFieldEnum = (typeof JurisdictionReferralAttachmentScalarFieldEnum)[keyof typeof JurisdictionReferralAttachmentScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {
@@ -5665,6 +5866,8 @@ export type GlobalOmitConfig = {
   residencyEvent?: Prisma.ResidencyEventOmit
   jurisdictionConfig?: Prisma.JurisdictionConfigOmit
   jurisdictionReferral?: Prisma.JurisdictionReferralOmit
+  jurisdictionReferralEvent?: Prisma.JurisdictionReferralEventOmit
+  jurisdictionReferralAttachment?: Prisma.JurisdictionReferralAttachmentOmit
   emailVerificationToken?: Prisma.EmailVerificationTokenOmit
   activity?: Prisma.ActivityOmit
   notification?: Prisma.NotificationOmit

@@ -226,7 +226,7 @@ async function main() {
     // ── 13. Verified, outside ──
     const f13 = await json(await filePOST(req('/api/resident/cases', A, 'POST', { description: NOISE, barangay: 'Fictional St', reportingRelationship: 'SELF',
       incidentProvince: 'Bulacan', incidentMunicipality: 'Bocaue', incidentBarangay: 'Taal', incidentLocationDetails: 'Fictional' })));
-    ok('13. verified resident, incident outside: not filed as a case here (422), with a referral route offered', f13.status === 422 && f13.body.code === 'OUTSIDE_JURISDICTION' && f13.body.referralAvailable === true);
+    ok('13. verified resident, incident outside: not filed as a case - saved as a referral automatically (028)', f13.status === 201 && f13.body.data?.outcome === 'REFERRAL' && !f13.body.data?.caseNumber);
     const ref13 = await json(await referralPOST(req('/api/resident/referrals', A, 'POST', { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'Fictional St', summary: 'Fictional: outside incident' })));
     ok('13. ...and kept as an outside-the-jurisdiction referral for the barangay', ref13.status === 201 && ref13.body.data.kind === 'OUTSIDE_JURISDICTION');
 

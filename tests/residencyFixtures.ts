@@ -14,8 +14,18 @@ export const VERIFIED_RESIDENT = {
   province: 'Bulacan', municipality: 'Bocaue',
 } as const;
 
-/** The incident place a report needs: inside the configured barangay. */
-export const INCIDENT_IN_BARANGAY = { incidentProvince: 'Bulacan', incidentMunicipality: 'Bocaue', incidentBarangay: 'Biñang 2nd', incidentLocationDetails: 'Fictional test location' };
+/**
+ * The incident place a report needs: inside the configured barangay. Since the
+ * stricter incident check (028), the barangay named is not enough on its own -
+ * a pin inside the official boundary or one of the barangay's own streets has
+ * to place it - so this carries a pin at the Biñang 2nd Barangay Hall, inside
+ * the configured boundary, and a street from the barangay's list for a
+ * database without a boundary. A test's own street or pin still wins.
+ */
+export const INCIDENT_IN_BARANGAY = {
+  incidentProvince: 'Bulacan', incidentMunicipality: 'Bocaue', incidentBarangay: 'Biñang 2nd', incidentLocationDetails: 'Fictional test location',
+  latitude: 14.795956, longitude: 120.9297673,
+};
 
 /**
  * The filing route with the incident placed in the barangay unless the test

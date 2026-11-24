@@ -7,7 +7,7 @@ import {
   Box, Typography, Card, CardContent, Tabs, Tab, Chip, Button, Alert, Skeleton, Table, TableHead, TableBody, TableRow, TableCell,
   TableContainer, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, IconButton, Divider, InputAdornment,
 } from '@mui/material';
-import { HowToReg, Close, Search, Warning, Map as MapIcon } from '@mui/icons-material';
+import { HowToReg, Close, Search, Map as MapIcon } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { RESIDENCY_STATUSES, LOCATION_FLAGS, type ResidencyStatus, type LocationFlag, type BoundaryGeometry } from '@/lib/jurisdiction';
 import { displayPhMobile } from '@/lib/phoneNumber';
@@ -239,47 +239,12 @@ function Review({ id, onClose, onDone }: { id: string; onClose: () => void; onDo
   );
 }
 
-interface RefRow { id: string; kind: string; kindLabel: string; urgent: boolean; status: string; statusLabel: string; province: string | null; municipality: string | null;
-  barangay: string | null; street: string | null; locationDetails: string | null; summary: string | null; reportingRelationship: string | null; createdAt: string;
-  reviewNote: string | null; resident: { name: string; residentNumber: string; contactNumber: string | null; residencyStatus: string } | null }
-
+/** Referrals moved to their own page (Referral Management), with the full workflow. */
 function Referrals() {
-  const [status, setStatus] = useState('NEW');
-  const { data, error, mutate } = useSWR<{ counts: Record<string, number>; rows: RefRow[] }>(`/api/residency/referrals?status=${status}`, getJson);
-  const [note, setNote] = useState<Record<string, string>>({});
-  const mark = async (id: string, s: 'REVIEWED' | 'CLOSED') => {
-    try { await send('/api/residency/referrals', 'PATCH', { id, status: s, note: (note[id] ?? '').trim() }); toast.success('Updated'); void mutate(); }
-    catch (e) { toast.error(e instanceof Error ? e.message : 'Could not update'); }
-  };
   return (
-    <Box sx={{ display: 'grid', gap: 1.5 }}>
-      <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>Reports that could not be standard SafeComm cases - outside the jurisdiction, from a not-yet-verified account, or urgent. They are not cases. Where the barangay should act, have staff take the report in through the Walk-in Report.</Typography>
-      <Tabs value={status} onChange={(_, v) => setStatus(v)} sx={{ minHeight: 36 }}>
-        {['NEW', 'REVIEWED', 'CLOSED', 'ALL'].map(s => <Tab key={s} value={s} label={`${s === 'ALL' ? 'All' : s[0] + s.slice(1).toLowerCase()}${data && s !== 'ALL' ? ` (${data.counts[s] ?? 0})` : ''}`} sx={{ textTransform: 'none', minHeight: 36 }} />)}
-      </Tabs>
-      {error && <Alert severity="info">{error.message}</Alert>}
-      {data && !data.rows.length && <Typography sx={{ color: '#64748b', py: 3, textAlign: 'center' }}>No referral records here.</Typography>}
-      {data?.rows.map(r => (
-        <Box key={r.id} sx={{ border: `1px solid ${r.urgent ? '#fecaca' : '#e2e8f0'}`, bgcolor: r.urgent ? '#fef2f2' : '#fff', borderRadius: 2, p: 1.5, display: 'grid', gap: 0.75 }}>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-            {r.urgent && <Chip size="small" icon={<Warning sx={{ fontSize: 14 }} />} label="Urgent" sx={chip('#b91c1c')} />}
-            <Chip size="small" label={r.kindLabel} sx={chip('#4338ca')} />
-            <Chip size="small" label={r.statusLabel} sx={chip('#64748b')} />
-            <Typography sx={{ fontSize: '0.78rem', color: '#64748b', ml: 'auto' }}>{when(r.createdAt)}</Typography>
-          </Box>
-          <Typography sx={{ fontSize: '0.84rem', color: NAVY }}><b>Where:</b> {[r.street, r.locationDetails, r.barangay, r.municipality, r.province].filter(Boolean).join(', ') || 'Not given'}</Typography>
-          {r.summary && <Typography sx={{ fontSize: '0.84rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{r.summary}</Typography>}
-          {r.resident && <Typography sx={{ fontSize: '0.8rem', color: '#475569' }}>From {r.resident.name} ({r.resident.residentNumber}){r.resident.contactNumber ? ` · ${r.resident.contactNumber}` : ''} · residency: {RESIDENCY_STATUSES[r.resident.residencyStatus as ResidencyStatus] ?? r.resident.residencyStatus}{r.reportingRelationship && r.reportingRelationship !== 'SELF' ? ` · reporting for someone else` : ''}</Typography>}
-          {r.reviewNote && <Typography sx={{ fontSize: '0.8rem', color: '#15803d' }}>Done: {r.reviewNote}</Typography>}
-          {r.status !== 'CLOSED' && (
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-              <TextField size="small" placeholder="What was done (required)" value={note[r.id] ?? ''} onChange={e => setNote(n => ({ ...n, [r.id]: e.target.value }))} sx={{ flex: 1, minWidth: 220 }} />
-              {r.status === 'NEW' && <Button size="small" variant="outlined" disabled={(note[r.id] ?? '').trim().length < 3} onClick={() => mark(r.id, 'REVIEWED')} sx={{ textTransform: 'none' }}>Mark reviewed</Button>}
-              <Button size="small" variant="outlined" disabled={(note[r.id] ?? '').trim().length < 3} onClick={() => mark(r.id, 'CLOSED')} sx={{ textTransform: 'none' }}>Close</Button>
-            </Box>
-          )}
-        </Box>
-      ))}
+    <Box sx={{ display: 'grid', gap: 1.25, justifyItems: 'start' }}>
+      <Typography sx={{ fontSize: '0.84rem', color: '#475569' }}>Referral records - incidents outside the jurisdiction, locations waiting for verification, and referrals from unverified or urgent reporters - are managed on the Referrals page.</Typography>
+      <Button variant="contained" href="/dashboard/referrals" sx={{ textTransform: 'none', bgcolor: NAVY }}>Open Referrals</Button>
     </Box>
   );
 }
