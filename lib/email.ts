@@ -53,8 +53,16 @@ export async function emailLoginStatus(): Promise<string> {
     await nodemailer.createTransport({ host: s.host, port: s.port, secure: s.port === 465, auth: { user: s.user, pass: s.pass },
       connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 8000 }).verify();
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    result = /\b535\b|invalid login|username and password|auth/i.test(msg) ? 'login_rejected' : 'unreachable';
+    const err = e as { message?: string; code?: string; responseCode?: number };
+    const msg = err.message ?? String(e);
+    // The category, with nodemailer's code and the server's reply number (never its text).
+    const code = [err.code, err.responseCode].filter(Boolean).join(' ');
+    const cat = /\b535\b|invalid login|username and password/i.test(msg) || err.code === 'EAUTH' ? 'login_rejected'
+      : /missing credentials/i.test(msg) ? 'credentials_missing'
+        : /timeout|ETIMEDOUT/i.test(msg + (err.code ?? '')) ? 'timeout'
+          : /ENOTFOUND|EDNS|getaddrinfo/i.test(msg + (err.code ?? '')) ? 'server_name_not_found'
+            : /certificate|TLS|SSL|wrong version/i.test(msg) ? 'tls_problem' : 'unreachable';
+    result = code ? `${cat} (${code})` : cat;
   }
   loginCheck = { at: Date.now(), result };
   return result;
