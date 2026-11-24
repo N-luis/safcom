@@ -3,46 +3,61 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, Box, Button, CircularProgress, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, CheckCircle, RadioButtonUnchecked } from '@mui/icons-material';
 import AuthShell, { authField, authPrimaryButton } from '@/components/auth/AuthShell';
 
 /**
- * Forgot password - and the way back in for an account from before the new
- * sign-in. Without a link: ask for one by email. With the emailed link
- * (?token_hash=...&type=recovery|invite): choose the password, then signed in.
+ * Forgot Password (and the way back in for an account from before the new
+ * sign-in). Without a link: ask for one by email. With the emailed link
+ * (?token_hash=...&type=recovery|invite): choose the new password - checked
+ * by the server with Supabase Auth - then signed in.
  */
-const RULE = 'At least 8 characters, with a letter and a number';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function AskForLink() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState('');
+  const [warning, setWarning] = useState('');
   const [error, setError] = useState('');
+  const invalid = touched && !EMAIL_RE.test(email.trim());
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true); setError(''); setDone('');
+    setTouched(true);
+    if (!EMAIL_RE.test(email.trim())) return;
+    setBusy(true); setError(''); setDone(''); setWarning('');
     try {
-      const res = await fetch('/api/auth/resident-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const res = await fetch('/api/auth/resident-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.success) {
-        // Email to residents not set up on the server: said plainly (the same for every address).
-        if (json.data.deliveryWarning) setError(json.data.deliveryWarning); else setDone(json.data.message);
-      } else setError(json.error ?? 'Try again in a moment.');
-    } catch { setError('Network error. Please try again.'); } finally { setBusy(false); }
+        // Email to residents not working on the server: said plainly (the same for every address).
+        if (json.data.deliveryWarning) setWarning(json.data.deliveryWarning); else setDone(json.data.message);
+      } else setError(json.error ?? 'The reset link could not be requested. Try again in a moment.');
+    } catch { setError('Network error. Check your connection and try again.'); } finally { setBusy(false); }
   };
   return (
-    <AuthShell title="Forgot password or set up" subtitle="Enter the email of your resident account. We will email you a link to choose a password. If your account was made before SafeComm's new sign-in, this sets up your password for it - your profile and reports are kept.">
-      <Box component="form" onSubmit={submit} sx={{ display: 'grid', gap: 2 }} data-testid="ask-link">
+    <AuthShell title="Forgot password" subtitle="Enter the email of your resident account and we will send you a link to choose a new password. Had an account before SafeComm's new sign-in? This sets up your password for it - your profile and reports are kept.">
+      <Box component="form" onSubmit={submit} noValidate sx={{ display: 'grid', gap: 2 }} data-testid="ask-link">
         {done && <Alert severity="success" sx={{ borderRadius: 2 }} role="status">{done}</Alert>}
-        {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
-        <TextField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" sx={authField} />
-        <Button type="submit" variant="contained" disabled={busy || !email.trim()} sx={authPrimaryButton}>{busy ? <CircularProgress size={22} color="inherit" /> : 'Email me a link'}</Button>
-        <Button onClick={() => router.push('/resident-login')} sx={{ color: 'rgba(255,255,255,0.6)', textTransform: 'none' }}>Back to sign in</Button>
+        {warning && <Alert severity="warning" sx={{ borderRadius: 2 }} role="status">{warning}</Alert>}
+        {error && <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" type="submit">Retry</Button>}>{error}</Alert>}
+        <TextField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} onBlur={() => setTouched(true)} autoComplete="email"
+          error={invalid} helperText={invalid ? 'Enter a valid email address' : ' '} sx={authField} />
+        <Button type="submit" variant="contained" disabled={busy} sx={authPrimaryButton}>{busy ? <CircularProgress size={22} color="inherit" /> : 'Send Reset Link'}</Button>
+        <Button onClick={() => router.push('/resident-login')} sx={{ color: 'rgba(255,255,255,0.7)', textTransform: 'none' }}>Return to Sign In</Button>
       </Box>
     </AuthShell>
   );
 }
+
+/** The password rules, shown as they are met (the server checks them again). */
+const RULES = [
+  { key: 'len', text: 'At least 8 characters', ok: (p: string) => p.length >= 8 && p.length <= 72 },
+  { key: 'letter', text: 'A letter', ok: (p: string) => /[A-Za-z]/.test(p) },
+  { key: 'number', text: 'A number', ok: (p: string) => /[0-9]/.test(p) },
+];
 
 function ChoosePassword({ tokenHash, type }: { tokenHash: string; type: 'recovery' | 'invite' }) {
   const router = useRouter();
@@ -50,25 +65,35 @@ function ChoosePassword({ tokenHash, type }: { tokenHash: string; type: 'recover
   const [confirm, setConfirm] = useState('');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<{ text: string; expired: boolean } | null>(null);
   const [done, setDone] = useState<{ signedIn: boolean } | null>(null);
+  const rulesMet = RULES.every(r => r.ok(password));
   const mismatch = confirm.length > 0 && confirm !== password;
+  const ready = rulesMet && confirm === password && confirm.length > 0;
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true); setError('');
+    if (!ready) return;
+    setBusy(true); setError(null);
     try {
       const res = await fetch('/api/auth/resident-password', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
         body: JSON.stringify({ token_hash: tokenHash, type, password, confirmPassword: confirm }) });
       const json = await res.json().catch(() => ({}));
-      if (res.ok && json.success) setDone({ signedIn: Boolean(json.data.signedIn) }); else setError(json.error ?? 'Your password could not be set.');
-    } catch { setError('Network error. Please try again.'); } finally { setBusy(false); }
+      // Success is shown only when the server says the password was saved.
+      if (res.ok && json.success) setDone({ signedIn: Boolean(json.data.signedIn) });
+      else setError({ text: json.error ?? 'Your password could not be updated.', expired: json.code === 'LINK_EXPIRED' || json.code === 'INVALID_LINK' });
+    } catch { setError({ text: 'Network error. Check your connection and try again.', expired: false }); } finally { setBusy(false); }
   };
   if (done) {
     return (
-      <AuthShell title="Password saved">
-        <Box role="status" sx={{ display: 'grid', gap: 2 }}>
-          <Typography sx={{ color: 'rgba(255,255,255,0.8)' }}>{done.signedIn ? 'Your new password is saved and you are signed in.' : 'Your new password is saved. Sign in with it.'}</Typography>
-          <Button variant="contained" onClick={() => router.push(done.signedIn ? '/resident' : '/resident-login')} sx={authPrimaryButton}>{done.signedIn ? 'Go to my dashboard' : 'Go to sign in'}</Button>
+      <AuthShell title="Password updated">
+        <Box role="status" sx={{ display: 'grid', gap: 2 }} data-testid="password-updated">
+          <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start' }}>
+            <CheckCircle sx={{ color: '#34d399', mt: '2px' }} />
+            <Typography sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
+              {done.signedIn ? 'Your new password is saved and you are signed in.' : 'Your new password is saved. Sign in with it now.'}
+            </Typography>
+          </Box>
+          <Button variant="contained" onClick={() => router.push(done.signedIn ? '/resident' : '/resident-login')} sx={authPrimaryButton}>{done.signedIn ? 'Go to my dashboard' : 'Go to Sign In'}</Button>
         </Box>
       </AuthShell>
     );
@@ -79,14 +104,33 @@ function ChoosePassword({ tokenHash, type }: { tokenHash: string; type: 'recover
     </InputAdornment>
   );
   return (
-    <AuthShell title={type === 'invite' ? 'Set up your password' : 'Choose a new password'} subtitle={type === 'invite' ? "SafeComm has a new sign-in. Choose a password for your account - your profile and reports are kept." : undefined}>
+    <AuthShell title={type === 'invite' ? 'Set up your password' : 'Reset your password'}
+      subtitle={type === 'invite' ? "SafeComm has a new sign-in. Choose a password for your account - your profile and reports are kept." : 'Choose a new password for your SafeComm account.'}>
       <Box component="form" onSubmit={submit} sx={{ display: 'grid', gap: 2 }} data-testid="choose-password">
-        {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}{/expired|used/i.test(error) && <Box sx={{ mt: 0.5 }}><Button size="small" onClick={() => router.push('/reset-password')}>Ask for a new link</Button></Box>}</Alert>}
-        <TextField label="New password" type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required autoComplete="new-password"
-          helperText={RULE} sx={authField} slotProps={{ input: { endAdornment: eye } }} />
-        <TextField label="Confirm new password" type={show ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} required autoComplete="new-password"
-          error={mismatch} helperText={mismatch ? 'The passwords do not match' : ' '} sx={authField} />
-        <Button type="submit" variant="contained" disabled={busy || !password || mismatch} sx={authPrimaryButton}>{busy ? <CircularProgress size={22} color="inherit" /> : 'Save password'}</Button>
+        {error && (
+          <Alert severity="error" sx={{ borderRadius: 2 }}>
+            {error.text}
+            {error.expired && <Box sx={{ mt: 0.75 }}><Button size="small" variant="outlined" color="inherit" onClick={() => router.push('/reset-password')}>Request a new link</Button></Box>}
+          </Alert>
+        )}
+        <TextField label="New Password" type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password"
+          sx={authField} slotProps={{ input: { endAdornment: eye }, htmlInput: { maxLength: 72 } }} />
+        <Box component="ul" aria-label="Password requirements" sx={{ m: 0, p: 0, listStyle: 'none', display: 'grid', gap: 0.25 }} data-testid="password-rules">
+          {RULES.map(r => {
+            const met = r.ok(password);
+            return (
+              <Box component="li" key={r.key} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, fontSize: '0.82rem', color: met ? '#6ee7b7' : 'rgba(255,255,255,0.6)' }}>
+                {met ? <CheckCircle sx={{ fontSize: 16 }} /> : <RadioButtonUnchecked sx={{ fontSize: 16 }} />}{r.text}{met ? <Box component="span" sx={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' }}> (met)</Box> : null}
+              </Box>
+            );
+          })}
+        </Box>
+        <TextField label="Confirm New Password" type={show ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} autoComplete="new-password"
+          error={mismatch} helperText={mismatch ? 'The passwords do not match' : ' '} sx={authField} slotProps={{ htmlInput: { maxLength: 72 } }} />
+        <Button type="submit" variant="contained" disabled={busy || !ready} sx={authPrimaryButton}>
+          {busy ? <CircularProgress size={22} color="inherit" /> : type === 'invite' ? 'Set Password' : 'Update Password'}
+        </Button>
+        <Button onClick={() => router.push('/resident-login')} sx={{ color: 'rgba(255,255,255,0.7)', textTransform: 'none' }}>Return to Sign In</Button>
       </Box>
     </AuthShell>
   );

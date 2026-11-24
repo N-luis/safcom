@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/auth';
 import { sendAuthEmail } from '@/lib/email';
+import { siteOrigin } from '@/lib/siteUrl';
 import { missingRequired, checkDatabase } from '@/lib/configCheck';
 import { GENDER_OPTIONS, GENDER_UNDISCLOSED } from '@/lib/safecommConfig';
 import { checkAgainstJurisdiction, recordResidencyEvent, registrationAddressRefusal } from '@/lib/jurisdictionServer';
@@ -171,7 +172,7 @@ export async function POST(req: NextRequest) {
     createdUser = null;   // kept: the profile is saved
 
     // The confirmation link: SafeComm's own page, sent by SafeComm's mailer. A mail failure never undoes the account.
-    const send = await sendAuthEmail('confirm', d.email, `${d.firstName} ${d.lastName}`, authLink(req.nextUrl.origin, 'signup', tokenHash));
+    const send = await sendAuthEmail('confirm', d.email, `${d.firstName} ${d.lastName}`, authLink(siteOrigin(req.nextUrl.origin), 'signup', tokenHash));
     return successResponse({
       residentNumber: resident.residentNumber, name: `${resident.firstName} ${resident.lastName}`, email: d.email,
       residencyStatus: 'PENDING_VERIFICATION', check: { status: check.status, flags: check.flags, boundary: check.boundary, explanation: check.explanation },

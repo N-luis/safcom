@@ -58,7 +58,7 @@ const lastLink = (to: string) => {
   const url = m ? /(https?:\/\/\S+token_hash=\S+)/.exec(m.text)?.[1] : null;
   if (!url) return null;
   const u = new URL(url);
-  return { path: u.pathname, tokenHash: u.searchParams.get('token_hash')!, type: u.searchParams.get('type')!, subject: m!.subject };
+  return { path: u.pathname, origin: u.origin, tokenHash: u.searchParams.get('token_hash')!, type: u.searchParams.get('type')!, subject: m!.subject };
 };
 
 const C = { lat: 14.7947352, lng: 120.9345743 };
@@ -118,7 +118,8 @@ async function main() {
     ok('1. every part of the address, the second number, postal code and home pin are saved', res1?.street === 'Ortega Compound' && res1.houseNumber === '12' && res1.purok === 'Purok 3'
       && res1.postalCode === '3018' && res1.homeLatitude !== null && res1.homeLocationSource === 'MAP' && res1.contactNumber === '+639170000001' && res1.altContactNumber === '+639180000002');
     ok('1. no password in SafeComm\'s tables (Supabase Auth keeps it, hashed)', res1?.password === null && !JSON.stringify(res1).includes(PW));
-    ok('1. the email is not confirmed yet, and a confirmation link was sent (SafeComm\'s own page)', !sb1?.email_confirmed_at && lastLink(E1)?.path === '/verify-email' && lastLink(E1)?.type === 'signup');
+    ok('1. the email is not confirmed yet, and a confirmation link was sent (SafeComm\'s own page): "Verify Your SafeComm Account"', !sb1?.email_confirmed_at && lastLink(E1)?.path === '/verify-email' && lastLink(E1)?.type === 'signup'
+      && lastLink(E1)?.subject === 'Verify Your SafeComm Account');
     ok('1. the residency history: registered, then submitted', (await prisma.residencyEvent.findMany({ where: { residentId: res1!.id }, orderBy: { createdAt: 'asc' } })).map(e => e.kind).join() === 'registered,submitted');
 
     // ── 2. Incomplete address ──
@@ -328,12 +329,21 @@ async function main() {
 
     // ── Reset, resend, sign out ──
     console.log('\nPassword reset, resend, sign-out');
-    await pwAskPOST(req('/api/auth/resident-password', '', 'POST', { email: E1 }));
+    // The link points to the configured site, whatever address the request came in on (no "reset poisoning").
+    process.env.APP_URL = 'https://safecomm.example.org';
+    await pwAskPOST(new NextRequest('http://evil.example/api/auth/resident-password', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-forwarded-for': '10.30.0.1', Host: 'evil.example' },
+      body: JSON.stringify({ email: E1 }) }));
+    delete process.env.APP_URL;
     const reset = lastLink(E1)!;
+    ok('the reset email: "Reset Your SafeComm Password", its link on the configured site (not the address the request came in on)', reset.subject === 'Reset Your SafeComm Password'
+      && reset.origin === 'https://safecomm.example.org' && reset.path === '/reset-password', `${reset.subject} ${reset.origin}`);
+    const before = mail.length;
     const NEWPW = 'Probe-newpass-77';
     const rs = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: reset.tokenHash, type: reset.type, password: NEWPW, confirmPassword: NEWPW })));
     ok('forgot password: a reset link (recovery); the new password works and the old one no longer does', reset.type === 'recovery' && rs.status === 200
       && (await login(E1, NEWPW)).status === 200 && (await login(E1, PW)).status === 401);
+    const changed = mail.slice(before).find(m => m.to === E1 && m.subject === 'Your SafeComm Password Has Been Updated');
+    ok('after the change, "Your SafeComm Password Has Been Updated" is sent - with no link that signs anyone in', Boolean(changed) && !/token_hash/.test(changed!.text));
     const rs2 = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: reset.tokenHash, type: reset.type, password: NEWPW, confirmPassword: NEWPW })));
     ok('a reset link used twice: refused', rs2.status === 400 && rs2.body.code === 'LINK_EXPIRED');
     const E20 = emailOf('resend'); emails.push(E20);

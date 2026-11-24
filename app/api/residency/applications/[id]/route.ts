@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { sendNoticeEmail } from '@/lib/email';
+import { siteOrigin } from '@/lib/siteUrl';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, errorResponse } from '@/lib/auth';
@@ -131,7 +132,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     // The resident is told by email too (it is also on their dashboard and residency page). Never undoes the decision.
     const emailed = r.email ? await sendNoticeEmail(r.email, `${r.firstName} ${r.lastName}`, DECISION_MAIL[d.action].subject,
       [DECISION_MAIL[d.action].text, ...(note && d.action !== 'approve' ? [`${d.action === 'reject' ? 'Reason' : 'What is needed'}: ${note}`] : [])],
-      { label: d.action === 'approve' ? 'Open SafeComm' : 'Open my residency', url: `${req.nextUrl.origin}/resident${d.action === 'approve' ? '' : '/residency'}` })
+      { label: d.action === 'approve' ? 'Open SafeComm' : 'Open my residency', url: `${siteOrigin(req.nextUrl.origin)}/resident${d.action === 'approve' ? '' : '/residency'}` })
       .catch(() => ({ ok: false })) : { ok: false };
     return noStore({ success: true, data: { status: o.to, residentEmailed: emailed.ok } });
   } catch (e) {

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { signResidentToken, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
 import { rateLimit } from '@/lib/rateLimit';
-import { sendAuthEmail, emailDeliverable, EMAIL_NOT_DELIVERABLE } from '@/lib/email';
+import { sendAuthEmail, sendPasswordChangedEmail, emailReady, EMAIL_NOT_DELIVERABLE } from '@/lib/email';
+import { siteOrigin } from '@/lib/siteUrl';
 import { supabaseAuthMissing, recoveryLinkFor, verifyLink, setUserPassword, residentForUser, authLink, passwordProblem, AuthError } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
@@ -41,11 +42,11 @@ export async function POST(req: NextRequest) {
   }
   try {
     const link = await recoveryLinkFor(email);
-    if (link) await sendAuthEmail(link.type === 'invite' ? 'setup' : 'reset', email, link.name, authLink(req.nextUrl.origin, link.type, link.tokenHash));
+    if (link) await sendAuthEmail(link.type === 'invite' ? 'setup' : 'reset', email, link.name, authLink(siteOrigin(req.nextUrl.origin), link.type, link.tokenHash));
   } catch (err) {
     console.error('[Password link]', err instanceof Error ? err.message : 'failed');
   }
-  return rSuccess({ message: SAME, ...(!emailDeliverable() && { deliveryWarning: EMAIL_NOT_DELIVERABLE }) });
+  return rSuccess({ message: SAME, ...(!(await emailReady()) && { deliveryWarning: EMAIL_NOT_DELIVERABLE }) });
 }
 
 export async function PUT(req: NextRequest) {
@@ -61,6 +62,8 @@ export async function PUT(req: NextRequest) {
     const user = await verifyLink(d.token_hash, d.type);
     await setUserPassword(user.id, d.password);
     const resident = await residentForUser(user);
+    // Told by email that the password changed (no link that signs anyone in). Never undoes the change.
+    if (user.email) await sendPasswordChangedEmail(user.email, resident ? `${resident.firstName} ${resident.lastName}` : 'resident', `${siteOrigin(req.nextUrl.origin)}/resident-login`).catch(() => undefined);
     if (!resident) return rSuccess({ status: 'password_set', signedIn: false });
     const name = `${resident.firstName} ${resident.lastName}`;
     const res = rSuccess({ status: 'password_set', signedIn: true, name, residencyStatus: resident.residencyStatus });
