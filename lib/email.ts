@@ -9,7 +9,7 @@ import nodemailer from 'nodemailer';
  * A link is never written to the log, whatever happens: it signs someone in.
  */
 /** A value as pasted into a hosting dashboard: surrounding spaces, line breaks and quotes removed. */
-const clean = (v: string | undefined) => (v ?? '').trim().replace(/^(['"])(.*)\1$/s, '$2').trim();
+const clean = (v: string | undefined) => (v ?? '').trim().replace(/^(['"])([\s\S]*)\1$/, '$2').trim();
 
 /**
  * The SMTP settings, forgiving of how they were pasted: "https://smtp.gmail.com:465/" is read as the
