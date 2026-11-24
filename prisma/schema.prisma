@@ -45,6 +45,13 @@ model Case {
   riskLevel    String?
   barangay     String
   description  String
+  /// The resident's own words, kept when they chose the AI-organized version of their description
+  /// (the Reporting Assistant) as the description above. Never written by the AI. null when they
+  /// kept their own text. Officials see both.
+  residentOriginalNarrative String?
+  /// How the AI-organized description was used: ACCEPTED (as suggested) | EDITED (changed by the
+  /// resident before using it). null when not used. Set together with residentOriginalNarrative.
+  narrativeAssist           String?
   notes        String?
   /// The language the resident wrote this report in: tagalog | taglish |
   /// english. Read from the text, never from the interface toggle, and used to

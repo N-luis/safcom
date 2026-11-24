@@ -75,7 +75,8 @@
     "test:kpforms:api": "npx tsx --env-file=.env --conditions=react-server tests/kpFormsApi.test.ts",
     "test:residency": "npx tsx --env-file=.env --conditions=react-server tests/residency.test.ts",
     "test:casematching": "npx tsx --env-file=.env --conditions=react-server tests/caseMatching.test.ts",
-    "test:residentauth": "npx tsx --env-file=.env --conditions=react-server tests/residentAuth.test.ts"
+    "test:residentauth": "npx tsx --env-file=.env --conditions=react-server tests/residentAuth.test.ts",
+    "test:reportguide": "npx tsx --env-file=.env --conditions=react-server tests/reportGuide.test.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

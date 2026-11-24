@@ -116,7 +116,11 @@ const createSchema = z.object({
   // matched to a resident record by name.
   affectedParty: affectedPartySchema.optional(),
   reportedParty: reportedPartySchema.optional(),
-});
+  // The Reporting Assistant organized the description and the resident chose that version (as
+  // suggested, or edited): their own words come too, and are kept beside it. Both or neither.
+  residentOriginalNarrative: z.string().trim().min(1).max(NARRATIVE_MAX).optional(),
+  narrativeAssist: z.enum(['ACCEPTED', 'EDITED']).optional(),
+}).refine(d => Boolean(d.residentOriginalNarrative) === Boolean(d.narrativeAssist), 'Send the original description together with how the organized one was used');
 
 
 export async function GET(req: NextRequest) {
@@ -399,6 +403,9 @@ export async function POST(req: NextRequest) {
           reporterIdentityWithheld: anonymous,
           caseType: filedType,
           description: parsed.data.description,
+          // The resident's own words, when they chose the AI-organized version above (never written by the AI).
+          residentOriginalNarrative: parsed.data.narrativeAssist ? parsed.data.residentOriginalNarrative : null,
+          narrativeAssist: parsed.data.narrativeAssist ?? null,
           barangay,
           status: 'Open',
           riskLevel,

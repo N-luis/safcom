@@ -4294,6 +4294,8 @@ export const CaseScalarFieldEnum = {
   riskLevel: 'riskLevel',
   barangay: 'barangay',
   description: 'description',
+  residentOriginalNarrative: 'residentOriginalNarrative',
+  narrativeAssist: 'narrativeAssist',
   notes: 'notes',
   language: 'language',
   latitude: 'latitude',

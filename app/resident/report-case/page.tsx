@@ -42,6 +42,10 @@ import AddressFields, { emptyAddress, type AddressValue } from '@/components/for
 import ReferralForm from '@/components/residency/ReferralForm';
 import { DEFAULT_JURISDICTION, sameName, isJurisdictionBarangay } from '@/lib/jurisdiction';
 import DuplicateCheckDialog, { runDuplicateCheck, type DuplicateCheckResult } from '@/components/forms/DuplicateCheckDialog';
+import ReportGuide from '@/components/forms/ReportGuide';
+import NarrativeOrganizer from '@/components/forms/NarrativeOrganizer';
+import ReportSteps from '@/components/forms/ReportSteps';
+import { beforeSubmitSteps, afterSubmitSteps, URGENT_WORDS } from '@/lib/reportGuide';
 
 /**
  * Leaflet reaches for window as it loads, so the picker is never rendered on
@@ -261,7 +265,25 @@ export default function ReportCasePage() {
     }, 300);
     return () => clearTimeout(t);
   }, [descriptionValue, intakeAnswers, intakeTurns, relationshipValue]);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // The AI Reporting Assistant (open or not), and the organized description in use, if any -
+  // with the resident's own words, which then go with the report too (never replaced silently).
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [assist, setAssist] = useState<{ original: string; organized: string; mode: 'ACCEPTED' | 'EDITED' } | null>(null);
+  const [organizer, setOrganizer] = useState({ offered: false, decided: false });
+  const toDescription = () => {
+    setGuideOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById('report-description') as HTMLTextAreaElement | null;
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      el?.focus({ preventScroll: true });
+    }, 50);
+  };
+  /** What goes with the report about the organized description: only when it is what they are submitting. */
+  const assistFor = (description: string) => {
+    if (!assist || description.trim() === assist.original.trim()) return {};
+    return { residentOriginalNarrative: assist.original, narrativeAssist: description.trim() === assist.organized.trim() ? assist.mode : 'EDITED' as const };
+  };
   const cancelConfirmText = t('cancelConfirm');
   // Mirrors the request lifecycle, so the stages shown are never ahead of
   // the work and a failure never leaves a fabricated classification behind.
@@ -351,7 +373,9 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           attachments: photos.map(p => ({ name: p.name, dataUrl: p.dataUrl })),
           // What the resident wrote, before any landmark was appended, and
           // their answers. The server reads both again itself.
-          intakeNarrative: data.description,
+          // SafeComm Assist reads the resident's own words, even when they chose the organized version.
+          intakeNarrative: assist && data.description.trim() !== assist.original.trim() ? assist.original : data.description,
+          ...assistFor(data.description),
           intakeAnswers,
           intakeTurns,
           reportingRelationship: data.reportingRelationship,
@@ -376,6 +400,7 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
       setUpload(null);
       // Filed: the next report gets a key of its own.
       setSubmissionKey(newSubmissionKey());
+      setAssist(null); setOrganizer({ offered: false, decided: false });
       // Only now is the assessment real, so only now do the last stages tick
       // over and the bar reach the end.
       setStage(stages.length);
@@ -438,6 +463,13 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
 
               {submitted.desk && <Box sx={{ mb: 2.5 }}><DeskNote desk={submitted.desk} /></Box>}
 
+              {/* What to do now - for this report (lib/reportGuide.ts afterSubmitSteps). */}
+              <Box sx={{ mb: 2.5 }}>
+                <ReportSteps lang={lang} testid="after-submit-steps" title={lang === 'tl' ? 'Mga susunod na hakbang' : 'Your next steps'}
+                  steps={afterSubmitSteps({ caseNumber: submitted.caseNumber, urgent: submitted.triageStatus === 'URGENT_REVIEW',
+                    questionsAsked: Boolean(submitted.desk?.clarificationNeeded || submitted.desk?.questions?.length), confidential: Boolean(submitted.desk?.confidentialReview) })} />
+              </Box>
+
               {/* Stacked on a phone, side by side from 600px. 44px minimum so
                   they are usable with a thumb. */}
               <Box sx={{
@@ -495,6 +527,13 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   From what you wrote, this report will be kept confidential and reviewed by a specially assigned barangay officer.
                 </Alert>
               )}
+
+              {/* The AI Reporting Assistant: before and while filling in the form. */}
+              <Box sx={{ mb: 2.5 }}>
+                <ReportGuide lang={lang} open={guideOpen} onOpenChange={setGuideOpen} descriptionEmpty={!descriptionValue.trim()}
+                  onUseDescription={text => { if (!getValues('description')) setValue('description', text.slice(0, DESCRIPTION_MAX), { shouldValidate: true, shouldDirty: true }); }}
+                  onContinue={toDescription} />
+              </Box>
 
               <Box component="form" onSubmit={handleSubmit(data => {
                 // A started-but-wrong contact number is never sent or dropped silently.
@@ -566,9 +605,20 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                     {...register('description')}
                     error={!!errors.description}
                     helperText={errors.description?.message || `${descLen}/${DESCRIPTION_MAX} characters`}
-                    fullWidth multiline minRows={5} maxRows={18}
+                    fullWidth multiline minRows={5} maxRows={18} id="report-description"
                     slotProps={{ htmlInput: { maxLength: DESCRIPTION_MAX, 'aria-describedby': 'describe-label' } }}
                   />
+                  {/* AI help with the wording: shown beside the original, used only if the resident chooses. */}
+                  <NarrativeOrganizer lang={lang} description={descriptionValue} using={assist ? { original: assist.original, mode: assist.mode } : null}
+                    onOffered={offered => setOrganizer({ offered, decided: false })}
+                    onUse={(text, mode, original) => { setAssist({ original, organized: text, mode }); setValue('description', text.slice(0, DESCRIPTION_MAX), { shouldValidate: true, shouldDirty: true }); setOrganizer({ offered: true, decided: true }); }}
+                    onKeep={() => setOrganizer({ offered: true, decided: true })}
+                    onUndo={() => { if (assist) setValue('description', assist.original, { shouldValidate: true, shouldDirty: true }); setAssist(null); }} />
+                  {!guideOpen && (
+                    <Button size="small" onClick={() => { setGuideOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }} sx={{ mt: 0.5, textTransform: 'none', color: '#0f766e' }}>
+                      {lang === 'tl' ? 'Hindi alam ang isusulat? Magtanong sa assistant' : 'Not sure what to write? Ask the assistant'}
+                    </Button>
+                  )}
                   <Alert severity="info" icon={false} sx={{ mt: 1, borderRadius: 2, fontSize: '0.8rem', bgcolor: '#f5f3ff', color: '#4c1d95' }}>
                     Reports that may involve violence against a woman or a child are kept confidential and go only to the barangay officers
                     assigned to them. You do not need evidence, and you can leave out anything you do not know. If someone is in danger
@@ -819,6 +869,15 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                 // Danger: file what there is now, with no further steps.
                 onSubmitNow={() => { const d = reviewing; setReviewing(null); if (d) onSubmit(d); }}
               />
+              {/* Before submitting: only the steps that apply to this draft. */}
+              <ReportSteps lang={lang} testid="before-submit-steps" title={lang === 'tl' ? 'Bago mag-submit' : 'Before you submit'}
+                steps={beforeSubmitSteps({
+                  descriptionWords: reviewing.description.trim().split(/\s+/).filter(Boolean).length, hasDate: Boolean(reviewing.incidentDate),
+                  hasLocationDetails: Boolean(reviewing.location?.trim()), relationship: reviewing.reportingRelationship || 'SELF',
+                  affectedNamed: Boolean(people.affected.fullName.trim()), reportedNamed: Boolean(people.reported.fullName.trim()),
+                  organizedOffered: organizer.offered, organizedDecided: organizer.decided,
+                  urgent: assistState === 'URGENT' || URGENT_WORDS.test(reviewing.description),
+                })} />
               <Box sx={{ bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2, p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                 {([
                   ['Desk', 'Recommended by SafeComm AI from what you wrote'],

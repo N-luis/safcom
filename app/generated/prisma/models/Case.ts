@@ -45,6 +45,8 @@ export type CaseMinAggregateOutputType = {
   riskLevel: string | null
   barangay: string | null
   description: string | null
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
   notes: string | null
   language: string | null
   latitude: number | null
@@ -89,6 +91,8 @@ export type CaseMaxAggregateOutputType = {
   riskLevel: string | null
   barangay: string | null
   description: string | null
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
   notes: string | null
   language: string | null
   latitude: number | null
@@ -133,6 +137,8 @@ export type CaseCountAggregateOutputType = {
   riskLevel: number
   barangay: number
   description: number
+  residentOriginalNarrative: number
+  narrativeAssist: number
   notes: number
   language: number
   latitude: number
@@ -189,6 +195,8 @@ export type CaseMinAggregateInputType = {
   riskLevel?: true
   barangay?: true
   description?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
   notes?: true
   language?: true
   latitude?: true
@@ -233,6 +241,8 @@ export type CaseMaxAggregateInputType = {
   riskLevel?: true
   barangay?: true
   description?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
   notes?: true
   language?: true
   latitude?: true
@@ -277,6 +287,8 @@ export type CaseCountAggregateInputType = {
   riskLevel?: true
   barangay?: true
   description?: true
+  residentOriginalNarrative?: true
+  narrativeAssist?: true
   notes?: true
   language?: true
   latitude?: true
@@ -408,6 +420,8 @@ export type CaseGroupByOutputType = {
   riskLevel: string | null
   barangay: string
   description: string
+  residentOriginalNarrative: string | null
+  narrativeAssist: string | null
   notes: string | null
   language: string | null
   latitude: number | null
@@ -475,6 +489,8 @@ export type CaseWhereInput = {
   riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"Case"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"Case"> | string | null
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
@@ -549,6 +565,8 @@ export type CaseOrderByWithRelationInput = {
   riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrderInput | Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -627,6 +645,8 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"Case"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"Case"> | string | null
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
@@ -701,6 +721,8 @@ export type CaseOrderByWithAggregationInput = {
   riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrderInput | Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -753,6 +775,8 @@ export type CaseScalarWhereWithAggregatesInput = {
   riskLevel?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   barangay?: Prisma.StringWithAggregatesFilter<"Case"> | string
   description?: Prisma.StringWithAggregatesFilter<"Case"> | string
+  residentOriginalNarrative?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  narrativeAssist?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   language?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Case"> | number | null
@@ -797,6 +821,8 @@ export type CaseCreateInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -869,6 +895,8 @@ export type CaseUncheckedCreateInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -941,6 +969,8 @@ export type CaseUpdateInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1013,6 +1043,8 @@ export type CaseUncheckedUpdateInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1085,6 +1117,8 @@ export type CaseCreateManyInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -1129,6 +1163,8 @@ export type CaseUpdateManyMutationInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1171,6 +1207,8 @@ export type CaseUncheckedUpdateManyInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1230,6 +1268,8 @@ export type CaseCountOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
@@ -1279,6 +1319,8 @@ export type CaseMaxOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
@@ -1323,6 +1365,8 @@ export type CaseMinOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  residentOriginalNarrative?: Prisma.SortOrder
+  narrativeAssist?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   language?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
@@ -1874,6 +1918,8 @@ export type CaseCreateWithoutAssignedToInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -1945,6 +1991,8 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2045,6 +2093,8 @@ export type CaseScalarWhereInput = {
   riskLevel?: Prisma.StringNullableFilter<"Case"> | string | null
   barangay?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringFilter<"Case"> | string
+  residentOriginalNarrative?: Prisma.StringNullableFilter<"Case"> | string | null
+  narrativeAssist?: Prisma.StringNullableFilter<"Case"> | string | null
   notes?: Prisma.StringNullableFilter<"Case"> | string | null
   language?: Prisma.StringNullableFilter<"Case"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Case"> | number | null
@@ -2089,6 +2139,8 @@ export type CaseCreateWithoutReportAddendaInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2160,6 +2212,8 @@ export type CaseUncheckedCreateWithoutReportAddendaInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2247,6 +2301,8 @@ export type CaseUpdateWithoutReportAddendaInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2318,6 +2374,8 @@ export type CaseUncheckedUpdateWithoutReportAddendaInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2389,6 +2447,8 @@ export type CaseCreateWithoutClarificationsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2460,6 +2520,8 @@ export type CaseUncheckedCreateWithoutClarificationsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2547,6 +2609,8 @@ export type CaseUpdateWithoutClarificationsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2618,6 +2682,8 @@ export type CaseUncheckedUpdateWithoutClarificationsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2689,6 +2755,8 @@ export type CaseCreateWithoutInterviewsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2760,6 +2828,8 @@ export type CaseUncheckedCreateWithoutInterviewsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -2847,6 +2917,8 @@ export type CaseUpdateWithoutInterviewsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2918,6 +2990,8 @@ export type CaseUncheckedUpdateWithoutInterviewsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2989,6 +3063,8 @@ export type CaseCreateWithoutReportDraftsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3060,6 +3136,8 @@ export type CaseUncheckedCreateWithoutReportDraftsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3147,6 +3225,8 @@ export type CaseUpdateWithoutReportDraftsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3218,6 +3298,8 @@ export type CaseUncheckedUpdateWithoutReportDraftsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3289,6 +3371,8 @@ export type CaseCreateWithoutVictimSurvivorsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3360,6 +3444,8 @@ export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3447,6 +3533,8 @@ export type CaseUpdateWithoutVictimSurvivorsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3518,6 +3606,8 @@ export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3589,6 +3679,8 @@ export type CaseCreateWithoutPartiesInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3660,6 +3752,8 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3747,6 +3841,8 @@ export type CaseUpdateWithoutPartiesInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3818,6 +3914,8 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3889,6 +3987,8 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -3960,6 +4060,8 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4047,6 +4149,8 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4118,6 +4222,8 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4189,6 +4295,8 @@ export type CaseCreateWithoutReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4260,6 +4368,8 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4347,6 +4457,8 @@ export type CaseUpdateWithoutReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4418,6 +4530,8 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4489,6 +4603,8 @@ export type CaseCreateWithoutServiceReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4560,6 +4676,8 @@ export type CaseUncheckedCreateWithoutServiceReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4647,6 +4765,8 @@ export type CaseUpdateWithoutServiceReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4718,6 +4838,8 @@ export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -4789,6 +4911,8 @@ export type CaseCreateWithoutAssessmentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4860,6 +4984,8 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -4947,6 +5073,8 @@ export type CaseUpdateWithoutAssessmentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5018,6 +5146,8 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5089,6 +5219,8 @@ export type CaseCreateWithoutAttachmentsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5160,6 +5292,8 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5247,6 +5381,8 @@ export type CaseUpdateWithoutAttachmentsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5318,6 +5454,8 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5389,6 +5527,8 @@ export type CaseCreateWithoutResidentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5460,6 +5600,8 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5557,6 +5699,8 @@ export type CaseCreateWithoutActivitiesInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5628,6 +5772,8 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5715,6 +5861,8 @@ export type CaseUpdateWithoutActivitiesInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5786,6 +5934,8 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -5857,6 +6007,8 @@ export type CaseCreateWithoutNotificationsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -5928,6 +6080,8 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6015,6 +6169,8 @@ export type CaseUpdateWithoutNotificationsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6086,6 +6242,8 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6157,6 +6315,8 @@ export type CaseCreateWithoutFollowUpsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6228,6 +6388,8 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6315,6 +6477,8 @@ export type CaseUpdateWithoutFollowUpsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6386,6 +6550,8 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6457,6 +6623,8 @@ export type CaseCreateWithoutIntakeInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6528,6 +6696,8 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6615,6 +6785,8 @@ export type CaseUpdateWithoutIntakeInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6686,6 +6858,8 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6757,6 +6931,8 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6828,6 +7004,8 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -6915,6 +7093,8 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -6986,6 +7166,8 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7057,6 +7239,8 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7128,6 +7312,8 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7215,6 +7401,8 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7286,6 +7474,8 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7357,6 +7547,8 @@ export type CaseCreateWithoutHearingsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7428,6 +7620,8 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7515,6 +7709,8 @@ export type CaseUpdateWithoutHearingsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7586,6 +7782,8 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7657,6 +7855,8 @@ export type CaseCreateWithoutVawcAppointmentsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7728,6 +7928,8 @@ export type CaseUncheckedCreateWithoutVawcAppointmentsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -7815,6 +8017,8 @@ export type CaseUpdateWithoutVawcAppointmentsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7886,6 +8090,8 @@ export type CaseUncheckedUpdateWithoutVawcAppointmentsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -7957,6 +8163,8 @@ export type CaseCreateWithoutVawcBposInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8028,6 +8236,8 @@ export type CaseUncheckedCreateWithoutVawcBposInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8115,6 +8325,8 @@ export type CaseUpdateWithoutVawcBposInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8186,6 +8398,8 @@ export type CaseUncheckedUpdateWithoutVawcBposInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8257,6 +8471,8 @@ export type CaseCreateWithoutVawcReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8328,6 +8544,8 @@ export type CaseUncheckedCreateWithoutVawcReferralsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8415,6 +8633,8 @@ export type CaseUpdateWithoutVawcReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8486,6 +8706,8 @@ export type CaseUncheckedUpdateWithoutVawcReferralsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8557,6 +8779,8 @@ export type CaseCreateWithoutKpReviewsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8628,6 +8852,8 @@ export type CaseUncheckedCreateWithoutKpReviewsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8715,6 +8941,8 @@ export type CaseUpdateWithoutKpReviewsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8786,6 +9014,8 @@ export type CaseUncheckedUpdateWithoutKpReviewsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -8857,6 +9087,8 @@ export type CaseCreateWithoutAcknowledgementInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -8928,6 +9160,8 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9015,6 +9249,8 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9086,6 +9322,8 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9157,6 +9395,8 @@ export type CaseCreateWithoutPangkatInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9228,6 +9468,8 @@ export type CaseUncheckedCreateWithoutPangkatInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9315,6 +9557,8 @@ export type CaseUpdateWithoutPangkatInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9386,6 +9630,8 @@ export type CaseUncheckedUpdateWithoutPangkatInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9457,6 +9703,8 @@ export type CaseCreateWithoutKpFormRecordsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9528,6 +9776,8 @@ export type CaseUncheckedCreateWithoutKpFormRecordsInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9615,6 +9865,8 @@ export type CaseUpdateWithoutKpFormRecordsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9686,6 +9938,8 @@ export type CaseUncheckedUpdateWithoutKpFormRecordsInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -9757,6 +10011,8 @@ export type CaseCreateWithoutMatchesAsSubjectInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9828,6 +10084,8 @@ export type CaseUncheckedCreateWithoutMatchesAsSubjectInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9904,6 +10162,8 @@ export type CaseCreateWithoutMatchesAsCandidateInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -9975,6 +10235,8 @@ export type CaseUncheckedCreateWithoutMatchesAsCandidateInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -10062,6 +10324,8 @@ export type CaseUpdateWithoutMatchesAsSubjectInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10133,6 +10397,8 @@ export type CaseUncheckedUpdateWithoutMatchesAsSubjectInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10215,6 +10481,8 @@ export type CaseUpdateWithoutMatchesAsCandidateInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10286,6 +10554,8 @@ export type CaseUncheckedUpdateWithoutMatchesAsCandidateInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10357,6 +10627,8 @@ export type CaseCreateWithoutMatchScanInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -10428,6 +10700,8 @@ export type CaseUncheckedCreateWithoutMatchScanInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -10515,6 +10789,8 @@ export type CaseUpdateWithoutMatchScanInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10586,6 +10862,8 @@ export type CaseUncheckedUpdateWithoutMatchScanInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10657,6 +10935,8 @@ export type CaseCreateManyAssignedToInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -10700,6 +10980,8 @@ export type CaseUpdateWithoutAssignedToInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10771,6 +11053,8 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10842,6 +11126,8 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10885,6 +11171,8 @@ export type CaseCreateManyResidentInput = {
   riskLevel?: string | null
   barangay: string
   description: string
+  residentOriginalNarrative?: string | null
+  narrativeAssist?: string | null
   notes?: string | null
   language?: string | null
   latitude?: number | null
@@ -10928,6 +11216,8 @@ export type CaseUpdateWithoutResidentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -10999,6 +11289,8 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -11070,6 +11362,8 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   riskLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  residentOriginalNarrative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeAssist?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -11324,6 +11618,8 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   riskLevel?: boolean
   barangay?: boolean
   description?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
   notes?: boolean
   language?: boolean
   latitude?: boolean
@@ -11399,6 +11695,8 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   riskLevel?: boolean
   barangay?: boolean
   description?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
   notes?: boolean
   language?: boolean
   latitude?: boolean
@@ -11445,6 +11743,8 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   riskLevel?: boolean
   barangay?: boolean
   description?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
   notes?: boolean
   language?: boolean
   latitude?: boolean
@@ -11491,6 +11791,8 @@ export type CaseSelectScalar = {
   riskLevel?: boolean
   barangay?: boolean
   description?: boolean
+  residentOriginalNarrative?: boolean
+  narrativeAssist?: boolean
   notes?: boolean
   language?: boolean
   latitude?: boolean
@@ -11526,7 +11828,7 @@ export type CaseSelectScalar = {
   submissionKey?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo" | "submissionKey", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "residentOriginalNarrative" | "narrativeAssist" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo" | "submissionKey", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -11636,6 +11938,17 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     riskLevel: string | null
     barangay: string
     description: string
+    /**
+     * The resident's own words, kept when they chose the AI-organized version of their description
+     * (the Reporting Assistant) as the description above. Never written by the AI. null when they
+     * kept their own text. Officials see both.
+     */
+    residentOriginalNarrative: string | null
+    /**
+     * How the AI-organized description was used: ACCEPTED (as suggested) | EDITED (changed by the
+     * resident before using it). null when not used. Set together with residentOriginalNarrative.
+     */
+    narrativeAssist: string | null
     notes: string | null
     /**
      * The language the resident wrote this report in: tagalog | taglish |
@@ -12220,6 +12533,8 @@ export interface CaseFieldRefs {
   readonly riskLevel: Prisma.FieldRef<"Case", 'String'>
   readonly barangay: Prisma.FieldRef<"Case", 'String'>
   readonly description: Prisma.FieldRef<"Case", 'String'>
+  readonly residentOriginalNarrative: Prisma.FieldRef<"Case", 'String'>
+  readonly narrativeAssist: Prisma.FieldRef<"Case", 'String'>
   readonly notes: Prisma.FieldRef<"Case", 'String'>
   readonly language: Prisma.FieldRef<"Case", 'String'>
   readonly latitude: Prisma.FieldRef<"Case", 'Float'>

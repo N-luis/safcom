@@ -96,6 +96,9 @@ interface CaseDetail {
   description: string;
   notes?: string | null;
   filedAt: string;
+  /** The resident's own words, when they used the AI-organized description (ACCEPTED or EDITED). */
+  residentOriginalNarrative?: string | null;
+  narrativeAssist?: 'ACCEPTED' | 'EDITED' | null;
   resolvedAt?: string | null;
   updatedAt: string;
   assignedTo?: { id: string; name: string; email: string; role: string } | null;
@@ -1166,6 +1169,17 @@ export default function CaseWorkspace({ id, basePath }: CaseWorkspaceProps) {
                     {caseData.description}
                   </Typography>
                 </Paper>
+                {/* The resident used the Reporting Assistant's organized version: their own words are kept, and shown here. */}
+                {caseData.narrativeAssist && caseData.residentOriginalNarrative && (
+                  <Box sx={{ mt: 1.25 }} data-testid="resident-original-narrative">
+                    <Typography sx={{ fontSize: '0.76rem', fontWeight: 700, color: '#7c3aed', mb: 0.5 }}>
+                      The description above was organized by SafeComm&apos;s AI from the resident&apos;s words{caseData.narrativeAssist === 'EDITED' ? ' and edited by the resident' : ''}, who chose to use it. Their own words:
+                    </Typography>
+                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#faf5ff', borderColor: '#e9d5ff' }}>
+                      <Typography sx={{ fontSize: '0.88rem', lineHeight: 1.65, color: '#475569', whiteSpace: 'pre-wrap' }}>{caseData.residentOriginalNarrative}</Typography>
+                    </Paper>
+                  </Box>
+                )}
                 {/* The photos are in Evidence Attachments, at the top of the right-hand column. */}
                 {(caseData.attachments ?? []).length > 0 && (
                   <Typography sx={{ mt: 1.25, fontSize: '0.8rem', color: '#0369a1' }}>
