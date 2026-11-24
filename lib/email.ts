@@ -96,6 +96,7 @@ export function settings() {
 function kindOf(v: string | undefined): string {
   const t = clean(v);
   if (!t) return 'empty';
+  if (/^[a-z][a-z0-9+.-]*:\/\/[^\s/]*@/i.test(t)) return `a ${t.split(':')[0].toLowerCase()}:// address with a login inside it (not used - put each part in its own setting)`;
   const addr = /<\s*([^<>\s]+@[^<>\s]+)\s*>/.exec(t)?.[1] ?? (/^[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}$/i.test(t) ? t : null);
   if (addr) return `${/</.test(t) ? 'a name and email address' : 'an email address'} at ${addr.split('@')[1].toLowerCase()}`;
   const inside = /[^\s<>@"']+@([^\s<>@"']+\.[a-z]{2,})/i.exec(t);
@@ -106,7 +107,25 @@ function kindOf(v: string | undefined): string {
   if (HOSTNAME.test(host) && /^(smtp|smtps|mail|smtp-relay|smtp-mail|email-smtp)[.-]/.test(host)) return `a mail server name (${host})`;
   if (HOSTNAME.test(host)) return 'a domain or server name';
   if (/^[a-z]{4}( ?[a-z]{4}){3}$/i.test(t)) return 'a Google app password (16 letters)';
-  return `other text (${t.length} characters${/\s/.test(t) ? ', with spaces' : ''})`;
+  return `other text (${t.length} characters${/\s/.test(t) ? ', with spaces or line breaks' : ''}${formatOf(t)})`;
+}
+
+/** The format of an unrecognised value - so a whole block or another service's key pasted in shows - never its content. */
+function formatOf(t: string): string {
+  const f: string[] = [];
+  if (/EMAIL_(SERVER|PORT|USERNAME|PASSWORD|FROM)\s*=/i.test(t)) f.push('contains NAME=value lines of the email settings themselves');
+  else if (/^[A-Z][A-Z0-9_]{2,}\s*=/.test(t)) f.push('starts like NAME=value');
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(t)) f.push(`a ${t.split(':')[0].toLowerCase()}:// address`);
+  if (/^re_[A-Za-z0-9_]{10,}$/.test(t)) f.push('a Resend API key');
+  else if (/^xkeysib-/.test(t)) f.push('a Brevo API key');
+  else if (/^SG\.[\w-]+\.[\w-]+$/.test(t)) f.push('a SendGrid API key');
+  else if (/^eyJ[\w-]+\.[\w-]+\.[\w-]+$/.test(t)) f.push('a token (JWT) - such as a Supabase key');
+  else if (/^sb_(secret|publishable)_/.test(t)) f.push('a Supabase key');
+  else if (/^gsk_/.test(t)) f.push('a Groq API key');
+  else if (/^postgres(ql)?:\/\//i.test(t)) f.push('a database address');
+  else if (/^[a-f0-9]+$/i.test(t)) f.push('hexadecimal');
+  else if (/^[A-Za-z0-9+/_-]+={0,2}$/.test(t)) f.push('random-looking letters and digits');
+  return f.length ? `; looks like ${f.join(', ')}` : '';
 }
 
 export function emailSettingsReport() {
@@ -128,11 +147,16 @@ export function emailSettingsReport() {
   if (s.host === 'smtp.gmail.com' && s.user && fromAddr && fromAddr !== s.user.toLowerCase()) {
     problems.push('EMAIL_FROM is not the Gmail address in EMAIL_USERNAME - Gmail replaces it unless it is a verified "Send mail as" address');
   }
+  if (new Set((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => clean(process.env[k]))).size === 1 && raw) {
+    problems.unshift('All five EMAIL_* settings hold the same value - each needs its own (server, port, username, app password, sender)');
+  }
   if (s.portIgnored) problems.push(`EMAIL_PORT is not a port number (it was ignored - ${s.port} used): set it to 465, or 587`);
   return {
     server: !s.host ? 'none' : publicServer ? s.host : 'custom server',
     // What kind of value each setting holds - so a value pasted into the wrong one shows - never the value.
     holds: Object.fromEntries((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => [k, kindOf(process.env[k])])),
+    // The same value pasted into every setting.
+    allTheSame: new Set((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => clean(process.env[k]))).size === 1 && Boolean(clean(process.env.EMAIL_SERVER)),
     port: s.port,
     serverCorrected: s.hostFixed,
     problems,

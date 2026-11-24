@@ -69,6 +69,15 @@ withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_PORT: '465', EMAIL_FRO
 ok('correct settings: each holds what it should', JSON.stringify(emailSettingsReport().holds) === JSON.stringify({ EMAIL_SERVER: 'a mail server name (smtp.gmail.com)', EMAIL_PORT: 'a port number (465)',
   EMAIL_USERNAME: 'an email address at gmail.com', EMAIL_PASSWORD: 'a Google app password (16 letters)', EMAIL_FROM: 'a name and email address at gmail.com' }), JSON.stringify(emailSettingsReport().holds));
 
+const SAMEVAL = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.c2lnbmF0dXJlc2lnbmF0dXJl';
+withEnv({ EMAIL_SERVER: SAMEVAL, EMAIL_PORT: SAMEVAL, EMAIL_USERNAME: SAMEVAL, EMAIL_PASSWORD: SAMEVAL, EMAIL_FROM: SAMEVAL });
+const same = emailSettingsReport();
+ok('one value pasted into all five: said first, with its format (a token), never the value', same.allTheSame && /same value/.test(same.problems[0])
+  && /looks like a token \(JWT\)/.test(same.holds.EMAIL_SERVER) && !JSON.stringify(same).includes('eyJ'), JSON.stringify(same.holds.EMAIL_SERVER));
+withEnv({ EMAIL_SERVER: 'EMAIL_SERVER=smtp.gmail.com\nEMAIL_PORT=465', EMAIL_PORT: 're_AbCdEfGh1234567890', EMAIL_USERNAME: 'smtps://u:p@smtp.gmail.com:465' });
+const fmt = emailSettingsReport().holds;
+ok('the whole settings block, a Resend key, a URL: each recognised by its format', /NAME=value lines of the email settings/.test(fmt.EMAIL_SERVER)
+  && /a Resend API key/.test(fmt.EMAIL_PORT) && /smtps:\/\/ address/.test(fmt.EMAIL_USERNAME) && !/re_AbCd|u:p@/.test(JSON.stringify(fmt)), JSON.stringify(fmt));
 withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'SafeComm noreply@yourdomain.com' });
 ok('a template\'s example sender: sent as SafeComm <the Gmail username> instead, and named as a problem', settings().from === 'SafeComm <probe.sender@gmail.com>'
   && emailSettingsReport().problems.some(p => /template's example/.test(p)), settings().from);
