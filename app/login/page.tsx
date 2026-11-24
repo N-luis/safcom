@@ -81,7 +81,7 @@ function ResidentPanel({ onClose }: { onClose: () => void }) {
       <ResidentForm />
 
       <Box sx={{ mt: 1.5, textAlign: 'center' }}>
-        <Button size="small" onClick={() => go('/reset-password')} data-testid="forgot-password"
+        <Button size="small" onClick={() => go('/forgot-password')} data-testid="forgot-password"
           sx={{ fontSize: '0.84rem', color: '#5eead4', textTransform: 'none' }}>
           Forgot password or set up
         </Button>

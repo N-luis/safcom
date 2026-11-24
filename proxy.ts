@@ -8,7 +8,9 @@ const PUBLIC_PATHS = [
   '/vawc-login',
   // Resident sign-in (Supabase Auth, on the server): confirm the email, reset or set up a password.
   '/verify-email', '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/reset-password', '/api/auth/resident-password',
+  '/forgot-password', '/reset-password', '/api/auth/resident-password',
+  // Any emailed sign-in link in Supabase's format: sent on to the two pages above (SafeComm pages only).
+  '/auth/confirm',
   // Registration's own address search and the jurisdiction (public, rate-limited; no account yet).
   '/api/registration/',
   // Old Clerk addresses, kept as redirects so links in old emails still land somewhere.

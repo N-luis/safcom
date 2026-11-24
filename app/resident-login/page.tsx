@@ -85,7 +85,7 @@ export default function ResidentLoginPage() {
       </Box>
 
       <Box sx={{ mt: 1.5, textAlign: 'center' }}>
-        <Button size="small" onClick={() => router.push('/reset-password')} data-testid="forgot-password" sx={{ fontSize: '0.86rem', color: '#5eead4', textTransform: 'none' }}>
+        <Button size="small" onClick={() => router.push('/forgot-password')} data-testid="forgot-password" sx={{ fontSize: '0.86rem', color: '#5eead4', textTransform: 'none' }}>
           Forgot password or set up
         </Button>
         <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>

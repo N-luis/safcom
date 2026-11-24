@@ -327,6 +327,48 @@ async function main() {
     await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: pwLink!.tokenHash, type: pwLink!.type, password: PW, confirmPassword: PW }));
     ok('18. an old-password account recovers the same way', askPw.status === 200 && pwLink?.type === 'invite' && (await login(E18b, PW)).status === 200);
 
+    // The real-world case: an account from before asked for its set-up link, which never arrived (the mail
+    // server was not working) - its Supabase user exists, invited and unconfirmed. Asking again must work.
+    const askFrom = (email: string, ip: string) => pwAskPOST(new NextRequest(`${ORIGIN}/api/auth/resident-password`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip }, body: JSON.stringify({ email }) }));
+    const E18c = emailOf('lostlink'); emails.push(E18c);
+    const lost = await prisma.resident.create({ data: { residentNumber: `${TAG}-${process.pid}-3`, firstName: 'Probe', lastName: 'Lostlink', age: 40, gender: 'Female', barangay: 'Biñang 2nd',
+      address: 'Fictional', email: E18c, clerkId: `user_${TAG}_${process.pid}_c`, emailVerified: true, residencyStatus: 'PENDING_VERIFICATION' } });
+    const lostCase = await prisma.case.create({ data: { caseNumber: `${TAG}-${process.pid}-C3`, residentName: 'Probe Lostlink', residentId: lost.id, caseType: 'Noise Complaint', barangay: 'Ortega Compound', description: NOISE } });
+    caseIds.push(lostCase.id);
+    await askFrom(E18c, '10.31.0.1');
+    const firstLink = lastLink(E18c)!;
+    const invited = await findUserByEmail(E18c);
+    await askFrom(` ${E18c.toUpperCase()} `, '10.31.0.2');
+    const secondLink = lastLink(E18c)!;
+    ok('18c. asked again after the first link was lost: one Supabase user (no second one), a fresh set-up link for the same address (spaces and capitals ignored)',
+      Boolean(invited) && !invited!.email_confirmed_at && secondLink.type === 'invite' && secondLink.tokenHash !== firstLink.tokenHash && /Set up/i.test(secondLink.subject)
+      && (await findUserByEmail(E18c))?.id === invited!.id, `${secondLink.type} ${secondLink.subject}`);
+    const set18c = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: secondLink.tokenHash, type: 'invite', password: PW, confirmPassword: PW })));
+    const lostAfter = await prisma.resident.findUnique({ where: { id: lost.id } });
+    ok('18c. the fresh link sets the password and links the same profile - residency untouched (still Pending, not approved), no second profile', set18c.status === 200
+      && lostAfter?.supabaseUserId === invited!.id && lostAfter?.residencyStatus === 'PENDING_VERIFICATION' && await prisma.resident.count({ where: { email: { equals: E18c, mode: 'insensitive' } } }) === 1,
+      `${set18c.status} ${JSON.stringify(set18c.body).slice(0, 140)}`);
+    const old18c = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: firstLink.tokenHash, type: 'invite', password: 'Another-pass-9', confirmPassword: 'Another-pass-9' })));
+    const l18c = await login(E18c, PW);
+    const my18c = await json(await myCasesGET(req('/api/resident/cases', cookieOf(l18c.cookie))));
+    ok('18c. the lost (older) link no longer works; the resident signs in with the new password and still has their case', old18c.status === 400 && l18c.status === 200
+      && ((my18c.body.data?.cases ?? my18c.body.data ?? []) as Body[]).some(c => c.id === lostCase.id), `old=${old18c.status} login=${l18c.status}`);
+    await askFrom(E18c, '10.31.0.3');
+    ok('18c. once linked, Forgot Password sends an ordinary reset link', lastLink(E18c)?.type === 'recovery' && lastLink(E18c)?.subject === 'Reset Your SafeComm Password');
+
+    // The same, by a reset link (what Supabase allows when a fresh set-up link cannot be made): it also proves the mailbox.
+    const E18d = emailOf('lostreset'); emails.push(E18d);
+    const lostD = await prisma.resident.create({ data: { residentNumber: `${TAG}-${process.pid}-4`, firstName: 'Probe', lastName: 'Lostreset', age: 40, gender: 'Female', barangay: 'Biñang 2nd',
+      address: 'Fictional', email: E18d, clerkId: `user_${TAG}_${process.pid}_d`, emailVerified: true } });
+    await askFrom(E18d, '10.31.0.4');
+    const sbAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!.trim(), process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), { auth: { persistSession: false, autoRefreshToken: false } });
+    const rec = await sbAdmin.auth.admin.generateLink({ type: 'recovery', email: E18d });
+    const set18d = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: rec.data.properties!.hashed_token, type: 'recovery', password: PW, confirmPassword: PW })));
+    ok('18d. an invited, unconfirmed user can also finish with a reset link: password set, the profile linked, signs in', set18d.status === 200 && set18d.body.data.signedIn === true
+      && Boolean((await prisma.resident.findUnique({ where: { id: lostD.id } }))?.supabaseUserId) && (await login(E18d, PW)).status === 200,
+      `${set18d.status} ${JSON.stringify(set18d.body).slice(0, 140)}`);
+
     // ── Reset, resend, sign out ──
     console.log('\nPassword reset, resend, sign-out');
     // The link points to the configured site, whatever address the request came in on (no "reset poisoning").

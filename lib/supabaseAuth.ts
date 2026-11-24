@@ -180,6 +180,13 @@ export async function recoveryLinkFor(email: string): Promise<{ type: 'recovery'
   const want = email.trim().toLowerCase();
   const resident = await prisma.resident.findFirst({ where: { email: { equals: want, mode: 'insensitive' } }, select: { firstName: true, lastName: true, supabaseUserId: true } });
   const user = await findUserByEmail(want);
+  // A resident from before whose set-up link was sent but never used (it may never have arrived):
+  // a fresh set-up link - the same proof (only the mailbox's owner can use it), the same profile.
+  if (user && resident && !resident.supabaseUserId && !user.email_confirmed_at && user.invited_at) {
+    const { data } = await admin().auth.admin.generateLink({ type: 'invite', email: want });
+    if (data?.properties?.hashed_token) return { type: 'invite', tokenHash: data.properties.hashed_token, name: `${resident.firstName} ${resident.lastName}` };
+    // Not possible for this user: the reset link below proves the same.
+  }
   if (user) {
     const { data, error } = await admin().auth.admin.generateLink({ type: 'recovery', email: want });
     if (error || !data?.properties?.hashed_token) throw mapAuthError(error);

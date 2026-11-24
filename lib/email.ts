@@ -16,21 +16,88 @@ const clean = (v: string | undefined) => (v ?? '').trim().replace(/^(['"])([\s\S
  * host smtp.gmail.com (and port 465 when EMAIL_PORT is not set), and a Gmail app password shown as
  * "abcd efgh ijkl mnop" is used without its spaces (an app password has none).
  */
+/** Mailbox providers whose SMTP server is known: a mailbox domain (or its name alone) → the server. */
+const PROVIDER_SMTP: Record<string, string> = {
+  'gmail.com': 'smtp.gmail.com', 'googlemail.com': 'smtp.gmail.com', gmail: 'smtp.gmail.com', google: 'smtp.gmail.com',
+  'yahoo.com': 'smtp.mail.yahoo.com', yahoo: 'smtp.mail.yahoo.com',
+  'icloud.com': 'smtp.mail.me.com', 'me.com': 'smtp.mail.me.com', icloud: 'smtp.mail.me.com',
+  'zoho.com': 'smtp.zoho.com', zoho: 'smtp.zoho.com',
+  'brevo.com': 'smtp-relay.brevo.com', brevo: 'smtp-relay.brevo.com', 'sendinblue.com': 'smtp-relay.brevo.com',
+  'resend.com': 'smtp.resend.com', resend: 'smtp.resend.com',
+  'sendgrid.com': 'smtp.sendgrid.net', 'sendgrid.net': 'smtp.sendgrid.net', sendgrid: 'smtp.sendgrid.net',
+};
+const HOSTNAME = /^(?=.{4,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+
+/**
+ * Which server to use, and what was wrong with EMAIL_SERVER as written (a category, never the
+ * value): a mailbox address or a mailbox domain ("gmail.com") instead of its SMTP server, or
+ * no usable server name at all - then, when EMAIL_USERNAME is a mailbox at a known provider
+ * (a Gmail address: smtp.gmail.com), that provider's server.
+ */
+function resolveHost(raw: string, user: string): { host: string; fixed: string | null } {
+  let h = raw.toLowerCase();
+  const fromUser = PROVIDER_SMTP[(user.split('@')[1] ?? '').toLowerCase()];
+  if (!h) return fromUser ? { host: fromUser, fixed: 'empty - used the server of the username\'s provider' } : { host: '', fixed: null };
+  if (h.includes('@')) {
+    const known = PROVIDER_SMTP[h.split('@').pop()!];
+    if (known || fromUser) return { host: known ?? fromUser, fixed: 'an email address, not a server name - used its provider\'s server' };
+  }
+  h = h.replace(/\s+/g, '');
+  if (PROVIDER_SMTP[h]) return { host: PROVIDER_SMTP[h], fixed: `the provider's ${h.includes('.') ? 'mailbox domain' : 'name'}, not its SMTP server - used its SMTP server` };
+  if (!HOSTNAME.test(h)) return fromUser ? { host: fromUser, fixed: 'not a server name - used the server of the username\'s provider' } : { host: h, fixed: null };
+  return { host: h, fixed: raw.toLowerCase() !== h ? 'had spaces inside - removed' : null };
+}
+
 export function settings() {
   let host = clean(process.env.EMAIL_SERVER).replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '');
   let portFromHost: number | null = null;
   const m = /^(.*):(\d{2,5})$/.exec(host);
   if (m) { host = m[1]; portFromHost = Number(m[2]); }
-  const portText = clean(process.env.EMAIL_PORT);
-  const port = portText ? Number(portText) : portFromHost ?? 587;
-  const gmail = /(^|\.)gmail\.com$|googlemail\.com$/i.test(host);
+  const user = clean(process.env.EMAIL_USERNAME);
+  const resolved = resolveHost(host, user);
+  const portText = clean(process.env.EMAIL_PORT).replace(/\D/g, '');
+  const port = portText ? Number(portText) : portFromHost ?? (resolved.host === 'smtp.gmail.com' ? 465 : 587);
+  const gmail = resolved.host === 'smtp.gmail.com';
   const pass = clean(process.env.EMAIL_PASSWORD);
   return {
-    from: clean(process.env.EMAIL_FROM) || 'SafeComm <no-reply@safcom.gov.ph>',
-    host: host.toLowerCase(),
-    port: Number.isFinite(port) ? port : 587,
-    user: clean(process.env.EMAIL_USERNAME),
+    from: clean(process.env.EMAIL_FROM) || (user.includes('@') ? `SafeComm <${user}>` : 'SafeComm <no-reply@safcom.gov.ph>'),
+    host: resolved.host,
+    hostFixed: resolved.fixed,
+    port: Number.isFinite(port) && port > 0 ? port : 587,
+    user,
+    // A Google app password is shown as "abcd efgh ijkl mnop"; the spaces are not part of it.
     pass: gmail ? pass.replace(/\s+/g, '') : pass,
+  };
+}
+
+/**
+ * What is wrong with the email settings, in categories only - safe for /api/health: never a
+ * password, a username or a full address. The server name is shown only when it is a public
+ * provider's server (smtp.gmail.com and the like), which is not a secret.
+ */
+export function emailSettingsReport() {
+  const s = settings();
+  const raw = clean(process.env.EMAIL_SERVER);
+  // A mail server's name is not a secret; anything else that was typed there (it could be a password) is never shown.
+  const publicServer = HOSTNAME.test(s.host) && (Object.values(PROVIDER_SMTP).includes(s.host)
+    || /^(smtp|smtps|mail|smtp-relay|smtp-mail|email-smtp)[.-]/.test(s.host) || /gmail|google|yahoo|outlook|office365|brevo|sendgrid|resend|zoho|mailgun|amazonaws/.test(s.host));
+  const fromAddr = (/<([^>]+)>/.exec(s.from)?.[1] ?? s.from).trim().toLowerCase();
+  const problems: string[] = [];
+  if (!raw && !s.host) problems.push('EMAIL_SERVER is empty');
+  else if (!HOSTNAME.test(s.host)) problems.push('EMAIL_SERVER is not a server name (for Gmail it must be exactly smtp.gmail.com)');
+  if (!s.user) problems.push('EMAIL_USERNAME is empty');
+  else if (s.host === 'smtp.gmail.com' && !/@/.test(s.user)) problems.push('EMAIL_USERNAME must be the full Gmail address (name@gmail.com)');
+  if (!s.pass) problems.push('EMAIL_PASSWORD is empty');
+  else if (s.host === 'smtp.gmail.com' && !/^[a-z]{16}$/i.test(s.pass)) problems.push('EMAIL_PASSWORD does not look like a Google app password (16 letters) - Gmail refuses the normal account password');
+  if (isEmailTestSender()) problems.push('EMAIL_FROM is a test sender that only delivers to the provider account owner');
+  if (s.host === 'smtp.gmail.com' && s.user && fromAddr && fromAddr !== s.user.toLowerCase()) {
+    problems.push('EMAIL_FROM is not the Gmail address in EMAIL_USERNAME - Gmail replaces it unless it is a verified "Send mail as" address');
+  }
+  return {
+    server: !s.host ? 'none' : publicServer ? s.host : 'custom server',
+    port: s.port,
+    serverCorrected: s.hostFixed,
+    problems,
   };
 }
 
@@ -175,9 +242,17 @@ async function deliver(m: Message): Promise<SendResult> {
   const s = settings();
   try {
     // "Accepted by the mail server" - not proof of delivery to the inbox, and never said to be.
-    await nodemailer.createTransport({ host: s.host, port: s.port, secure: s.port === 465, auth: { user: s.user, pass: s.pass },
+    const info = await nodemailer.createTransport({ host: s.host, port: s.port, secure: s.port === 465, auth: { user: s.user, pass: s.pass },
       connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 })
       .sendMail({ from: s.from, to: m.to, subject: m.subject, html: m.html, text: m.text });
+    // Logged: the subject, the recipient's mail provider (the domain only) and the server's answer - never the address or a link.
+    const domain = m.to.split('@')[1] ?? '?';
+    const reply = String(info.response ?? '').replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[address]').slice(0, 80);
+    if (info.rejected?.length || !info.accepted?.length) {
+      console.error(`[email] Refused by the mail server: "${m.subject}" to @${domain} - ${reply}`);
+      return { ok: false, reason: 'send_failed', detail: 'The email could not be sent right now.' };
+    }
+    console.info(`[email] Accepted by ${s.host} (not yet proof of delivery): "${m.subject}" to @${domain} - ${reply}`);
     return { ok: true, reason: 'sent' };
   } catch (err) {
     const e = err as { message?: string; code?: string; responseCode?: number };

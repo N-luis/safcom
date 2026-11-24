@@ -5,53 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, Box, Button, CircularProgress, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { Visibility, VisibilityOff, CheckCircle, RadioButtonUnchecked } from '@mui/icons-material';
 import AuthShell, { authField, authPrimaryButton } from '@/components/auth/AuthShell';
+import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 
 /**
- * Forgot Password (and the way back in for an account from before the new
- * sign-in). Without a link: ask for one by email. With the emailed link
+ * Reset Password - where the emailed link lands. Without a link: the Forgot
+ * Password form (as at /forgot-password). With the emailed link
  * (?token_hash=...&type=recovery|invite): choose the new password - checked
  * by the server with Supabase Auth - then signed in.
  */
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-function AskForLink() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [touched, setTouched] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState('');
-  const [warning, setWarning] = useState('');
-  const [error, setError] = useState('');
-  const invalid = touched && !EMAIL_RE.test(email.trim());
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-    if (!EMAIL_RE.test(email.trim())) return;
-    setBusy(true); setError(''); setDone(''); setWarning('');
-    try {
-      const res = await fetch('/api/auth/resident-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.success) {
-        // Email to residents not working on the server: said plainly (the same for every address).
-        if (json.data.deliveryWarning) setWarning(json.data.deliveryWarning); else setDone(json.data.message);
-      } else setError(json.error ?? 'The reset link could not be requested. Try again in a moment.');
-    } catch { setError('Network error. Check your connection and try again.'); } finally { setBusy(false); }
-  };
-  return (
-    <AuthShell title="Forgot password" subtitle="Enter the email of your resident account and we will send you a link to choose a new password. Had an account before SafeComm's new sign-in? This sets up your password for it - your profile and reports are kept.">
-      <Box component="form" onSubmit={submit} noValidate sx={{ display: 'grid', gap: 2 }} data-testid="ask-link">
-        {done && <Alert severity="success" sx={{ borderRadius: 2 }} role="status">{done}</Alert>}
-        {warning && <Alert severity="warning" sx={{ borderRadius: 2 }} role="status">{warning}</Alert>}
-        {error && <Alert severity="error" sx={{ borderRadius: 2 }} action={<Button color="inherit" size="small" type="submit">Retry</Button>}>{error}</Alert>}
-        <TextField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} onBlur={() => setTouched(true)} autoComplete="email"
-          error={invalid} helperText={invalid ? 'Enter a valid email address' : ' '} sx={authField} />
-        <Button type="submit" variant="contained" disabled={busy} sx={authPrimaryButton}>{busy ? <CircularProgress size={22} color="inherit" /> : 'Send Reset Link'}</Button>
-        <Button onClick={() => router.push('/resident-login')} sx={{ color: 'rgba(255,255,255,0.7)', textTransform: 'none' }}>Return to Sign In</Button>
-      </Box>
-    </AuthShell>
-  );
-}
-
 /** The password rules, shown as they are met (the server checks them again). */
 const RULES = [
   { key: 'len', text: 'At least 8 characters', ok: (p: string) => p.length >= 8 && p.length <= 72 },
@@ -110,7 +71,7 @@ function ChoosePassword({ tokenHash, type }: { tokenHash: string; type: 'recover
         {error && (
           <Alert severity="error" sx={{ borderRadius: 2 }}>
             {error.text}
-            {error.expired && <Box sx={{ mt: 0.75 }}><Button size="small" variant="outlined" color="inherit" onClick={() => router.push('/reset-password')}>Request a new link</Button></Box>}
+            {error.expired && <Box sx={{ mt: 0.75 }}><Button size="small" variant="outlined" color="inherit" onClick={() => router.push('/forgot-password')}>Request a new link</Button></Box>}
           </Alert>
         )}
         <TextField label="New Password" type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password"
@@ -140,7 +101,7 @@ function ResetPassword() {
   const params = useSearchParams();
   const tokenHash = params.get('token_hash');
   const type = params.get('type') === 'invite' ? 'invite' : 'recovery';
-  return tokenHash ? <ChoosePassword tokenHash={tokenHash} type={type} /> : <AskForLink />;
+  return tokenHash ? <ChoosePassword tokenHash={tokenHash} type={type} /> : <ForgotPasswordForm />;
 }
 
 export default function ResetPasswordPage() {

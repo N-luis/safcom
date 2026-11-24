@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
  *                     Auth hashes it), the profile is linked by the confirmed
  *                     email if it was not yet, and the resident is signed in.
  */
-const SAME = 'If this email has a SafeComm resident account, a link to choose a password is on its way. Check your inbox and spam folder.';
+const SAME = 'If an account is associated with this email address, you will receive password recovery instructions. Check your inbox and spam folder - it can take a few minutes.';
 const askSchema = z.object({ email: z.string().trim().toLowerCase().email('Enter a valid email address').max(254) }).strict();
 const setSchema = z.object({
   token_hash: z.string().trim().min(10).max(500),
