@@ -28,6 +28,7 @@ import { POST as verifyPOST } from '../app/api/auth/verify-email/route';
 import { POST as resendPOST } from '../app/api/auth/resend-verification/route';
 import { POST as pwAskPOST, PUT as pwSetPUT } from '../app/api/auth/resident-password/route';
 import { GET as residencyGET, PUT as residencyPUT } from '../app/api/resident/residency/route';
+import { PATCH as mePATCH } from '../app/api/auth/resident-me/route';
 import { POST as decidePOST } from '../app/api/residency/applications/[id]/route';
 import { GET as appsGET } from '../app/api/residency/applications/route';
 import { POST as filePOST, GET as myCasesGET } from '../app/api/resident/cases/route';
@@ -70,7 +71,7 @@ let n = 0;
 const emailOf = (k: string) => `probe.rauth.${k}.${process.pid}.${++n}@example.com`;
 const registration = (email: string, extra: Body = {}) => ({
   email, password: PW, confirmPassword: PW, firstName: 'Probe', lastName: `Fictional${n}`, birthDate: '1990-05-01', gender: 'Female',
-  contactNumber: '09170000001', altContactNumber: '', ...HOME, purok: 'Purok 3', postalCode: '3018',
+  contactNumber: '+63 917 000 0001', altContactNumber: '0918-000-0002', ...HOME, purok: 'Purok 3', postalCode: '3018',
   latitude: C.lat, longitude: C.lng, locationSource: 'MAP', ...extra,
 });
 const NOISE = 'Fictional: malakas na karaoke ng kapitbahay hanggang alas-tres ng madaling araw tuwing Sabado, hindi makatulog ang may sakit na lola.';
@@ -115,7 +116,7 @@ async function main() {
     ok('1. registered (201): one resident profile, Pending Verification, linked to a new Supabase Auth user', r1.status === 201 && res1?.residencyStatus === 'PENDING_VERIFICATION'
       && Boolean(res1.supabaseUserId) && sb1?.id === res1.supabaseUserId, `${r1.status} ${JSON.stringify(r1.body).slice(0, 200)}`);
     ok('1. every part of the address, the second number, postal code and home pin are saved', res1?.street === 'Ortega Compound' && res1.houseNumber === '12' && res1.purok === 'Purok 3'
-      && res1.postalCode === '3018' && res1.homeLatitude !== null && res1.homeLocationSource === 'MAP' && res1.contactNumber === '09170000001');
+      && res1.postalCode === '3018' && res1.homeLatitude !== null && res1.homeLocationSource === 'MAP' && res1.contactNumber === '+639170000001' && res1.altContactNumber === '+639180000002');
     ok('1. no password in SafeComm\'s tables (Supabase Auth keeps it, hashed)', res1?.password === null && !JSON.stringify(res1).includes(PW));
     ok('1. the email is not confirmed yet, and a confirmation link was sent (SafeComm\'s own page)', !sb1?.email_confirmed_at && lastLink(E1)?.path === '/verify-email' && lastLink(E1)?.type === 'signup');
     ok('1. the residency history: registered, then submitted', (await prisma.residencyEvent.findMany({ where: { residentId: res1!.id }, orderBy: { createdAt: 'asc' } })).map(e => e.kind).join() === 'registered,submitted');
@@ -205,7 +206,7 @@ async function main() {
     console.log('\n7-9. The official\'s decisions');
     const list7 = await json(await appsGET(req('/api/residency/applications?status=PENDING_VERIFICATION', CAP.cookie)));
     const row7 = list7.body.data?.rows?.find((x: Body) => x.id === res1!.id);
-    ok('Resident Verification lists the application with name, email, contact, address, dates and status', row7?.email === E1 && row7.contactNumber === '09170000001'
+    ok('Resident Verification lists the application with name, email, contact, address, dates and status', row7?.email === E1 && row7.contactNumber === '+639170000001'
       && /Ortega Compound/.test(row7.address) && Boolean(row7.registeredAt) && row7.status === 'PENDING_VERIFICATION' && row7.emailVerified === true);
     const mailsBefore = mail.length;
     const a7 = await decide(res1!.id, CAP.cookie, { action: 'approve' });
@@ -270,6 +271,16 @@ async function main() {
     ok('15. outside address with an inside pin / weak password / mismatch / a role / an unknown field / "MAP" without a pin: all refused, nothing created',
       b15a.status === 422 && b15b.status === 400 && b15c.status === 400 && b15d.status === 403 && b15e.status === 400 && b15f.status === 400
       && !(await residentByEmail(E15)) && !(await findUserByEmail(E15)), [b15a, b15b, b15c, b15d, b15e, b15f].map(x => x.status).join());
+    // Philippine mobile numbers only, stored the standard way (+639XXXXXXXXX).
+    const p15a = await register(registration(emailOf('phone1'), { contactNumber: '12312312123' }));
+    const p15b = await register(registration(emailOf('phone2'), { contactNumber: '0817 000 0001' }));
+    const p15c = await register(registration(emailOf('phone3'), { altContactNumber: '0917 000 00011' }));
+    ok('15. a number that is not a Philippine mobile number (12312312123, 0817..., 12 digits): refused, nothing created', p15a.status === 400 && p15b.status === 400
+      && p15c.status === 400 && /\+63/.test(p15a.body.error ?? ''), [p15a, p15b, p15c].map(x => `${x.status} ${x.body.error ?? ''}`).join(' | '));
+    const me15bad = await json(await mePATCH(req('/api/auth/resident-me', A, 'PATCH', { contactNumber: '12312312123' })));
+    const me15 = await json(await mePATCH(req('/api/auth/resident-me', A, 'PATCH', { contactNumber: '0919-000-0003' })));
+    ok('15. on the profile too: a wrong number refused; 0919-000-0003 saved as +639190000003', me15bad.status === 400 && me15.status === 200
+      && (await prisma.resident.findUnique({ where: { id: res1!.id } }))?.contactNumber === '+639190000003', `${me15bad.status} ${me15.status}`);
     const dup15 = await register(registration(E1));
     ok('15. the same email twice: refused (409), no second profile', dup15.status === 409 && await prisma.resident.count({ where: { email: E1 } }) === 1);
 

@@ -11,6 +11,8 @@ import AddressFields, { emptyAddress, type AddressValue } from '@/components/for
 import type { PickedLocation } from '@/components/forms/IncidentLocationMap';
 import type { BoundaryGeometry } from '@/lib/jurisdiction';
 import { GENDER_OPTIONS } from '@/lib/safecommConfig';
+import PhMobileField from '@/components/forms/PhMobileField';
+import { isPhMobileLocal, normalizePhMobile, PH_MOBILE_HINT } from '@/lib/phoneNumber';
 
 const IncidentLocationMap = dynamicImport(() => import('@/components/forms/IncidentLocationMap'), {
   ssr: false, loading: () => <Skeleton variant="rounded" height={320} />,
@@ -25,7 +27,6 @@ const IncidentLocationMap = dynamicImport(() => import('@/components/forms/Incid
 const NAVY = '#0c1e46';
 const PASSWORD_RULE = 'At least 8 characters, with a letter and a number';
 const passwordProblem = (p: string) => p.length < 8 ? 'At least 8 characters' : !/[A-Za-z]/.test(p) || !/[0-9]/.test(p) ? 'Use a letter and a number' : null;
-const isMobile = (v: string) => /^09\d{9}$/.test(v);
 
 type Errors = Partial<Record<string, string>>;
 interface Done { email: string; name: string; emailSent: boolean; emailDetail?: string; flags: string[] }
@@ -72,8 +73,10 @@ export default function RegisterPage() {
     if (person.firstName.trim().length < 2) e.firstName = 'Enter your first name';
     if (person.lastName.trim().length < 2) e.lastName = 'Enter your last name';
     if (!/^\d{4}-\d{2}-\d{2}$/.test(person.birthDate)) e.birthDate = 'Enter your date of birth';
-    if (!isMobile(person.contactNumber)) e.contactNumber = '11 digits starting with 09';
-    if (person.altContactNumber && !isMobile(person.altContactNumber)) e.altContactNumber = '11 digits starting with 09, or leave it empty';
+    // The fields hold the 10 digits after +63 (PhMobileField); a mobile number starts with 9.
+    if (!person.contactNumber) e.contactNumber = 'Enter your mobile number';
+    else if (!isPhMobileLocal(person.contactNumber)) e.contactNumber = PH_MOBILE_HINT;
+    if (person.altContactNumber && !isPhMobileLocal(person.altContactNumber)) e.altContactNumber = `${PH_MOBILE_HINT}, or leave it empty`;
     if (!addr.province.trim()) e.province = 'Choose your province';
     if (!addr.municipality.trim()) e.municipality = 'Choose your municipality';
     if (!addr.barangay.trim()) e.barangay = 'Choose your barangay';
@@ -97,7 +100,8 @@ export default function RegisterPage() {
         body: JSON.stringify({
           ...account, email: account.email.trim(),
           firstName: person.firstName.trim(), lastName: person.lastName.trim(), birthDate: person.birthDate, gender: person.gender,
-          contactNumber: person.contactNumber, altContactNumber: person.altContactNumber,
+          // Sent the standard way: +639XXXXXXXXX.
+          contactNumber: normalizePhMobile(person.contactNumber) ?? '', altContactNumber: person.altContactNumber ? normalizePhMobile(person.altContactNumber) ?? '' : '',
           province: addr.province.trim(), municipality: addr.municipality.trim(), barangay: addr.barangay.trim(), street: addr.street.trim(),
           houseNumber: (addr.houseNumber ?? '').trim(), purok: (addr.purok ?? '').trim(), postalCode,
           ...(manual || !pin ? { locationSource: 'NONE' } : { latitude: pin.latitude, longitude: pin.longitude, locationSource: 'MAP' }),
@@ -177,8 +181,10 @@ export default function RegisterPage() {
               <MenuItem value="">—</MenuItem>
               {GENDER_OPTIONS.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
             </TextField>
-            {field('contactNumber', 'Contact number *', { placeholder: '09XXXXXXXXX', inputMode: 'numeric', autoComplete: 'tel' })}
-            {field('altContactNumber', 'Alternative contact number (optional)', { placeholder: '09XXXXXXXXX', inputMode: 'numeric' })}
+            <PhMobileField id="reg-contact" label="Contact number *" optional={false} value={person.contactNumber}
+              onChange={v => { setPerson(p => ({ ...p, contactNumber: v })); setErrors(x => ({ ...x, contactNumber: undefined })); }} error={errors.contactNumber} />
+            <PhMobileField id="reg-alt-contact" label="Alternative contact number (optional)" value={person.altContactNumber}
+              onChange={v => { setPerson(p => ({ ...p, altContactNumber: v })); setErrors(x => ({ ...x, altContactNumber: undefined })); }} error={errors.altContactNumber} />
           </Box>
         </Section>
 

@@ -10,6 +10,7 @@ import {
 import { HowToReg, Close, Search, Warning, Map as MapIcon } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { RESIDENCY_STATUSES, LOCATION_FLAGS, type ResidencyStatus, type LocationFlag, type BoundaryGeometry } from '@/lib/jurisdiction';
+import { displayPhMobile } from '@/lib/phoneNumber';
 
 const NAVY = '#0c1e46';
 const ResidenceMapView = dynamicImport(() => import('./ResidenceMapView'), { ssr: false, loading: () => <Skeleton variant="rounded" height={280} /> });
@@ -106,7 +107,7 @@ export default function ResidentVerification() {
                                 <Chip size="small" label={r.statusLabel} sx={{ mt: 0.5, height: 20, fontSize: '0.68rem' }} /></TableCell>
                               <TableCell sx={{ wordBreak: 'break-word', maxWidth: 220 }}>{r.email ?? <span style={{ color: '#94a3b8' }}>No email</span>}
                                 <Typography sx={{ fontSize: '0.72rem', color: r.emailVerified ? '#15803d' : '#b45309' }}>{r.emailVerified ? 'Email confirmed' : 'Email not confirmed yet'}</Typography>
-                                {r.contactNumber && <Typography sx={{ fontSize: '0.78rem' }}>{r.contactNumber}{r.altContactNumber ? ` / ${r.altContactNumber}` : ''}</Typography>}</TableCell>
+                                {r.contactNumber && <Typography sx={{ fontSize: '0.78rem' }}>{displayPhMobile(r.contactNumber)}{r.altContactNumber ? ` / ${displayPhMobile(r.altContactNumber)}` : ''}</Typography>}</TableCell>
                               <TableCell>{r.address || <span style={{ color: '#b45309' }}>Not given</span>}
                                 <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8' }}>{r.located ? 'Home located on the map' : 'No map location (manual verification)'}</Typography></TableCell>
                               <TableCell>

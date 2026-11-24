@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { normalizePhMobileStrict, PH_MOBILE_HINT } from '@/lib/phoneNumber';
 import { prisma } from '@/lib/prisma';
 import { requireResidentAuth, rSuccess, rError } from '@/lib/residentAuth';
 import { RESIDENCY_STATUSES, addressLine, type ResidencyStatus } from '@/lib/jurisdiction';
@@ -37,8 +38,13 @@ export async function GET(req: NextRequest) {
 
 // The contact number only. The residential address is changed through Residency
 // (/api/resident/residency), which checks it and sends it back for verification.
+// A Philippine mobile number in any spelling, stored the standard way: "+639XXXXXXXXX".
 const patchSchema = z.object({
-  contactNumber: z.string().min(7).max(20).optional(),
+  contactNumber: z.string().trim().max(24).transform((v, ctx) => {
+    const n = normalizePhMobileStrict(v);
+    if (!n) { ctx.addIssue({ code: 'custom', message: `Contact number: ${PH_MOBILE_HINT}` }); return z.NEVER; }
+    return n;
+  }).optional(),
 });
 
 export async function PATCH(req: NextRequest) {

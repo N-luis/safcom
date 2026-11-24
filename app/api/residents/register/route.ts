@@ -9,6 +9,7 @@ import { checkAgainstJurisdiction, recordResidencyEvent, registrationAddressRefu
 import { addressLine } from '@/lib/jurisdiction';
 import { roundCoord } from '@/lib/geo';
 import { rateLimit } from '@/lib/rateLimit';
+import { normalizePhMobileStrict, PH_MOBILE_HINT } from '@/lib/phoneNumber';
 import { supabaseAuthMissing, createUserWithConfirmLink, deleteAuthUser, authLink, passwordProblem, AuthError } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,15 @@ function ageFrom(birthDate: string): number {
 const SERVER_ONLY = ['residencyStatus', 'residencyVerifiedAt', 'residencyVerifiedById', 'residencyNote', 'residencySubmittedAt', 'addressCheck',
   'addressVerificationStatus', 'status', 'verified', 'role', 'supabaseUserId', 'clerkId', 'emailVerified', 'residentNumber'];
 
-const mobile = (label: string) => z.string().trim().regex(/^09\d{9}$/, `${label} must be 11 digits starting with 09`);
+/**
+ * A Philippine mobile number, in whatever spelling was sent (+63 917..., 0917..., 917-...),
+ * stored the standard way: "+639XXXXXXXXX". Anything else is refused.
+ */
+const mobile = (label: string) => z.string().trim().max(24).transform((v, ctx) => {
+  const n = normalizePhMobileStrict(v);
+  if (!n) { ctx.addIssue({ code: 'custom', message: `${label}: ${PH_MOBILE_HINT}` }); return z.NEVER; }
+  return n;
+});
 const registerSchema = z.object({
   // Account
   email: z.string().trim().toLowerCase().email('Enter a valid email address').max(254),

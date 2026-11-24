@@ -17,7 +17,9 @@ export const PH_MOBILE_HINT = 'Enter the 10 digits after +63, starting with 9 (e
  */
 export function phMobileLocal(input: string | null | undefined): string {
   let d = (input ?? '').replace(/\D/g, '');
-  if (d.startsWith('63') && (d.length >= 12 || /^\s*\+/.test(input ?? ''))) d = d.slice(2);
+  // "63" then "9" can only be the country code (a mobile number after +63 starts with 9, never 6) -
+  // so typing "+63 9..." key by key, or "639..." without the plus, still ends up as "9...".
+  if (d.startsWith('63') && (d.length >= 12 || /^\s*\+/.test(input ?? '') || d.startsWith('639'))) d = d.slice(2);
   d = d.replace(/^0+/, '');
   return d.slice(0, PH_MOBILE_DIGITS);
 }
@@ -36,6 +38,22 @@ export function groupPhMobile(local: string): string {
 export function normalizePhMobile(input: string | null | undefined): string | null {
   const local = phMobileLocal(input);
   return isPhMobileLocal(local) ? `${PH_COUNTRY_CODE}${local}` : null;
+}
+
+/**
+ * For the server: like normalizePhMobile, but nothing is cut off - a number
+ * with a digit too many (typed or sent) is refused, never shortened into a
+ * different number. Accepts "+63 917 123 4567", "639171234567",
+ * "09171234567", "917-123-4567".
+ */
+export function normalizePhMobileStrict(input: string | null | undefined): string | null {
+  const raw = (input ?? '').trim();
+  if (!raw || /[^\d\s+()\-.]/.test(raw)) return null;
+  let d = raw.replace(/\D/g, '');
+  if (/^\+/.test(raw)) { if (!d.startsWith('63')) return null; d = d.slice(2); }
+  else if (d.length === 12 && d.startsWith('63')) d = d.slice(2);
+  else if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+  return isPhMobileLocal(d) ? `${PH_COUNTRY_CODE}${d}` : null;
 }
 
 /** For display: "+63 917 123 4567" when it is a PH mobile number, otherwise as stored. */

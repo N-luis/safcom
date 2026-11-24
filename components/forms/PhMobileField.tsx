@@ -13,7 +13,7 @@ import { PH_COUNTRY_CODE, PH_MOBILE_HINT, groupPhMobile, isPhMobileLocal, phMobi
  * `value` / `onChange` carry only the 10 local digits ("9171234567"); turn
  * them into "+639171234567" with normalizePhMobile when sending.
  */
-export default function PhMobileField({ value, onChange, label, disabled, optional = true, sx, size = 'small' }: {
+export default function PhMobileField({ value, onChange, label, disabled, optional = true, sx, size = 'small', error = null, id }: {
   value: string;
   onChange: (localDigits: string) => void;
   label: string;
@@ -22,6 +22,9 @@ export default function PhMobileField({ value, onChange, label, disabled, option
   optional?: boolean;
   sx?: TextFieldProps['sx'];
   size?: TextFieldProps['size'];
+  /** A message from the form (on submit), shown whether or not the field was visited. */
+  error?: string | null;
+  id?: string;
 }) {
   const ref = useRef<HTMLInputElement | null>(null);
   // Where the cursor should land, counted in digits, after the regrouped value renders.
@@ -41,7 +44,7 @@ export default function PhMobileField({ value, onChange, label, disabled, option
   const local = phMobileLocal(value);
   const wrong = local.length > 0 && !isPhMobileLocal(local);
   const missing = !optional && local.length === 0;
-  const showError = touched && (wrong || missing);
+  const showError = Boolean(error) || (touched && (wrong || missing));
 
   return (
     <TextField
@@ -50,7 +53,8 @@ export default function PhMobileField({ value, onChange, label, disabled, option
       value={groupPhMobile(local)}
       disabled={disabled}
       error={showError}
-      helperText={showError ? (missing ? 'A mobile number is required' : PH_MOBILE_HINT) : 'Mobile number - 10 digits after +63'}
+      id={id}
+      helperText={error ? error : showError ? (missing ? 'A mobile number is required' : PH_MOBILE_HINT) : 'Mobile number - 10 digits after +63'}
       onBlur={() => setTouched(true)}
       onChange={e => {
         const raw = e.target.value;

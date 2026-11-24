@@ -3,7 +3,7 @@
  * and what the server accepts and stores. Pure - no database.
  *   npm run test:phone
  */
-import { phMobileLocal, isPhMobileLocal, groupPhMobile, normalizePhMobile, displayPhMobile } from '../lib/phoneNumber';
+import { phMobileLocal, isPhMobileLocal, groupPhMobile, normalizePhMobile, normalizePhMobileStrict, displayPhMobile } from '../lib/phoneNumber';
 import { affectedPartySchema } from '../lib/caseRecords';
 import { peoplePayload, peopleProblem, EMPTY_PEOPLE, type PeopleState } from '../components/forms/ReportPeopleFields';
 
@@ -55,6 +55,17 @@ ok('a full number passes', peopleProblem(withNumber('9171234567'), null, 'THIRD_
 ok('an empty number passes', peopleProblem(withNumber(''), null, 'THIRD_PARTY') === null);
 ok('reporting for yourself: the affected number is not asked or checked', peopleProblem(withNumber('91712'), null, 'SELF') === null
   && peoplePayload(withNumber('9171234567'), null, 'SELF').affectedParty?.contactNumber === undefined);
+
+// The server's check (registration, profile): any spelling of a PH mobile number becomes +63...,
+// and nothing is ever cut off to make a number fit.
+ok('server: +63 / 63 / 09 / spaced spellings all become +639171234567', ['+63 917 123 4567', '639171234567', '09171234567', '917-123-4567', '(0917) 123 4567']
+  .every(v => normalizePhMobileStrict(v) === '+639171234567'));
+ok('server: 12312312123 (not a PH mobile number) is refused', normalizePhMobileStrict('12312312123') === null);
+ok('server: a landline or a number not starting with 9 is refused', normalizePhMobileStrict('0817 123 4567') === null && normalizePhMobileStrict('(044) 309-3314') === null);
+ok('server: a digit too many is refused, never shortened', normalizePhMobileStrict('0917 123 45678') === null && normalizePhMobileStrict('+63 917 123 45678') === null
+  && normalizePhMobile('0917 123 45678') === '+639171234567');
+ok('server: another country code, letters, or empty: refused', normalizePhMobileStrict('+1 917 123 4567') === null && normalizePhMobileStrict('0917abc4567') === null
+  && normalizePhMobileStrict('') === null);
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed) { for (const f of fails) console.log(`  FAILED: ${f}`); process.exit(1); }

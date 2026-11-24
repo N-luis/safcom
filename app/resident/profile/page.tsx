@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Grid, Button,
-  Avatar, Skeleton, Divider, TextField, Alert, Chip,
+  Avatar, Skeleton, Divider, Alert, Chip,
 } from '@mui/material';
 import {
   Edit, Save, Cancel, Shield, Phone, Home,
@@ -12,6 +12,8 @@ import {
 import { motion } from 'framer-motion';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
+import PhMobileField from '@/components/forms/PhMobileField';
+import { phMobileLocal, normalizePhMobile, displayPhMobile } from '@/lib/phoneNumber';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then(r => r.json().then(d => d.data));
@@ -37,7 +39,8 @@ export default function ResidentProfilePage() {
   const [error, setError] = useState('');
 
   const startEdit = () => {
-    setForm({ contactNumber: profile?.contactNumber ?? '' });
+    // The field holds the 10 digits after +63; an older 09... number shows the same way.
+    setForm({ contactNumber: phMobileLocal(profile?.contactNumber ?? '') });
     setEditing(true);
     setError('');
   };
@@ -51,7 +54,7 @@ export default function ResidentProfilePage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(form),
+        body: JSON.stringify({ contactNumber: normalizePhMobile(form.contactNumber) ?? form.contactNumber }),
       });
       if (!res.ok) { const j = await res.json(); setError(j.error || 'Update failed'); setSaving(false); return; }
       await mutate();
@@ -172,8 +175,8 @@ export default function ResidentProfilePage() {
 
               {editing ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 640 }}>
-                  <TextField label="Contact Number" value={form.contactNumber}
-                    onChange={e => setForm(p => ({ ...p, contactNumber: e.target.value }))} fullWidth size="small" />
+                  <PhMobileField label="Contact Number" optional={false} value={form.contactNumber}
+                    onChange={v => setForm(p => ({ ...p, contactNumber: v }))} sx={{ width: '100%' }} />
                   <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
                     To change your residential address, go to <a href="/resident/residency" style={{ color: '#0f766e', fontWeight: 700 }}>Residency</a> - a new address is verified again by the barangay.
                   </Typography>
@@ -191,7 +194,7 @@ export default function ResidentProfilePage() {
               ) : (
                 <Grid container spacing={2}>
                   {[
-                    { icon: Phone, label: 'Contact Number', value: profile?.contactNumber ?? '—' },
+                    { icon: Phone, label: 'Contact Number', value: profile?.contactNumber ? displayPhMobile(profile.contactNumber) : '—' },
                     { icon: Home, label: `Home Address${profile?.residencyStatusLabel ? ` (${profile.residencyStatusLabel})` : ''}`, value: profile?.addressLine ?? profile?.address ?? '—' },
                   ].map(f => (
                     <Grid key={f.label} size={{ xs: 12, sm: 6 }}>
