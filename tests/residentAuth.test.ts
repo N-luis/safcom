@@ -61,7 +61,7 @@ const lastLink = (to: string) => {
   return { path: u.pathname, origin: u.origin, tokenHash: u.searchParams.get('token_hash')!, type: u.searchParams.get('type')!, subject: m!.subject };
 };
 
-const C = { lat: 14.7947352, lng: 120.9345743 };
+const C = { lat: 14.795956, lng: 120.9297673 };
 const square = (d: number) => ({ type: 'Polygon' as const, coordinates: [[[C.lng - d, C.lat - d], [C.lng + d, C.lat - d], [C.lng + d, C.lat + d], [C.lng - d, C.lat + d], [C.lng - d, C.lat - d]]] });
 const HOME = { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Biñang 2nd', street: 'Ortega Compound', houseNumber: '12' };
 /** The incident place for a referral record (it takes no house number). */

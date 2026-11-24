@@ -42,7 +42,7 @@ type Body = Record<string, any>;
 const json = async (res: Response | undefined) => res ? { status: res.status, body: await res.json().catch(() => ({})) as Body } : { status: 0, body: {} as Body };
 
 // A square of about 1 km around the configured centre, for the pure boundary checks only (not an official boundary).
-const C = { lat: 14.7947352, lng: 120.9345743 };
+const C = { lat: 14.795956, lng: 120.9297673 };
 const square = (d: number) => ({ type: 'Polygon' as const, coordinates: [[[C.lng - d, C.lat - d], [C.lng + d, C.lat - d], [C.lng + d, C.lat + d], [C.lng - d, C.lat + d], [C.lng - d, C.lat - d]]] });
 const WITH_BOUNDARY: JurisdictionConfig = { ...DEFAULT_JURISDICTION, boundary: square(0.005), boundarySource: 'test square' };
 const HOME = { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Biñang 2nd', street: 'Ortega Compound', houseNumber: '12' };

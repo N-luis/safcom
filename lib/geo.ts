@@ -13,10 +13,16 @@ import { BARANGAY_CONTEXT } from './safecommConfig';
  * case more or less serious, and no part of the assessment looks at it.
  */
 
-/** Biñang 2nd, Bocaue, Bulacan - from Nominatim, not estimated. */
+/**
+ * Biñang 2nd, Bocaue, Bulacan - the Biñang 2nd Barangay Hall on MacArthur
+ * Highway (OpenStreetMap's "Biñang 2nd Barangay Hall", 14.795956,
+ * 120.9297673), not estimated. The previous centre came from the map data's
+ * "Biñang 2nd" area, whose name is swapped with Biñang 1st (see
+ * BARANGAY_OF_RECORD below) and lay outside the barangay.
+ */
 export const BARANGAY_CENTER = {
-  lat: Number(process.env.NEXT_PUBLIC_BARANGAY_LAT ?? 14.7947352),
-  lng: Number(process.env.NEXT_PUBLIC_BARANGAY_LNG ?? 120.9345743),
+  lat: Number(process.env.NEXT_PUBLIC_BARANGAY_LAT ?? 14.795956),
+  lng: Number(process.env.NEXT_PUBLIC_BARANGAY_LNG ?? 120.9297673),
 };
 
 export const DEFAULT_ZOOM = 16;
