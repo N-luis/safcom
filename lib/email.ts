@@ -48,6 +48,21 @@ function resolveHost(raw: string, user: string): { host: string; fixed: string |
   return { host: h, fixed: raw.toLowerCase() !== h ? 'had spaces inside - removed' : null };
 }
 
+/** A sender address that is still a template's example. */
+const PLACEHOLDER = /@(yourdomain|your-domain|example|domain)\.(com|org|net)\b|@yourcompany\./i;
+
+/**
+ * The From line: EMAIL_FROM when it holds a real address; otherwise (empty, a template's example such
+ * as you@yourdomain.com, or no address in it) "SafeComm <EMAIL_USERNAME>" when the username is an
+ * address - what Gmail and most providers require anyway.
+ */
+function senderFor(from: string, user: string): string {
+  const addr = /[^\s<>@"']+@[^\s<>@"']+\.[a-z]{2,}/i.exec(from)?.[0];
+  if (addr && !PLACEHOLDER.test(addr)) return /<[^>]+>/.test(from) ? from : `SafeComm <${addr}>`;
+  if (/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(user)) return `SafeComm <${user}>`;
+  return from || 'SafeComm <no-reply@safcom.gov.ph>';
+}
+
 export function settings() {
   let host = clean(process.env.EMAIL_SERVER).replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '');
   let portFromHost: number | null = null;
@@ -55,15 +70,18 @@ export function settings() {
   if (m) { host = m[1]; portFromHost = Number(m[2]); }
   const user = clean(process.env.EMAIL_USERNAME);
   const resolved = resolveHost(host, user);
-  const portText = clean(process.env.EMAIL_PORT).replace(/\D/g, '');
-  const port = portText ? Number(portText) : portFromHost ?? (resolved.host === 'smtp.gmail.com' ? 465 : 587);
+  // A port is 1-65535; anything else in EMAIL_PORT (another setting pasted there) is ignored, and reported.
+  const portText = clean(process.env.EMAIL_PORT);
+  const portValid = /^\d{1,5}$/.test(portText) && Number(portText) >= 1 && Number(portText) <= 65535;
+  const port = portValid ? Number(portText) : portFromHost ?? (resolved.host === 'smtp.gmail.com' ? 465 : 587);
   const gmail = resolved.host === 'smtp.gmail.com';
   const pass = clean(process.env.EMAIL_PASSWORD);
   return {
-    from: clean(process.env.EMAIL_FROM) || (user.includes('@') ? `SafeComm <${user}>` : 'SafeComm <no-reply@safcom.gov.ph>'),
+    from: senderFor(clean(process.env.EMAIL_FROM), user),
     host: resolved.host,
     hostFixed: resolved.fixed,
-    port: Number.isFinite(port) && port > 0 ? port : 587,
+    port,
+    portIgnored: Boolean(portText) && !portValid,
     user,
     // A Google app password is shown as "abcd efgh ijkl mnop"; the spaces are not part of it.
     pass: gmail ? pass.replace(/\s+/g, '') : pass,
@@ -75,6 +93,22 @@ export function settings() {
  * password, a username or a full address. The server name is shown only when it is a public
  * provider's server (smtp.gmail.com and the like), which is not a secret.
  */
+function kindOf(v: string | undefined): string {
+  const t = clean(v);
+  if (!t) return 'empty';
+  const addr = /<\s*([^<>\s]+@[^<>\s]+)\s*>/.exec(t)?.[1] ?? (/^[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}$/i.test(t) ? t : null);
+  if (addr) return `${/</.test(t) ? 'a name and email address' : 'an email address'} at ${addr.split('@')[1].toLowerCase()}`;
+  const inside = /[^\s<>@"']+@([^\s<>@"']+\.[a-z]{2,})/i.exec(t);
+  if (inside) return `text with an email address at ${inside[1].toLowerCase()}, not in the form Name <address>`;
+  if (/^\d{1,5}$/.test(t) && Number(t) <= 65535) return `a port number (${t})`;
+  if (/^\d+$/.test(t)) return `a long number (${t.length} digits) - not a port`;
+  const host = t.replace(/^[a-z]+:\/\//i, '').replace(/[/:].*$/, '').toLowerCase();
+  if (HOSTNAME.test(host) && /^(smtp|smtps|mail|smtp-relay|smtp-mail|email-smtp)[.-]/.test(host)) return `a mail server name (${host})`;
+  if (HOSTNAME.test(host)) return 'a domain or server name';
+  if (/^[a-z]{4}( ?[a-z]{4}){3}$/i.test(t)) return 'a Google app password (16 letters)';
+  return `other text (${t.length} characters${/\s/.test(t) ? ', with spaces' : ''})`;
+}
+
 export function emailSettingsReport() {
   const s = settings();
   const raw = clean(process.env.EMAIL_SERVER);
@@ -89,12 +123,16 @@ export function emailSettingsReport() {
   else if (s.host === 'smtp.gmail.com' && !/@/.test(s.user)) problems.push('EMAIL_USERNAME must be the full Gmail address (name@gmail.com)');
   if (!s.pass) problems.push('EMAIL_PASSWORD is empty');
   else if (s.host === 'smtp.gmail.com' && !/^[a-z]{16}$/i.test(s.pass)) problems.push('EMAIL_PASSWORD does not look like a Google app password (16 letters) - Gmail refuses the normal account password');
+  if (PLACEHOLDER.test(clean(process.env.EMAIL_FROM))) problems.push(`EMAIL_FROM is still a template's example address - ${/@/.test(s.user) ? 'EMAIL_USERNAME is used instead' : 'set it to SafeComm <your sending address>'}`);
   if (isEmailTestSender()) problems.push('EMAIL_FROM is a test sender that only delivers to the provider account owner');
   if (s.host === 'smtp.gmail.com' && s.user && fromAddr && fromAddr !== s.user.toLowerCase()) {
     problems.push('EMAIL_FROM is not the Gmail address in EMAIL_USERNAME - Gmail replaces it unless it is a verified "Send mail as" address');
   }
+  if (s.portIgnored) problems.push(`EMAIL_PORT is not a port number (it was ignored - ${s.port} used): set it to 465, or 587`);
   return {
     server: !s.host ? 'none' : publicServer ? s.host : 'custom server',
+    // What kind of value each setting holds - so a value pasted into the wrong one shows - never the value.
+    holds: Object.fromEntries((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => [k, kindOf(process.env[k])])),
     port: s.port,
     serverCorrected: s.hostFixed,
     problems,

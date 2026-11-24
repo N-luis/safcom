@@ -57,6 +57,26 @@ ok('correct Gmail settings: no problems', emailSettingsReport().problems.length 
 withEnv({ EMAIL_SERVER: 'smtp.gmail.com', ...GMAIL, EMAIL_FROM: 'onboarding@resend.dev' });
 ok('a test sender is named as a problem', emailSettingsReport().problems.some(p => /test sender/.test(p)));
 
+console.log('\nA value pasted into the wrong setting');
+withEnv({ EMAIL_SERVER: 'abcd efgh ijkl mnop', EMAIL_PORT: '156936309629633112345678901', EMAIL_USERNAME: 'smtp.gmail.com', EMAIL_PASSWORD: 'probe.sender@gmail.com', EMAIL_FROM: '465' });
+const w = emailSettingsReport();
+const wt = JSON.stringify(w);
+ok('a long number in EMAIL_PORT: ignored (a real port used) and named as a problem', w.port === 587 && w.problems.some(p => /EMAIL_PORT is not a port number/.test(p)), `${w.port} ${w.problems.join(' | ')}`);
+ok('what each setting holds is said by kind', w.holds.EMAIL_SERVER === 'a Google app password (16 letters)' && /long number \(27 digits\)/.test(w.holds.EMAIL_PORT)
+  && w.holds.EMAIL_USERNAME === 'a mail server name (smtp.gmail.com)' && w.holds.EMAIL_PASSWORD === 'an email address at gmail.com' && w.holds.EMAIL_FROM === 'a port number (465)', JSON.stringify(w.holds));
+ok('never a value: not the number, the password or the address', !/1569363|abcd|probe\.sender/.test(wt), wt);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_PORT: '465', EMAIL_FROM: 'SafeComm <probe.sender@gmail.com>' });
+ok('correct settings: each holds what it should', JSON.stringify(emailSettingsReport().holds) === JSON.stringify({ EMAIL_SERVER: 'a mail server name (smtp.gmail.com)', EMAIL_PORT: 'a port number (465)',
+  EMAIL_USERNAME: 'an email address at gmail.com', EMAIL_PASSWORD: 'a Google app password (16 letters)', EMAIL_FROM: 'a name and email address at gmail.com' }), JSON.stringify(emailSettingsReport().holds));
+
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'SafeComm noreply@yourdomain.com' });
+ok('a template\'s example sender: sent as SafeComm <the Gmail username> instead, and named as a problem', settings().from === 'SafeComm <probe.sender@gmail.com>'
+  && emailSettingsReport().problems.some(p => /template's example/.test(p)), settings().from);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'probe.sender@gmail.com' });
+ok('a bare sender address gets the SafeComm name', settings().from === 'SafeComm <probe.sender@gmail.com>');
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com' });
+ok('no EMAIL_FROM: SafeComm <the Gmail username>', settings().from === 'SafeComm <probe.sender@gmail.com>');
+
 console.log('\n/auth/confirm: SafeComm pages only');
 const at = (q: string) => {
   const res = confirmGET(new NextRequest(`https://barangaysafcom.vercel.app/auth/confirm${q}`));
