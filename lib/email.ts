@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { createHash } from 'node:crypto';
 
 /**
  * SafeComm's mailer (SMTP). Sends the sign-in emails Supabase Auth's links are
@@ -56,8 +57,14 @@ const PLACEHOLDER = /@(yourdomain|your-domain|example|domain)\.(com|org|net)\b|@
  * as you@yourdomain.com, or no address in it) "SafeComm <EMAIL_USERNAME>" when the username is an
  * address - what Gmail and most providers require anyway.
  */
-function senderFor(from: string, user: string): string {
+function senderFor(from: string, user: string, gmail: boolean): string {
   const addr = /[^\s<>@"']+@[^\s<>@"']+\.[a-z]{2,}/i.exec(from)?.[0];
+  // The name shown to residents: what EMAIL_FROM says before the address, else "SafeComm".
+  const name = (from.includes('<') ? from.split('<')[0] : from.replace(/[^\s<>@"']+@[^\s<>@"']+\.[a-z]{2,}/gi, '')).trim().replace(/^(['"])([\s\S]*)\1$/, '$2').replace(/[^\p{L}\p{N} .,'&()-]/gu, '').trim() || 'SafeComm';
+  // Gmail sends only as the account that signed in (or its verified "Send mail as" address, which
+  // Gmail itself would keep): another address - noreply@gmail.com is someone else's mailbox - is
+  // replaced by the account's own, keeping the name.
+  if (gmail && /@/.test(user) && addr && addr.toLowerCase() !== user.toLowerCase()) return `${name} <${user}>`;
   if (addr && !PLACEHOLDER.test(addr)) return /<[^>]+>/.test(from) ? from : `SafeComm <${addr}>`;
   if (/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(user)) return `SafeComm <${user}>`;
   return from || 'SafeComm <no-reply@safcom.gov.ph>';
@@ -77,7 +84,7 @@ export function settings() {
   const gmail = resolved.host === 'smtp.gmail.com';
   const pass = clean(process.env.EMAIL_PASSWORD);
   return {
-    from: senderFor(clean(process.env.EMAIL_FROM), user),
+    from: senderFor(clean(process.env.EMAIL_FROM), user, resolved.host === 'smtp.gmail.com'),
     host: resolved.host,
     hostFixed: resolved.fixed,
     port,
@@ -93,6 +100,8 @@ export function settings() {
  * password, a username or a full address. The server name is shown only when it is a public
  * provider's server (smtp.gmail.com and the like), which is not a secret.
  */
+const fp = (v: string) => (v ? createHash('sha256').update(`safecomm-email:${v}`).digest('hex').slice(0, 4) : '-');
+
 function kindOf(v: string | undefined): string {
   const t = clean(v);
   if (!t) return 'empty';
@@ -134,7 +143,6 @@ export function emailSettingsReport() {
   // A mail server's name is not a secret; anything else that was typed there (it could be a password) is never shown.
   const publicServer = HOSTNAME.test(s.host) && (Object.values(PROVIDER_SMTP).includes(s.host)
     || /^(smtp|smtps|mail|smtp-relay|smtp-mail|email-smtp)[.-]/.test(s.host) || /gmail|google|yahoo|outlook|office365|brevo|sendgrid|resend|zoho|mailgun|amazonaws/.test(s.host));
-  const fromAddr = (/<([^>]+)>/.exec(s.from)?.[1] ?? s.from).trim().toLowerCase();
   const problems: string[] = [];
   if (!raw && !s.host) problems.push('EMAIL_SERVER is empty');
   else if (!HOSTNAME.test(s.host)) problems.push('EMAIL_SERVER is not a server name (for Gmail it must be exactly smtp.gmail.com)');
@@ -144,8 +152,9 @@ export function emailSettingsReport() {
   else if (s.host === 'smtp.gmail.com' && !/^[a-z]{16}$/i.test(s.pass)) problems.push('EMAIL_PASSWORD does not look like a Google app password (16 letters) - Gmail refuses the normal account password');
   if (PLACEHOLDER.test(clean(process.env.EMAIL_FROM))) problems.push(`EMAIL_FROM is still a template's example address - ${/@/.test(s.user) ? 'EMAIL_USERNAME is used instead' : 'set it to SafeComm <your sending address>'}`);
   if (isEmailTestSender()) problems.push('EMAIL_FROM is a test sender that only delivers to the provider account owner');
-  if (s.host === 'smtp.gmail.com' && s.user && fromAddr && fromAddr !== s.user.toLowerCase()) {
-    problems.push('EMAIL_FROM is not the Gmail address in EMAIL_USERNAME - Gmail replaces it unless it is a verified "Send mail as" address');
+  const typedFrom = (/[^\s<>@"']+@[^\s<>@"']+\.[a-z]{2,}/i.exec(clean(process.env.EMAIL_FROM))?.[0] ?? '').toLowerCase();
+  if (s.host === 'smtp.gmail.com' && s.user && typedFrom && typedFrom !== s.user.toLowerCase() && !PLACEHOLDER.test(typedFrom)) {
+    problems.push('EMAIL_FROM is not the Gmail address in EMAIL_USERNAME - sent from EMAIL_USERNAME instead, with the name in EMAIL_FROM (Gmail sends only as the signed-in account)');
   }
   if (new Set((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => clean(process.env[k]))).size === 1 && raw) {
     problems.unshift('All five EMAIL_* settings hold the same value - each needs its own (server, port, username, app password, sender)');
@@ -158,6 +167,9 @@ export function emailSettingsReport() {
     // The same value pasted into every setting.
     allTheSame: new Set((['EMAIL_SERVER', 'EMAIL_PORT', 'EMAIL_USERNAME', 'EMAIL_PASSWORD', 'EMAIL_FROM'] as const).map(k => clean(process.env[k]))).size === 1 && Boolean(clean(process.env.EMAIL_SERVER)),
     port: s.port,
+    // 4 characters of a one-way hash of each login value - only to tell whether two deployments
+    // (this computer and Vercel) hold the same username and password; nothing can be learnt from them.
+    fingerprint: { username: fp(s.user.toLowerCase()), password: fp(s.pass) },
     serverCorrected: s.hostFixed,
     problems,
   };

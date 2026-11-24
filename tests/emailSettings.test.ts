@@ -54,7 +54,7 @@ withEnv({ EMAIL_SERVER: 'secretpassword', EMAIL_USERNAME: 'x', EMAIL_PASSWORD: '
 ok('whatever was typed as the server is not shown unless it is a mail server\'s name', !/secretpassword/.test(JSON.stringify(emailSettingsReport())), JSON.stringify(emailSettingsReport()));
 withEnv({ EMAIL_SERVER: 'smtp.gmail.com', ...GMAIL, EMAIL_FROM: 'SafeComm <probe.sender@gmail.com>' });
 ok('correct Gmail settings: no problems', emailSettingsReport().problems.length === 0, emailSettingsReport().problems.join(' | '));
-withEnv({ EMAIL_SERVER: 'smtp.gmail.com', ...GMAIL, EMAIL_FROM: 'onboarding@resend.dev' });
+withEnv({ EMAIL_SERVER: 'smtp.resend.com', EMAIL_USERNAME: 'resend', EMAIL_PASSWORD: 're_probe_key_123456', EMAIL_FROM: 'onboarding@resend.dev' });
 ok('a test sender is named as a problem', emailSettingsReport().problems.some(p => /test sender/.test(p)));
 
 console.log('\nA value pasted into the wrong setting');
@@ -85,6 +85,19 @@ ok('the whole settings block, a Resend key, a URL: each recognised by its format
 withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'SafeComm noreply@yourdomain.com' });
 ok('a template\'s example sender: sent as SafeComm <the Gmail username> instead, and named as a problem', settings().from === 'SafeComm <probe.sender@gmail.com>'
   && emailSettingsReport().problems.some(p => /template's example/.test(p)), settings().from);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'SafeComm Barangay <noreply@gmail.com>' });
+ok('Gmail with another sender address (noreply@gmail.com is someone else\'s mailbox): sent from the signed-in Gmail, keeping the name',
+  settings().from === 'SafeComm Barangay <probe.sender@gmail.com>' && emailSettingsReport().problems.some(p => /sent from EMAIL_USERNAME instead/.test(p)), settings().from);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: '"SafeComm" <noreply@gmail.com>' });
+ok('a quoted name is kept without its quotes', settings().from === 'SafeComm <probe.sender@gmail.com>', settings().from);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.example-relay.com', EMAIL_FROM: 'SafeComm <noreply@barangay.example.ph>' });
+ok('another provider: EMAIL_FROM kept as written (a verified domain sender)', settings().from === 'SafeComm <noreply@barangay.example.ph>', settings().from);
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com' });
+const f1 = emailSettingsReport().fingerprint;
+withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_PASSWORD: 'zzzzyyyyxxxxwwww' });
+const f2 = emailSettingsReport().fingerprint;
+ok('fingerprints: 4 characters each; the same username matches, a different password does not; never the value',
+  /^[0-9a-f]{4}$/.test(f1.username) && f1.username === f2.username && f1.password !== f2.password && !JSON.stringify(f1).includes('abcd'), JSON.stringify([f1, f2]));
 withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com', EMAIL_FROM: 'probe.sender@gmail.com' });
 ok('a bare sender address gets the SafeComm name', settings().from === 'SafeComm <probe.sender@gmail.com>');
 withEnv({ ...GMAIL, EMAIL_SERVER: 'smtp.gmail.com' });
