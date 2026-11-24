@@ -38,7 +38,29 @@ export const emailDeliverable = () => isEmailConfigured() && !isEmailTestSender(
 /** Said to everyone who asks for an emailed link while delivery is not set up - never per account. */
 export const EMAIL_NOT_DELIVERABLE = 'SafeComm cannot send emails to residents yet. Please contact the barangay office for help with your account.';
 
-export type SendReason ='sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
+/**
+ * Whether the mail server accepts SafeComm's login - checked without sending
+ * anything, at most once every 5 minutes. A category only, never the server's
+ * text (it can carry an address): ok | login_rejected | unreachable | not_configured.
+ */
+let loginCheck: { at: number; result: string } | null = null;
+export async function emailLoginStatus(): Promise<string> {
+  if (!isEmailConfigured()) return 'not_configured';
+  if (loginCheck && Date.now() - loginCheck.at < 5 * 60_000) return loginCheck.result;
+  const s = settings();
+  let result = 'ok';
+  try {
+    await nodemailer.createTransport({ host: s.host, port: s.port, secure: s.port === 465, auth: { user: s.user, pass: s.pass },
+      connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 8000 }).verify();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    result = /\b535\b|invalid login|username and password|auth/i.test(msg) ? 'login_rejected' : 'unreachable';
+  }
+  loginCheck = { at: Date.now(), result };
+  return result;
+}
+
+export type SendReason = 'sent' | 'not_configured' | 'sandbox_recipient_blocked' | 'send_failed';
 
 export interface SendResult {
   ok: boolean;
