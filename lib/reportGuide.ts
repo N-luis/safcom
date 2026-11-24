@@ -69,7 +69,8 @@ const INTENT_RULES: [GuideIntent, RegExp][] = [
   ['on_behalf', /behalf|for (another|someone|my (friend|neighbou?r|mother|father|sister|brother))|ibang tao|para sa (kaibigan|kapitbahay|nanay|tatay|kapatid)|third.?party/i],
   ['category', /categor|kategorya|which (type|kind)|anong (uri|klase)/i],
   ['what_info', /information|info|impormasyon|details|detalye|what (do )?i need|ano(ng)? (kailangan|ilalagay)/i],
-  ['how_to_report', /how (do|can) i (report|file)|paano (mag-?report|mag-?file|magsumbong|mag-?sumbong)|how to report|start/i],
+  // "paano mag report", "pano po mag-report", "paano ba magfile", "paano i-report" - with or without the hyphen or a space.
+  ['how_to_report', /how (do|can|should) i (report|file)|how to (report|file)|pa+no\s+(po\s+)?(ba\s+)?(mag[-\s]?(report|file|sumbong|ulat)|i-?report|magsumbong)|start/i],
 ];
 
 /** Danger now, read from the resident's words - so the hotlines show at once, before any AI. */

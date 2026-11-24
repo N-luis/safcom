@@ -18,7 +18,26 @@ const NAVY = '#0c1e46';
 const TEAL = '#0f766e';
 
 interface Rec { destination: string; label: string; reasons: string[]; questions: string[] }
-interface Answer { reply: string; source: 'AI' | 'GUIDE'; urgent: boolean; recommendation: Rec | null; checklist: string[]; clarifyingQuestions: string[]; needsOfficialConfirmation: boolean }
+interface Answer { reply: string; source: 'AI' | 'GUIDE'; urgent: boolean; recommendation: Rec | null; checklist: string[]; clarifyingQuestions: string[]; needsOfficialConfirmation: boolean; aiStatus?: string | null }
+
+/** Why the written guide answered instead of the AI, in the resident's language - so "not available" is never said when it was only busy. */
+function guideNote(status: string | null | undefined, lang: GuideLang): string {
+  const tl = lang === 'tl';
+  switch (status) {
+    case 'busy':
+    case 'rate_limited':
+      return tl ? 'Gabay ng SafeComm - abala ang AI sandali. Magtanong ulit pagkalipas ng ilang segundo para sa sagot ng AI.'
+        : "SafeComm's guide - the AI was busy for a moment. Ask again in a few seconds for an AI answer.";
+    case 'off':
+      return tl ? 'Gabay ng SafeComm - naka-off ang AI sa site na ito.' : "SafeComm's guide - the AI is turned off on this site.";
+    case 'daily_limit':
+    case 'resident_limit':
+      return tl ? 'Gabay ng SafeComm - naubos na ang AI para sa araw na ito; babalik ito bukas.'
+        : "SafeComm's guide - today's AI allowance is used up; it comes back tomorrow.";
+    default:
+      return tl ? 'Gabay ng SafeComm - hindi nagamit ang sagot ng AI ngayon.' : "SafeComm's guide - the AI could not answer this time.";
+  }
+}
 type Msg = { role: 'resident'; text: string; urgentNow: boolean } | { role: 'assistant'; text: string; answer?: Answer };
 
 export default function ReportGuide({ lang, open, onOpenChange, descriptionEmpty, onUseDescription, onContinue }: {
@@ -193,7 +212,7 @@ function AnswerCards({ a, lang, showHotlines }: { a: Answer; lang: GuideLang; sh
       )}
       <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <InfoOutlined sx={{ fontSize: 13 }} />
-        {a.source === 'AI' ? (lang === 'tl' ? 'Sagot ng AI mula sa proseso ng SafeComm.' : "AI answer, from SafeComm's process.") : (lang === 'tl' ? 'Gabay ng SafeComm (hindi available ang AI ngayon).' : "SafeComm's guide (the AI is not available right now).")}
+        {a.source === 'AI' ? (lang === 'tl' ? 'Sagot ng AI mula sa proseso ng SafeComm.' : "AI answer, from SafeComm's process.") : guideNote(a.aiStatus, lang)}
         {a.needsOfficialConfirmation && (lang === 'tl' ? ' Kailangang kumpirmahin ng opisyal ng barangay.' : ' An authorized barangay official needs to confirm this.')}
       </Typography>
     </Box>

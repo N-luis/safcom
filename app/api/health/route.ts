@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkEnv, checkDatabase } from '@/lib/configCheck';
 import { emailLoginStatus, emailSettingsReport } from '@/lib/email';
+import { aiConfig } from '@/lib/aiClassifier';
 
 // Always evaluated per request — a cached answer would report stale config.
 export const dynamic = 'force-dynamic';
@@ -21,6 +22,11 @@ function emailAdvice(login: string) {
   if (login === 'settings_hold_another_key') problems.unshift('An EMAIL_* setting holds a key or token of another service (for example a Supabase key) - it is never sent to a mail server; replace it with the mail setting');
   if (login.startsWith('login_rejected')) problems.unshift('The mail server refused EMAIL_USERNAME / EMAIL_PASSWORD - for Gmail: the full Gmail address and a Google app password from that same account');
   return { ...r, problems };
+}
+
+function aiHealth() {
+  const c = aiConfig();
+  return { enabled: c.enabled, offReason: c.offReason, model: c.enabled ? c.model : null };
 }
 
 export async function GET() {
@@ -47,6 +53,8 @@ export async function GET() {
       emailLogin,
       // What is wrong with the email settings - categories only, never a value (a public provider's server name at most).
       emailSettings: emailAdvice(emailLogin),
+      // Whether SafeComm AI (Groq) is switched on, and if not, why - never the key itself.
+      ai: aiHealth(),
       hint: ok
         ? undefined
         : 'Set these in Vercel → Settings → Environments → Production → Environment Variables, then redeploy with the build cache turned off.',

@@ -78,6 +78,8 @@ async function main() {
     ok('intents read in English and Filipino', guideIntent('What if I don\'t know the exact date?') === 'no_date' && guideIntent('Paano kung wala akong ebidensya?') === 'no_evidence'
       && guideIntent('Ano ang mangyayari pagkatapos kong mag-submit?') === 'after_submit' && guideIntent('Paano kung para sa ibang tao ang report ko?') === 'on_behalf'
       && guideIntent('Blotter ba o VAWC ang concern ko?') === 'blotter_or_vawc' && guideIntent(DANGER) === 'urgent');
+    ok('"paano mag report" is a how-to question, with or without the hyphen or a space', ['paano mag report', 'Paano mag-report?', 'pano po mag report', 'paano ba magfile ng report', 'paano i-report', 'How do I file a report?', 'how to report']
+      .every(t => guideIntent(t) === 'how_to_report'));
 
     console.log('\n1. How to file');
     fake.guide = aiGuide({ reply: 'Describe what happened in your own words, choose where it happened, then press Submit Report.' });
