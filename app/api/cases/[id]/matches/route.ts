@@ -90,7 +90,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const recheck = recheckSchema.safeParse(body);
   if (recheck.success) {
-    if (!rateLimit(`case-match-recheck:${actor.id}`, { max: 20, windowMs: 3_600_000 }).allowed) return errorResponse('Too many checks - try again in a while.', 429);
+    if (!(await rateLimit(`case-match-recheck:${actor.id}`, { max: 20, windowMs: 3_600_000 })).allowed) return errorResponse('Too many checks - try again in a while.', 429);
     try {
       const r = await detectForCase(id, { force: true, actorId: actor.id });
       await g.log('permitted', 'recheck');

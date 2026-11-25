@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { signResidentToken, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
+import { issueResidentSession, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
 import { rateLimit } from '@/lib/rateLimit';
 import { supabaseAuthMissing, checkPassword, residentForUser, AuthError } from '@/lib/supabaseAuth';
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Enter your email and password', 400);
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
   const id = parsed.data.email.toLowerCase();
-  if (!rateLimit(`resident-login:${ip}:${id}`, { max: 10, windowMs: 15 * 60_000 }).allowed) return rError('Too many attempts - wait a few minutes and try again.', 429);
+  if (!(await rateLimit(`resident-login:${ip}:${id}`, { max: 10, windowMs: 15 * 60_000 })).allowed) return rError('Too many attempts - wait a few minutes and try again.', 429);
 
   try {
     // A username from before the new sign-in: its email.
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     await prisma.resident.update({ where: { id: resident.id }, data: { emailVerified: true } }).catch(() => undefined);
     const name = `${resident.firstName} ${resident.lastName}`;
     const res = rSuccess({ resident: { id: resident.id, name, email: resident.email, status: resident.status, residentNumber: resident.residentNumber, residencyStatus: resident.residencyStatus } });
-    setResidentCookie(res as NextResponse, signResidentToken({ residentId: resident.id, email: resident.email ?? email, name, role: 'resident' }));
+    setResidentCookie(res as NextResponse, await issueResidentSession({ residentId: resident.id, email: resident.email ?? email, name }, req.headers.get('user-agent')));
     return res;
   } catch (err) {
     if (err instanceof AuthError) {

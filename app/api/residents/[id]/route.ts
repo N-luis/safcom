@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
 import { canSeeDirectoryContacts } from '@/lib/reporterAccess';
 import { recordResidencyEvent } from '@/lib/jurisdictionServer';
+import { endAllSessions } from '@/lib/sessions';
 
 /**
  * Who may edit a resident's record here: the captain and the system
@@ -118,6 +119,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
       return u;
     });
+    // An account made inactive or suspended is signed out everywhere at once.
+    if (parsed.data.status && ['Inactive', 'Suspended'].includes(parsed.data.status) && existing.status !== parsed.data.status) {
+      await endAllSessions('resident', id, 'deactivated');
+    }
     return successResponse(updated);
   } catch {
     return errorResponse('Server error', 500);

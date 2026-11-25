@@ -440,3 +440,16 @@ export type CaseMatchEvent = Prisma.CaseMatchEventModel
  * run the check again on purpose.
  */
 export type CaseMatchScan = Prisma.CaseMatchScanModel
+/**
+ * Model AuthSession
+ * A signed-in session (029). Every sign-in makes one; its id is in the session token, and each
+ * request checks it is still active - so signing out, a password change or a deactivated account
+ * ends it at once, on every device. Officials' sessions last 12 hours; residents' 7 days.
+ */
+export type AuthSession = Prisma.AuthSessionModel
+/**
+ * Model RateLimitCounter
+ * Rate-limit counts shared by every server instance (029). The key is a SHA-256 hash, so no email,
+ * IP address or account id is stored in it. A fixed window per key.
+ */
+export type RateLimitCounter = Prisma.RateLimitCounterModel

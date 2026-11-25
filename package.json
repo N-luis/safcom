@@ -81,7 +81,8 @@
     "email:check": "npx tsx --env-file=.env scripts/email-check.ts",
     "test:emailsettings": "npx tsx --conditions=react-server tests/emailSettings.test.ts",
     "test:incidentreferral": "npx tsx --env-file=.env --conditions=react-server tests/incidentReferral.test.ts",
-    "test:stafflogin": "npx tsx --env-file=.env --conditions=react-server tests/staffLogin.test.ts"
+    "test:stafflogin": "npx tsx --env-file=.env --conditions=react-server tests/staffLogin.test.ts",
+    "test:sessions": "npx tsx --env-file=.env --conditions=react-server tests/sessions.test.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -58,7 +58,7 @@ async function main() {
     ok('a correct sign-in before the limit clears the count', (await login(other, PW, ip2)).status === 200
       && (await login(other, 'wrong-password-3', ip2)).status === 401 && (await login(other, PW, ip2)).status === 200);
 
-    const out = await logoutPOST();
+    const out = await logoutPOST(new NextRequest('http://localhost/api/auth/logout', { method: 'POST' }));
     ok('signing out clears the cookie with the same protections', /safcom_token=;/.test(out.headers.get('set-cookie') ?? '') && /HttpOnly/i.test(out.headers.get('set-cookie') ?? ''));
   } finally {
     await prisma.user.deleteMany({ where: { id: { in: ids } } });

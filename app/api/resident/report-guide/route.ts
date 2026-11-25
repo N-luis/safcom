@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const d = parsed.data;
   const me = auth.resident.residentId;
   const limit = d.action === 'chat' ? { max: 40, windowMs: 15 * 60_000 } : { max: 10, windowMs: 3_600_000 };
-  if (!rateLimit(`report-guide:${d.action}:${me}`, limit).allowed) {
+  if (!(await rateLimit(`report-guide:${d.action}:${me}`, limit)).allowed) {
     return rError(d.action === 'chat' ? 'Too many messages - wait a few minutes. If anyone is in danger, call an emergency hotline now.' : 'Too many requests - wait a while and try again.', 429);
   }
   try {

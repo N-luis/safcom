@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { signToken, successResponse, errorResponse } from '@/lib/auth';
+import { issueStaffSession, successResponse, errorResponse } from '@/lib/auth';
 import { identifierWhere } from '@/lib/identifier';
 import { missingRequired, checkDatabase } from '@/lib/configCheck';
 import { failuresExceeded, recordFailure, clearFailures } from '@/lib/rateLimit';
@@ -47,18 +47,19 @@ export async function POST(req: NextRequest) {
     const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
     const accountKey = `staff-login-fail:acct:${identifier.trim().toLowerCase()}`;
     const ipKey = `staff-login-fail:ip:${ip}`;
-    const blocked = [failuresExceeded(accountKey, PER_ACCOUNT), failuresExceeded(ipKey, PER_CONNECTION)].find(r => r.limited);
+    const blocked = (await Promise.all([failuresExceeded(accountKey, PER_ACCOUNT), failuresExceeded(ipKey, PER_CONNECTION)])).find(r => r.limited);
     if (blocked) return tooMany(blocked.retryAfterSeconds);
-    const failed = () => { recordFailure(accountKey); recordFailure(ipKey); return errorResponse('Invalid credentials', 401); };
+    const failed = async () => { await Promise.all([recordFailure(accountKey, PER_ACCOUNT), recordFailure(ipKey, PER_CONNECTION)]); return errorResponse('Invalid credentials', 401); };
 
     const user = await prisma.user.findFirst({ where: identifierWhere(identifier) });
-    if (!user || !user.active) return failed();
+    if (!user || !user.active) return await failed();
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return failed();
-    clearFailures(accountKey);
+    if (!valid) return await failed();
+    await clearFailures(accountKey);
 
-    const token = signToken({ userId: user.id, email: user.email, role: user.role });
+    // A session of its own (12 hours), ended by signing out, a password change or deactivation.
+    const { token, maxAge } = await issueStaffSession(user, req.headers.get('user-agent'));
 
     // The session lives only in the httpOnly cookie: it is not returned in the body, where a page script could read it.
     const res = successResponse({
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
       // Sent over HTTPS only on the live site; local development runs on plain http.
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge,
       path: '/',
     });
     return res;

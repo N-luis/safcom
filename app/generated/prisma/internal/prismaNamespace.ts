@@ -436,7 +436,9 @@ export const ModelName = {
   KpFormRecord: 'KpFormRecord',
   CaseMatch: 'CaseMatch',
   CaseMatchEvent: 'CaseMatchEvent',
-  CaseMatchScan: 'CaseMatchScan'
+  CaseMatchScan: 'CaseMatchScan',
+  AuthSession: 'AuthSession',
+  RateLimitCounter: 'RateLimitCounter'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -452,7 +454,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "jurisdictionReferralEvent" | "jurisdictionReferralAttachment" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "jurisdictionReferralEvent" | "jurisdictionReferralAttachment" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan" | "authSession" | "rateLimitCounter"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4378,6 +4380,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AuthSession: {
+      payload: Prisma.$AuthSessionPayload<ExtArgs>
+      fields: Prisma.AuthSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuthSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuthSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.AuthSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuthSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        findMany: {
+          args: Prisma.AuthSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
+        }
+        create: {
+          args: Prisma.AuthSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        createMany: {
+          args: Prisma.AuthSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AuthSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.AuthSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        update: {
+          args: Prisma.AuthSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuthSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuthSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AuthSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AuthSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.AuthSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuthSession>
+        }
+        groupBy: {
+          args: Prisma.AuthSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuthSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuthSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuthSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RateLimitCounter: {
+      payload: Prisma.$RateLimitCounterPayload<ExtArgs>
+      fields: Prisma.RateLimitCounterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RateLimitCounterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RateLimitCounterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        findFirst: {
+          args: Prisma.RateLimitCounterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RateLimitCounterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        findMany: {
+          args: Prisma.RateLimitCounterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>[]
+        }
+        create: {
+          args: Prisma.RateLimitCounterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        createMany: {
+          args: Prisma.RateLimitCounterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RateLimitCounterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>[]
+        }
+        delete: {
+          args: Prisma.RateLimitCounterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        update: {
+          args: Prisma.RateLimitCounterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        deleteMany: {
+          args: Prisma.RateLimitCounterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RateLimitCounterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RateLimitCounterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>[]
+        }
+        upsert: {
+          args: Prisma.RateLimitCounterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitCounterPayload>
+        }
+        aggregate: {
+          args: Prisma.RateLimitCounterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRateLimitCounter>
+        }
+        groupBy: {
+          args: Prisma.RateLimitCounterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitCounterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RateLimitCounterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitCounterCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5592,6 +5742,30 @@ export const CaseMatchScanScalarFieldEnum = {
 export type CaseMatchScanScalarFieldEnum = (typeof CaseMatchScanScalarFieldEnum)[keyof typeof CaseMatchScanScalarFieldEnum]
 
 
+export const AuthSessionScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  subjectId: 'subjectId',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  revokedReason: 'revokedReason',
+  userAgent: 'userAgent'
+} as const
+
+export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const RateLimitCounterScalarFieldEnum = {
+  key: 'key',
+  windowStart: 'windowStart',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RateLimitCounterScalarFieldEnum = (typeof RateLimitCounterScalarFieldEnum)[keyof typeof RateLimitCounterScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5899,6 +6073,8 @@ export type GlobalOmitConfig = {
   caseMatch?: Prisma.CaseMatchOmit
   caseMatchEvent?: Prisma.CaseMatchEventOmit
   caseMatchScan?: Prisma.CaseMatchScanOmit
+  authSession?: Prisma.AuthSessionOmit
+  rateLimitCounter?: Prisma.RateLimitCounterOmit
 }
 
 /* Types for Logging */

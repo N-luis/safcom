@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { Toaster } from "react-hot-toast";
 import AppThemeProvider from "@/components/AppThemeProvider";
 import LiveAnnouncements from "@/components/notifications/LiveAnnouncements";
+import SessionWatch from "@/components/SessionWatch";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,8 @@ export default function RootLayout({
             {/* Watches the signed-in viewer's feed and pops new announcements
               * wherever they are. Renders nothing on public pages. */}
             <LiveAnnouncements />
+            {/* Takes the person to sign in again when their session was ended elsewhere. */}
+            <SessionWatch />
             <Toaster
             position="top-right"
             toastOptions={{ style: { fontSize: '0.94rem', borderRadius: '10px' } }}

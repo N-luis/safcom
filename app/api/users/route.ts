@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { requireStaffAdmin } from '@/lib/staffAdmin';
 
 const createSchema = z.object({
   name: z.string().min(2),
@@ -51,6 +52,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+  const denied = await requireStaffAdmin(auth.user.userId);
+  if (denied) return denied;
 
   try {
     const body = await req.json();

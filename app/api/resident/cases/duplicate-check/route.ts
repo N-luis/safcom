@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     return noStore({ success: true, data: { ...NONE, skipped: 'unavailable' } });
   }
   // Not a search tool: a handful of checks per hour is plenty for filing reports.
-  if (!rateLimit(`duplicate-check:${me}`, { max: 15, windowMs: 3_600_000 }).allowed) {
+  if (!(await rateLimit(`duplicate-check:${me}`, { max: 15, windowMs: 3_600_000 })).allowed) {
     return noStore({ success: true, data: { ...NONE, skipped: 'rate_limited' } });
   }
   const incidentDate = d.incidentDate ? new Date(`${d.incidentDate}T00:00:00Z`) : null;

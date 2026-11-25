@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, successResponse, errorResponse } from '@/lib/auth';
+import { endAllSessions } from '@/lib/sessions';
+import { requireStaffAdmin } from '@/lib/staffAdmin';
 
 const updateSchema = z.object({
   name: z.string().min(2).optional(),
@@ -39,6 +41,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+  const denied = await requireStaffAdmin(auth.user.userId);
+  if (denied) return denied;
   const { id } = await params;
 
   try {
@@ -71,6 +75,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       select: { id: true, name: true, email: true, username: true, role: true, barangay: true, phone: true, active: true },
     });
 
+    // A new password or a deactivated account ends every session that official has open.
+    if (password || user.active === false) await endAllSessions('staff', id, password ? 'password_changed' : 'deactivated');
+
     await prisma.activity.create({
       data: {
         type: 'user_updated',
@@ -89,6 +96,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAuth(req);
   if ('status' in auth) return auth;
+  const denied = await requireStaffAdmin(auth.user.userId);
+  if (denied) return denied;
   const { id } = await params;
 
   if (id === auth.user.userId) return errorResponse('Cannot deactivate your own account', 400);
@@ -99,6 +108,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       data: { active: false },
       select: { name: true },
     });
+    await endAllSessions('staff', id, 'deactivated');
 
     await prisma.activity.create({
       data: {

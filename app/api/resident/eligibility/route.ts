@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Check the location', 400);
   const d = parsed.data;
-  if (!rateLimit(`eligibility:${auth.resident.residentId}`, { max: 30, windowMs: 3_600_000 }).allowed) return rError('Too many checks - try again in a while.', 429);
+  if (!(await rateLimit(`eligibility:${auth.resident.residentId}`, { max: 30, windowMs: 3_600_000 })).allowed) return rError('Too many checks - try again in a while.', 429);
   try {
     const residency = await residencyOf(auth.resident.residentId);
     if (!residency) return rError('Resident not found', 404);

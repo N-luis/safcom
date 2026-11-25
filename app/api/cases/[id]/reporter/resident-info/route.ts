@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         caseNumber: extra.caseNumber, residentId: extra.residentId });
 
     if (!actor) { await log('denied', 'unknown_account'); return errorResponse('Unauthorized', 401); }
-    if (!rateLimit(`resident-info:${actor.id}`, VIEW_LIMIT).allowed) {
+    if (!(await rateLimit(`resident-info:${actor.id}`, VIEW_LIMIT)).allowed) {
       await log('denied', 'rate_limited');
       return errorResponse('Too many lookups. Try again in a few minutes.', 429);
     }

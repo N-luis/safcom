@@ -1871,3 +1871,35 @@ model CaseMatchScan {
   scannedAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+/// A signed-in session (029). Every sign-in makes one; its id is in the session token, and each
+/// request checks it is still active - so signing out, a password change or a deactivated account
+/// ends it at once, on every device. Officials' sessions last 12 hours; residents' 7 days.
+model AuthSession {
+  id            String    @id @default(cuid())
+  /// staff | resident
+  kind          String
+  /// User.id (staff) or Resident.id (resident)
+  subjectId     String
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  /// logout | password_changed | deactivated | signed_in_again ...
+  revokedReason String?
+  /// The browser it was made from (shortened), so an official can recognise a session.
+  userAgent     String?
+
+  @@index([kind, subjectId])
+  @@index([expiresAt])
+}
+
+/// Rate-limit counts shared by every server instance (029). The key is a SHA-256 hash, so no email,
+/// IP address or account id is stored in it. A fixed window per key.
+model RateLimitCounter {
+  key         String   @id
+  windowStart DateTime
+  count       Int
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([updatedAt])
+}

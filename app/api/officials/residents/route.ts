@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   if (!actor?.active) return errorResponse('Unauthorized', 401);
   if (!canUseDirectory(actor.role)) return noStore({ success: false, error: 'The Resident Directory is for Blotter and VAWC officials.' }, 403);
   // Generous for typing a search; too few to page through for harvesting.
-  if (!rateLimit(`resident-directory:${actor.id}`, { max: 120, windowMs: 5 * 60 * 1000 }).allowed) {
+  if (!(await rateLimit(`resident-directory:${actor.id}`, { max: 120, windowMs: 5 * 60 * 1000 })).allowed) {
     return errorResponse('Too many searches. Try again in a few minutes.', 429);
   }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { signResidentToken, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
+import { issueResidentSession, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
+import { endAllSessions } from '@/lib/sessions';
 import { rateLimit } from '@/lib/rateLimit';
 import { sendAuthEmail, sendPasswordChangedEmail, emailReady, EMAIL_NOT_DELIVERABLE } from '@/lib/email';
 import { siteOrigin } from '@/lib/siteUrl';
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Enter your email', 400);
   const email = parsed.data.email;
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
-  if (!rateLimit(`pw-ask:${email}`, { max: 3, windowMs: 3_600_000 }).allowed || !rateLimit(`pw-ask-ip:${ip}`, { max: 10, windowMs: 3_600_000 }).allowed) {
+  if (!(await rateLimit(`pw-ask:${email}`, { max: 3, windowMs: 3_600_000 })).allowed || !(await rateLimit(`pw-ask-ip:${ip}`, { max: 10, windowMs: 3_600_000 })).allowed) {
     return rError('Too many requests - wait a while before asking again.', 429);
   }
   try {
@@ -67,7 +68,9 @@ export async function PUT(req: NextRequest) {
     if (!resident) return rSuccess({ status: 'password_set', signedIn: false });
     const name = `${resident.firstName} ${resident.lastName}`;
     const res = rSuccess({ status: 'password_set', signedIn: true, name, residencyStatus: resident.residencyStatus });
-    setResidentCookie(res as NextResponse, signResidentToken({ residentId: resident.id, email: resident.email ?? user.email ?? '', name, role: 'resident' }));
+    // A new password ends every session signed in with the old one (another device, or whoever had it).
+    await endAllSessions('resident', resident.id, 'password_changed');
+    setResidentCookie(res as NextResponse, await issueResidentSession({ residentId: resident.id, email: resident.email ?? user.email ?? '', name }, req.headers.get('user-agent')));
     return res;
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ success: false, code: err.code, error: err.message }, { status: err.status });

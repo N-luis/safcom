@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Enter your email', 400);
   const email = parsed.data.email;
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
-  if (!rateLimit(`resend:${email}`, { max: 3, windowMs: 3_600_000 }).allowed || !rateLimit(`resend-ip:${ip}`, { max: 10, windowMs: 3_600_000 }).allowed) {
+  if (!(await rateLimit(`resend:${email}`, { max: 3, windowMs: 3_600_000 })).allowed || !(await rateLimit(`resend-ip:${ip}`, { max: 10, windowMs: 3_600_000 })).allowed) {
     return rError('Too many requests - wait a while before asking again.', 429);
   }
   try {

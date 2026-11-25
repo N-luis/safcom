@@ -386,6 +386,10 @@ async function main() {
       && (await login(E1, NEWPW)).status === 200 && (await login(E1, PW)).status === 401);
     const changed = mail.slice(before).find(m => m.to === E1 && m.subject === 'Your SafeComm Password Has Been Updated');
     ok('after the change, "Your SafeComm Password Has Been Updated" is sent - with no link that signs anyone in', Boolean(changed) && !/token_hash/.test(changed!.text));
+    // 029: a new password ends every session signed in with the old one - here, the one this test has used since step 6.
+    const staleA = await json(await eligibilityPOST(req('/api/resident/eligibility', A, 'POST', { incident: { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'X' } })));
+    ok('the new password signs out the sessions made with the old one (another device)', staleA.status === 401 && staleA.body.code === 'SESSION_ENDED', `${staleA.status}`);
+    const A2 = cookieOf((await loginPOST(req('/api/auth/resident-login', '', 'POST', { email: E1, password: NEWPW }, '10.1.99.99'))).headers.get('set-cookie') ?? '');
     const rs2 = await json(await pwSetPUT(req('/api/auth/resident-password', '', 'PUT', { token_hash: reset.tokenHash, type: reset.type, password: NEWPW, confirmPassword: NEWPW })));
     ok('a reset link used twice: refused', rs2.status === 400 && rs2.body.code === 'LINK_EXPIRED');
     const E20 = emailOf('resend'); emails.push(E20);
@@ -395,15 +399,15 @@ async function main() {
     const again = lastLink(E20)!;
     const va = await json(await verifyPOST(req('/api/auth/verify-email', '', 'POST', { token_hash: again.tokenHash, type: again.type })));
     ok('resend confirmation: the same answer for anyone; the new link confirms', rsd.status === 200 && rsd.body.data.message === rsdNobody.body.data.message && again.type === 'magiclink' && va.status === 200);
-    const out = await logoutPOST();
+    const out = await logoutPOST(req('/api/auth/resident-logout', '', 'POST'));
     ok('sign out clears the resident session cookie', /resident_token=;/.test(out.headers.get('set-cookie') ?? '') || /resident_token=.*Max-Age=0/i.test(out.headers.get('set-cookie') ?? ''));
     ok('no mail contains a password', mail.every(m => !m.text.includes(PW) && !m.text.includes(NEWPW)));
 
     // ── 20. The AI still assists, and never decides ──
     console.log('\n20. AI');
-    const e20 = await json(await eligibilityPOST(req('/api/resident/eligibility', A, 'POST', { incident: { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'X' } })));
+    const e20 = await json(await eligibilityPOST(req('/api/resident/eligibility', A2, 'POST', { incident: { province: 'Bulacan', municipality: 'Bocaue', barangay: 'Taal', street: 'X' } })));
     ok('20. the eligibility assistant still answers from the server\'s checks (AI off for this run: rules only)', e20.status === 200 && e20.body.data.incident_location_status === 'OUTSIDE'
-      && e20.body.data.ai_used === false && e20.body.data.referral_required === true);
+      && e20.body.data.ai_used === false && e20.body.data.referral_required === true, `${e20.status} ${JSON.stringify(e20.body).slice(0, 300)}`);
   } finally {
     setMailSinkForTests(null);
     if (savedConfig) await prisma.jurisdictionConfig.update({ where: { id: 'default' }, data: { barangay: savedConfig.barangay, barangayAliases: savedConfig.barangayAliases,

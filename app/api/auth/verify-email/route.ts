@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { signResidentToken, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
+import { issueResidentSession, setResidentCookie, rSuccess, rError } from '@/lib/residentAuth';
 import { supabaseAuthMissing, verifyLink, residentForUser, AuthError } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     await prisma.resident.update({ where: { id: resident.id }, data: { emailVerified: true } });
     const name = `${resident.firstName} ${resident.lastName}`;
     const res = rSuccess({ status: 'confirmed', name, residencyStatus: resident.residencyStatus });
-    setResidentCookie(res as NextResponse, signResidentToken({ residentId: resident.id, email: resident.email ?? user.email ?? '', name, role: 'resident' }));
+    setResidentCookie(res as NextResponse, await issueResidentSession({ residentId: resident.id, email: resident.email ?? user.email ?? '', name }, req.headers.get('user-agent')));
     return res;
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ success: false, code: err.code, error: err.message }, { status: err.status });

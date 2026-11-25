@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const residency = await residencyOf(auth.resident.residentId);
   if (!residency) return rError('Resident not found', 404);
   if (!residency.verified) return Response.json(notVerifiedBody(residency.status), { status: 403 });
-  const limited = rateLimit(`intake:${auth.resident.residentId}`, INTAKE_LIMIT);
+  const limited = (await rateLimit(`intake:${auth.resident.residentId}`, INTAKE_LIMIT));
   if (!limited.allowed) {
     const res = rError(
       'Too many requests to the assistant for now. You can still submit your report — nothing you wrote is lost.',

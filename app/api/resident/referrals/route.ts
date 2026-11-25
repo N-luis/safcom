@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return rError(parsed.error.issues[0]?.message ?? 'Check the details', 400);
   const d = parsed.data;
-  if (!rateLimit(`referral:${me}`, { max: 5, windowMs: 86_400_000 }).allowed) {
+  if (!(await rateLimit(`referral:${me}`, { max: 5, windowMs: 86_400_000 })).allowed) {
     return noStore({ success: false, error: 'You have saved several referral records today. For anything urgent, call the numbers below.', emergencyContacts: EMERGENCY_CONTACTS }, 429);
   }
   try {

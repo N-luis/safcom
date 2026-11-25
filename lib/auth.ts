@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { prisma } from './prisma';
 import { getJwtSecret } from './jwtSecret';
+import { startSession, sessionActive, sessionlessTokensAllowed } from './sessions';
 
 
 
@@ -9,10 +10,18 @@ export interface JwtPayload {
   userId: string;
   email: string;
   role: string;
+  /** The AuthSession this token belongs to (lib/sessions.ts) - checked on every request. */
+  sid?: string;
 }
 
-export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' });
+export function signToken(payload: JwtPayload, expiresInSeconds = 7 * 24 * 60 * 60): string {
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: expiresInSeconds });
+}
+
+/** Sign an official in: a new session (12 hours) and the token that carries it. */
+export async function issueStaffSession(user: { id: string; email: string; role: string }, userAgent?: string | null) {
+  const { sid, maxAge } = await startSession('staff', user.id, userAgent);
+  return { token: signToken({ userId: user.id, email: user.email, role: user.role, sid }, maxAge), maxAge, sid };
 }
 
 export function verifyToken(token: string): JwtPayload | null {
@@ -36,8 +45,13 @@ export async function requireAuth(req: NextRequest): Promise<{ user: JwtPayload 
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const payload = verifyToken(token);
-  if (!payload) {
+  // A resident's token is never an official's: it has no userId.
+  if (!payload || typeof payload.userId !== 'string' || !payload.userId) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  }
+  // The session must still be active - signed out, password changed or deactivated ends it at once.
+  if (payload.sid ? !(await sessionActive('staff', payload.sid, payload.userId)) : !sessionlessTokensAllowed()) {
+    return NextResponse.json({ error: 'Your session has ended. Sign in again.', code: 'SESSION_ENDED' }, { status: 401 });
   }
   return { user: payload };
 }

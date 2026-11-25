@@ -103,7 +103,9 @@ export const ModelName = {
   KpFormRecord: 'KpFormRecord',
   CaseMatch: 'CaseMatch',
   CaseMatchEvent: 'CaseMatchEvent',
-  CaseMatchScan: 'CaseMatchScan'
+  CaseMatchScan: 'CaseMatchScan',
+  AuthSession: 'AuthSession',
+  RateLimitCounter: 'RateLimitCounter'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1295,6 +1297,30 @@ export const CaseMatchScanScalarFieldEnum = {
 } as const
 
 export type CaseMatchScanScalarFieldEnum = (typeof CaseMatchScanScalarFieldEnum)[keyof typeof CaseMatchScanScalarFieldEnum]
+
+
+export const AuthSessionScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  subjectId: 'subjectId',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  revokedReason: 'revokedReason',
+  userAgent: 'userAgent'
+} as const
+
+export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const RateLimitCounterScalarFieldEnum = {
+  key: 'key',
+  windowStart: 'windowStart',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RateLimitCounterScalarFieldEnum = (typeof RateLimitCounterScalarFieldEnum)[keyof typeof RateLimitCounterScalarFieldEnum]
 
 
 export const SortOrder = {
