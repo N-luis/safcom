@@ -61,6 +61,7 @@ async function main() {
     const out = await logoutPOST(new NextRequest('http://localhost/api/auth/logout', { method: 'POST' }));
     ok('signing out clears the cookie with the same protections', /safcom_token=;/.test(out.headers.get('set-cookie') ?? '') && /HttpOnly/i.test(out.headers.get('set-cookie') ?? ''));
   } finally {
+    await prisma.authSession.deleteMany({ where: { kind: 'staff', subjectId: { in: ids } } });
     await prisma.user.deleteMany({ where: { id: { in: ids } } });
   }
   ok('every test row removed', await prisma.user.count({ where: { email: { startsWith: 'probe.sl.' } } }) === 0);

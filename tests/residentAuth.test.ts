@@ -426,6 +426,7 @@ async function main() {
       await tx.$executeRaw`SELECT set_config('safecomm.audit_purge', 'on', true)`;
       await tx.reporterAccessLog.deleteMany({ where: { OR: [{ caseId: { in: [...allCases, ...rids] } }, { actorId: { in: users } }] } });
     });
+    await prisma.authSession.deleteMany({ where: { kind: 'resident', subjectId: { in: rids } } });
     await prisma.resident.deleteMany({ where: { id: { in: rids } } });
     await prisma.user.deleteMany({ where: { id: { in: users } } });
     // The Supabase users: by the links, and by email for any left unlinked.
