@@ -9,6 +9,7 @@ import { residencyOf, notVerifiedBody, checkAgainstJurisdiction } from '@/lib/ju
 import { incidentOutcome } from '@/lib/jurisdiction';
 import { SERVER_ONLY_FIELDS, createSchema, fileResidentCase } from '@/lib/residentCaseFiling';
 import { saveIncidentReferral } from '@/lib/incidentReferralServer';
+import { resolveIncidentStreet } from '@/lib/verifiedStreets';
 
 /**
  * A resident's reports.
@@ -84,12 +85,19 @@ export async function POST(req: NextRequest) {
     const residency = await residencyOf(auth.resident.residentId);
     if (!residency) return rError('Resident not found', 404);
     if (!residency.verified) return Response.json(notVerifiedBody(residency.status), { status: 403 });
+    // The street first (030): a street chosen from a verified list must belong to the barangay
+    // given - a street id from another barangay is refused, never filed. A typed street is kept as typed.
+    const street = await resolveIncidentStreet({ province: parsed.data.incidentProvince, municipality: parsed.data.incidentMunicipality,
+      barangay: parsed.data.incidentBarangay, street: parsed.data.barangay, streetId: parsed.data.streetId });
+    if (!street.ok) return Response.json({ success: false, code: street.code, error: street.error }, { status: 400 });
+    const data = { ...parsed.data, barangay: street.streetName ?? parsed.data.barangay,
+      streetId: street.streetId ?? undefined, streetManual: street.manual ?? undefined };
     // And for incidents inside the jurisdiction. The check is the server's, from what was sent:
     // a client that skips the form's warning gets the same answer.
     const incidentCheck = await checkAgainstJurisdiction({
-      province: parsed.data.incidentProvince, municipality: parsed.data.incidentMunicipality, barangay: parsed.data.incidentBarangay,
-      street: parsed.data.barangay, details: parsed.data.incidentLocationDetails || parsed.data.locationLabel,
-      latitude: parsed.data.latitude, longitude: parsed.data.longitude,
+      province: data.incidentProvince, municipality: data.incidentMunicipality, barangay: data.incidentBarangay,
+      street: data.barangay, details: data.incidentLocationDetails || data.locationLabel,
+      latitude: data.latitude, longitude: data.longitude,
     }, 'incident');
     if (incidentCheck.status === 'INCOMPLETE') {
       return Response.json({ success: false, code: 'INCIDENT_LOCATION_INCOMPLETE', error: incidentCheck.explanation, missing: incidentCheck.missing }, { status: 400 });
@@ -97,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // The photos first: a bad file is reported (by name) before any work is done,
     // and the same photo picked twice is kept once. A referral keeps them too.
-    const photoParse = parsePhotos(parsed.data.attachments ?? []);
+    const photoParse = parsePhotos(data.attachments ?? []);
     if ('error' in photoParse) return rError(photoParse.error, 400);
     const unclearWordCount = Array.isArray(body?.documentUnclearWords) ? body.documentUnclearWords.length : 0;
 
@@ -108,14 +116,16 @@ export async function POST(req: NextRequest) {
     const outcome = incidentOutcome(incidentCheck);
     if (outcome !== 'CASE') {
       const r = await saveIncidentReferral({
-        residentId: auth.resident.residentId, data: parsed.data, photos: photoParse.photos, unclearWordCount,
+        residentId: auth.resident.residentId, data, photos: photoParse.photos, unclearWordCount,
         check: incidentCheck, kind: outcome === 'REFERRAL' ? 'OUTSIDE_JURISDICTION' : 'LOCATION_VERIFICATION',
+        street: { streetId: street.streetId, manual: street.manual },
       });
       return rSuccess(r.body, r.duplicate ? 200 : 201);
     }
 
     return await fileResidentCase({
-      residentId: auth.resident.residentId, data: parsed.data, photos: photoParse.photos, unclearWordCount, locationReview: false,
+      residentId: auth.resident.residentId, data, photos: photoParse.photos, unclearWordCount, locationReview: false,
+      street: { streetId: street.streetId, manual: street.manual },
     });
   } catch (err) {
     // Logged: a silent 500 here hid an attachment failure that looked identical

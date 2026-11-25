@@ -453,3 +453,10 @@ export type AuthSession = Prisma.AuthSessionModel
  * IP address or account id is stored in it. A fixed window per key.
  */
 export type RateLimitCounter = Prisma.RateLimitCounterModel
+/**
+ * Model VerifiedStreet
+ * Streets verified to belong to a barangay (030) - what the File a Report street list offers for a place.
+ * A barangay with no rows here gets manual street entry. Rows are added only with a source an official
+ * can point to (the barangay's own map, the municipal planning office...), never from a search result.
+ */
+export type VerifiedStreet = Prisma.VerifiedStreetModel

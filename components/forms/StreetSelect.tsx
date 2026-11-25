@@ -13,7 +13,7 @@ import { BARANGAY_STREETS, OTHER_STREET, isKnownStreet } from '@/lib/streets';
  */
 export default function StreetSelect({
   value, onChange, label = 'Street', required = false,
-  error, helperText, size = 'small', fullWidth = true,
+  error, helperText, size = 'small', fullWidth = true, streets,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -23,11 +23,15 @@ export default function StreetSelect({
   helperText?: string;
   size?: 'small' | 'medium';
   fullWidth?: boolean;
+  /** The streets to offer - a verified list for the incident's place. Biñang 2nd's list when not given. */
+  streets?: readonly string[];
 }) {
+  const list = streets ?? BARANGAY_STREETS;
+  const known = (v: string) => (streets ? list.includes(v) : isKnownStreet(v));
   // Tracked explicitly: deriving "Other" from the value alone would collapse
   // the text box the moment someone cleared it to retype.
-  const [otherMode, setOtherMode] = useState(value !== '' && !isKnownStreet(value));
-  const showOther = otherMode || (value !== '' && !isKnownStreet(value));
+  const [otherMode, setOtherMode] = useState(value !== '' && !known(value));
+  const showOther = otherMode || (value !== '' && !known(value));
 
   const handleSelect = (v: string) => {
     if (v === OTHER_STREET) { setOtherMode(true); onChange(''); }
@@ -51,7 +55,7 @@ export default function StreetSelect({
         }}
         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
       >
-        {BARANGAY_STREETS.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+        {list.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
         <MenuItem
           value={OTHER_STREET}
           sx={{ borderTop: '1px solid #e2e8f0', mt: 0.5, pt: 1, color: '#64748b', fontStyle: 'italic' }}

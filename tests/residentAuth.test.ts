@@ -35,6 +35,7 @@ import { POST as filePOST, GET as myCasesGET } from '../app/api/resident/cases/r
 import { POST as referralPOST } from '../app/api/resident/referrals/route';
 import { GET as updatesGET } from '../app/api/resident/updates/route';
 import { POST as eligibilityPOST } from '../app/api/resident/eligibility/route';
+import { removeTestReferrals } from './residencyFixtures';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -421,7 +422,7 @@ async function main() {
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: allCases } }, { userId: { in: users } }] } });
     await prisma.activity.deleteMany({ where: { OR: [{ caseId: { in: allCases } }, { userId: { in: users } }, { entityId: { in: rids } }] } });
     await prisma.case.deleteMany({ where: { id: { in: allCases } } });
-    await prisma.jurisdictionReferral.deleteMany({ where: { residentId: { in: rids } } });
+    await removeTestReferrals(rids);
     await prisma.$transaction(async tx => {
       await tx.$executeRaw`SELECT set_config('safecomm.audit_purge', 'on', true)`;
       await tx.reporterAccessLog.deleteMany({ where: { OR: [{ caseId: { in: [...allCases, ...rids] } }, { actorId: { in: users } }] } });

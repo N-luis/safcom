@@ -27,6 +27,7 @@ import { GET as staffRefGET, PATCH as staffRefPATCH } from '../app/api/residency
 import { POST as eligPOST } from '../app/api/resident/eligibility/route';
 import { PUT as residentAdminPUT } from '../app/api/residents/[id]/route';
 import { GET as meGET, PATCH as mePATCH } from '../app/api/auth/resident-me/route';
+import { removeTestReferrals } from './residencyFixtures';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -225,7 +226,7 @@ async function main() {
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });
     await prisma.activity.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }, { entityId: { in: residents } }, { entityType: 'JurisdictionConfig', userId: { in: users } }] } });
     await prisma.case.deleteMany({ where: { id: { in: caseIds } } });
-    await prisma.jurisdictionReferral.deleteMany({ where: { residentId: { in: residents } } });
+    await removeTestReferrals(residents);
     await prisma.$transaction(async tx => {
       await tx.$executeRaw`SELECT set_config('safecomm.audit_purge', 'on', true)`;
       await tx.reporterAccessLog.deleteMany({ where: { OR: [{ caseId: { in: [...caseIds, ...residents] } }, { actorId: { in: users } }] } });

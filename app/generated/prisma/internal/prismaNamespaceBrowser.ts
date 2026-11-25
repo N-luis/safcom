@@ -105,7 +105,8 @@ export const ModelName = {
   CaseMatchEvent: 'CaseMatchEvent',
   CaseMatchScan: 'CaseMatchScan',
   AuthSession: 'AuthSession',
-  RateLimitCounter: 'RateLimitCounter'
+  RateLimitCounter: 'RateLimitCounter',
+  VerifiedStreet: 'VerifiedStreet'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -160,6 +161,9 @@ export const CaseScalarFieldEnum = {
   locationLabel: 'locationLabel',
   municipality: 'municipality',
   province: 'province',
+  incidentBarangay: 'incidentBarangay',
+  streetId: 'streetId',
+  streetManual: 'streetManual',
   assignedToId: 'assignedToId',
   residentId: 'residentId',
   filedAt: 'filedAt',
@@ -595,6 +599,8 @@ export const JurisdictionReferralScalarFieldEnum = {
   municipality: 'municipality',
   barangay: 'barangay',
   street: 'street',
+  streetId: 'streetId',
+  streetManual: 'streetManual',
   locationDetails: 'locationDetails',
   latitude: 'latitude',
   longitude: 'longitude',
@@ -1321,6 +1327,23 @@ export const RateLimitCounterScalarFieldEnum = {
 } as const
 
 export type RateLimitCounterScalarFieldEnum = (typeof RateLimitCounterScalarFieldEnum)[keyof typeof RateLimitCounterScalarFieldEnum]
+
+
+export const VerifiedStreetScalarFieldEnum = {
+  id: 'id',
+  province: 'province',
+  municipality: 'municipality',
+  barangay: 'barangay',
+  name: 'name',
+  aliases: 'aliases',
+  source: 'source',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type VerifiedStreetScalarFieldEnum = (typeof VerifiedStreetScalarFieldEnum)[keyof typeof VerifiedStreetScalarFieldEnum]
 
 
 export const SortOrder = {

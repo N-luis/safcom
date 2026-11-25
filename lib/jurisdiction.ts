@@ -108,7 +108,7 @@ export function editDistance(a: string, b: string): number {
 }
 
 /** A street name as compared: the name normalized, with St./Street, Ave./Avenue, Subd./Subdivision and so on read alike. */
-const streetKey = (s: string) => normalizeName(s.replace(/\bst\.?(?=\s|$)/gi, 'street').replace(/\bave\.?(?=\s|$)/gi, 'avenue')
+export const streetKey = (s: string) => normalizeName(s.replace(/\bst\.?(?=\s|$)/gi, 'street').replace(/\bave\.?(?=\s|$)/gi, 'avenue')
   .replace(/\bsubd\.?(?=\s|$)/gi, 'subdivision').replace(/\bcomp\.?(?=\s|$)/gi, 'compound').replace(/\bext\.?(?=\s|$)/gi, 'extension')
   .replace(/\bgov\.?(?=\s|$)/gi, 'governor').replace(/\bhi-?way\b/gi, 'highway'));
 

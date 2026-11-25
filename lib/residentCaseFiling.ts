@@ -69,6 +69,11 @@ export const createSchema = z.object({
   incidentBarangay: z.string().trim().max(80).optional(),
   // A landmark or other details, when the street alone does not say where.
   incidentLocationDetails: z.string().trim().max(300).optional(),
+  // The verified street chosen from the list for that place (030). Checked on the server
+  // (lib/verifiedStreets.ts) to belong to the barangay given; never needed for a typed street.
+  streetId: z.string().trim().max(200).optional(),
+  // Whether the form says the street was typed by hand - informational; the server decides it again.
+  streetManual: z.boolean().optional(),
   // Photos arrive as data URLs; the bytes are decoded and stored separately.
   attachments: z.array(z.object({
     name: z.string().min(1).max(200),
@@ -145,6 +150,8 @@ export async function fileResidentCase(p: {
   unclearWordCount: number;
   /** The location still needs an officer's eye (it is filed, and marked for review). */
   locationReview: boolean;
+  /** The street as the server checked it (lib/verifiedStreets.ts resolveIncidentStreet). */
+  street?: { streetId: string | null; manual: boolean | null };
 }): Promise<Response> {
   const { residentId, data } = p;
   const resident = await prisma.resident.findUnique({
@@ -356,6 +363,12 @@ export async function fileResidentCase(p: {
         requiresOfficerReview: ir.requiresOfficerReview || triageStatus !== 'PRELIMINARY' || deskUnsettled || p.locationReview,
         triageStatus,
         language: detected.language,
+        // Where it happened, as chosen (030): the barangay, and which street - a verified one, or typed.
+        municipality: data.incidentMunicipality || null,
+        province: data.incidentProvince || null,
+        incidentBarangay: data.incidentBarangay || null,
+        streetId: p.street?.streetId ?? null,
+        streetManual: p.street?.manual ?? null,
         ...pin,
         filedAt,
         residentId: residentId,

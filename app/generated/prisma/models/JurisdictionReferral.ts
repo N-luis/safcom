@@ -53,6 +53,8 @@ export type JurisdictionReferralMinAggregateOutputType = {
   municipality: string | null
   barangay: string | null
   street: string | null
+  streetId: string | null
+  streetManual: boolean | null
   locationDetails: string | null
   latitude: number | null
   longitude: number | null
@@ -91,6 +93,8 @@ export type JurisdictionReferralMaxAggregateOutputType = {
   municipality: string | null
   barangay: string | null
   street: string | null
+  streetId: string | null
+  streetManual: boolean | null
   locationDetails: string | null
   latitude: number | null
   longitude: number | null
@@ -129,6 +133,8 @@ export type JurisdictionReferralCountAggregateOutputType = {
   municipality: number
   barangay: number
   street: number
+  streetId: number
+  streetManual: number
   locationDetails: number
   latitude: number
   longitude: number
@@ -182,6 +188,8 @@ export type JurisdictionReferralMinAggregateInputType = {
   municipality?: true
   barangay?: true
   street?: true
+  streetId?: true
+  streetManual?: true
   locationDetails?: true
   latitude?: true
   longitude?: true
@@ -220,6 +228,8 @@ export type JurisdictionReferralMaxAggregateInputType = {
   municipality?: true
   barangay?: true
   street?: true
+  streetId?: true
+  streetManual?: true
   locationDetails?: true
   latitude?: true
   longitude?: true
@@ -258,6 +268,8 @@ export type JurisdictionReferralCountAggregateInputType = {
   municipality?: true
   barangay?: true
   street?: true
+  streetId?: true
+  streetManual?: true
   locationDetails?: true
   latitude?: true
   longitude?: true
@@ -386,6 +398,8 @@ export type JurisdictionReferralGroupByOutputType = {
   municipality: string | null
   barangay: string | null
   street: string | null
+  streetId: string | null
+  streetManual: boolean | null
   locationDetails: string | null
   latitude: number | null
   longitude: number | null
@@ -450,6 +464,8 @@ export type JurisdictionReferralWhereInput = {
   municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   barangay?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   street?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"JurisdictionReferral"> | boolean | null
   locationDetails?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
@@ -495,6 +511,8 @@ export type JurisdictionReferralOrderByWithRelationInput = {
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrderInput | Prisma.SortOrder
   street?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetId?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetManual?: Prisma.SortOrderInput | Prisma.SortOrder
   locationDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -544,6 +562,8 @@ export type JurisdictionReferralWhereUniqueInput = Prisma.AtLeast<{
   municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   barangay?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   street?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"JurisdictionReferral"> | boolean | null
   locationDetails?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
@@ -589,6 +609,8 @@ export type JurisdictionReferralOrderByWithAggregationInput = {
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
   barangay?: Prisma.SortOrderInput | Prisma.SortOrder
   street?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetId?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetManual?: Prisma.SortOrderInput | Prisma.SortOrder
   locationDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -638,6 +660,8 @@ export type JurisdictionReferralScalarWhereWithAggregatesInput = {
   municipality?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   barangay?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   street?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  streetId?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
+  streetManual?: Prisma.BoolNullableWithAggregatesFilter<"JurisdictionReferral"> | boolean | null
   locationDetails?: Prisma.StringNullableWithAggregatesFilter<"JurisdictionReferral"> | string | null
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"JurisdictionReferral"> | number | null
@@ -678,6 +702,8 @@ export type JurisdictionReferralCreateInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -722,6 +748,8 @@ export type JurisdictionReferralUncheckedCreateInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -764,6 +792,8 @@ export type JurisdictionReferralUpdateInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -808,6 +838,8 @@ export type JurisdictionReferralUncheckedUpdateInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -851,6 +883,8 @@ export type JurisdictionReferralCreateManyInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -891,6 +925,8 @@ export type JurisdictionReferralUpdateManyMutationInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -931,6 +967,8 @@ export type JurisdictionReferralUncheckedUpdateManyInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -987,6 +1025,8 @@ export type JurisdictionReferralCountOrderByAggregateInput = {
   municipality?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   street?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   locationDetails?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -1033,6 +1073,8 @@ export type JurisdictionReferralMaxOrderByAggregateInput = {
   municipality?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   street?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   locationDetails?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -1071,6 +1113,8 @@ export type JurisdictionReferralMinOrderByAggregateInput = {
   municipality?: Prisma.SortOrder
   barangay?: Prisma.SortOrder
   street?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   locationDetails?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -1230,6 +1274,8 @@ export type JurisdictionReferralCreateWithoutCaseInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1273,6 +1319,8 @@ export type JurisdictionReferralUncheckedCreateWithoutCaseInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1344,6 +1392,8 @@ export type JurisdictionReferralScalarWhereInput = {
   municipality?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   barangay?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   street?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetId?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"JurisdictionReferral"> | boolean | null
   locationDetails?: Prisma.StringNullableFilter<"JurisdictionReferral"> | string | null
   latitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
   longitude?: Prisma.FloatNullableFilter<"JurisdictionReferral"> | number | null
@@ -1384,6 +1434,8 @@ export type JurisdictionReferralCreateWithoutResidentInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1426,6 +1478,8 @@ export type JurisdictionReferralUncheckedCreateWithoutResidentInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1494,6 +1548,8 @@ export type JurisdictionReferralCreateWithoutEventsInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1537,6 +1593,8 @@ export type JurisdictionReferralUncheckedCreateWithoutEventsInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1594,6 +1652,8 @@ export type JurisdictionReferralUpdateWithoutEventsInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1637,6 +1697,8 @@ export type JurisdictionReferralUncheckedUpdateWithoutEventsInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1678,6 +1740,8 @@ export type JurisdictionReferralCreateWithoutAttachmentsInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1721,6 +1785,8 @@ export type JurisdictionReferralUncheckedCreateWithoutAttachmentsInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1778,6 +1844,8 @@ export type JurisdictionReferralUpdateWithoutAttachmentsInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1821,6 +1889,8 @@ export type JurisdictionReferralUncheckedUpdateWithoutAttachmentsInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1863,6 +1933,8 @@ export type JurisdictionReferralCreateManyCaseInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -1902,6 +1974,8 @@ export type JurisdictionReferralUpdateWithoutCaseInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1945,6 +2019,8 @@ export type JurisdictionReferralUncheckedUpdateWithoutCaseInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1987,6 +2063,8 @@ export type JurisdictionReferralUncheckedUpdateManyWithoutCaseInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2026,6 +2104,8 @@ export type JurisdictionReferralCreateManyResidentInput = {
   municipality?: string | null
   barangay?: string | null
   street?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   locationDetails?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -2066,6 +2146,8 @@ export type JurisdictionReferralUpdateWithoutResidentInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2108,6 +2190,8 @@ export type JurisdictionReferralUncheckedUpdateWithoutResidentInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2150,6 +2234,8 @@ export type JurisdictionReferralUncheckedUpdateManyWithoutResidentInput = {
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   locationDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2231,6 +2317,8 @@ export type JurisdictionReferralSelect<ExtArgs extends runtime.Types.Extensions.
   municipality?: boolean
   barangay?: boolean
   street?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   locationDetails?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -2277,6 +2365,8 @@ export type JurisdictionReferralSelectCreateManyAndReturn<ExtArgs extends runtim
   municipality?: boolean
   barangay?: boolean
   street?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   locationDetails?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -2320,6 +2410,8 @@ export type JurisdictionReferralSelectUpdateManyAndReturn<ExtArgs extends runtim
   municipality?: boolean
   barangay?: boolean
   street?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   locationDetails?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -2363,6 +2455,8 @@ export type JurisdictionReferralSelectScalar = {
   municipality?: boolean
   barangay?: boolean
   street?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   locationDetails?: boolean
   latitude?: boolean
   longitude?: boolean
@@ -2391,7 +2485,7 @@ export type JurisdictionReferralSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JurisdictionReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "referenceNumber" | "residentId" | "kind" | "urgent" | "source" | "submissionKey" | "reportingRelationship" | "province" | "municipality" | "barangay" | "street" | "locationDetails" | "latitude" | "longitude" | "summary" | "residentOriginalNarrative" | "narrativeAssist" | "incidentDate" | "incidentTimeApprox" | "reportPayload" | "locationCheck" | "validationResult" | "reason" | "recommendedDestination" | "recommendedDesk" | "confidential" | "status" | "receivingOffice" | "assignedToId" | "forwardedAt" | "acknowledgedAt" | "caseId" | "reviewNote" | "reviewedById" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["jurisdictionReferral"]>
+export type JurisdictionReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "referenceNumber" | "residentId" | "kind" | "urgent" | "source" | "submissionKey" | "reportingRelationship" | "province" | "municipality" | "barangay" | "street" | "streetId" | "streetManual" | "locationDetails" | "latitude" | "longitude" | "summary" | "residentOriginalNarrative" | "narrativeAssist" | "incidentDate" | "incidentTimeApprox" | "reportPayload" | "locationCheck" | "validationResult" | "reason" | "recommendedDestination" | "recommendedDesk" | "confidential" | "status" | "receivingOffice" | "assignedToId" | "forwardedAt" | "acknowledgedAt" | "caseId" | "reviewNote" | "reviewedById" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["jurisdictionReferral"]>
 export type JurisdictionReferralInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resident?: boolean | Prisma.JurisdictionReferral$residentArgs<ExtArgs>
   case?: boolean | Prisma.JurisdictionReferral$caseArgs<ExtArgs>
@@ -2444,6 +2538,14 @@ export type $JurisdictionReferralPayload<ExtArgs extends runtime.Types.Extension
     municipality: string | null
     barangay: string | null
     street: string | null
+    /**
+     * The VerifiedStreet chosen from the list (030), checked to belong to this barangay; null when typed by hand.
+     */
+    streetId: string | null
+    /**
+     * True when the street was typed by hand. Null on records saved before 030.
+     */
+    streetManual: boolean | null
     locationDetails: string | null
     latitude: number | null
     longitude: number | null
@@ -2943,6 +3045,8 @@ export interface JurisdictionReferralFieldRefs {
   readonly municipality: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly barangay: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly street: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly streetId: Prisma.FieldRef<"JurisdictionReferral", 'String'>
+  readonly streetManual: Prisma.FieldRef<"JurisdictionReferral", 'Boolean'>
   readonly locationDetails: Prisma.FieldRef<"JurisdictionReferral", 'String'>
   readonly latitude: Prisma.FieldRef<"JurisdictionReferral", 'Float'>
   readonly longitude: Prisma.FieldRef<"JurisdictionReferral", 'Float'>

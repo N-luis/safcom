@@ -68,6 +68,12 @@ model Case {
   locationLabel     String?
   municipality      String?
   province          String?
+  /// The incident's barangay as the resident chose it (030). `barangay` above still holds the street.
+  incidentBarangay  String?
+  /// The VerifiedStreet chosen from the list (030) - checked on the server to belong to the incident's barangay.
+  streetId          String?
+  /// True when the street was typed by hand (not chosen from a verified list). Null on cases filed before 030.
+  streetManual      Boolean?
   assignedToId      String?
   assignedTo        User?               @relation("AssignedOfficer", fields: [assignedToId], references: [id])
   residentId        String?
@@ -795,6 +801,10 @@ model JurisdictionReferral {
   municipality          String?
   barangay              String?
   street                String?
+  /// The VerifiedStreet chosen from the list (030), checked to belong to this barangay; null when typed by hand.
+  streetId              String?
+  /// True when the street was typed by hand. Null on records saved before 030.
+  streetManual          Boolean?
   locationDetails       String?
   latitude              Float?
   longitude             Float?
@@ -1902,4 +1912,28 @@ model RateLimitCounter {
   updatedAt   DateTime @default(now()) @updatedAt
 
   @@index([updatedAt])
+}
+
+/// Streets verified to belong to a barangay (030) - what the File a Report street list offers for a place.
+/// A barangay with no rows here gets manual street entry. Rows are added only with a source an official
+/// can point to (the barangay's own map, the municipal planning office...), never from a search result.
+model VerifiedStreet {
+  /// Stable and readable: <province>:<municipality>:<barangay>:<street>, slugged.
+  id           String   @id
+  province     String
+  municipality String
+  barangay     String
+  /// The name as the barangay's records spell it.
+  name         String
+  /// Other spellings that mean the same street.
+  aliases      String[] @default([])
+  /// Where the street-to-barangay association comes from.
+  source       String
+  latitude     Float?
+  longitude    Float?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@unique([province, municipality, barangay, name])
+  @@index([province, municipality, barangay])
 }

@@ -1011,10 +1011,6 @@ export type CaseIntakeUncheckedUpdateOneWithoutCaseNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CaseIntakeUpdateToOneWithWhereWithoutCaseInput, Prisma.CaseIntakeUpdateWithoutCaseInput>, Prisma.CaseIntakeUncheckedUpdateWithoutCaseInput>
 }
 
-export type NullableBoolFieldUpdateOperationsInput = {
-  set?: boolean | null
-}
-
 export type CaseIntakeCreateWithoutCaseInput = {
   id?: string
   narrative: string

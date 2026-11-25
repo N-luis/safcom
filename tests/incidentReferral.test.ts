@@ -24,7 +24,7 @@ import { GET as myRefGET } from '../app/api/resident/referrals/route';
 import { GET as staffRefGET, PATCH as staffRefPATCH } from '../app/api/residency/referrals/route';
 import { GET as refPhotoGET } from '../app/api/residency/referrals/[id]/attachments/[aid]/route';
 import { GET as jurPublicGET } from '../app/api/registration/jurisdiction/route';
-import { VERIFIED_RESIDENT } from './residencyFixtures';
+import { VERIFIED_RESIDENT, removeTestReferrals } from './residencyFixtures';
 
 let pass = 0; const fails: string[] = [];
 function ok(label: string, cond: boolean, extra = '') {
@@ -287,6 +287,7 @@ async function main() {
     const allRefIds = [...new Set([...refIds, ...refs.map(r => r.id)])];
     await prisma.notification.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }] } });
     await prisma.activity.deleteMany({ where: { OR: [{ caseId: { in: caseIds } }, { userId: { in: users } }, { entityId: { in: [...allRefIds, ...residents] } }] } });
+    await removeTestReferrals(residents);
     await prisma.jurisdictionReferral.deleteMany({ where: { id: { in: allRefIds } } });
     await prisma.case.deleteMany({ where: { id: { in: caseIds } } });
     await prisma.$transaction(async tx => {

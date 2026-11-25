@@ -54,6 +54,9 @@ export type CaseMinAggregateOutputType = {
   locationLabel: string | null
   municipality: string | null
   province: string | null
+  incidentBarangay: string | null
+  streetId: string | null
+  streetManual: boolean | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -100,6 +103,9 @@ export type CaseMaxAggregateOutputType = {
   locationLabel: string | null
   municipality: string | null
   province: string | null
+  incidentBarangay: string | null
+  streetId: string | null
+  streetManual: boolean | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date | null
@@ -146,6 +152,9 @@ export type CaseCountAggregateOutputType = {
   locationLabel: number
   municipality: number
   province: number
+  incidentBarangay: number
+  streetId: number
+  streetManual: number
   assignedToId: number
   residentId: number
   filedAt: number
@@ -204,6 +213,9 @@ export type CaseMinAggregateInputType = {
   locationLabel?: true
   municipality?: true
   province?: true
+  incidentBarangay?: true
+  streetId?: true
+  streetManual?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -250,6 +262,9 @@ export type CaseMaxAggregateInputType = {
   locationLabel?: true
   municipality?: true
   province?: true
+  incidentBarangay?: true
+  streetId?: true
+  streetManual?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -296,6 +311,9 @@ export type CaseCountAggregateInputType = {
   locationLabel?: true
   municipality?: true
   province?: true
+  incidentBarangay?: true
+  streetId?: true
+  streetManual?: true
   assignedToId?: true
   residentId?: true
   filedAt?: true
@@ -429,6 +447,9 @@ export type CaseGroupByOutputType = {
   locationLabel: string | null
   municipality: string | null
   province: string | null
+  incidentBarangay: string | null
+  streetId: string | null
+  streetManual: boolean | null
   assignedToId: string | null
   residentId: string | null
   filedAt: Date
@@ -498,6 +519,9 @@ export type CaseWhereInput = {
   locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
   municipality?: Prisma.StringNullableFilter<"Case"> | string | null
   province?: Prisma.StringNullableFilter<"Case"> | string | null
+  incidentBarangay?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetId?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"Case"> | boolean | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -575,6 +599,9 @@ export type CaseOrderByWithRelationInput = {
   locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentBarangay?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetId?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetManual?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -656,6 +683,9 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
   municipality?: Prisma.StringNullableFilter<"Case"> | string | null
   province?: Prisma.StringNullableFilter<"Case"> | string | null
+  incidentBarangay?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetId?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"Case"> | boolean | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -733,6 +763,9 @@ export type CaseOrderByWithAggregationInput = {
   locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   municipality?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrderInput | Prisma.SortOrder
+  incidentBarangay?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetId?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetManual?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   residentId?: Prisma.SortOrderInput | Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -787,6 +820,9 @@ export type CaseScalarWhereWithAggregatesInput = {
   locationLabel?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   municipality?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   province?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  incidentBarangay?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  streetId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
+  streetManual?: Prisma.BoolNullableWithAggregatesFilter<"Case"> | boolean | null
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
@@ -833,6 +869,9 @@ export type CaseCreateInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -908,6 +947,9 @@ export type CaseUncheckedCreateInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -983,6 +1025,9 @@ export type CaseUpdateInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1058,6 +1103,9 @@ export type CaseUncheckedUpdateInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1133,6 +1181,9 @@ export type CaseCreateManyInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -1179,6 +1230,9 @@ export type CaseUpdateManyMutationInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1223,6 +1277,9 @@ export type CaseUncheckedUpdateManyInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1284,6 +1341,9 @@ export type CaseCountOrderByAggregateInput = {
   locationLabel?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
   province?: Prisma.SortOrder
+  incidentBarangay?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -1335,6 +1395,9 @@ export type CaseMaxOrderByAggregateInput = {
   locationLabel?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
   province?: Prisma.SortOrder
+  incidentBarangay?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -1381,6 +1444,9 @@ export type CaseMinOrderByAggregateInput = {
   locationLabel?: Prisma.SortOrder
   municipality?: Prisma.SortOrder
   province?: Prisma.SortOrder
+  incidentBarangay?: Prisma.SortOrder
+  streetId?: Prisma.SortOrder
+  streetManual?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   residentId?: Prisma.SortOrder
   filedAt?: Prisma.SortOrder
@@ -1472,6 +1538,10 @@ export type NullableFloatFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -1950,6 +2020,9 @@ export type CaseCreateWithoutAssignedToInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -2024,6 +2097,9 @@ export type CaseUncheckedCreateWithoutAssignedToInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -2127,6 +2203,9 @@ export type CaseScalarWhereInput = {
   locationLabel?: Prisma.StringNullableFilter<"Case"> | string | null
   municipality?: Prisma.StringNullableFilter<"Case"> | string | null
   province?: Prisma.StringNullableFilter<"Case"> | string | null
+  incidentBarangay?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetId?: Prisma.StringNullableFilter<"Case"> | string | null
+  streetManual?: Prisma.BoolNullableFilter<"Case"> | boolean | null
   assignedToId?: Prisma.StringNullableFilter<"Case"> | string | null
   residentId?: Prisma.StringNullableFilter<"Case"> | string | null
   filedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
@@ -2173,6 +2252,9 @@ export type CaseCreateWithoutReportAddendaInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -2247,6 +2329,9 @@ export type CaseUncheckedCreateWithoutReportAddendaInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -2337,6 +2422,9 @@ export type CaseUpdateWithoutReportAddendaInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2411,6 +2499,9 @@ export type CaseUncheckedUpdateWithoutReportAddendaInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2485,6 +2576,9 @@ export type CaseCreateWithoutClarificationsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -2559,6 +2653,9 @@ export type CaseUncheckedCreateWithoutClarificationsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -2649,6 +2746,9 @@ export type CaseUpdateWithoutClarificationsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2723,6 +2823,9 @@ export type CaseUncheckedUpdateWithoutClarificationsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2797,6 +2900,9 @@ export type CaseCreateWithoutInterviewsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -2871,6 +2977,9 @@ export type CaseUncheckedCreateWithoutInterviewsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -2961,6 +3070,9 @@ export type CaseUpdateWithoutInterviewsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3035,6 +3147,9 @@ export type CaseUncheckedUpdateWithoutInterviewsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3109,6 +3224,9 @@ export type CaseCreateWithoutReportDraftsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -3183,6 +3301,9 @@ export type CaseUncheckedCreateWithoutReportDraftsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -3273,6 +3394,9 @@ export type CaseUpdateWithoutReportDraftsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3347,6 +3471,9 @@ export type CaseUncheckedUpdateWithoutReportDraftsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3421,6 +3548,9 @@ export type CaseCreateWithoutVictimSurvivorsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -3495,6 +3625,9 @@ export type CaseUncheckedCreateWithoutVictimSurvivorsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -3585,6 +3718,9 @@ export type CaseUpdateWithoutVictimSurvivorsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3659,6 +3795,9 @@ export type CaseUncheckedUpdateWithoutVictimSurvivorsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3733,6 +3872,9 @@ export type CaseCreateWithoutPartiesInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -3807,6 +3949,9 @@ export type CaseUncheckedCreateWithoutPartiesInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -3897,6 +4042,9 @@ export type CaseUpdateWithoutPartiesInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3971,6 +4119,9 @@ export type CaseUncheckedUpdateWithoutPartiesInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4045,6 +4196,9 @@ export type CaseCreateWithoutSafetyAssessmentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -4119,6 +4273,9 @@ export type CaseUncheckedCreateWithoutSafetyAssessmentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -4209,6 +4366,9 @@ export type CaseUpdateWithoutSafetyAssessmentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4283,6 +4443,9 @@ export type CaseUncheckedUpdateWithoutSafetyAssessmentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4357,6 +4520,9 @@ export type CaseCreateWithoutReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -4431,6 +4597,9 @@ export type CaseUncheckedCreateWithoutReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -4521,6 +4690,9 @@ export type CaseUpdateWithoutReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4595,6 +4767,9 @@ export type CaseUncheckedUpdateWithoutReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4669,6 +4844,9 @@ export type CaseCreateWithoutServiceReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -4743,6 +4921,9 @@ export type CaseUncheckedCreateWithoutServiceReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -4833,6 +5014,9 @@ export type CaseUpdateWithoutServiceReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4907,6 +5091,9 @@ export type CaseUncheckedUpdateWithoutServiceReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4981,6 +5168,9 @@ export type CaseCreateWithoutAssessmentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -5055,6 +5245,9 @@ export type CaseUncheckedCreateWithoutAssessmentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -5145,6 +5338,9 @@ export type CaseUpdateWithoutAssessmentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5219,6 +5415,9 @@ export type CaseUncheckedUpdateWithoutAssessmentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5293,6 +5492,9 @@ export type CaseCreateWithoutAttachmentsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -5367,6 +5569,9 @@ export type CaseUncheckedCreateWithoutAttachmentsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -5457,6 +5662,9 @@ export type CaseUpdateWithoutAttachmentsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5531,6 +5739,9 @@ export type CaseUncheckedUpdateWithoutAttachmentsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5605,6 +5816,9 @@ export type CaseCreateWithoutResidentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -5679,6 +5893,9 @@ export type CaseUncheckedCreateWithoutResidentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -5779,6 +5996,9 @@ export type CaseCreateWithoutJurisdictionReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -5853,6 +6073,9 @@ export type CaseUncheckedCreateWithoutJurisdictionReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -5943,6 +6166,9 @@ export type CaseUpdateWithoutJurisdictionReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6017,6 +6243,9 @@ export type CaseUncheckedUpdateWithoutJurisdictionReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6091,6 +6320,9 @@ export type CaseCreateWithoutActivitiesInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -6165,6 +6397,9 @@ export type CaseUncheckedCreateWithoutActivitiesInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -6255,6 +6490,9 @@ export type CaseUpdateWithoutActivitiesInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6329,6 +6567,9 @@ export type CaseUncheckedUpdateWithoutActivitiesInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6403,6 +6644,9 @@ export type CaseCreateWithoutNotificationsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -6477,6 +6721,9 @@ export type CaseUncheckedCreateWithoutNotificationsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -6567,6 +6814,9 @@ export type CaseUpdateWithoutNotificationsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6641,6 +6891,9 @@ export type CaseUncheckedUpdateWithoutNotificationsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6715,6 +6968,9 @@ export type CaseCreateWithoutFollowUpsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -6789,6 +7045,9 @@ export type CaseUncheckedCreateWithoutFollowUpsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -6879,6 +7138,9 @@ export type CaseUpdateWithoutFollowUpsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6953,6 +7215,9 @@ export type CaseUncheckedUpdateWithoutFollowUpsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7027,6 +7292,9 @@ export type CaseCreateWithoutIntakeInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -7101,6 +7369,9 @@ export type CaseUncheckedCreateWithoutIntakeInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -7191,6 +7462,9 @@ export type CaseUpdateWithoutIntakeInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7265,6 +7539,9 @@ export type CaseUncheckedUpdateWithoutIntakeInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7339,6 +7616,9 @@ export type CaseCreateWithoutAssessmentHistoryInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -7413,6 +7693,9 @@ export type CaseUncheckedCreateWithoutAssessmentHistoryInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -7503,6 +7786,9 @@ export type CaseUpdateWithoutAssessmentHistoryInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7577,6 +7863,9 @@ export type CaseUncheckedUpdateWithoutAssessmentHistoryInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7651,6 +7940,9 @@ export type CaseCreateWithoutOfficialIntakeInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -7725,6 +8017,9 @@ export type CaseUncheckedCreateWithoutOfficialIntakeInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -7815,6 +8110,9 @@ export type CaseUpdateWithoutOfficialIntakeInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7889,6 +8187,9 @@ export type CaseUncheckedUpdateWithoutOfficialIntakeInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7963,6 +8264,9 @@ export type CaseCreateWithoutHearingsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -8037,6 +8341,9 @@ export type CaseUncheckedCreateWithoutHearingsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -8127,6 +8434,9 @@ export type CaseUpdateWithoutHearingsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8201,6 +8511,9 @@ export type CaseUncheckedUpdateWithoutHearingsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8275,6 +8588,9 @@ export type CaseCreateWithoutVawcAppointmentsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -8349,6 +8665,9 @@ export type CaseUncheckedCreateWithoutVawcAppointmentsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -8439,6 +8758,9 @@ export type CaseUpdateWithoutVawcAppointmentsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8513,6 +8835,9 @@ export type CaseUncheckedUpdateWithoutVawcAppointmentsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8587,6 +8912,9 @@ export type CaseCreateWithoutVawcBposInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -8661,6 +8989,9 @@ export type CaseUncheckedCreateWithoutVawcBposInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -8751,6 +9082,9 @@ export type CaseUpdateWithoutVawcBposInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8825,6 +9159,9 @@ export type CaseUncheckedUpdateWithoutVawcBposInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8899,6 +9236,9 @@ export type CaseCreateWithoutVawcReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -8973,6 +9313,9 @@ export type CaseUncheckedCreateWithoutVawcReferralsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -9063,6 +9406,9 @@ export type CaseUpdateWithoutVawcReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9137,6 +9483,9 @@ export type CaseUncheckedUpdateWithoutVawcReferralsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9211,6 +9560,9 @@ export type CaseCreateWithoutKpReviewsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -9285,6 +9637,9 @@ export type CaseUncheckedCreateWithoutKpReviewsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -9375,6 +9730,9 @@ export type CaseUpdateWithoutKpReviewsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9449,6 +9807,9 @@ export type CaseUncheckedUpdateWithoutKpReviewsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9523,6 +9884,9 @@ export type CaseCreateWithoutAcknowledgementInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -9597,6 +9961,9 @@ export type CaseUncheckedCreateWithoutAcknowledgementInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -9687,6 +10054,9 @@ export type CaseUpdateWithoutAcknowledgementInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9761,6 +10131,9 @@ export type CaseUncheckedUpdateWithoutAcknowledgementInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9835,6 +10208,9 @@ export type CaseCreateWithoutPangkatInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -9909,6 +10285,9 @@ export type CaseUncheckedCreateWithoutPangkatInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -9999,6 +10378,9 @@ export type CaseUpdateWithoutPangkatInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10073,6 +10455,9 @@ export type CaseUncheckedUpdateWithoutPangkatInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10147,6 +10532,9 @@ export type CaseCreateWithoutKpFormRecordsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -10221,6 +10609,9 @@ export type CaseUncheckedCreateWithoutKpFormRecordsInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -10311,6 +10702,9 @@ export type CaseUpdateWithoutKpFormRecordsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10385,6 +10779,9 @@ export type CaseUncheckedUpdateWithoutKpFormRecordsInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10459,6 +10856,9 @@ export type CaseCreateWithoutMatchesAsSubjectInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -10533,6 +10933,9 @@ export type CaseUncheckedCreateWithoutMatchesAsSubjectInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -10612,6 +11015,9 @@ export type CaseCreateWithoutMatchesAsCandidateInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -10686,6 +11092,9 @@ export type CaseUncheckedCreateWithoutMatchesAsCandidateInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -10776,6 +11185,9 @@ export type CaseUpdateWithoutMatchesAsSubjectInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10850,6 +11262,9 @@ export type CaseUncheckedUpdateWithoutMatchesAsSubjectInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10935,6 +11350,9 @@ export type CaseUpdateWithoutMatchesAsCandidateInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11009,6 +11427,9 @@ export type CaseUncheckedUpdateWithoutMatchesAsCandidateInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11083,6 +11504,9 @@ export type CaseCreateWithoutMatchScanInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
   updatedAt?: Date | string
@@ -11157,6 +11581,9 @@ export type CaseUncheckedCreateWithoutMatchScanInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   residentId?: string | null
   filedAt?: Date | string
@@ -11247,6 +11674,9 @@ export type CaseUpdateWithoutMatchScanInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11321,6 +11751,9 @@ export type CaseUncheckedUpdateWithoutMatchScanInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11395,6 +11828,9 @@ export type CaseCreateManyAssignedToInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   residentId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -11440,6 +11876,9 @@ export type CaseUpdateWithoutAssignedToInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11514,6 +11953,9 @@ export type CaseUncheckedUpdateWithoutAssignedToInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11588,6 +12030,9 @@ export type CaseUncheckedUpdateManyWithoutAssignedToInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   residentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11633,6 +12078,9 @@ export type CaseCreateManyResidentInput = {
   locationLabel?: string | null
   municipality?: string | null
   province?: string | null
+  incidentBarangay?: string | null
+  streetId?: string | null
+  streetManual?: boolean | null
   assignedToId?: string | null
   filedAt?: Date | string
   resolvedAt?: Date | string | null
@@ -11678,6 +12126,9 @@ export type CaseUpdateWithoutResidentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11752,6 +12203,9 @@ export type CaseUncheckedUpdateWithoutResidentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11826,6 +12280,9 @@ export type CaseUncheckedUpdateManyWithoutResidentInput = {
   locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incidentBarangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetManual?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12091,6 +12548,9 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   locationLabel?: boolean
   municipality?: boolean
   province?: boolean
+  incidentBarangay?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -12169,6 +12629,9 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   locationLabel?: boolean
   municipality?: boolean
   province?: boolean
+  incidentBarangay?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -12217,6 +12680,9 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   locationLabel?: boolean
   municipality?: boolean
   province?: boolean
+  incidentBarangay?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -12265,6 +12731,9 @@ export type CaseSelectScalar = {
   locationLabel?: boolean
   municipality?: boolean
   province?: boolean
+  incidentBarangay?: boolean
+  streetId?: boolean
+  streetManual?: boolean
   assignedToId?: boolean
   residentId?: boolean
   filedAt?: boolean
@@ -12293,7 +12762,7 @@ export type CaseSelectScalar = {
   submissionKey?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "residentOriginalNarrative" | "narrativeAssist" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo" | "submissionKey", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "caseNumber" | "residentName" | "caseType" | "status" | "riskLevel" | "barangay" | "description" | "residentOriginalNarrative" | "narrativeAssist" | "notes" | "language" | "latitude" | "longitude" | "locationLabel" | "municipality" | "province" | "incidentBarangay" | "streetId" | "streetManual" | "assignedToId" | "residentId" | "filedAt" | "resolvedAt" | "updatedAt" | "informationCompleteness" | "requiresOfficerReview" | "triageStatus" | "progressState" | "lastResidentUpdateAt" | "lastOfficerActionAt" | "reminderSentAt" | "contactPreference" | "contactSafetyNote" | "reportingRelationship" | "affectedPersonNote" | "reporterIdentityWithheld" | "reportPath" | "reportingChannel" | "incidentDate" | "incidentTimeApprox" | "resolutionType" | "resolutionSummary" | "resolvedById" | "witnessInfo" | "submissionKey", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Case$assignedToArgs<ExtArgs>
   resident?: boolean | Prisma.Case$residentArgs<ExtArgs>
@@ -12440,6 +12909,18 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     locationLabel: string | null
     municipality: string | null
     province: string | null
+    /**
+     * The incident's barangay as the resident chose it (030). `barangay` above still holds the street.
+     */
+    incidentBarangay: string | null
+    /**
+     * The VerifiedStreet chosen from the list (030) - checked on the server to belong to the incident's barangay.
+     */
+    streetId: string | null
+    /**
+     * True when the street was typed by hand (not chosen from a verified list). Null on cases filed before 030.
+     */
+    streetManual: boolean | null
     assignedToId: string | null
     residentId: string | null
     filedAt: Date
@@ -13013,6 +13494,9 @@ export interface CaseFieldRefs {
   readonly locationLabel: Prisma.FieldRef<"Case", 'String'>
   readonly municipality: Prisma.FieldRef<"Case", 'String'>
   readonly province: Prisma.FieldRef<"Case", 'String'>
+  readonly incidentBarangay: Prisma.FieldRef<"Case", 'String'>
+  readonly streetId: Prisma.FieldRef<"Case", 'String'>
+  readonly streetManual: Prisma.FieldRef<"Case", 'Boolean'>
   readonly assignedToId: Prisma.FieldRef<"Case", 'String'>
   readonly residentId: Prisma.FieldRef<"Case", 'String'>
   readonly filedAt: Prisma.FieldRef<"Case", 'DateTime'>

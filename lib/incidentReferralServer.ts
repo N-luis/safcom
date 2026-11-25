@@ -10,6 +10,7 @@ import { isUniqueViolationOn } from './caseNumber';
 import { fingerprint, type IncomingPhoto } from './evidenceServer';
 import { checkAgainstJurisdiction } from './jurisdictionServer';
 import { createSchema, fileResidentCase, type ResidentCaseInput } from './residentCaseFiling';
+import { resolveIncidentStreet } from './verifiedStreets';
 import {
   REFERRAL_KINDS, REFERRAL_STATUSES, REFERRAL_STATUS_FOR_RESIDENT, incidentOutcome, referralReason, validationSummary,
   type LocationCheck, type LocationInput, type ReferralKind, type ReferralStatus,
@@ -130,6 +131,8 @@ export interface SavedReferral {
 export async function saveIncidentReferral(p: {
   residentId: string; data: ResidentCaseInput; photos: IncomingPhoto[]; unclearWordCount: number;
   check: LocationCheck; kind: 'OUTSIDE_JURISDICTION' | 'LOCATION_VERIFICATION';
+  /** The street as the server checked it (lib/verifiedStreets.ts). */
+  street?: { streetId: string | null; manual: boolean | null };
 }): Promise<SavedReferral> {
   const { residentId, data, check, kind } = p;
   const key = data.submissionKey ?? null;
@@ -184,7 +187,8 @@ export async function saveIncidentReferral(p: {
           referenceNumber, residentId, kind, status, urgent, source: 'REPORT_FORM', submissionKey: key,
           reportingRelationship: relationship,
           province: data.incidentProvince || null, municipality: data.incidentMunicipality || null, barangay: data.incidentBarangay || null,
-          street: data.barangay || null, locationDetails: data.incidentLocationDetails || data.locationLabel || null,
+          street: data.barangay || null, streetId: p.street?.streetId ?? null, streetManual: p.street?.manual ?? null,
+          locationDetails: data.incidentLocationDetails || data.locationLabel || null,
           latitude: pin?.latitude ?? null, longitude: pin?.longitude ?? null,
           summary: data.description,
           residentOriginalNarrative: data.narrativeAssist ? data.residentOriginalNarrative ?? null : null,
@@ -405,6 +409,7 @@ export async function actOnReferral(actor: { id: string; role: string }, id: str
     case 'relocate': {
       // The place changed: the server checks it again, and the earlier decision stays in the history.
       const check = await checkAgainstJurisdiction(a.location, 'incident');
+      const st = await resolveIncidentStreet({ province: a.location.province, municipality: a.location.municipality, barangay: a.location.barangay, street: a.location.street });
       if (check.status === 'INCOMPLETE') return fail(400, check.explanation);
       const outcome = incidentOutcome(check);
       const kind: ReferralKind = outcome === 'REFERRAL' ? 'OUTSIDE_JURISDICTION' : 'LOCATION_VERIFICATION';
@@ -414,7 +419,8 @@ export async function actOnReferral(actor: { id: string; role: string }, id: str
       await prisma.$transaction(async tx => {
         await tx.jurisdictionReferral.update({ where: { id }, data: {
           province: a.location.province || null, municipality: a.location.municipality || null, barangay: a.location.barangay || null,
-          street: a.location.street || null, locationDetails: a.location.details || null, latitude: pin?.latitude ?? null, longitude: pin?.longitude ?? null,
+          street: st.ok ? st.streetName : a.location.street || null, streetId: st.ok ? st.streetId : null, streetManual: st.ok ? st.manual : null,
+          locationDetails: a.location.details || null, latitude: pin?.latitude ?? null, longitude: pin?.longitude ?? null,
           locationCheck: JSON.parse(JSON.stringify(check)), validationResult: validationSummary(check), reason: referralReason(check),
           recommendedDestination: check.destination ? JSON.parse(JSON.stringify(check.destination)) : undefined,
           kind, status, ...stamp,
@@ -444,12 +450,14 @@ export async function actOnReferral(actor: { id: string; role: string }, id: str
       // The location as it stands now (corrected, if an official corrected it): the report's own fields otherwise.
       const parsed = createSchema.safeParse({ ...(r.reportPayload as object),
         incidentProvince: r.province ?? undefined, incidentMunicipality: r.municipality ?? undefined, incidentBarangay: r.barangay ?? undefined,
-        barangay: r.street ?? undefined, incidentLocationDetails: r.locationDetails ?? undefined,
+        barangay: r.street ?? undefined, streetId: r.streetId ?? undefined, incidentLocationDetails: r.locationDetails ?? undefined,
         latitude: r.latitude ?? undefined, longitude: r.longitude ?? undefined });
       if (!parsed.success) return fail(400, `The saved report could not be read: ${parsed.error.issues[0]?.message ?? 'invalid'}`);
       const rows = await prisma.jurisdictionReferralAttachment.findMany({ where: { referralId: id }, orderBy: { createdAt: 'asc' } });
       const photos: IncomingPhoto[] = rows.map(x => ({ filename: x.filename, mimeType: x.mimeType, size: x.size, data: new Uint8Array(x.data) as Uint8Array<ArrayBuffer>, sha256: x.sha256 || fingerprint(x.data) }));
-      const res = await fileResidentCase({ residentId: r.residentId, data: parsed.data, photos, unclearWordCount: (parsed.data.documentUnclearWords ?? []).length, locationReview: false });
+      const st = await resolveIncidentStreet({ province: r.province, municipality: r.municipality, barangay: r.barangay, street: r.street, streetId: r.streetId });
+      const res = await fileResidentCase({ residentId: r.residentId, data: parsed.data, photos, unclearWordCount: (parsed.data.documentUnclearWords ?? []).length, locationReview: false,
+        street: st.ok ? { streetId: st.streetId, manual: st.manual } : { streetId: null, manual: true } });
       const json = await res.json().catch(() => null) as { success?: boolean; data?: { id: string; caseNumber: string }; error?: string } | null;
       if (!res.ok || !json?.data?.id) return fail(502, json?.error ?? 'The case could not be filed right now. Nothing was changed.');
       const c = json.data;

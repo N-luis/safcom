@@ -17,7 +17,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import StreetSelect from '@/components/forms/StreetSelect';
+import IncidentStreetField, { useVerifiedStreets, streetIdOf, placeKey } from '@/components/forms/IncidentStreetField';
 import PhotoAttachments, { type PickedPhoto } from '@/components/forms/PhotoAttachments';
 import ReportSidePanel from '@/components/forms/ReportSidePanel';
 import { useLanguage } from '@/lib/i18n';
@@ -109,7 +109,7 @@ const schema = z.object({
   description:     z.string().trim().min(10, 'Tell us what happened, in a few words at least').max(DESCRIPTION_MAX, `Keep it under ${DESCRIPTION_MAX} characters`),
   // The street is stored on the case itself so reports and the risk heatmap
   // group by where the incident happened, not by the reporter's barangay.
-  street:          z.string().min(1, 'Please select the street'),
+  street:          z.string().trim().min(1, 'Choose or enter the street where it happened'),
   location:        z.string().optional(),
   additionalNotes: z.string().optional(),
   // How it is safe to reach them. Optional; shown to the officer handling
@@ -222,6 +222,18 @@ export default function ReportCasePage() {
   const verifyMode = placeOutcome === 'LOCATION_VERIFICATION';
   const sendPin = Boolean(place?.chosen) && usePin;
   const placeLine = [streetValue, landmarkValue, area.barangay, area.municipality, area.province].map(v => (v ?? '').trim()).filter(Boolean).join(', ');
+
+  // The Street field follows the place (030): that barangay's verified streets, or a box to type the street
+  // in. A new province, municipality or barangay clears the street - one from the old place never carries over.
+  const streetList = useVerifiedStreets(area);
+  const lastPlace = useRef(placeKey(area));
+  useEffect(() => {
+    const k = placeKey(area);
+    if (k === lastPlace.current) return;
+    lastPlace.current = k;
+    streetFromMap.current = '';
+    setValue('street', '', { shouldDirty: true });
+  }, [area, setValue]);
   const [intakeResult, setIntakeResult] = useState<IntakeResult | null>(null);
   // Which desk the assistant's reading points to, once there is one.
   const desk = intakeResult?.route ?? null;
@@ -371,6 +383,10 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
           // Sent as `barangay` because that is the Case column the Street
           // field reads from across the app.
           barangay: data.street,
+          // Which verified street it is, when it was chosen from the place's list; otherwise typed by hand.
+          // The server checks the street belongs to the barangay given.
+          streetId: streetIdOf(streetList, data.street) ?? undefined,
+          streetManual: !streetIdOf(streetList, data.street) && Boolean(data.street.trim()),
           // Only sent once a pin is actually down. Nothing about the
           // resident's own position is recorded unless they placed it.
           latitude: sendPin && place ? place.latitude : undefined,
@@ -746,11 +762,11 @@ const analysing = phase === 'preparing' || phase === 'reading_document' || phase
                   name="street"
                   control={control}
                   render={({ field }) => (
-                    <StreetSelect
+                    <IncidentStreetField
+                      state={streetList}
                       value={field.value ?? ''}
                       onChange={field.onChange}
-                      required
-                      size="medium"
+                      disabled={isSubmitting || analysing}
                       error={!!errors.street}
                       helperText={
                         errors.street?.message

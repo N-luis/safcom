@@ -438,7 +438,8 @@ export const ModelName = {
   CaseMatchEvent: 'CaseMatchEvent',
   CaseMatchScan: 'CaseMatchScan',
   AuthSession: 'AuthSession',
-  RateLimitCounter: 'RateLimitCounter'
+  RateLimitCounter: 'RateLimitCounter',
+  VerifiedStreet: 'VerifiedStreet'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -454,7 +455,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "jurisdictionReferralEvent" | "jurisdictionReferralAttachment" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan" | "authSession" | "rateLimitCounter"
+    modelProps: "user" | "case" | "reportAddendum" | "clarificationRequest" | "caseInterview" | "reportDraft" | "caseVictimSurvivor" | "caseParty" | "caseSafetyAssessment" | "caseReferral" | "serviceReferral" | "serviceReferralEvent" | "serviceReferralAttachment" | "caseAssessment" | "caseAttachment" | "report" | "resident" | "residencyEvent" | "jurisdictionConfig" | "jurisdictionReferral" | "jurisdictionReferralEvent" | "jurisdictionReferralAttachment" | "emailVerificationToken" | "activity" | "notification" | "alert" | "caseFollowUp" | "message" | "caseIntake" | "assessmentHistory" | "riskMatrixChunk" | "aiUsage" | "reporterAccessLog" | "officialIntake" | "officialIntakeRevision" | "caseHearing" | "caseHearingNotice" | "caseHearingEvent" | "caseHearingRequest" | "vawcAppointment" | "vawcAppointmentEvent" | "vawcAppointmentRequest" | "vawcBpo" | "vawcReferral" | "vawcProceedingEvent" | "caseKpReview" | "acknowledgementLetter" | "casePangkat" | "casePangkatMember" | "kpFormRecord" | "caseMatch" | "caseMatchEvent" | "caseMatchScan" | "authSession" | "rateLimitCounter" | "verifiedStreet"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4528,6 +4529,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    VerifiedStreet: {
+      payload: Prisma.$VerifiedStreetPayload<ExtArgs>
+      fields: Prisma.VerifiedStreetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VerifiedStreetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VerifiedStreetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        findFirst: {
+          args: Prisma.VerifiedStreetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VerifiedStreetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        findMany: {
+          args: Prisma.VerifiedStreetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>[]
+        }
+        create: {
+          args: Prisma.VerifiedStreetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        createMany: {
+          args: Prisma.VerifiedStreetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VerifiedStreetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>[]
+        }
+        delete: {
+          args: Prisma.VerifiedStreetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        update: {
+          args: Prisma.VerifiedStreetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        deleteMany: {
+          args: Prisma.VerifiedStreetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VerifiedStreetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VerifiedStreetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>[]
+        }
+        upsert: {
+          args: Prisma.VerifiedStreetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerifiedStreetPayload>
+        }
+        aggregate: {
+          args: Prisma.VerifiedStreetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVerifiedStreet>
+        }
+        groupBy: {
+          args: Prisma.VerifiedStreetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerifiedStreetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VerifiedStreetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerifiedStreetCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4603,6 +4678,9 @@ export const CaseScalarFieldEnum = {
   locationLabel: 'locationLabel',
   municipality: 'municipality',
   province: 'province',
+  incidentBarangay: 'incidentBarangay',
+  streetId: 'streetId',
+  streetManual: 'streetManual',
   assignedToId: 'assignedToId',
   residentId: 'residentId',
   filedAt: 'filedAt',
@@ -5038,6 +5116,8 @@ export const JurisdictionReferralScalarFieldEnum = {
   municipality: 'municipality',
   barangay: 'barangay',
   street: 'street',
+  streetId: 'streetId',
+  streetManual: 'streetManual',
   locationDetails: 'locationDetails',
   latitude: 'latitude',
   longitude: 'longitude',
@@ -5766,6 +5846,23 @@ export const RateLimitCounterScalarFieldEnum = {
 export type RateLimitCounterScalarFieldEnum = (typeof RateLimitCounterScalarFieldEnum)[keyof typeof RateLimitCounterScalarFieldEnum]
 
 
+export const VerifiedStreetScalarFieldEnum = {
+  id: 'id',
+  province: 'province',
+  municipality: 'municipality',
+  barangay: 'barangay',
+  name: 'name',
+  aliases: 'aliases',
+  source: 'source',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type VerifiedStreetScalarFieldEnum = (typeof VerifiedStreetScalarFieldEnum)[keyof typeof VerifiedStreetScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -6075,6 +6172,7 @@ export type GlobalOmitConfig = {
   caseMatchScan?: Prisma.CaseMatchScanOmit
   authSession?: Prisma.AuthSessionOmit
   rateLimitCounter?: Prisma.RateLimitCounterOmit
+  verifiedStreet?: Prisma.VerifiedStreetOmit
 }
 
 /* Types for Logging */

@@ -42,3 +42,18 @@ export function inBarangay<A extends unknown[]>(post: (req: NextRequest, ...rest
     return post(next, ...rest);
   };
 }
+
+/**
+ * Remove the referral records of test residents - and the notices they sent.
+ * A referral notifies every active captain (and the VAWC desk for a
+ * confidential one), so a suite's cleanup must also remove those notices
+ * from real officials' inboxes, found by the referral's reference number.
+ */
+export async function removeTestReferrals(residentIds: string[]) {
+  const { prisma } = await import('../lib/prisma');
+  const refs = await prisma.jurisdictionReferral.findMany({ where: { residentId: { in: residentIds } }, select: { id: true, referenceNumber: true } });
+  const numbers = refs.map(r => r.referenceNumber).filter((n): n is string => Boolean(n));
+  if (numbers.length) await prisma.notification.deleteMany({ where: { OR: numbers.map(n => ({ title: { contains: n } })) } });
+  await prisma.activity.deleteMany({ where: { entityType: 'JurisdictionReferral', entityId: { in: refs.map(r => r.id) } } });
+  await prisma.jurisdictionReferral.deleteMany({ where: { id: { in: refs.map(r => r.id) } } });
+}
