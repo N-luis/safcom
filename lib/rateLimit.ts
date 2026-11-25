@@ -38,3 +38,22 @@ export function rateLimit(key: string, { max, windowMs }: Limit, now = Date.now(
 
 /** The intake: generous for a person answering questions, tight for a loop. */
 export const INTAKE_LIMIT: Limit = { max: 40, windowMs: 10 * 60 * 1000 };
+
+/**
+ * Failure counting, for sign-in: only failed attempts count, so a person who
+ * signs in correctly is never slowed down, and a run of wrong passwords is
+ * stopped. Same in-memory store as rateLimit (per server instance).
+ */
+export function failuresExceeded(key: string, { max, windowMs }: Limit, now = Date.now()): { limited: boolean; retryAfterSeconds: number } {
+  const recent = (hits.get(key) ?? []).filter(t => t > now - windowMs);
+  hits.set(key, recent);
+  return recent.length >= max
+    ? { limited: true, retryAfterSeconds: Math.max(1, Math.ceil((recent[0] + windowMs - now) / 1000)) }
+    : { limited: false, retryAfterSeconds: 0 };
+}
+export function recordFailure(key: string, now = Date.now()) {
+  hits.set(key, [...(hits.get(key) ?? []), now]);
+}
+export function clearFailures(key: string) {
+  hits.delete(key);
+}
